@@ -6,180 +6,183 @@
         xmlns:local="clr-namespace:NewLaserProject.ViewModels"       
         xmlns:dd="urn:gong-wpf-dragdrop"
         mc:Ignorable="d"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         Title="TechnologyWizardView" Height="450" Width="800">
+    
     <Window.Resources>
-        <Style x:Key="DefaultStyle" TargetType="{x:Type FrameworkElement}">
-            <Setter Property="Height" Value="20"/>
-        </Style>
-        <Style x:Key="BlockButton" TargetType="Button" BasedOn="{StaticResource DefaultStyle}"/>
-        <Style x:Key="BlockLabel" TargetType="Label" BasedOn="{StaticResource DefaultStyle}">
-            <Setter Property="FontSize" Value="9"/>
-        </Style>
-        <Style x:Key="BlockTextBox" TargetType="TextBox" BasedOn="{StaticResource DefaultStyle}"/>
 
-        
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="WizardDictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="BlockButton" TargetType="Button" BasedOn="{StaticResource DefaultStyle}"/>
+            
+            <Style x:Key="BlockLabel" TargetType="Label">
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="FontSize" Value="12"/>
+            </Style>
+            <Style x:Key="BlockTextBox" TargetType="TextBox" BasedOn="{StaticResource DefaultStyle}">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
+            
 
-        <Style TargetType="ItemsControl" x:Key="ModuleItems">
-            <Style.Resources>
-                <Style x:Key="DefaultStyle" TargetType="{x:Type FrameworkElement}">
-                    <Setter Property="Height" Value="20"/>
-                </Style>
-                <Style TargetType="Button" BasedOn="{StaticResource DefaultStyle}">
-                    <Setter Property="FontSize" Value="9"/>
-                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                    <Setter Property="Margin"  Value="1"/>
-                </Style>
-                <Style TargetType="Label" BasedOn="{StaticResource DefaultStyle}">
-                    <Setter Property="FontSize" Value="9"/>
-                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                </Style>
-                <Style TargetType="TextBox" BasedOn="{StaticResource DefaultStyle}"/>
-            </Style.Resources>
-            <Setter Property="BorderBrush" Value="AliceBlue"/>
-            <Setter Property="BorderThickness" Value="2"/>            
-            <Setter Property="Padding" Value="1"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="ItemsPanel">
-                <Setter.Value>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"
+            <Style TargetType="ItemsControl" x:Key="ModuleItems" BasedOn="{StaticResource CoorBlock}">
+                <Style.Resources>
+                    <Style x:Key="DefaultStyle" TargetType="{x:Type FrameworkElement}">
+                        <Setter Property="Height" Value="20"/>
+                    </Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource DefaultStyle}">
+                        <Setter Property="FontSize" Value="9"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        <Setter Property="Margin"  Value="1"/>
+                    </Style>
+                    <Style TargetType="Label" BasedOn="{StaticResource DefaultStyle}">
+                        <Setter Property="FontSize" Value="9"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource DefaultStyle}"/>
+                </Style.Resources>
+                <Setter Property="BorderBrush" Value="AliceBlue"/>                
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="1"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
                             Background="Gray"                            
                             Height="22"                            
                         />
-                    </ItemsPanelTemplate>
-                </Setter.Value>
-            </Setter>            
-        </Style>
-        <Style TargetType="ItemsControl" x:Key="LoopItems">
-            <Setter Property="BorderBrush" Value="Red"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Padding" Value="1"/>
-            <Setter Property="MinWidth" Value="150"/>
-            <Setter Property="MinHeight" Value="100"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Label Content="Loop Container"/>
-                            <ContentPresenter Grid.Row="1"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="ItemsPanel">
-                <Setter.Value>
-                    <ItemsPanelTemplate>
-                        <StackPanel Background="AliceBlue"/>
-                    </ItemsPanelTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="GroupBox" x:Key="LoopModule">
-            <Setter Property="Header">
-                <Setter.Value>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Повторить" FontSize="10"/>
-                        <TextBox Width="30" Height="18"/>
-                        <Label Content="раз" FontSize="10"/>
-                    </StackPanel>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        
-        <DataTemplate x:Key="AddDiameter">
-            <ItemsControl Style="{StaticResource ModuleItems}" Background="AntiqueWhite" 
-                          HorizontalAlignment="Stretch" 
-                          VerticalAlignment="Stretch"
-                          >
-                <Label Content="Изменить диаметр:"/>
-                <Button Command="{Binding ClickButton}" Width="20"/>
-                <TextBox Text="{Binding LoopCount}" Width="50"/>
-                <Label Content="мм"/>
-            </ItemsControl>
-        </DataTemplate>
-
-        <DataTemplate x:Key="AddZ">
-            <ItemsControl Style="{StaticResource ModuleItems}" Background="AntiqueWhite" 
-                          HorizontalAlignment="Stretch" 
-                          VerticalAlignment="Stretch"
-                          >
-                <Label Content="Изменить Z:"/>
-                <Button Command="{Binding ClickButton}" Width="20"/>
-                <TextBox Text="{Binding LoopCount}" Width="50"/>
-                <Label Content="мм"/>
-            </ItemsControl>
-        </DataTemplate>
-        
-        <DataTemplate x:Key="Pierce">
-            <ItemsControl Style="{StaticResource ModuleItems}" Background="AntiqueWhite" 
-                          HorizontalAlignment="Stretch" 
-                          VerticalAlignment="Stretch"
-                          >
-                <Label Content="Прошивка"/>
-                <Button Content="Параметры" Command="{Binding ClickButton}"/>                
-            </ItemsControl>
-        </DataTemplate>
-
-        <Style x:Key="BaseContainer" TargetType="ContentControl">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static local:ModuleType.AddDiameter}">
-                    <Setter Property="ContentTemplate" Value="{StaticResource AddDiameter}" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static local:ModuleType.AddZ}">
-                    <Setter Property="ContentTemplate" Value="{StaticResource AddZ}" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static local:ModuleType.Pierce}">
-                    <Setter Property="ContentTemplate" Value="{StaticResource Pierce}" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
+                        </ItemsPanelTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="ItemsControl" x:Key="LoopItems">
+                <Setter Property="BorderBrush" Value="Red"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="1"/>
+                <Setter Property="MinWidth" Value="150"/>
+                <Setter Property="MinHeight" Value="100"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Label Content="Loop Container"/>
+                                <ContentPresenter Grid.Row="1"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <StackPanel Background="AliceBlue"/>
+                        </ItemsPanelTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="GroupBox" x:Key="LoopModule">
+                <Setter Property="Header">
+                    <Setter.Value>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Повторить" FontSize="10"/>
+                            <TextBox Width="30" Height="18"/>
+                            <Label Content="раз" FontSize="10"/>
+                        </StackPanel>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
 
-        <DataTemplate x:Key="Loop">
-            <GroupBox DataContext="{Binding}">
-                <GroupBox.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Повторить "/>
-                        <TextBox Text="{Binding LoopCount}" Width="20"/>
-                        <Label Content="раз"/>
-                    </StackPanel>
-                </GroupBox.Header>
+            <DataTemplate x:Key="AddDiameter">
+                <ItemsControl Style="{StaticResource SizeBlock}">
+                    <Label Content="Изменить диаметр:" Style="{StaticResource BlockLabel}"/>
+                    <Button Command="{Binding ClickButton}" Width="20" Style="{StaticResource BlockButton}"/>
+                    <TextBox Text="{Binding LoopCount}" Width="40" Style="{StaticResource BlockTextBox}"/>
+                    <Label Content="мм" Style="{StaticResource BlockLabel}"/>
+                </ItemsControl>
+            </DataTemplate>
+
+            <DataTemplate x:Key="AddZ">
+                <ItemsControl Style="{StaticResource CoorBlock}">
+                    <Label Content="Изменить Z:" Style="{StaticResource BlockLabel}"/>
+                    <Button Command="{Binding ClickButton}" Width="20" Style="{StaticResource BlockButton}"/>
+                    <TextBox Text="{Binding LoopCount}" Width="40" Style="{StaticResource BlockTextBox}"/>
+                    <Label Content="мм" Style="{StaticResource BlockLabel}"/>
+                </ItemsControl>
+            </DataTemplate>
+
+            <DataTemplate x:Key="Pierce">
+                <ItemsControl Style="{StaticResource PierceBlock}">
+                    <Label Content="Прошивка" Style="{StaticResource BlockLabel}"/>
+                    <Button Content="Параметры" Command="{Binding ClickButton}" Style="{StaticResource SettingsButton}">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="2"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </ItemsControl>
+            </DataTemplate>
+
+            <Style x:Key="BaseContainer" TargetType="ContentControl">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static local:ModuleType.AddDiameter}">
+                        <Setter Property="ContentTemplate" Value="{StaticResource AddDiameter}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static local:ModuleType.AddZ}">
+                        <Setter Property="ContentTemplate" Value="{StaticResource AddZ}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static local:ModuleType.Pierce}">
+                        <Setter Property="ContentTemplate" Value="{StaticResource Pierce}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
+
+            <DataTemplate x:Key="Loop">
+                <GroupBox Style="{StaticResource LoopBox}" DataContext="{Binding}">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">                            
+                            <Label Content="Количество повторений" Style="{StaticResource BlockLabel}"/>
+                            <TextBox Text="{Binding LoopCount, FallbackValue=2}" Width="20" Style="{StaticResource BlockTextBox}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
                     <ItemsControl                           
                           ItemsSource="{Binding Children}"
                           Background="AntiqueWhite" 
                           HorizontalAlignment="Stretch" 
                           VerticalAlignment="Stretch"                             
-                          MinHeight="100"
+                          MinHeight="50"
                           dd:DragDrop.IsDragSource="{Binding CanAcceptChildren}"  
                           dd:DragDrop.IsDropTarget="{Binding CanAcceptChildren}"
                           dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext}"                              
                           >
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <ContentControl Content="{Binding}" Style="{StaticResource BaseContainer}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                </GroupBox>            
-        </DataTemplate>
-        
-        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ContentControl Content="{Binding}" Style="{StaticResource BaseContainer}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </GroupBox>
+            </DataTemplate>
 
-        <Style x:Key="BlocksContainer" TargetType="ContentControl" BasedOn="{StaticResource BaseContainer}">
-            <Style.Triggers>               
-                <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static local:ModuleType.Loop}">
-                    <Setter Property="ContentTemplate" Value="{StaticResource Loop}" />
-                </DataTrigger>               
-            </Style.Triggers>
-        </Style>
-        
-       
-        
+
+
+            <Style x:Key="BlocksContainer" TargetType="ContentControl" BasedOn="{StaticResource BaseContainer}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static local:ModuleType.Loop}">
+                        <Setter Property="ContentTemplate" Value="{StaticResource Loop}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -190,34 +193,35 @@
             <RowDefinition/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <Button Grid.Row="1" Content="Check Listing" Command="{Binding CheckListingCommand}"/>
-        <GroupBox Header="Программа" 
-                  
-                  >
-            
-                <ItemsControl 
+        <!--<Button Grid.Row="1" Content="Check Listing" Command="{Binding CheckListingCommand}"/>-->
+        <ItemsControl Grid.Row="1" Style="{StaticResource CoorBlock}">
+            <Label Content="Изменить Z:"/>
+            <Button Command="{Binding ClickButton}" Width="20"/>
+            <TextBox Text="{Binding LoopCount}" Width="50"/>
+            <Label Content="мм"/>
+        </ItemsControl>
+        <GroupBox Header="Программа">
+            <ItemsControl 
                           ItemsSource="{Binding ProgItems}"
-                          Background="AntiqueWhite" 
+                          Background="Transparent" 
                           HorizontalAlignment="Stretch" 
                           VerticalAlignment="Stretch" 
                           dd:DragDrop.IsDragSource="True"  
                           dd:DragDrop.IsDropTarget="True"
                           dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext}"                              
                           >
-                    <ItemsControl.ItemTemplate >
-                        <DataTemplate>
-                            <ContentControl Content="{Binding}" Style="{StaticResource BlocksContainer}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>                
-           
-
+                <ItemsControl.ItemTemplate >
+                    <DataTemplate>
+                        <ContentControl Content="{Binding}" Style="{StaticResource BlocksContainer}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </GroupBox>
-        <GroupBox Header="Элементы" Grid.Column="1">
+        <GroupBox Header="Элементы" Grid.Column="1" >
             <ItemsControl ItemsSource="{Binding Blocks}"
                           Background="AntiqueWhite" 
                           dd:DragDrop.IsDragSource="True" 
-                          dd:DragDrop.IsDropTarget="False"
+                          dd:DragDrop.IsDropTarget="True"
                           dd:DragDrop.DragDropCopyKeyState="LeftMouseButton"
                           dd:DragDrop.DropHandler="{Binding}"
                           >
@@ -228,5 +232,28 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </GroupBox>
+        <Canvas Grid.ColumnSpan="2">            
+            <!--<Rectangle Width="30" Height="30" 
+                       Canvas.Left="{Binding XItem}" 
+                       Canvas.Top="{Binding YItem}"
+                       Fill="Red"
+                       Visibility="{Binding VisibilityItem}"
+                       />-->
+            <StackPanel      Canvas.Left="{Binding XItem}" 
+                       Canvas.Top="{Binding YItem}"
+                       Visibility="{Binding VisibilityItem}"
+                       >
+                <ContentControl Content="{StaticResource AddDiameter}"/>
+            </StackPanel>
+
+        </Canvas>
+        
     </Grid>
+    <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseMove">
+                <i:InvokeCommandAction Command="{Binding MouseMovingCommand}" 
+                                       EventArgsConverter="{StaticResource MouseConverter}"
+                                       EventArgsConverterParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
 </Window>
