@@ -1,6 +1,7 @@
 ﻿using GongSolutions.Wpf.DragDrop;
 using GongSolutions.Wpf.DragDrop.Utilities;
 using MachineClassLibrary.BehaviourTree;
+using MachineClassLibrary.Laser;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -8,8 +9,8 @@ using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.Views;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,16 +23,23 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using MachineClassLibrary.Laser;
 
 namespace NewLaserProject.ViewModels
 {
     [INotifyPropertyChanged]
     internal partial class TechWizardViewModel : DefaultDropHandler
     {
-        public ObservableCollection<ProgModuleItemVM> ProgItems { get; set; } = new();
-        public ObservableCollection<ProgModuleItemVM> Blocks { get; set; } = new();
-
+        private readonly List<Type> _knownBlockTypes = new List<Type>()
+        {
+            typeof(AddZBlock),
+            typeof(DelayBlock),
+            typeof(LoopBlock),
+            typeof(PierceBlock),
+            typeof(TapperBlock),
+            typeof(MarkLaserParams),
+            typeof(PenParams),
+            typeof(HatchParams)
+        };
         public ObservableCollection<IProgBlock> ProgBlocks { get; set; }
         public ObservableCollection<IProgBlock> Listing { get; set; } = new();
         public IProgBlock DraggedBlock { get; set; }
@@ -40,12 +48,6 @@ namespace NewLaserProject.ViewModels
         public string ObjectsCount { get; set; }
         public TechWizardViewModel()
         {
-            Blocks.Add(new ProgModuleItemVM { ModuleType = ModuleType.AddDiameter });
-            Blocks.Add(new ProgModuleItemVM { ModuleType = ModuleType.Pierce });
-            Blocks.Add(new ProgModuleItemVM { ModuleType = ModuleType.AddZ });
-            Blocks.Add(new ProgModuleItemVM { ModuleType = ModuleType.Loop });
-            Blocks.Add(new ProgModuleItemVM { ModuleType = ModuleType.Delay });
-
             ProgBlocks = new()
             {
                 new TapperBlock(),
@@ -57,27 +59,6 @@ namespace NewLaserProject.ViewModels
         }
         public override void Drop(IDropInfo dropInfo)
         {
-            //if (dropInfo.Data is ProgModuleItemVM)
-            //{
-            //    var sourceItem = dropInfo.Data as ProgModuleItemVM;
-            //    var sourceCollection = dropInfo.DragInfo.SourceCollection;
-            //    if ((sourceCollection.Equals(ProgItems) | sourceCollection is ChildrenObservCollection<ProgModuleItemVM>) && dropInfo.TargetCollection.TryGetList().Equals(Blocks))
-            //    {
-            //        ((ObservableCollection<ProgModuleItemVM>)sourceCollection).Remove((ProgModuleItemVM)dropInfo.Data);
-            //    }
-            //    else if (sourceCollection.Equals(Blocks))
-            //    {
-            //        var collection = dropInfo.TargetCollection.TryGetList();
-            //        collection.Add(new ProgModuleItemVM { CanAcceptChildren = (sourceItem.ModuleType == ModuleType.Loop), ModuleType = sourceItem.ModuleType });
-            //    }
-            //    else
-            //    {
-            //        base.Drop(dropInfo);
-            //    }
-            //}
-
-
-
             if (dropInfo.Data is IProgBlock)
             {
                 IProgBlock sourceItem = BlockFactory.GetProgBlock(dropInfo.Data);
@@ -100,21 +81,8 @@ namespace NewLaserProject.ViewModels
         }
         public override void DragOver(IDropInfo dropInfo)
         {
-            //    if (((dropInfo.TargetCollection is ChildrenObservCollection<ProgModuleItemVM> collection && collection.MyParent.ModuleType == ModuleType.Loop)
-            //        & (dropInfo.Data is ProgModuleItemVM itemVM1 && itemVM1.ModuleType == ModuleType.Loop))
-            //        | (dropInfo.TargetCollection.TryGetList().Equals(Blocks) && dropInfo.DragInfo.SourceCollection.Equals(Blocks)))
-            //    {
-            //        dropInfo.Effects = DragDropEffects.None;
-            //    }
-            //    else
-            //    {
-            //        base.DragOver(dropInfo);
-            //    }
 
-            //if (DraggedBlock is null)
-            //{
             DraggedBlock = BlockFactory.BlockTypeSelector(dropInfo.DragInfo.SourceItem);
-            // }
 
             if ((dropInfo.TargetCollection is ChildrenObservCollection<IProgBlock> collection &&
                 BlockFactory.GetProgBlock(collection.MyParent).Equals(BlockFactory.GetProgBlock(dropInfo.Data)))
@@ -142,18 +110,26 @@ namespace NewLaserProject.ViewModels
             };
             if (File.Exists(path))
             {
-                var listing = JsonConvert.DeserializeObject(File.ReadAllText(path), typeof(ObservableCollection<ProgModuleItemVM>));
-                ProgItems = (ObservableCollection<ProgModuleItemVM>)listing;
+                var listing = JsonConvert.DeserializeObject<List<IProgBlock>>(File.ReadAllText(path), new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    SerializationBinder = new TypesBinder
+                    {
+                        KnownTypes = _knownBlockTypes
+                    }
+                });
+
+                Listing = new ObservableCollection<IProgBlock>(listing);
             }
             else
             {
-                ProgItems = new();
+                Listing = new();
             }
         }
         [ICommand]
         private void SetPiercingParams(object progModule)
         {
-            var item = (ProgModuleItemVM)progModule;
+            var item = (PierceBlock)progModule;
             var markSettings = new MarkSettingsViewModel();
             new MarkSettingsView { DataContext = markSettings }.ShowDialog();
             item.MarkParams = markSettings.GetLaserParams();
@@ -162,9 +138,19 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void SaveListing()
         {
-            var json = JsonConvert.SerializeObject(ProgItems, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(Listing, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                SerializationBinder = new TypesBinder
+                {
+                    KnownTypes = _knownBlockTypes
+                }
+            });
             //Trace.WriteLine(json);
-            using var writer = new StreamWriter("D:/CircleListing.json", false);
+            //using var writer = new StreamWriter("D:/CircleListing.json", false);
+            //using var writer = new StreamWriter("D:/PolylineListing.json", false);
+            using var writer = new StreamWriter("D:/LineListing.json", false);
+            
             var l = new TextWriterTraceListener(writer);
             l.WriteLine(json);
             l.Flush();
@@ -173,24 +159,17 @@ namespace NewLaserProject.ViewModels
         private void LoadListing()
         {
             var listing = JsonConvert.DeserializeObject(File.ReadAllText("D:/CircleListing.json"), typeof(ObservableCollection<ProgModuleItemVM>));
-            ProgItems = (ObservableCollection<ProgModuleItemVM>)listing;
+            Listing = (ObservableCollection<IProgBlock>)listing;
         }
         [ICommand]
         private void CheckListing()
         {
-            var json = JsonConvert.SerializeObject(Listing,Formatting.Indented,new JsonSerializerSettings 
+            var json = JsonConvert.SerializeObject(Listing, Formatting.Indented, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects,
                 SerializationBinder = new TypesBinder
                 {
-                    KnownTypes = new List<Type>
-                    {
-                        typeof(AddZBlock),
-                        typeof(DelayBlock),
-                        typeof(LoopBlock),
-                        typeof(PierceBlock),
-                        typeof(TapperBlock)
-                    }
+                    KnownTypes = _knownBlockTypes
                 }
             });
             Trace.WriteLine(json);

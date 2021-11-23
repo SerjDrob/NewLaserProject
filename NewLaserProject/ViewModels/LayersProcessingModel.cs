@@ -39,14 +39,7 @@ namespace NewLaserProject.ViewModels
             }
 
         }
-        [ICommand]
-        private void EditTechnology(Layer layer)
-        {
-            new TechnologyWizardView()
-            {
-                DataContext = new TechWizardViewModel()
-            }.Show();
-        }
+        
         [ICommand]
         private void ChooseObject(object param)
         {

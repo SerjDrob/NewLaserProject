@@ -41,16 +41,7 @@
                           dd:DragDrop.IsDragSource="{Binding CanAcceptChildren}"  
                           dd:DragDrop.IsDropTarget="{Binding CanAcceptChildren}"
                           dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext}"                              
-                          >
-                        <!--<dd:DragDrop.DropAdornerTemplateSelector>
-                            <selectors:AdornerSelector
-                                LoopDataTemplate="{StaticResource Nothing}"
-                                AddDiameterDataTemplate="{StaticResource AddDiameter}"
-                                AddZDataTemplate="{StaticResource AddZ}"
-                                PierceDataTemplate="{StaticResource Pierce}"
-                                DelayTimeDataTemplate="{StaticResource DelayTime}"                                  
-                                />
-                        </dd:DragDrop.DropAdornerTemplateSelector>-->
+                          >                        
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <ContentControl Content="{Binding}"/>
@@ -101,7 +92,6 @@
                     </Button>
                 </ItemsControl>
             </DataTemplate>
-
 
         </ResourceDictionary>
     </Application.Resources>
