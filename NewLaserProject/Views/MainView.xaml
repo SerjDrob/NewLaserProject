@@ -9,10 +9,11 @@
         Title="Лазер" Height="450" Width="800" WindowState="Maximized">
     <Grid>
         <Grid.Resources>
-             <ResourceDictionary>
+            <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
                     <ResourceDictionary Source="pack://application:,,,/MachineControlsLibrary;component/Controls/Dictionary.xaml"/>
-                </ResourceDictionary.MergedDictionaries>                
+                </ResourceDictionary.MergedDictionaries>
+               
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
@@ -23,7 +24,7 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <DockPanel Grid.Column="1" Grid.RowSpan="2">
+        <!--<DockPanel Grid.Column="1" Grid.RowSpan="2">
             <Border BorderBrush="CadetBlue" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileName}" Width="100" Margin="2" Background="LightYellow"/>
@@ -42,7 +43,37 @@
                            RenderTransformOrigin="0.5,0.5"
                            SelectedColor="Black"           
                 />
-        </DockPanel>
+        </DockPanel>-->
+        <TabControl Grid.Column="1" Grid.RowSpan="2">
+            <TabItem>
+                <TabItem.Header>
+                    <Border BorderBrush="CadetBlue" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileName}" Width="100" Margin="2" Background="LightYellow"/>
+                            <Button Command="{Binding OpenFileCommand}" Content="open file" Style="{StaticResource CommandButton}"/>
+                            <!--<Button Command="{Binding OpenLayersProcessingCommand}" Content="Layers processing" Style="{StaticResource CommandButton}"/>-->
+                        </StackPanel>
+                    </Border>
+                </TabItem.Header>
+                <uc:GraphWindow 
+                           LayGeoms="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LayGeoms}"                                            
+                           SpecMargin="0.2" 
+                           SpecSizeX="60000"
+                           SpecSizeY="48000"
+                           AutoProportion="True"
+                           StrokeThickness="0.1"  
+                           IgnoredLayers="{Binding IgnoredLayers}" 
+                           RenderTransformOrigin="0.5,0.5"
+                           SelectedColor="Black"           
+                />
+            </TabItem>
+            <TabItem Header="Настройки">
+                <DockPanel>
+                    <ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>
+                    <ContentControl x:Name="TW" Content="{Binding TWModel, Mode=TwoWay}"/>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
         <Border Background="AliceBlue">
             <Image />
         </Border>

@@ -2,8 +2,107 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:NewLaserProject"
+             xmlns:views="clr-namespace:NewLaserProject.Views"
+             xmlns:viewmodels="clr-namespace:NewLaserProject.ViewModels"
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             xmlns:selectors="clr-namespace:NewLaserProject.Views.Selectors"  
+             xmlns:pblocks="clr-namespace:NewLaserProject.Classes.ProgBlocks"
              >
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Views/WizardDictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate DataType="{x:Type viewmodels:LayersProcessingModel}">
+                <views:LayerWizardTree/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:TechWizardViewModel}">
+                <views:LayerWizardProgramView/>
+            </DataTemplate>
+
+            <DataTemplate x:Key="Nothing">
+                <Grid/>
+            </DataTemplate>
+            
+            <DataTemplate DataType="{x:Type pblocks:LoopBlock}">
+                <GroupBox Style="{StaticResource LoopBox}" DataContext="{Binding}">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Количество повторений" Style="{StaticResource BlockLabel}"/>
+                            <TextBox Text="{Binding LoopCount, FallbackValue=2}" Width="20" Style="{StaticResource BlockTextBox}"/>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <ItemsControl                           
+                          ItemsSource="{Binding Children}"
+                          Background="Transparent" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch"                             
+                          MinHeight="50"
+                          dd:DragDrop.IsDragSource="{Binding CanAcceptChildren}"  
+                          dd:DragDrop.IsDropTarget="{Binding CanAcceptChildren}"
+                          dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext}"                              
+                          >
+                        <!--<dd:DragDrop.DropAdornerTemplateSelector>
+                            <selectors:AdornerSelector
+                                LoopDataTemplate="{StaticResource Nothing}"
+                                AddDiameterDataTemplate="{StaticResource AddDiameter}"
+                                AddZDataTemplate="{StaticResource AddZ}"
+                                PierceDataTemplate="{StaticResource Pierce}"
+                                DelayTimeDataTemplate="{StaticResource DelayTime}"                                  
+                                />
+                        </dd:DragDrop.DropAdornerTemplateSelector>-->
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ContentControl Content="{Binding}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </GroupBox>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type pblocks:TapperBlock}">
+                <ItemsControl Style="{StaticResource SizeBlock}">
+                    <Label Content="Изменить диаметр:" Style="{StaticResource BlockLabel}"/>
+                    <Button Command="{Binding ClickButton}" Width="20" Style="{StaticResource BlockButton}"/>
+                    <TextBox Text="{Binding Tapper}" Width="40" Style="{StaticResource BlockTextBox}"/>
+                    <Label Content="мм" Style="{StaticResource BlockLabel}"/>
+                </ItemsControl>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type pblocks:AddZBlock}">
+                <ItemsControl Style="{StaticResource CoorBlock}">
+                    <Label Content="Изменить Z:" Style="{StaticResource BlockLabel}"/>
+                    <Button Command="{Binding ClickButton}" Width="20" Style="{StaticResource BlockButton}"/>
+                    <TextBox Text="{Binding DeltaZ}" Width="40" Style="{StaticResource BlockTextBox}"/>
+                    <Label Content="мм" Style="{StaticResource BlockLabel}"/>
+                </ItemsControl>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type pblocks:DelayBlock}">
+                <ItemsControl Style="{StaticResource DelayBlock}">
+                    <Label Content="Пауза: " Style="{StaticResource BlockLabel}"/>
+                    <TextBox Text="{Binding DelayTime}" Width="40" Style="{StaticResource BlockTextBox}"/>
+                    <Label Content="мс" Style="{StaticResource BlockLabel}"/>
+                </ItemsControl>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type pblocks:PierceBlock}">
+                <ItemsControl Style="{StaticResource PierceBlock}">
+                    <Label Content="Прошивка" Style="{StaticResource BlockLabel}"/>
+                    <Button Content="Параметры" 
+                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.SetPiercingParamsCommand}" 
+                            CommandParameter="{Binding}"
+                            Style="{StaticResource SettingsButton}">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="2"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </ItemsControl>
+            </DataTemplate>
+
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

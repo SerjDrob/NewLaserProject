@@ -1,0 +1,250 @@
+﻿<UserControl x:Class="NewLaserProject.Views.LayerWizardProgramView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:classes="clr-namespace:NewLaserProject.Classes"
+             xmlns:selectors="clr-namespace:NewLaserProject.Views.Selectors"
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.Resources>
+
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="WizardDictionary.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+
+
+
+                <DataTemplate x:Key="AddDiameter">
+                    <ItemsControl Style="{StaticResource SizeBlock}">
+                        <Label Content="Изменить диаметр:" Style="{StaticResource BlockLabel}"/>
+                        <Button Command="{Binding ClickButton}" Width="20" Style="{StaticResource BlockButton}"/>
+                        <TextBox Text="{Binding Tapper}" Width="40" Style="{StaticResource BlockTextBox}"/>
+                        <Label Content="мм" Style="{StaticResource BlockLabel}"/>
+                    </ItemsControl>
+                </DataTemplate>
+
+                <DataTemplate x:Key="AddZ">
+                    <ItemsControl Style="{StaticResource CoorBlock}">
+                        <Label Content="Изменить Z:" Style="{StaticResource BlockLabel}"/>
+                        <Button Command="{Binding ClickButton}" Width="20" Style="{StaticResource BlockButton}"/>
+                        <TextBox Text="{Binding DeltaZ}" Width="40" Style="{StaticResource BlockTextBox}"/>
+                        <Label Content="мм" Style="{StaticResource BlockLabel}"/>
+                    </ItemsControl>
+                </DataTemplate>
+
+                <DataTemplate x:Key="DelayTime">
+                    <ItemsControl Style="{StaticResource DelayBlock}">
+                        <Label Content="Пауза: " Style="{StaticResource BlockLabel}"/>
+                        <TextBox Text="{Binding DelayTime}" Width="40" Style="{StaticResource BlockTextBox}"/>
+                        <Label Content="мс" Style="{StaticResource BlockLabel}"/>
+                    </ItemsControl>
+                </DataTemplate>
+
+                <DataTemplate x:Key="Pierce">
+                    <ItemsControl Style="{StaticResource PierceBlock}">
+                        <Label Content="Прошивка" Style="{StaticResource BlockLabel}"/>
+                        <Button Content="Параметры" 
+                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.SetPiercingParamsCommand}" 
+                            CommandParameter="{Binding}"
+                            Style="{StaticResource SettingsButton}">
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="2"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </ItemsControl>
+                </DataTemplate>
+
+                <Style x:Key="BaseContainer" TargetType="ContentControl">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static classes:ModuleType.AddDiameter}">
+                            <Setter Property="ContentTemplate" Value="{StaticResource AddDiameter}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static classes:ModuleType.AddZ}">
+                            <Setter Property="ContentTemplate" Value="{StaticResource AddZ}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static classes:ModuleType.Pierce}">
+                            <Setter Property="ContentTemplate" Value="{StaticResource Pierce}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static classes:ModuleType.Delay}">
+                            <Setter Property="ContentTemplate" Value="{StaticResource DelayTime}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+                <DataTemplate x:Key="Nothing">
+                    <Grid/>
+                </DataTemplate>
+                
+                <DataTemplate x:Key="DraggedBlock">
+                    <ContentControl Content="{Binding DraggedBlock}"/>
+                </DataTemplate>
+                
+                <DataTemplate x:Key="Loop">
+                    <GroupBox Style="{StaticResource LoopBox}" DataContext="{Binding}">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Количество повторений" Style="{StaticResource BlockLabel}"/>
+                                <TextBox Text="{Binding LoopCount, FallbackValue=2}" Width="20" Style="{StaticResource BlockTextBox}"/>
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <ItemsControl                           
+                          ItemsSource="{Binding Children}"
+                          Background="Transparent" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch"                             
+                          MinHeight="50"
+                          dd:DragDrop.IsDragSource="{Binding CanAcceptChildren}"  
+                          dd:DragDrop.IsDropTarget="{Binding CanAcceptChildren}"
+                          dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext}"                              
+                            
+                          >
+                            <!--<dd:DragDrop.DropAdornerTemplateSelector>
+                                <selectors:AdornerSelector
+                                LoopDataTemplate="{StaticResource Nothing}"
+                                AddDiameterDataTemplate="{StaticResource AddDiameter}"
+                                AddZDataTemplate="{StaticResource AddZ}"
+                                PierceDataTemplate="{StaticResource Pierce}"
+                                DelayTimeDataTemplate="{StaticResource DelayTime}"                                  
+                                />
+                            </dd:DragDrop.DropAdornerTemplateSelector>-->
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding}" Style="{StaticResource BaseContainer}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </GroupBox>
+                </DataTemplate>
+
+                
+
+
+                <Style x:Key="BlocksContainer" TargetType="ContentControl" BasedOn="{StaticResource BaseContainer}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ModuleType}" Value="{x:Static classes:ModuleType.Loop}">
+                            <Setter Property="ContentTemplate" Value="{StaticResource Loop}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Программа">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top">
+                    <Border BorderThickness="2" 
+                            BorderBrush="Gray"
+                            CornerRadius="2"
+                            Background="#FFC2C3C9"
+                            Padding="10"
+                            >
+                        <StackPanel>
+                            <TextBlock Text="Исходное значение Z:"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Тип объектов: "/>
+                                <TextBlock Foreground="Blue" Text="{Binding ObjectsType}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Количество объектов: "/>
+                                <TextBlock Foreground="Blue" Text="{Binding ObjectsCount}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" >
+                                <TextBlock Text="Порядок обхода объектов: " VerticalAlignment="Center"/>
+                                <ToggleButton >
+                                    <ToggleButton.Style>
+                                        <Style TargetType="{x:Type ToggleButton}">
+                                            <Setter Property="Content" Value=" Случайный "/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter Property="Content" Value=" Согласно файлу "/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ToggleButton.Style>
+                                </ToggleButton>
+                            </StackPanel>
+                            <Button Content="SaveListing" Command="{Binding SaveListingCommand}"/>
+                            <Button Content="LoadListing" Command="{Binding LoadListingCommand}"/>
+                            <Button Content="CheckListing" Command="{Binding CheckListingCommand}"/>
+                            <ContentControl Content="{Binding TestBlock}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <ItemsControl Padding="20"
+                          ItemsSource="{Binding Listing}"
+                          Background="Transparent" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch" 
+                          dd:DragDrop.IsDragSource="True"  
+                          dd:DragDrop.IsDropTarget="True"
+                          dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext}" 
+                          dd:DragDrop.DropAdornerTemplate="{StaticResource DraggedBlock}"
+                              
+                          >
+                    <!--<dd:DragDrop.DropAdornerTemplateSelector>
+                        <selectors:AdornerSelector
+                        LoopDataTemplate="{StaticResource Loop}"
+                        AddDiameterDataTemplate="{StaticResource AddDiameter}"
+                        AddZDataTemplate="{StaticResource AddZ}"
+                        PierceDataTemplate="{StaticResource Pierce}"
+                        DelayTimeDataTemplate="{StaticResource DelayTime}"
+                        />
+
+                    </dd:DragDrop.DropAdornerTemplateSelector>-->
+                    <ItemsControl.ItemTemplate >
+                        <DataTemplate>
+                            <ContentControl Content="{Binding}" Style="{StaticResource BlocksContainer}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DockPanel>
+        </GroupBox>
+        <GroupBox Header="Элементы" Grid.Column="1" >
+            <ItemsControl ItemsSource="{Binding ProgBlocks}"
+                          Background="AntiqueWhite" 
+                          dd:DragDrop.IsDragSource="True" 
+                          dd:DragDrop.IsDropTarget="True"
+                          dd:DragDrop.DragDropCopyKeyState="LeftMouseButton"
+                          dd:DragDrop.DropHandler="{Binding}"
+                          
+                          Padding="20"
+                          >
+                <!--<dd:DragDrop.DropAdornerTemplateSelector>
+                    <selectors:AdornerSelector
+                       LoopDataTemplate="{StaticResource Loop}"
+                        AddDiameterDataTemplate="{StaticResource AddDiameter}"
+                        AddZDataTemplate="{StaticResource AddZ}"
+                        PierceDataTemplate="{StaticResource Pierce}"
+                        DelayTimeDataTemplate="{StaticResource DelayTime}"
+                        />
+                </dd:DragDrop.DropAdornerTemplateSelector>-->
+                <ItemsControl.ItemTemplate >
+                    <DataTemplate>
+                        <!--<ContentControl Content="{Binding}" Style="{StaticResource BlocksContainer}">
+                            <ContentControl.RenderTransform>
+                                <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                            </ContentControl.RenderTransform>
+                        </ContentControl>-->
+                        <ContentControl Content="{Binding}">
+                            <ContentControl.RenderTransform>
+                                <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                            </ContentControl.RenderTransform>
+                        </ContentControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </GroupBox>
+    </Grid>
+</UserControl>

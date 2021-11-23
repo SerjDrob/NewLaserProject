@@ -1,5 +1,6 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
+using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Views;
@@ -9,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace NewLaserProject.ViewModels
 {
@@ -20,7 +22,9 @@ namespace NewLaserProject.ViewModels
 
         public LayersProcessingModel(string fileName)
         {
+
             _fileName = fileName;
+
             var reader = new DxfReader(_fileName);
             var document = reader.Document;
             var layers = document.Layers;
@@ -30,9 +34,10 @@ namespace NewLaserProject.ViewModels
                 var objects = layers.GetReferences(layer.Name);
                 if (lay.AddObjects(objects))
                 {
-                     Layers.Add(lay);
-                } 
+                    Layers.Add(lay);
+                }
             }
+
         }
         [ICommand]
         private void EditTechnology(Layer layer)
@@ -42,40 +47,12 @@ namespace NewLaserProject.ViewModels
                 DataContext = new TechWizardViewModel()
             }.Show();
         }
-        
-    }
-    public class Layer
-    {
-        public string Name { get; set; }
-
-        public Layer(string name)
+        [ICommand]
+        private void ChooseObject(object param)
         {
-            Name = name;
+            var p = param as Text;
+            ObjectChosenEvent(this, new string[] { p.Value, p.Count.ToString() });
         }
-        public bool AddObjects(IEnumerable<netDxf.DxfObject> dxfObjects)
-        {
-            Objects = new(
-            dxfObjects.Where(o =>
-            {
-                var spec = new Specification(o.GetType());
-                return spec.IsSatisfiedBy;
-            }).Select(obj => obj.ToString()).Distinct()
-            );
-            return Objects.Count > 0;
-        }
-        public List<string> Objects { get; set; }
-
-        class Specification
-        {
-            private readonly Type _type;
-
-            public Specification(Type type)
-            {
-                _type = type;
-            }
-
-            public bool IsSatisfiedBy { get => types.Contains(_type); }
-            private Type[] types = new Type[] { typeof(netDxf.Entities.Line), typeof(netDxf.Entities.LwPolyline), typeof(netDxf.Entities.Circle) };
-        }
+        public event EventHandler<string[]> ObjectChosenEvent;
     }
 }
