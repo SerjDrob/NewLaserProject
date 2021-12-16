@@ -7,51 +7,40 @@
         mc:Ignorable="d"
         xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
         Title="Лазер" Height="450" Width="800" WindowState="Maximized">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
+        <KeyBinding Command="{Binding StartProcessCommand}" Key="Divide"/>
+        <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
+        <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
+        <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
+        <KeyBinding Command="{Binding MachineSettingsCommand}" Key="H"/>
+
+    </Window.InputBindings>
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
                     <ResourceDictionary Source="pack://application:,,,/MachineControlsLibrary;component/Controls/Dictionary.xaml"/>
-                </ResourceDictionary.MergedDictionaries>
-               
+                </ResourceDictionary.MergedDictionaries>                
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <!--<DockPanel Grid.Column="1" Grid.RowSpan="2">
-            <Border BorderBrush="CadetBlue" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileName}" Width="100" Margin="2" Background="LightYellow"/>
-                    <Button Command="{Binding OpenFileCommand}" Content="open file" Style="{StaticResource CommandButton}"/>
-                    <Button Command="{Binding OpenLayersProcessingCommand}" Content="Layers processing" Style="{StaticResource CommandButton}"/>
-                </StackPanel>
-            </Border>
-            <uc:GraphWindow 
-                           LayGeoms="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LayGeoms}"                                            
-                           SpecMargin="0.2" 
-                           SpecSizeX="60000"
-                           SpecSizeY="48000"
-                           AutoProportion="True"
-                           StrokeThickness="0.1"  
-                           IgnoredLayers="{Binding IgnoredLayers}" 
-                           RenderTransformOrigin="0.5,0.5"
-                           SelectedColor="Black"           
-                />
-        </DockPanel>-->
-        <TabControl Grid.Column="1" Grid.RowSpan="2">
+       
+        <TabControl Grid.Column="2" Grid.RowSpan="2">
             <TabItem>
                 <TabItem.Header>
-                    <Border BorderBrush="CadetBlue" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
+                    <Border BorderBrush="CadetBlue" Margin="0,0,10,0" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                             <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileName}" Width="100" Margin="2" Background="LightYellow"/>
-                            <Button Command="{Binding OpenFileCommand}" Content="open file" Style="{StaticResource CommandButton}"/>
-                            <!--<Button Command="{Binding OpenLayersProcessingCommand}" Content="Layers processing" Style="{StaticResource CommandButton}"/>-->
+                            <Button Command="{Binding OpenFileCommand}" Content="Файл" Style="{StaticResource CommandButton}"/>
                         </StackPanel>
                     </Border>
                 </TabItem.Header>
@@ -65,18 +54,120 @@
                            IgnoredLayers="{Binding IgnoredLayers}" 
                            RenderTransformOrigin="0.5,0.5"
                            SelectedColor="Black"           
-                />
+                >
+                    <Grid>
+                            <Grid Height="48000" 
+                                   Width="60000"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  >
+                            
+                            <Rectangle Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}"
+                                       Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
+                                       Stroke="White"
+                                       StrokeThickness="200"
+                                       StrokeDashArray="5,5,5"
+                                       Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferContourVisibility,
+                                       Converter={StaticResource BTVConverter}}"
+                                       />
+                            <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftWaferCornerTeachCommand}"
+                                    Height="3000" 
+                                    Width="3000"
+                                    VerticalAlignment="Bottom" 
+                                    HorizontalAlignment="Left"   
+                                    Style="{StaticResource CornerButton}"
+                                    Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftCornerBtnVisibility,
+                                    Converter={StaticResource BTVConverter}}"
+                                    >
+                                <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                    <Path.Data>
+                                        <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
+                                    </Path.Data>
+                                    <Path.RenderTransform>
+                                        <ScaleTransform ScaleY="-1"/>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Button>
+                            <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightWaferCornerTeachCommand}"                              
+                                    Height="3000" 
+                                    Width="3000"
+                                    VerticalAlignment="Bottom" 
+                                    HorizontalAlignment="Right"
+                                    Style="{StaticResource CornerButton}"
+                                    Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightCornerBtnVisibility,
+                                    Converter={StaticResource BTVConverter}}"
+                                     >
+                                <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                    <Path.Data>
+                                        <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
+                                    </Path.Data>
+                                    <Path.RenderTransform>
+                                        <ScaleTransform ScaleY="-1" ScaleX="-1"/>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Button>
+                        </Grid>
+                        <Grid.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleX}"
+                                            ScaleY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleY}"/>
+                        </Grid.LayoutTransform>
+                    </Grid>
+                </uc:GraphWindow>
             </TabItem>
-            <TabItem Header="Настройки">
+            <TabItem Header="Настройки" IsEnabled="{Binding IsFileSettingsEnable}">
                 <DockPanel>
                     <ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>
                     <ContentControl x:Name="TW" Content="{Binding TWModel, Mode=TwoWay}"/>
                 </DockPanel>
             </TabItem>
         </TabControl>
-        <Border Background="AliceBlue">
+        <Border BorderBrush="#FF1E1F20" BorderThickness="3" Background="Blue" Opacity="0.2">
             <Image />
         </Border>
+        <ToolBarTray Orientation="Vertical" Grid.Column="1" Grid.RowSpan="2">
+            <ToolBar>
+                <Button Command="{Binding StartProcessCommand}">
+                    <Button.ToolTip>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Запустить процесс"/>
+                            <TextBlock Foreground="Blue" FontWeight="DemiBold"  Text=" /"/>
+                        </StackPanel>
+                    </Button.ToolTip>
+                    <Image Source="/Views/laserbeam_laser_13620.png" Height="20"/>
+                </Button>
+                <Button Command="{Binding MachineSettingsCommand}">
+                    <Button.ToolTip>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Настройки приводов"/>
+                            <TextBlock Foreground="Blue" FontWeight="DemiBold"  Text=" H"/>
+                        </StackPanel>
+                    </Button.ToolTip>
+                    <Image Source="/Views/settings.png" Height="20"/>
+                </Button>
+                <Menu Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Background}">
+                    <MenuItem>
+                        <MenuItem.Header>                            
+                                <Image Source="/Views/learning.png" Height="20"/>
+                        </MenuItem.Header>
+                        <MenuItem Command="{Binding TeachCameraOffsetCommand}" Header="Смещение камеры" InputGestureText="F2">
+                            <MenuItem.Icon>
+                                <Image Source="/Views/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Command="{Binding TeachScanatorHorizontCommand}" Header="Горизонт сканатора" InputGestureText="F3">
+                            <MenuItem.Icon>                               
+                                    <Image Source="/Views/angle.png" Height="20" /> 
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Command="{Binding TeachOrthXYCommand}" Header="Ортогональность XY" InputGestureText="F4">
+                            <MenuItem.Icon>
+                                <Image Source="/Views/laserbeam_laser_13620.png" Height="20"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                </Menu>
+            </ToolBar>            
+        </ToolBarTray>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

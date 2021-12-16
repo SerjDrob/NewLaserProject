@@ -23,6 +23,11 @@ namespace NewLaserProject.Classes
         private IProcObject<T> _currentObject;
         private IEnumerator<IProcObject<T>> _enumerator;
         private Block _pauseBlock = new Block().BlockMe();
+        private ITeacher _currentTeacher;
+        private TeachCommand AcceptCmd;
+        private TeachCommand DenyCmd;
+        private TeachCommand NextCmd;
+        private bool _canTeach = false;
 
         public LaserProcess(IEnumerable<IProcObject<T>> procObjects, string jsonPierce, LaserMachine laserMachine)
         {
@@ -30,6 +35,10 @@ namespace NewLaserProject.Classes
             this._pierceSequenceJson = jsonPierce;
             _laserMachine = laserMachine;
             _enumerator = _procObjects.GetEnumerator();
+            AcceptCmd = new TeachCommand(_currentTeacher.Accept(), () => _canTeach);
+            DenyCmd = new TeachCommand(_currentTeacher.Deny(), () => _canTeach);
+            NextCmd = new TeachCommand(_currentTeacher.Next(), () => _canTeach);
+
         }
         public void Proc()
         {
@@ -66,7 +75,7 @@ namespace NewLaserProject.Classes
 
             _rootSequence = new Sequence()
                                 .Hire(mpTicker)
-                                .Hire(new Leaf(() => _laserMachine.GoThereAsync(Place.Loading)));
+                                .Hire(new Leaf(() => _laserMachine.GoThereAsync(LMPlace.Loading)));
         }
         private void Pierce(MarkLaserParams markLaserParams)
         {
@@ -90,6 +99,62 @@ namespace NewLaserProject.Classes
         public void Stop()
         {
             _rootSequence.CancellAction(true);
+        }
+
+        public async Task TeacherAcceptAsync()
+        {
+            if (AcceptCmd.CanExecute()) await AcceptCmd.Execute();
+        }
+        public async Task TeacherDenyAsync()
+        {
+            if (DenyCmd.CanExecute()) await DenyCmd.Execute();
+        }
+        public async Task TeacherNext()
+        {
+            if (NextCmd.CanExecute()) await NextCmd.Execute();
+        }
+
+        public void SetCurrentTeacher(Learning learning)
+        {
+            switch (learning)
+            {
+                case Learning.LaserOffset:
+                    {
+                        var teachPosition = new double[] { 1, 1 };
+                        double xOffset = 1;
+                        double yOffset = 1;
+
+
+                        var tcb = TeachCameraBias.GetBuilder();
+                        tcb.SetOnGoLoadPointAction(() => _laserMachine.GoThereAsync(LMPlace.Loading))
+                            .SetOnGoUnderCameraAction(() => _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition))
+                            .SetOnGoToSootAction(() => Task.Run(async () =>
+                            {
+                                _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true);
+                                _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset, true);
+                                await _laserMachine.PiercePointAsync();
+                                _laserMachine.MoveAxRelativeAsync(Ax.X, -xOffset, true);
+                                _laserMachine.MoveAxRelativeAsync(Ax.Y, -yOffset, true);
+                            }));
+                        _currentTeacher = tcb.Build();
+                        _canTeach = true;
+                    }
+                    break;
+                case Learning.Orthogonality:
+                    break;
+                case Learning.ScannatorIncline:
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+        public enum Learning
+        {
+            LaserOffset,
+            Orthogonality,
+            ScannatorIncline
         }
     }
 }
