@@ -4,6 +4,7 @@ using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
+using NewLaserProject.Classes.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,28 +18,22 @@ namespace NewLaserProject.Classes
         private readonly IEnumerable<IProcObject<T>> _procObjects;
         private readonly string _pierceSequenceJson;
         private readonly LaserMachine _laserMachine;
+        private readonly CoorSystem<LMPlace> _coorSystem;
         private CirclePierceParams _circlePierceParams;
         private Sequence _pierceSequence;
         private Sequence _rootSequence;
         private IProcObject<T> _currentObject;
         private IEnumerator<IProcObject<T>> _enumerator;
         private Block _pauseBlock = new Block().BlockMe();
-        private ITeacher _currentTeacher;
-        private TeachCommand AcceptCmd;
-        private TeachCommand DenyCmd;
-        private TeachCommand NextCmd;
-        private bool _canTeach = false;
+       
 
-        public LaserProcess(IEnumerable<IProcObject<T>> procObjects, string jsonPierce, LaserMachine laserMachine)
+        public LaserProcess(IEnumerable<IProcObject<T>> procObjects, string jsonPierce, LaserMachine laserMachine, CoorSystem<LMPlace> coorSystem)
         {
             this._procObjects = procObjects;
             this._pierceSequenceJson = jsonPierce;
             _laserMachine = laserMachine;
-            _enumerator = _procObjects.GetEnumerator();
-            AcceptCmd = new TeachCommand(_currentTeacher.Accept(), () => _canTeach);
-            DenyCmd = new TeachCommand(_currentTeacher.Deny(), () => _canTeach);
-            NextCmd = new TeachCommand(_currentTeacher.Next(), () => _canTeach);
-
+            _enumerator = _procObjects.GetEnumerator();            
+            _coorSystem = coorSystem;
         }
         public void Proc()
         {
@@ -57,7 +52,9 @@ namespace NewLaserProject.Classes
 
             //move'n'pierce sequence
             var mpSequence = new Sequence()
-                                .Hire(new Leaf(() => { _laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, new double[] { _currentObject.X, _currentObject.Y }, true); }))
+                                .Hire(new Leaf(() => {
+                                    _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.UnderLaser, _currentObject.X, _currentObject.Y), true); 
+                                }))
                                 .Hire(_pierceSequence)
                                 .Hire(new Leaf(() => { }).WaitForMe().SetBlock(_pauseBlock));
 
@@ -100,61 +97,6 @@ namespace NewLaserProject.Classes
         {
             _rootSequence.CancellAction(true);
         }
-
-        public async Task TeacherAcceptAsync()
-        {
-            if (AcceptCmd.CanExecute()) await AcceptCmd.Execute();
-        }
-        public async Task TeacherDenyAsync()
-        {
-            if (DenyCmd.CanExecute()) await DenyCmd.Execute();
-        }
-        public async Task TeacherNext()
-        {
-            if (NextCmd.CanExecute()) await NextCmd.Execute();
-        }
-
-        public void SetCurrentTeacher(Learning learning)
-        {
-            switch (learning)
-            {
-                case Learning.LaserOffset:
-                    {
-                        var teachPosition = new double[] { 1, 1 };
-                        double xOffset = 1;
-                        double yOffset = 1;
-
-
-                        var tcb = TeachCameraBias.GetBuilder();
-                        tcb.SetOnGoLoadPointAction(() => _laserMachine.GoThereAsync(LMPlace.Loading))
-                            .SetOnGoUnderCameraAction(() => _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition))
-                            .SetOnGoToSootAction(() => Task.Run(async () =>
-                            {
-                                _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true);
-                                _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset, true);
-                                await _laserMachine.PiercePointAsync();
-                                _laserMachine.MoveAxRelativeAsync(Ax.X, -xOffset, true);
-                                _laserMachine.MoveAxRelativeAsync(Ax.Y, -yOffset, true);
-                            }));
-                        _currentTeacher = tcb.Build();
-                        _canTeach = true;
-                    }
-                    break;
-                case Learning.Orthogonality:
-                    break;
-                case Learning.ScannatorIncline:
-                    break;
-                default:
-                    break;
-            }
-
-
-        }
-        public enum Learning
-        {
-            LaserOffset,
-            Orthogonality,
-            ScannatorIncline
-        }
+       
     }
 }

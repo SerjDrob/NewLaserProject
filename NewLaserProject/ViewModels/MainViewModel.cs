@@ -82,7 +82,10 @@ namespace NewLaserProject.ViewModels
 
         [ICommand]
         private void StartProcess()
-        {
+        {   
+            //is dxf valid?
+            using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(),(60,48));
+
         }
         [ICommand]
         public void Test()
