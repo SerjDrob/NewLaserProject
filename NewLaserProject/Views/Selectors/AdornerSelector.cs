@@ -35,14 +35,7 @@ namespace NewLaserProject.Views.Selectors
                 default:
                     return null;
                     break;
-            }
-
-            //return item switch
-            //{
-            //    LoopBlock => LoopDataTemplate;
-            //    PierceBlock => PierceDataTemplate,
-
-            //};
+            }           
         }
     }
 }

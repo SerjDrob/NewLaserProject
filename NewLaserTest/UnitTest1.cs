@@ -21,7 +21,7 @@ namespace NewLaserTest
                 "I'm going to load point"
             };
             var controlString = string.Empty;
-            var cbBuilder = TeachCameraBias.GetBuilder();
+            var cbBuilder = CameraOffsetTeacher.GetBuilder();
             cbBuilder.SetOnGoUnderCameraAction(() => Task.Run(() => { controlString = stages[0]; }));
             cbBuilder.SetOnGoToSootAction(() => Task.Run(() => { controlString = stages[1]; }));
             cbBuilder.SetOnGoLoadPointAction(() => Task.Run(() => { controlString = stages[2]; }));

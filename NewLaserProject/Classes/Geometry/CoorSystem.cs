@@ -14,12 +14,16 @@ namespace NewLaserProject.Classes.Geometry
     {
         private Dictionary<TPlaceEnum, CoorSystem<TPlaceEnum>> _subSystems;
         private readonly Matrix _mainMatrix;
-
         public CoorSystem(Matrix mainMatrix)
         {
             _mainMatrix = mainMatrix;
         }
-
+        /// <summary>
+        /// Instantiates a new object of CoorSystem by accordance of three pairs of points.
+        /// </summary>
+        /// <param name="first">First pair of points. Item1 and Item2 are "point from" and "point to" respectively</param>
+        /// <param name="second">Second pair of points. Item1 and Item2 are "point from" and "point to" respectively</param>
+        /// <param name="third">Third pair of points. Item1 and Item2 are "point from" and "point to" respectively</param>
         public CoorSystem((PointF, PointF) first, (PointF, PointF) second, (PointF, PointF) third)
         {
             var list = new List<(PointF, PointF)> { first, second, third };
@@ -31,7 +35,6 @@ namespace NewLaserProject.Classes.Geometry
                     if (f.Item1.Y < s.Item1.Y) { return 1; }
                     else { return 0; }
                 }
-
             });
 
             list.Sort((f, s) =>
@@ -70,6 +73,7 @@ namespace NewLaserProject.Classes.Geometry
                 _subSystems[name] = sub;
             }
         }
+        
         public double[] ToGlobal(double x, double y)
         {
             var points = new PointF[] { new((float)x, (float)y) };
@@ -102,12 +106,12 @@ namespace NewLaserProject.Classes.Geometry
             Guard.IsNotNull(_subSystems, nameof(_subSystems));
             return _subSystems.ContainsKey(from) ? _subSystems[from].FromGlobal(x, y) : throw new KeyNotFoundException($"Subsystem {from} is not set");
         }
+        public float[] GetMainMatrixElements() => _mainMatrix.Elements;
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)

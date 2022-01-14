@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
-    public class TeachCameraBias : ITeacher
+    public class CameraOffsetTeacher : ITeacher
     {
         private StateMachine<MyState, MyTrigger> _stateMachine;
         private (bool init, double dx, double dy) _newOffset = (false, 0, 0);
@@ -17,15 +17,15 @@ namespace NewLaserProject.Classes
         {
             return new CameraBiasTeacherBuilder();
         }
-        private TeachCameraBias()
+        private CameraOffsetTeacher()
         {
 
         }
-        private TeachCameraBias(Func<Task> GoLoadPoint, Func<Task> GoUnderCamera, Func<Task> GoToSoot,
+        private CameraOffsetTeacher(Func<Task> GoLoadPoint, Func<Task> GoUnderCamera, Func<Task> GoToSoot,
             Func<Task> OnBiasTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart, Func<Task> GiveResult)
         {
             _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
-            
+
             _stateMachine.Configure(MyState.Begin)
                 .OnEntryAsync(RequestPermissionToStart)
                 .Permit(MyTrigger.Accept, MyState.AtLoadPoint)
@@ -85,15 +85,21 @@ namespace NewLaserProject.Classes
             Guard.HasSizeEqualTo(ps, 2, nameof(ps));
             _newOffset = _newOffset.init ? (false, _newOffset.dx - ps[0], _newOffset.dy - ps[1]) : (true, ps[0], ps[1]);
         }
-        public (double dx, double dy) GetOffset() => (_newOffset.dx,_newOffset.dy);
+        //public (double dx, double dy) GetOffset() => (_newOffset.dx,_newOffset.dy);
+
+        public double[] GetParams()
+        {
+            return new double[] { _newOffset.dx, _newOffset.dy };
+        }
+
         public class CameraBiasTeacherBuilder
         {
-            public TeachCameraBias Build()
+            public CameraOffsetTeacher Build()
             {
                 Guard.IsNotNull(GoToSoot, $"{nameof(GoToSoot)} isn't set");
                 Guard.IsNotNull(GoUnderCamera, $"{nameof(GoUnderCamera)} isn't set");
                 Guard.IsNotNull(GoUnderCamera, $"{nameof(GoUnderCamera)} isn't set");
-                return new TeachCameraBias(GoLoadPoint, GoUnderCamera, GoToSoot, OnBiasTought, RequestPermissionToAccept, RequestPermissionToStart, HasResult);
+                return new CameraOffsetTeacher(GoLoadPoint, GoUnderCamera, GoToSoot, OnBiasTought, RequestPermissionToAccept, RequestPermissionToStart, HasResult);
             }
             private Func<Task> GoToSoot;
             private Func<Task> GoUnderCamera;

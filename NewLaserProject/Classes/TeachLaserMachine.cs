@@ -53,7 +53,7 @@ namespace NewLaserProject.Classes
                         double xOffset = 1;
                         double yOffset = 1;
 
-                        var tcb = TeachCameraBias.GetBuilder();
+                        var tcb = CameraOffsetTeacher.GetBuilder();
                         tcb.SetOnGoLoadPointAction(() => _laserMachine.GoThereAsync(LMPlace.Loading))
                             .SetOnGoUnderCameraAction(() => _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition))
                             .SetOnGoToSootAction(() => Task.Run(async () =>

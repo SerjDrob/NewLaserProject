@@ -8,5 +8,6 @@ namespace NewLaserProject.Classes
         Task Deny();
         Task Next();
         void SetParams(params double[] ps);
+        double[] GetParams();
     }
 }

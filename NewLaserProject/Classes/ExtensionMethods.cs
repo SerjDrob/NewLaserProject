@@ -1,7 +1,10 @@
 ﻿using NewLaserProject.Properties;
 using NewLaserProject.ViewModels;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,6 +68,19 @@ namespace NewLaserProject.Classes
             machineSettings.YLeftPoint=Settings.Default.YLeftPoint;
             machineSettings.XRightPoint=Settings.Default.XRightPoint;
             machineSettings.YRightPoint=Settings.Default.YRightPoint;
+        }
+        internal static void SerializeObject(this object obj, string filePath)
+        {
+            var json = JsonConvert.SerializeObject(obj);          
+            using var writer = new StreamWriter(filePath, false);
+            var l = new TextWriterTraceListener(writer);
+            l.WriteLine(json);
+            l.Flush();
+        }
+        internal static object DeserilizeObject<T>(string filePath)
+        {
+            var obj = JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(T));
+            return (T)obj;
         }
     }
 }

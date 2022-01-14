@@ -6,16 +6,19 @@ using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MachineControlsLibrary.Classes;
+using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,11 +32,14 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         private readonly LaserMachine _laserMachine;
-        private DxfReader _dxfReader;
+        private readonly string _projectDirectory;
+        public int FileScale { get; set; } = 1000;
+        public bool MirrorX { get; set; } = true;
+        public bool WaferTurn90 { get; set; } = true;
         public BitmapImage CameraImage { get; set; }
-        public AxisStateView XAxis { get; set; }
-        public AxisStateView YAxis { get; set; }
-        public AxisStateView ZAxis { get; set; }
+        public AxisStateView XAxis { get; set; } = new AxisStateView(0, false, false, true, false);
+        public AxisStateView YAxis { get; set; } = new AxisStateView(0, false, false, true, false);
+        public AxisStateView ZAxis { get; set; } = new AxisStateView(0, false, false, true, false);
         public LayersProcessingModel LPModel { get; set; }
         public TechWizardViewModel TWModel { get; set; }
         public bool LeftCornerBtnVisibility { get; set; } = false;
@@ -43,17 +49,29 @@ namespace NewLaserProject.ViewModels
 
         private string _pierceSequenceJson = string.Empty;
         public string FileName { get; set; } = "open new file";
-        private ITeacher _currentTeacher;
-        private bool _canTeach = false;
+
         public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
 
+
+
+        //---------------------------------------------
+        private DxfReader _dxfReader;
+        private CoorSystem<LMPlace> _coorSystem;
+        private ITeacher _currentTeacher;
+        private bool _canTeach = false;
+        //---------------------------------------------
+
         public MainViewModel(LaserMachine laserMachine)
         {
+            var workingDirectory = Environment.CurrentDirectory;
+            _projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
             _laserMachine = laserMachine;
             _laserMachine.OnVideoSourceBmpChanged += _laserMachine_OnVideoSourceBmpChanged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
-            Settings.Default.Save();
+            Settings.Default.Save();//wtf?
+            _coorSystem = GetCoorSystem();
+            //ImplementMachineSettings();
         }
         public MainViewModel()
         {
@@ -82,15 +100,22 @@ namespace NewLaserProject.ViewModels
 
         [ICommand]
         private void StartProcess()
-        {   
+        {
             //is dxf valid?
-            using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(),(60,48));
-
+            using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (60, 48));
+            if (WaferTurn90) wafer.Turn90();
+            if (MirrorX) wafer.MirrorX();
+            wafer.Scale(FileScale);
+            var process = new LaserProcess<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
+            process.Start();
         }
         [ICommand]
         public void Test()
-        {
-            LeftCornerBtnVisibility ^= true;
+        {            
+            var system = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(1, 21, 34, 4, 5, 6));
+            system.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem.json");
+            var m = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json");
+            //LeftCornerBtnVisibility ^= true;
         }
 
         [ICommand]
@@ -151,7 +176,7 @@ namespace NewLaserProject.ViewModels
             double yOffset = 1;
 
 
-            var tcb = TeachCameraBias.GetBuilder();
+            var tcb = CameraOffsetTeacher.GetBuilder();
             tcb.SetOnGoLoadPointAction(() => _laserMachine.GoThereAsync(LMPlace.Loading))
                 .SetOnGoUnderCameraAction(() => _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition))
                 .SetOnGoToSootAction(() => Task.Run(async () =>
@@ -163,7 +188,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
                 {
-                    if(MessageBox.Show("Обучить смещение камеры от объектива лазера?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (MessageBox.Show("Обучить смещение камеры от объектива лазера?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
                         _currentTeacher.Accept();
                     }
@@ -191,16 +216,128 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
                 {
-                    MessageBox.Show("Новое значение установленно","Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Settings.Default.XOffset = _currentTeacher.GetParams()[0];
+                    Settings.Default.YOffset = _currentTeacher.GetParams()[1];
+                    Settings.Default.Save();
+                    MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                     _canTeach = false;
                 }));
             _currentTeacher = tcb.Build();
             _canTeach = true;
         }
         [ICommand]
-        private void TeachScanatorHorizont() { }
+        private void TeachScanatorHorizont() 
+        {
+            var teachPosition = new double[] { 1, 1 };
+            double xOffset = 1;
+            double yOffset = 1;
+
+
+            var tcb = LaserHorizontTeacher.GetBuilder();
+
+            tcb.SetGoUnderLaserAction(() => _laserMachine.GoThereAsync(LMPlace.UnderCamera))
+                .SetGoAtFirstPointAction(() => _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition))
+                .SetGoAtSecondPointAction(() => Task.Run(async () =>
+                {
+                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true);
+                    await _laserMachine.PiercePointAsync();
+                    _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true);
+                }))
+                .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
+                {
+                    if (MessageBox.Show("Обучить смещение камеры от объектива лазера?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        _currentTeacher.Accept();
+                    }
+                    else
+                    {
+                        _currentTeacher.Deny();
+                    }
+                }))
+                .SetOnRequestPermissionToAcceptAction(() => Task.Run(() =>
+                {
+                    _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                    if (MessageBox.Show($"Принять новое смещение камеры от объектива лазера {_currentTeacher}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        _currentTeacher.Accept();
+                    }
+                    else
+                    {
+                        _currentTeacher.Deny();
+                    }
+                }))
+                .SetOnLaserHorizontToughtAction(() => Task.Run(() =>
+                {
+                    MessageBox.Show("Обучение отменено", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _canTeach = false;
+                }))
+                .SetOnHasResultAction(() => Task.Run(() =>
+                {
+                    Settings.Default.XOffset = _currentTeacher.GetParams()[0];
+                    Settings.Default.YOffset = _currentTeacher.GetParams()[1];
+                    Settings.Default.Save();
+                    MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _canTeach = false;
+                }));
+            _currentTeacher = tcb.Build();
+            _canTeach = true;
+        }
         [ICommand]
-        private void TeachOrthXY() { }
+        private void TeachOrthXY(List<PointF> points)
+        {
+            Guard.IsEqualTo(points.Count, 3, nameof(points));
+            using var pointsEnumerator = points.GetEnumerator();
+            var tcb = XYOrthTeacher.GetBuilder();
+            tcb.SetOnGoNextPointAction(() => Task.Run(async () =>
+                {
+                    pointsEnumerator.MoveNext();
+                    var point = pointsEnumerator.Current;
+                    await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(point.X, point.Y), true);
+                }))
+                .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
+                {
+                    if (MessageBox.Show("Обучить координатную систему лазера?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        _currentTeacher.Accept();
+                    }
+                    else
+                    {
+                        _currentTeacher.Deny();
+                    }
+                }))
+                .SetOnRequestPermissionToAcceptAction(() => Task.Run(() =>
+                {
+                    _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                    if (MessageBox.Show($"Принять новое значения координат для матрицы преобразования {_currentTeacher}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        _currentTeacher.Accept();
+                    }
+                    else
+                    {
+                        _currentTeacher.Deny();
+                    }
+                }))
+                .SetOnXYOrthToughtAction(() => Task.Run(() =>
+                {
+                    MessageBox.Show("Обучение отменено", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _canTeach = false;
+                }))
+                .SetOnHasResultAction(() => Task.Run(() =>
+                {
+                    var resultPoints = _currentTeacher.GetParams();
+                    _coorSystem = new CoorSystem<LMPlace>(
+                        first: (new(points[0].X, points[0].Y), new((float)resultPoints[0], (float)resultPoints[1])),
+                        second: (new(points[1].X, points[1].Y), new((float)resultPoints[2], (float)resultPoints[3])),
+                        third: (new(points[2].X, points[2].Y), new((float)resultPoints[4], (float)resultPoints[5])));
+                    TuneCoorSystem(_coorSystem);
+                    _coorSystem.SerializeObject("filePath");
+                    MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _canTeach = false;
+                }));
+            _currentTeacher = tcb.Build();
+            _canTeach = true;
+        }
         [ICommand]
         private void TeachNext()
         {
@@ -210,17 +347,17 @@ namespace NewLaserProject.ViewModels
             }
         }
         [ICommand]
-        private void MachineSettings() 
+        private void MachineSettings()
         {
-            var dataContext = new MachineSettingsViewModel(/*XAxis.Position,YAxis.Position,ZAxis.Position*/1, 2, 3);
+            var dataContext = new MachineSettingsViewModel(XAxis.Position, YAxis.Position, ZAxis.Position);
             dataContext.CopyFromSettings();
-            new MachineSettingsView 
+            new MachineSettingsView
             {
                 DataContext = dataContext
             }.ShowDialog();
             dataContext.CopyToSettings();
             Settings.Default.Save();
-          //  ImplementMachineSettings();
+            ImplementMachineSettings();
         }
         private void ImplementMachineSettings()
         {
@@ -268,7 +405,7 @@ namespace NewLaserProject.ViewModels
                 homeVelLow = Settings.Default.ZVelLow,
                 homeVelHigh = Settings.Default.ZVelService
             };
-            
+
             var XVelRegimes = new Dictionary<Velocity, double>
             {
                 {Velocity.Fast, Settings.Default.XVelHigh},
@@ -289,7 +426,7 @@ namespace NewLaserProject.ViewModels
                 {Velocity.Slow, Settings.Default.ZVelLow},
                 {Velocity.Service, Settings.Default.ZVelService}
             };
-                       
+
 
             _laserMachine.ConfigureVelRegimes(new Dictionary<Ax, Dictionary<Velocity, double>>
             {
@@ -341,6 +478,27 @@ namespace NewLaserProject.ViewModels
             //_machine.SetBridgeOnSensors(Sensors.Coolant, Settings.Default.CoolantSensorDsbl);
             //_machine.SetBridgeOnSensors(Sensors.Air, Settings.Default.AirSensorDsbl);
             //_machine.SetBridgeOnSensors(Sensors.SpindleCoolant, Settings.Default.SpindleCoolantSensorDsbl);
+        }
+        private CoorSystem<LMPlace> GetCoorSystem()
+        {
+            var matrixElements = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json");
+            var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
+                matrixElements[0],
+                matrixElements[1],
+                matrixElements[2],
+                matrixElements[3],
+                matrixElements[4],
+                matrixElements[5]
+                ));
+            TuneCoorSystem(sys);
+            return sys;
+        }
+        private void TuneCoorSystem(CoorSystem<LMPlace> coorSystem)
+        {
+            coorSystem.SetRelatedSystem(LMPlace.Loading, 1, 2);
+            coorSystem.SetRelatedSystem(LMPlace.UnderLaser, 1, 2);
+            coorSystem.SetRelatedSystem(LMPlace.LeftCorner, 1, 2);
+            coorSystem.SetRelatedSystem(LMPlace.RightCorner, 1, 2);
         }
     }
 

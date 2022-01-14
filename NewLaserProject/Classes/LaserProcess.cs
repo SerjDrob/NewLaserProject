@@ -15,7 +15,6 @@ namespace NewLaserProject.Classes
 {
     public class LaserProcess<T> where T : class
     {
-        private readonly IEnumerable<IProcObject<T>> _procObjects;
         private readonly string _pierceSequenceJson;
         private readonly LaserMachine _laserMachine;
         private readonly CoorSystem<LMPlace> _coorSystem;
@@ -27,15 +26,14 @@ namespace NewLaserProject.Classes
         private Block _pauseBlock = new Block().BlockMe();
        
 
-        public LaserProcess(IEnumerable<IProcObject<T>> procObjects, string jsonPierce, LaserMachine laserMachine, CoorSystem<LMPlace> coorSystem)
+        public LaserProcess(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, CoorSystem<LMPlace> coorSystem)
         {
-            this._procObjects = procObjects;
             this._pierceSequenceJson = jsonPierce;
             _laserMachine = laserMachine;
-            _enumerator = _procObjects.GetEnumerator();            
+            _enumerator = wafer.GetEnumerator();            
             _coorSystem = coorSystem;
         }
-        public void Proc()
+        private void CreateProcess()
         {
 
             var iteratorBlock = new Block();
@@ -85,6 +83,7 @@ namespace NewLaserProject.Classes
         }
         public async Task<bool> Start()
         {
+            CreateProcess();
             return await _rootSequence.DoWork();
         }
         public void Pause() => _pauseBlock.UnBlockMe();
