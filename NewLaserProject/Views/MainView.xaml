@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NewLaserProject.Views"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
         Title="Лазер" Height="450" Width="800" WindowState="Maximized">
@@ -14,8 +15,21 @@
         <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
         <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
         <KeyBinding Command="{Binding MachineSettingsCommand}" Key="H"/>
-
+        <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
+        <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
+        <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
+        <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
+        <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
+        <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>
     </Window.InputBindings>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="KeyDown">
+            <i:InvokeCommandAction Command="{Binding KeyDownAsyncCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="KeyUp">
+            <i:InvokeCommandAction Command="{Binding KeyUpAsyncCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>

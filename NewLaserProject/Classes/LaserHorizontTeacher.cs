@@ -11,26 +11,29 @@ namespace NewLaserProject.Classes
     internal class LaserHorizontTeacher : ITeacher
     {
         private StateMachine<MyState, MyTrigger> _stateMachine;
+        private List<double> _points = new();
+
         private LaserHorizontTeacher()
         {
 
         }
-        private LaserHorizontTeacher(Func<Task> GoUnderLaser, Func<Task> GoAtFirstPoint, Func<Task> GoAtSecondPoint,
-            Func<Task> OnLaserHorizontTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart, Func<Task> GiveResult)
+        private LaserHorizontTeacher(Func<Task> GoAtFirstPoint, Func<Task> GoAtSecondPoint,
+            Func<Task> OnLaserHorizontTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart, 
+            Func<Task> GiveResult, Func<Task> GoUnderCamera)
         {
             _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
 
             _stateMachine.Configure(MyState.Begin)
                 .OnEntryAsync(RequestPermissionToStart)
-                .Permit(MyTrigger.Accept, MyState.UnderLaser)
+                .Permit(MyTrigger.Accept, MyState.UnderCamera)
                 .Permit(MyTrigger.Deny, MyState.End)
                 .Ignore(MyTrigger.Next);
 
-            _stateMachine.Configure(MyState.UnderLaser)
-                .OnEntryAsync(GoUnderLaser)
-                .Permit(MyTrigger.Next,MyState.AtFirstPointUnderCamera)
+            _stateMachine.Configure(MyState.UnderCamera)
+                .OnEntryAsync(GoUnderCamera)
+                .Permit(MyTrigger.Next, MyState.AtFirstPointUnderCamera)
                 .Permit(MyTrigger.Deny, MyState.End)
-                .Ignore(MyTrigger.Accept);
+                .Ignore(MyTrigger.Accept);          
 
             _stateMachine.Configure(MyState.AtFirstPointUnderCamera)
                 .OnEntryAsync(GoAtFirstPoint)
@@ -69,15 +72,13 @@ namespace NewLaserProject.Classes
         public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
         public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);
         public async Task Deny() => await _stateMachine.FireAsync(MyTrigger.Deny);
-        
-        public double[] GetParams()
-        {
-            throw new NotImplementedException();
-        }               
+
+        public double[] GetParams() => _points.ToArray();                   
 
         public void SetParams(params double[] ps)
         {
-            throw new NotImplementedException();
+            Guard.HasSizeEqualTo(ps, 2, nameof(ps));
+            _points.AddRange(ps);
         }
         public class LaserHorizontTeacherBuilder
         {
@@ -87,24 +88,20 @@ namespace NewLaserProject.Classes
                 Guard.IsNotNull(RequestPermissionToAccept, $"{nameof(RequestPermissionToAccept)} isn't set");
                 Guard.IsNotNull(RequestPermissionToStart, $"{nameof(RequestPermissionToStart)} isn't set");
                 Guard.IsNotNull(HasResult, $"{nameof(HasResult)} isn't set");
-                Guard.IsNotNull(GoUnderLaser, $"{nameof(GoUnderLaser)} isn't set");
+                Guard.IsNotNull(GoUnderCamera, $"{nameof(GoUnderCamera)} isn't set");
                 Guard.IsNotNull(GoAtFirstPoint, $"{nameof(GoAtFirstPoint)} isn't set");
                 Guard.IsNotNull(GoAtSecondPoint, $"{nameof(GoAtSecondPoint)} isn't set");
-                return new LaserHorizontTeacher(GoUnderLaser, GoAtFirstPoint, GoAtSecondPoint, OnLaserHorizontTought, RequestPermissionToAccept, RequestPermissionToStart, HasResult);
+                return new LaserHorizontTeacher(GoAtFirstPoint, GoAtSecondPoint, OnLaserHorizontTought, RequestPermissionToAccept, RequestPermissionToStart, HasResult, GoUnderCamera);
             }
-            private Func<Task> GoUnderLaser;
+
+            private Func<Task> GoUnderCamera;
             private Func<Task> GoAtFirstPoint;
             private Func<Task> GoAtSecondPoint;
             private Func<Task> OnLaserHorizontTought;
             private Func<Task> RequestPermissionToAccept;
             private Func<Task> RequestPermissionToStart;
             private Func<Task> HasResult;
-
-            public LaserHorizontTeacherBuilder SetGoUnderLaserAction(Func<Task> action)
-            {
-                GoUnderLaser = action;
-                return this;
-            }
+           
             public LaserHorizontTeacherBuilder SetGoAtFirstPointAction(Func<Task> action)
             {
                 GoAtFirstPoint = action;
@@ -135,11 +132,16 @@ namespace NewLaserProject.Classes
                 HasResult = action;
                 return this;
             }
+            public LaserHorizontTeacherBuilder SetGoUnderCameraAction(Func<Task> action)
+            {
+                GoUnderCamera = action;
+                return this;
+            }
         }
         private enum MyState
         {
             Begin,
-            UnderLaser,
+            UnderCamera,
             AtFirstPointUnderCamera,
             AtSecondPointUnderCamera,
             RequestPermission,

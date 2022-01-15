@@ -24,6 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace NewLaserProject.ViewModels
@@ -33,6 +34,7 @@ namespace NewLaserProject.ViewModels
     {
         private readonly LaserMachine _laserMachine;
         private readonly string _projectDirectory;
+        public string VideoScreenMessage { get; set; } = "";
         public int FileScale { get; set; } = 1000;
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
@@ -111,7 +113,7 @@ namespace NewLaserProject.ViewModels
         }
         [ICommand]
         public void Test()
-        {            
+        {
             var system = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(1, 21, 34, 4, 5, 6));
             system.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem.json");
             var m = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json");
@@ -226,27 +228,44 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
         [ICommand]
-        private void TeachScanatorHorizont() 
+        private void TeachScanatorHorizont()
         {
-            var teachPosition = new double[] { 1, 1 };
-            double xOffset = 1;
-            double yOffset = 1;
-
+            var waferWidth = 60;
+            var delta = 5;
+            var xLeft = delta;
+            var xRight = waferWidth-delta;
+            var waferHeight = 48;
+            float tempX = 0;
 
             var tcb = LaserHorizontTeacher.GetBuilder();
 
-            tcb.SetGoUnderLaserAction(() => _laserMachine.GoThereAsync(LMPlace.UnderCamera))
-                .SetGoAtFirstPointAction(() => _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition))
+            tcb.SetGoUnderCameraAction(async () =>
+                {
+                    await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(waferWidth / 2, waferHeight / 2));
+                    VideoScreenMessage = "Выберете место на пластине для прожига горизонтальной линии";
+                })
+                .SetGoAtFirstPointAction(() => Task.Run(async () =>
+                {
+                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { Settings.Default.XOffset, Settings.Default.YOffset }, true);
+                    var matrix = new System.Drawing.Drawing2D.Matrix();
+                    matrix.Rotate((float)Settings.Default.PazAngle);
+                    var points = new PointF[] { new PointF(xLeft - waferWidth/2, 0), new PointF(xRight - waferWidth / 2, 0) };
+                    matrix.TransformPoints(points);
+                    tempX = points[0].X;
+                    await _laserMachine.PierceLineAsync(-waferWidth / 2, 0, waferWidth / 2, 0);
+                    await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(tempX, waferHeight / 2));
+                    VideoScreenMessage = "Установите перекрестие на первую точку линии и нажмите *";
+                    tempX= points[1].X;
+                }))
                 .SetGoAtSecondPointAction(() => Task.Run(async () =>
                 {
-                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true);
-                    await _laserMachine.PiercePointAsync();
-                    _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
-                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true);
+                    _currentTeacher.SetParams(new double[] { XAxis.Position, YAxis.Position });
+                    await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(tempX, waferHeight / 2));
+                    VideoScreenMessage = "Установите перекрестие на вторую точку линии и нажмите *";
                 }))
                 .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
                 {
-                    if (MessageBox.Show("Обучить смещение камеры от объектива лазера?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (MessageBox.Show("Обучить горизонтальность сканатора?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
                         _currentTeacher.Accept();
                     }
@@ -258,7 +277,7 @@ namespace NewLaserProject.ViewModels
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(() =>
                 {
                     _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
-                    if (MessageBox.Show($"Принять новое смещение камеры от объектива лазера {_currentTeacher}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (MessageBox.Show($"Принять новое значение горизонтальности сканатора {_currentTeacher}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
                         _currentTeacher.Accept();
                     }
@@ -274,8 +293,12 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
                 {
-                    Settings.Default.XOffset = _currentTeacher.GetParams()[0];
-                    Settings.Default.YOffset = _currentTeacher.GetParams()[1];
+                    var result = _currentTeacher.GetParams();
+                    var point1 = new PointF((float)result[0], (float)result[1]);
+                    var point2 = new PointF((float)result[2], (float)result[3]);
+                    double AC = point2.X - point1.X;
+                    double CB = point2.Y - point1.Y;
+                    Settings.Default.PazAngle = Math.Atan2(CB, AC);
                     Settings.Default.Save();
                     MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                     _canTeach = false;
@@ -346,6 +369,97 @@ namespace NewLaserProject.ViewModels
                 _currentTeacher?.Next().Wait();
             }
         }
+        [ICommand]
+        private void TeachDeny()
+        {
+            if (_canTeach)
+            {
+                _currentTeacher?.Deny().Wait();
+            }
+        }
+
+        #region Driving the machine
+
+        [ICommand]
+        private async Task KeyDownAsync(object args)
+        {
+            var key = (KeyEventArgs)args;
+            switch (key.Key)
+            {
+                case Key.Tab:
+                    break;
+                case Key.A:
+                    _laserMachine.GoWhile(Ax.Y, AxDir.Pos);
+                    break;
+                case Key.B:
+                    _laserMachine.GoWhile(Ax.Z, AxDir.Neg);
+                    break;
+                case Key.C:
+                    _laserMachine.GoWhile(Ax.X, AxDir.Pos);
+                    break;
+                case Key.E:
+                    break;
+                case Key.G:
+                    break;
+                case Key.J:
+                    break;
+                case Key.K:
+                    break;
+                case Key.L:
+                    break;
+                case Key.V:
+                    _laserMachine.GoWhile(Ax.Z, AxDir.Pos);
+                    break;
+                case Key.X:
+                    _laserMachine.GoWhile(Ax.X, AxDir.Neg);
+                    break;
+                case Key.Z:
+                    _laserMachine.GoWhile(Ax.Y, AxDir.Neg);
+                    break;
+            }
+        }
+
+        [ICommand]
+        private async Task KeyUpAsync(object args)
+        {
+            var key = (KeyEventArgs)args;
+            switch (key.Key)
+            {
+                case Key.Tab:
+                    break;
+                case Key.A:
+                    _laserMachine.Stop(Ax.Y);
+                    break;
+                case Key.B:
+                    _laserMachine.Stop(Ax.Z);
+                    break;
+                case Key.C:
+                    _laserMachine.Stop(Ax.X);
+                    break;
+                case Key.E:
+                    break;
+                case Key.G:
+                    break;
+                case Key.J:
+                    break;
+                case Key.K:
+                    break;
+                case Key.L:
+                    break;
+                case Key.V:
+                    _laserMachine.Stop(Ax.Z);
+                    break;
+                case Key.X:
+                    _laserMachine.Stop(Ax.X);
+                    break;
+                case Key.Z:
+                    _laserMachine.Stop(Ax.Y);
+                    break;
+            }
+        }
+
+        #endregion
+
         [ICommand]
         private void MachineSettings()
         {
