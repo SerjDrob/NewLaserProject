@@ -73,7 +73,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             Settings.Default.Save();//wtf?
             _coorSystem = GetCoorSystem();
-            //ImplementMachineSettings();
+            ImplementMachineSettings();
         }
         public MainViewModel()
         {

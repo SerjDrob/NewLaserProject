@@ -33,6 +33,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="AdvMotAPI">
+      <HintPath>C:\Program Files\Advantech\Common Motion\Public\AdvMotAPI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Views\angle.png" />
     <Resource Include="Views\distance-32.png" />
     <Resource Include="Views\laserbeam_laser_13620.png" />

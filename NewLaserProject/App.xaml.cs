@@ -8,12 +8,6 @@ using MachineClassLibrary.VideoCapture;
 using Microsoft.Extensions.DependencyInjection;
 using NewLaserProject.ViewModels;
 using NewLaserProject.Views;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace NewLaserProject
@@ -26,13 +20,15 @@ namespace NewLaserProject
         public ServiceCollection MainIoC { get; private set; }
         public App()
         {
-            MainIoC=new ServiceCollection();
-            MainIoC.AddSingleton(typeof(MotionDevicePCI1240U),typeof(MotionDevicePCI1245E))
+            //var machine = new MotionDevicePCI1240U();
+            MainIoC = new ServiceCollection();
+            MainIoC//.AddSingleton(typeof(MotionDevicePCI1240U),typeof(MotionDevicePCI1245E))
+                   .AddSingleton<MotionDevicePCI1240U>()
                    .AddSingleton<ExceptionsAgregator>()
-                   .AddScoped(typeof(IMarkLaser),typeof(JCZLaser))
-                   .AddScoped(typeof(IVideoCapture),typeof(USBCamera))
+                   .AddScoped(typeof(IMarkLaser), typeof(JCZLaser))
+                   .AddScoped(typeof(IVideoCapture), typeof(USBCamera))
                    .AddSingleton<LaserMachine>()
-                   .AddSingleton<MainViewModel>();            
+                   .AddSingleton<MainViewModel>();
 
         }
         protected override void OnStartup(StartupEventArgs e)
