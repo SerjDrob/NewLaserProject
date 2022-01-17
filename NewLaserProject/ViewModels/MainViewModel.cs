@@ -475,6 +475,38 @@ namespace NewLaserProject.ViewModels
         }
         private void ImplementMachineSettings()
         {
+            _laserMachine.ConfigureAxes(new (Ax, double)[]
+                {
+                    (Ax.X, 12.8),
+                    (Ax.Z, 0),
+                    (Ax.Y, 12.8)
+                });
+
+            _laserMachine.ConfigureAxesGroups(new Dictionary<Groups, Ax[]>
+                {
+                    {Groups.XY, new[] {Ax.X, Ax.Y}}
+                });
+
+            //_laserMachine.ConfigureValves(new Dictionary<Valves, (Ax, Do)>
+            //    {
+            //        {Valves.Blowing, (Ax.Z, Do.Out6)},
+            //        {Valves.ChuckVacuum, (Ax.Z, Do.Out4)},
+            //        {Valves.Coolant, (Ax.U, Do.Out4)},
+            //        {Valves.SpindleContact, (Ax.U, Do.Out5)}
+            //    });
+
+            //_laserMachine.SwitchOffValve(Valves.Blowing);
+            //_laserMachine.SwitchOffValve(Valves.ChuckVacuum);
+            //_laserMachine.SwitchOffValve(Valves.Coolant);
+            //_laserMachine.SwitchOffValve(Valves.SpindleContact);
+
+            //_laserMachine.ConfigureSensors(new Dictionary<Sensors, (Ax, Di, Boolean, string)>
+            //    {
+            //        {Sensors.Air, (Ax.Z, Di.In1, false, "Воздух")},
+            //        {Sensors.ChuckVacuum, (Ax.X, Di.In2, false, "Вакуум")},
+            //        {Sensors.Coolant, (Ax.U, Di.In2, false, "СОЖ")},
+            //        {Sensors.SpindleCoolant, (Ax.Y, Di.In2, false, "Охлаждение шпинделя")}
+            //    });
             var xpar = new MotionDeviceConfigs
             {
                 maxAcc = 180,
