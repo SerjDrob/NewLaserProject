@@ -478,8 +478,8 @@ namespace NewLaserProject.ViewModels
             _laserMachine.ConfigureAxes(new (Ax, double)[]
                 {
                     (Ax.X, 12.8),
-                    (Ax.Z, 0),
-                    (Ax.Y, 12.8)
+                    (Ax.Y, 12.8),
+                    (Ax.Z, 0)                    
                 });
 
             _laserMachine.ConfigureAxesGroups(new Dictionary<Groups, Ax[]>
@@ -511,7 +511,7 @@ namespace NewLaserProject.ViewModels
             {
                 maxAcc = 180,
                 maxDec = 180,
-                maxVel = 50,
+                maxVel = 30,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)PlsOutMode.OUT_DIR,
                 reset = (int)HomeRst.HOME_RESET_EN,
@@ -526,7 +526,7 @@ namespace NewLaserProject.ViewModels
             {
                 maxAcc = 180,
                 maxDec = 180,
-                maxVel = 50,
+                maxVel = 30,
                 plsOutMde = (int)PlsOutMode.OUT_DIR_ALL_NEG,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 reset = (int)HomeRst.HOME_RESET_EN,
@@ -541,7 +541,7 @@ namespace NewLaserProject.ViewModels
             {
                 maxAcc = 180,
                 maxDec = 180,
-                maxVel = 50,
+                maxVel = 8,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)PlsOutMode.OUT_DIR,
                 reset = (int)HomeRst.HOME_RESET_EN,
@@ -568,7 +568,7 @@ namespace NewLaserProject.ViewModels
 
             var ZVelRegimes = new Dictionary<Velocity, double>
             {
-                {Velocity.Fast, Settings.Default.ZVelHigh},
+                {Velocity.Fast,1/* Settings.Default.ZVelHigh*/},
                 {Velocity.Slow, Settings.Default.ZVelLow},
                 {Velocity.Service, Settings.Default.ZVelService}
             };
@@ -582,12 +582,20 @@ namespace NewLaserProject.ViewModels
             });
 
 
-            _laserMachine.SetConfigs(new (Ax axis, MotionDeviceConfigs configs)[]
+            try
             {
-                (Ax.X, xpar),
-                (Ax.Y, ypar),
-                (Ax.Z, zpar),
-            });
+                _laserMachine.SetConfigs(new (Ax axis, MotionDeviceConfigs configs)[]
+                    {
+                        (Ax.X, xpar),
+                        (Ax.Y, ypar),
+                        (Ax.Z, zpar),
+                    });
+            }
+            catch (Exception ex)
+            {
+
+                //throw;
+            }
 
             _laserMachine.SetVelocity(VelocityRegime);
 
