@@ -33,18 +33,17 @@ namespace NewLaserProject
         }
         protected override void OnStartup(StartupEventArgs e)
         {
-
-            //var exceptionAgregator = new ExceptionsAgregator();
-            //var motionDevice = new MotionDevicePCI1245E();
-            //var markLaser = new JCZLaser();
-            //var camera = new USBCamera();
-            //var machine = new LaserMachine(exceptionAgregator, motionDevice, markLaser, camera);
             var provider = MainIoC.BuildServiceProvider();
+
+#if PCIInserted
             var viewModel = provider.GetService<MainViewModel>();
+#else
+            var viewModel = new MainViewModel();
+#endif   
             base.OnStartup(e);
             new MainView()
             {
-                DataContext = viewModel//new MainViewModel()
+                DataContext = viewModel
             }.Show();
         }
     }

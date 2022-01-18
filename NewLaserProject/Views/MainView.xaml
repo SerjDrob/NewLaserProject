@@ -24,10 +24,10 @@
     </Window.InputBindings>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
-            <i:InvokeCommandAction Command="{Binding KeyDownAsyncCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
+            <i:InvokeCommandAction Command="{Binding KeyDownCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
         <i:EventTrigger EventName="KeyUp">
-            <i:InvokeCommandAction Command="{Binding KeyUpAsyncCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
+            <i:InvokeCommandAction Command="{Binding KeyUpCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>

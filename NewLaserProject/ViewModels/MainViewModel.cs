@@ -378,10 +378,10 @@ namespace NewLaserProject.ViewModels
             }
         }
 
-        #region Driving the machine
+        #region Driving the machine        
 
         [ICommand]
-        private async Task KeyDownAsync(object args)
+        private async Task KeyDown(object args)
         {
             var key = (KeyEventArgs)args;
             switch (key.Key)
@@ -420,7 +420,7 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private async Task KeyUpAsync(object args)
+        private async Task KeyUp(object args)
         {
             var key = (KeyEventArgs)args;
             switch (key.Key)
@@ -475,12 +475,13 @@ namespace NewLaserProject.ViewModels
         }
         private void ImplementMachineSettings()
         {
+#if PCIInserted
             _laserMachine.ConfigureAxes(new (Ax, double)[]
-                {
+                    {
                     (Ax.X, 12.8),
                     (Ax.Y, 12.8),
                     (Ax.Z, 0)                    
-                });
+                    });
 
             _laserMachine.ConfigureAxesGroups(new Dictionary<Groups, Ax[]>
                 {
@@ -631,7 +632,8 @@ namespace NewLaserProject.ViewModels
             //_machine.SetBridgeOnSensors(Sensors.ChuckVacuum, Settings.Default.VacuumSensorDsbl);
             //_machine.SetBridgeOnSensors(Sensors.Coolant, Settings.Default.CoolantSensorDsbl);
             //_machine.SetBridgeOnSensors(Sensors.Air, Settings.Default.AirSensorDsbl);
-            //_machine.SetBridgeOnSensors(Sensors.SpindleCoolant, Settings.Default.SpindleCoolantSensorDsbl);
+            //_machine.SetBridgeOnSensors(Sensors.SpindleCoolant, Settings.Default.SpindleCoolantSensorDsbl);  
+#endif
         }
         private CoorSystem<LMPlace> GetCoorSystem()
         {
