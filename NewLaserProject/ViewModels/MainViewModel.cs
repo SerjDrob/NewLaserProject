@@ -58,7 +58,7 @@ namespace NewLaserProject.ViewModels
 
 
         //---------------------------------------------
-        private DxfReader _dxfReader;
+        private IDxfReader _dxfReader;
         private CoorSystem<LMPlace> _coorSystem;
         private ITeacher _currentTeacher;
         private bool _canTeach = false;
@@ -133,11 +133,12 @@ namespace NewLaserProject.ViewModels
             {
                 //Get the path of specified file
                 FileName = openFileDialog.FileName;
-                _dxfReader = new DxfReader(FileName);
-                LayGeoms = new LayGeomAdapter(_dxfReader.Document).CalcGeometry();
+               
             }
             if (File.Exists(FileName))
-            {
+            { 
+                _dxfReader = new DxfReader(FileName);
+                LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
                 IsFileSettingsEnable = true;
                 LPModel = new(FileName);
                 TWModel = new();

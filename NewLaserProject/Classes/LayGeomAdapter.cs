@@ -1,6 +1,6 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineControlsLibrary.Classes;
-using netDxf;
+using Microsoft.Toolkit.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,59 +13,23 @@ namespace NewLaserProject.Classes
 {
     public class LayGeomAdapter
     {
-        private readonly DxfDocument dxfDocument;
-
-        public LayGeomAdapter(DxfDocument dxfDocument)
+        private readonly GeometryAdapter _geomAdapter;
+        private readonly IDxfReader _reader;
+        public LayGeomAdapter(IDxfReader dxfReader)
         {
-            this.dxfDocument = dxfDocument;
+            Guard.IsNotNull(dxfReader, nameof(dxfReader));
+            _reader = dxfReader;
+            _geomAdapter = new(_reader);
         }
-
-        public ObservableCollection<LayerGeometryCollection> CalcGeometry()
+        public ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get => new ObservableCollection<LayerGeometryCollection>(CalcGeometry()); }
+        public IEnumerable<LayerGeometryCollection> CalcGeometry()
         {
-            var result = new ObservableCollection<LayerGeometryCollection>();
-            foreach (var layer in dxfDocument.Layers)
+            foreach (var layerKV in _reader.GetLayers())
             {
-
-                var collection = new GeometryCollection();
-                foreach (var polyline in dxfDocument.LwPolylines.Where(lw => lw.Layer.Name == layer.Name))
-                {
-
-                    var figures = polyline.Explode();
-                    foreach (var newEntity in figures)
-                    {
-                        switch (newEntity)
-                        {
-                            case netDxf.Entities.Line newLine:
-                                var lineGeometry = new LineGeometry(new System.Windows.Point(newLine.StartPoint.X, newLine.StartPoint.Y),
-                                                                    new System.Windows.Point(newLine.EndPoint.X, newLine.EndPoint.Y));
-                                collection.Add(lineGeometry);
-                                break;
-                            case netDxf.Entities.Arc newArc:
-
-                            default:
-                                break;
-                        }
-                    }
-
-                }
-                foreach (var circle in dxfDocument.Circles.Where(lw => lw.Layer.Name == layer.Name))
-                {
-                    var ellipseGeometry = new EllipseGeometry(new System.Windows.Point(circle.Center.X, circle.Center.Y), circle.Radius, circle.Radius);
-
-                    collection.Add(ellipseGeometry);
-                }
-                foreach (var line in dxfDocument.Lines.Where(lw => lw.Layer.Name == layer.Name))
-                {
-                    var lineGeometry = new LineGeometry(new System.Windows.Point(line.StartPoint.X, line.StartPoint.Y),
-                                                                    new System.Windows.Point(line.EndPoint.X, line.EndPoint.Y));
-                    collection.Add(lineGeometry);
-                }
-                var layGeom = new LayerGeometryCollection(collection, layer.Name, true, new SolidColorBrush(Color.FromRgb(layer.Color.R, layer.Color.G, layer.Color.B)),
-                        new SolidColorBrush(Color.FromRgb(layer.Color.R, layer.Color.G, layer.Color.B)));
-                result.Add(layGeom);
-
+                var geometries = ((IEnumerable<AdaptedGeometry>)_geomAdapter.GetGeometries()).Where(ag => ag.LayerName == layerKV.Key).Select(ag => ag.geometry);
+                var layerColor = GeometryAdapter.GetColorFromArgb(layerKV.Value);
+                yield return new LayerGeometryCollection(new GeometryCollection(geometries), layerKV.Key, true, layerColor, layerColor);
             }
-            return result;
         }
     }
 }
