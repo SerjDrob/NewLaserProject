@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <LangVersion>Latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
+    <UseWPF>true</UseWPF>
+    <!--<DefineConstants>PCIInserted</DefineConstants>-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Views\angle.png" />
+    <None Remove="Views\distance-32.png" />
+    <None Remove="Views\laserbeam_laser_13620.png" />
+    <None Remove="Views\learning.png" />
+    <None Remove="Views\rectangle.png" />
+    <None Remove="Views\settings.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="10.3.5" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="2.4.3" />
+    <PackageReference Include="MachineClassLibrary" Version="1.6.4" />
+    <PackageReference Include="MachineControlsLibrary" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.37" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="PropertyChanged.Fody" Version="3.4.0" />
+    <PackageReference Include="stateless" Version="5.11.0" />
+    <PackageReference Include="ValueConverters" Version="2.2.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AdvMotAPI">
+      <HintPath>C:\Program Files\Advantech\Common Motion\Public\AdvMotAPI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Views\angle.png" />
+    <Resource Include="Views\distance-32.png" />
+    <Resource Include="Views\laserbeam_laser_13620.png" />
+    <Resource Include="Views\learning.png" />
+    <Resource Include="Views\rectangle.png" />
+    <Resource Include="Views\settings.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
