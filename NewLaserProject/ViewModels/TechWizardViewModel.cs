@@ -29,7 +29,7 @@ namespace NewLaserProject.ViewModels
     [INotifyPropertyChanged]
     internal partial class TechWizardViewModel : DefaultDropHandler
     {
-        private readonly List<Type> _knownBlockTypes = new List<Type>()
+        private readonly List<Type> _knownBlockTypes = new()
         {
             typeof(AddZBlock),
             typeof(DelayBlock),

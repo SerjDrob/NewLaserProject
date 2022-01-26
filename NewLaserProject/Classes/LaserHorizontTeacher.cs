@@ -67,7 +67,7 @@ namespace NewLaserProject.Classes
 
             _stateMachine.Activate();
         }
-        public static LaserHorizontTeacherBuilder GetBuilder() => new LaserHorizontTeacherBuilder();
+        public static LaserHorizontTeacherBuilder GetBuilder() => new();
 
         public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
         public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);

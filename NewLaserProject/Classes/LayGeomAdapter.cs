@@ -21,7 +21,7 @@ namespace NewLaserProject.Classes
             _reader = dxfReader;
             _geomAdapter = new(_reader);
         }
-        public ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get => new ObservableCollection<LayerGeometryCollection>(CalcGeometry()); }
+        public ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get => new (CalcGeometry()); }
         public IEnumerable<LayerGeometryCollection> CalcGeometry()
         {
             foreach (var layerKV in _reader.GetLayers())

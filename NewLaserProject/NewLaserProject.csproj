@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  
+  
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows7.0</TargetFramework>
@@ -9,7 +10,14 @@
     <UseWPF>true</UseWPF>
     <!--<DefineConstants>PCIInserted</DefineConstants>-->
   </PropertyGroup>
-
+  
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Text" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Linq" />
+  </ItemGroup>
+  
   <ItemGroup>
     <None Remove="Views\angle.png" />
     <None Remove="Views\distance-32.png" />
@@ -22,7 +30,7 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="10.3.5" />
     <PackageReference Include="gong-wpf-dragdrop" Version="2.4.3" />
-    <PackageReference Include="MachineClassLibrary" Version="1.8.6" />
+    <PackageReference Include="MachineClassLibrary" Version="1.8.7" />
     <PackageReference Include="MachineControlsLibrary" Version="1.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />

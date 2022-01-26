@@ -15,13 +15,9 @@ using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using PropertyChanged;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -69,7 +65,7 @@ namespace NewLaserProject.ViewModels
             var workingDirectory = Environment.CurrentDirectory;
             _projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
             _laserMachine = laserMachine;
-            _laserMachine.OnVideoSourceBmpChanged += _laserMachine_OnVideoSourceBmpChanged;
+            _laserMachine.OnBitmapChanged += _laserMachine_OnVideoSourceBmpChanged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             Settings.Default.Save();//wtf?
             _coorSystem = GetCoorSystem();
@@ -77,7 +73,6 @@ namespace NewLaserProject.ViewModels
         }
         public MainViewModel()
         {
-
         }
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
@@ -95,7 +90,7 @@ namespace NewLaserProject.ViewModels
             }
         }
 
-        private void _laserMachine_OnVideoSourceBmpChanged(object? sender, BitmapEventArgs e)
+        private void _laserMachine_OnVideoSourceBmpChanged(object? sender, VideoCaptureEventArgs e)
         {
             CameraImage = e.Image;
         }
@@ -133,10 +128,10 @@ namespace NewLaserProject.ViewModels
             {
                 //Get the path of specified file
                 FileName = openFileDialog.FileName;
-               
+
             }
             if (File.Exists(FileName))
-            { 
+            {
                 _dxfReader = new DxfReader(FileName);
                 LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
                 IsFileSettingsEnable = true;
@@ -234,7 +229,7 @@ namespace NewLaserProject.ViewModels
             var waferWidth = 60;
             var delta = 5;
             var xLeft = delta;
-            var xRight = waferWidth-delta;
+            var xRight = waferWidth - delta;
             var waferHeight = 48;
             float tempX = 0;
 
@@ -250,13 +245,13 @@ namespace NewLaserProject.ViewModels
                     await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { Settings.Default.XOffset, Settings.Default.YOffset }, true);
                     var matrix = new System.Drawing.Drawing2D.Matrix();
                     matrix.Rotate((float)Settings.Default.PazAngle);
-                    var points = new PointF[] { new PointF(xLeft - waferWidth/2, 0), new PointF(xRight - waferWidth / 2, 0) };
+                    var points = new PointF[] { new PointF(xLeft - waferWidth / 2, 0), new PointF(xRight - waferWidth / 2, 0) };
                     matrix.TransformPoints(points);
                     tempX = points[0].X;
                     await _laserMachine.PierceLineAsync(-waferWidth / 2, 0, waferWidth / 2, 0);
                     await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(tempX, waferHeight / 2));
                     VideoScreenMessage = "Установите перекрестие на первую точку линии и нажмите *";
-                    tempX= points[1].X;
+                    tempX = points[1].X;
                 }))
                 .SetGoAtSecondPointAction(() => Task.Run(async () =>
                 {

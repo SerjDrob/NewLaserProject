@@ -5,10 +5,6 @@ using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using NewLaserProject.Classes.Geometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
@@ -24,13 +20,13 @@ namespace NewLaserProject.Classes
         private IProcObject<T> _currentObject;
         private IEnumerator<IProcObject<T>> _enumerator;
         private Block _pauseBlock = new Block().BlockMe();
-       
+
 
         public LaserProcess(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, CoorSystem<LMPlace> coorSystem)
         {
             this._pierceSequenceJson = jsonPierce;
             _laserMachine = laserMachine;
-            _enumerator = wafer.GetEnumerator();            
+            _enumerator = wafer.GetEnumerator();
             _coorSystem = coorSystem;
         }
         private void CreateProcess()
@@ -50,8 +46,9 @@ namespace NewLaserProject.Classes
 
             //move'n'pierce sequence
             var mpSequence = new Sequence()
-                                .Hire(new Leaf(() => {
-                                    _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.UnderLaser, _currentObject.X, _currentObject.Y), true); 
+                                .Hire(new Leaf(() =>
+                                {
+                                    _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.UnderLaser, _currentObject.X, _currentObject.Y), true);
                                 }))
                                 .Hire(_pierceSequence)
                                 .Hire(new Leaf(() => { }).WaitForMe().SetBlock(_pauseBlock));
@@ -96,6 +93,6 @@ namespace NewLaserProject.Classes
         {
             _rootSequence.CancellAction(true);
         }
-       
+
     }
 }
