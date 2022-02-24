@@ -136,7 +136,7 @@
             </TabItem>
         </TabControl>
         <Border BorderBrush="#FF1E1F20" BorderThickness="3" Background="Blue" Opacity="0.2">
-            <Image />
+            <Image Source="{Binding CameraImage}"/>
         </Border>
         <ToolBarTray Orientation="Vertical" Grid.Column="1" Grid.RowSpan="2">
             <ToolBar>

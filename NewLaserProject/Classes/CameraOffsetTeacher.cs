@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Diagnostics;
 using Stateless;
+using System;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes

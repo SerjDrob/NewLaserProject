@@ -1,5 +1,4 @@
 ﻿using MachineClassLibrary.Classes;
-using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
@@ -7,7 +6,6 @@ using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Diagnostics;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
 using NewLaserProject.Classes;
@@ -15,6 +13,8 @@ using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using PropertyChanged;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
@@ -70,6 +70,7 @@ namespace NewLaserProject.ViewModels
             Settings.Default.Save();//wtf?
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
+            _laserMachine.StartCamera(0);
         }
         public MainViewModel()
         {
@@ -132,7 +133,7 @@ namespace NewLaserProject.ViewModels
             }
             if (File.Exists(FileName))
             {
-                _dxfReader = new DxfReader(FileName);
+                _dxfReader = new IMDxfReader(FileName);
                 LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
                 IsFileSettingsEnable = true;
                 LPModel = new(FileName);
@@ -524,8 +525,8 @@ namespace NewLaserProject.ViewModels
                 maxAcc = 180,
                 maxDec = 180,
                 maxVel = 30,
-                plsOutMde = (int)PlsOutMode.OUT_DIR_ALL_NEG,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
+                plsOutMde = (int)PlsOutMode.OUT_DIR,
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.YAcc,
                 dec = Settings.Default.YDec,
@@ -647,7 +648,7 @@ namespace NewLaserProject.ViewModels
         }
         private void TuneCoorSystem(CoorSystem<LMPlace> coorSystem)
         {
-            coorSystem.SetRelatedSystem(LMPlace.Loading, 1, 2);
+            coorSystem.SetRelatedSystem(LMPlace.Loading, 50, 20);
             coorSystem.SetRelatedSystem(LMPlace.UnderLaser, 1, 2);
             coorSystem.SetRelatedSystem(LMPlace.LeftCorner, 1, 2);
             coorSystem.SetRelatedSystem(LMPlace.RightCorner, 1, 2);

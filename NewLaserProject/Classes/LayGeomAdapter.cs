@@ -1,12 +1,9 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Diagnostics;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace NewLaserProject.Classes
@@ -21,7 +18,7 @@ namespace NewLaserProject.Classes
             _reader = dxfReader;
             _geomAdapter = new(_reader);
         }
-        public ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get => new (CalcGeometry()); }
+        public ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get => new(CalcGeometry()); }
         public IEnumerable<LayerGeometryCollection> CalcGeometry()
         {
             foreach (var layerKV in _reader.GetLayers())

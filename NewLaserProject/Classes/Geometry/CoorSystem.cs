@@ -4,13 +4,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 //using netDxf;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Geometry
 {
-    public class CoorSystem<TPlaceEnum>:IDisposable where TPlaceEnum : Enum
+    public class CoorSystem<TPlaceEnum> : IDisposable where TPlaceEnum : Enum
     {
         private Dictionary<TPlaceEnum, CoorSystem<TPlaceEnum>> _subSystems;
         private readonly Matrix _mainMatrix;
@@ -73,7 +70,7 @@ namespace NewLaserProject.Classes.Geometry
                 _subSystems[name] = sub;
             }
         }
-        
+
         public double[] ToGlobal(double x, double y)
         {
             var points = new PointF[] { new((float)x, (float)y) };

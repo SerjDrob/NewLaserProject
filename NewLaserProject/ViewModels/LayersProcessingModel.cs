@@ -1,45 +1,37 @@
 ﻿using MachineClassLibrary.Classes;
-using MachineClassLibrary.Laser.Entities;
-using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Views;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace NewLaserProject.ViewModels
 {
     [INotifyPropertyChanged]
     public partial class LayersProcessingModel
     {
-        private readonly string _fileName;
+        //private readonly string _fileName;
+        private readonly IDxfReader _dxfReader;
         public ObservableCollection<Layer> Layers { get; set; } = new();
 
-        public LayersProcessingModel(string fileName)
+        public LayersProcessingModel(IDxfReader dxfReader)
         {
 
-            _fileName = fileName;
-
-            var reader = new DxfReader(_fileName);
-            var document = reader.Document;
-            var layers = document.Layers;
-            foreach (var layer in layers)
+            //_fileName = fileName;
+            _dxfReader = dxfReader;
+            var layers = dxfReader.GetLayers();// document.Layers;
+            foreach (var layer in layers.Keys)
             {
-                var lay = new Layer(layer.Name);
-                var objects = layers.GetReferences(layer.Name);
+                var lay = new Layer(layer);
+                //var objects = layers.GetReferences(layer.Name);
                 if (lay.AddObjects(objects))
                 {
                     Layers.Add(lay);
                 }
             }
 
+            
         }
-        
+
         [ICommand]
         private void ChooseObject(object param)
         {

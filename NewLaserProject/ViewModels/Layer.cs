@@ -7,6 +7,7 @@ namespace NewLaserProject.ViewModels
     public class Layer
     {
         public string Name { get; set; }
+        public List<Text> Objects { get; set; }
 
         public Layer(string name)
         {
@@ -26,7 +27,6 @@ namespace NewLaserProject.ViewModels
             );
             return Objects.Count > 0;
         }
-        public List<Text> Objects { get; set; }
 
         class Specification
         {

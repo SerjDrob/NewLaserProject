@@ -5,6 +5,8 @@ using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using NewLaserProject.Classes.Geometry;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
