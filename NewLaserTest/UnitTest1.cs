@@ -23,7 +23,7 @@ namespace NewLaserTest
             var controlString = string.Empty;
             var cbBuilder = CameraOffsetTeacher.GetBuilder();
             cbBuilder.SetOnGoUnderCameraAction(() => Task.Run(() => { controlString = stages[0]; }));
-            cbBuilder.SetOnGoToSootAction(() => Task.Run(() => { controlString = stages[1]; }));
+            cbBuilder.SetOnGoToShotAction(() => Task.Run(() => { controlString = stages[1]; }));
             cbBuilder.SetOnGoLoadPointAction(() => Task.Run(() => { controlString = stages[2]; }));
 
 

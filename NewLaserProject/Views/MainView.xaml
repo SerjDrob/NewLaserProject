@@ -21,6 +21,8 @@
         <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
         <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
         <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>
+        <KeyBinding Command="{Binding LeftWaferCornerTeachCommand}" Key="F5"/>
+
     </Window.InputBindings>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
@@ -30,6 +32,34 @@
             <i:InvokeCommandAction Command="{Binding KeyUpCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
+    <Window.Resources>
+        <!--<Storyboard x:Key="DisappearMessage">            
+            <DoubleAnimation Storyboard.TargetName="ImportantMessage" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5"/>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame Value="{x:Static Visibility.Collapsed}" />
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="AppearingMessage">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame Value="{x:Static Visibility.Visible}" />
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="ImportantMessage" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
+        </Storyboard>
+        <Storyboard x:Key="AppearingDisappearingMessage">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame Value="{x:Static Visibility.Visible}" />                
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="ImportantMessage" 
+                             Storyboard.TargetProperty="Opacity" 
+                             From="0" To="1" 
+                             Duration="0:0:1"                             
+                             AutoReverse="True"
+                             />
+            --><!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame Value="{x:Static Visibility.Collapsed}" />
+            </ObjectAnimationUsingKeyFrames>--><!--
+        </Storyboard>-->
+    </Window.Resources>
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
@@ -44,21 +74,56 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-       
-        <TabControl Grid.Column="2" Grid.RowSpan="2">
-            <TabItem>
-                <TabItem.Header>
-                    <Border BorderBrush="CadetBlue" Margin="0,0,10,0" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                            <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileName}" Width="100" Margin="2" Background="LightYellow"/>
-                            <Button Command="{Binding OpenFileCommand}" Content="Файл" Style="{StaticResource CommandButton}"/>
-                        </StackPanel>
-                    </Border>
-                </TabItem.Header>
-                <uc:GraphWindow 
+        <!--<Grid x:Name="ImportantMessage" Grid.ColumnSpan="3" 
+              Grid.RowSpan="2" 
+              Height="200" 
+              Width="400" 
+              Panel.ZIndex="10"
+              VerticalAlignment="Top"
+              Background="GreenYellow"
+              Opacity="0"
+              Visibility="Collapsed"
+              >
+            <TextBlock Text="My text!!!" 
+                       FontSize="50" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center"/>
+            <i:Interaction.Triggers>
+                --><!--<i:DataTrigger Binding="{Binding ShowMessage}" Value="True">
+                    <i:ControlStoryboardAction Storyboard="{StaticResource DisappearMessage}"/>
+                </i:DataTrigger>--><!--
+                <i:DataTrigger Binding="{Binding ShowMessage}" Value="True">
+                    <i:ControlStoryboardAction Storyboard="{StaticResource AppearingDisappearingMessage}"/>
+                </i:DataTrigger>
+            </i:Interaction.Triggers> 
+        </Grid>-->
+        <DockPanel Grid.Column="2" Grid.RowSpan="2">
+            <Border DockPanel.Dock="Top" 
+                    BorderThickness="2" 
+                    BorderBrush="Blue"
+                    Padding="2"
+                    CornerRadius="3"
+                    Height="30"
+                    >
+                <DockPanel>
+                    <Image Source="{Binding IconPath}" DockPanel.Dock="Left" Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding TechInfo}" FontWeight="Bold" FontSize="15" Foreground="Red"/>
+                </DockPanel>
+            </Border>
+            <TabControl>
+                <TabItem>
+                    <TabItem.Header>
+                        <Border BorderBrush="CadetBlue" Margin="0,0,10,0" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileName}" Width="100" Margin="2" Background="LightYellow"/>
+                                <Button Command="{Binding OpenFileCommand}" Content="Файл" Style="{StaticResource CommandButton}"/>
+                            </StackPanel>
+                        </Border>
+                    </TabItem.Header>
+                    <uc:GraphWindow 
                            LayGeoms="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LayGeoms}"                                            
                            SpecMargin="0.2" 
                            SpecSizeX="60000"
@@ -69,14 +134,14 @@
                            RenderTransformOrigin="0.5,0.5"
                            SelectedColor="Black"           
                 >
-                    <Grid>
+                        <Grid>
                             <Grid Height="48000" 
                                    Width="60000"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   >
-                            
-                            <Rectangle Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}"
+
+                                <Rectangle Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}"
                                        Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                                        Stroke="White"
                                        StrokeThickness="200"
@@ -84,7 +149,7 @@
                                        Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferContourVisibility,
                                        Converter={StaticResource BTVConverter}}"
                                        />
-                            <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftWaferCornerTeachCommand}"
+                                <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftWaferCornerTeachCommand}"
                                     Height="3000" 
                                     Width="3000"
                                     VerticalAlignment="Bottom" 
@@ -93,16 +158,16 @@
                                     Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftCornerBtnVisibility,
                                     Converter={StaticResource BTVConverter}}"
                                     >
-                                <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
-                                    <Path.Data>
-                                        <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
-                                    </Path.Data>
-                                    <Path.RenderTransform>
-                                        <ScaleTransform ScaleY="-1"/>
-                                    </Path.RenderTransform>
-                                </Path>
-                            </Button>
-                            <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightWaferCornerTeachCommand}"                              
+                                    <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                        <Path.Data>
+                                            <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
+                                        </Path.Data>
+                                        <Path.RenderTransform>
+                                            <ScaleTransform ScaleY="-1"/>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Button>
+                                <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightWaferCornerTeachCommand}"                              
                                     Height="3000" 
                                     Width="3000"
                                     VerticalAlignment="Bottom" 
@@ -111,32 +176,64 @@
                                     Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightCornerBtnVisibility,
                                     Converter={StaticResource BTVConverter}}"
                                      >
-                                <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
-                                    <Path.Data>
-                                        <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
-                                    </Path.Data>
-                                    <Path.RenderTransform>
-                                        <ScaleTransform ScaleY="-1" ScaleX="-1"/>
-                                    </Path.RenderTransform>
-                                </Path>
-                            </Button>
-                        </Grid>
-                        <Grid.LayoutTransform>
-                            <ScaleTransform ScaleX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleX}"
+                                    <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                        <Path.Data>
+                                            <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
+                                        </Path.Data>
+                                        <Path.RenderTransform>
+                                            <ScaleTransform ScaleY="-1" ScaleX="-1"/>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Button>
+                            </Grid>
+                            <Grid.LayoutTransform>
+                                <ScaleTransform ScaleX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleX}"
                                             ScaleY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleY}"/>
-                        </Grid.LayoutTransform>
-                    </Grid>
-                </uc:GraphWindow>
-            </TabItem>
-            <TabItem Header="Настройки" IsEnabled="{Binding IsFileSettingsEnable}">
-                <DockPanel>
-                    <ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>
-                    <ContentControl x:Name="TW" Content="{Binding TWModel, Mode=TwoWay}"/>
-                </DockPanel>
-            </TabItem>
-        </TabControl>
+                            </Grid.LayoutTransform>
+                        </Grid>
+                    </uc:GraphWindow>
+                </TabItem>
+                <TabItem Header="Настройки" IsEnabled="{Binding IsFileSettingsEnable}">
+                    <DockPanel>
+                        <ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>
+                        <ContentControl x:Name="TW" Content="{Binding TWModel, Mode=TwoWay}"/>
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
+        </DockPanel>
         <Border BorderBrush="#FF1E1F20" BorderThickness="3" Background="Blue" Opacity="0.2">
-            <Image Source="{Binding CameraImage}"/>
+            <DockPanel>
+                <ToolBarTray DockPanel.Dock="Top">
+                    <ToolBar>
+                        <ListBox Width="100">
+                            
+                        </ListBox>
+                        <Menu Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Background}">
+                            <MenuItem>
+                                <MenuItem.Header>
+                                    <Image Source="/Views/learning.png" Height="20"/>
+                                </MenuItem.Header>
+                                <MenuItem Command="{Binding TeachCameraOffsetCommand}" Header="Смещение камеры" InputGestureText="F2">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Views/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Command="{Binding TeachScanatorHorizontCommand}" Header="Горизонт сканатора" InputGestureText="F3">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Views/angle.png" Height="20" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Command="{Binding TeachOrthXYCommand}" Header="Ортогональность XY" InputGestureText="F4">
+                                    <MenuItem.Icon>
+                                        <Image Source="/Views/laserbeam_laser_13620.png" Height="20"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </MenuItem>
+                        </Menu>
+                    </ToolBar>
+                </ToolBarTray>
+                <Image Source="{Binding CameraImage}"/>
+            </DockPanel>
         </Border>
         <ToolBarTray Orientation="Vertical" Grid.Column="1" Grid.RowSpan="2">
             <ToolBar>
@@ -195,9 +292,24 @@
             </Grid.Resources>
             <DockPanel Grid.Column="1">                
                 <WrapPanel DockPanel.Dock="Bottom">
-                    <uc:AxisState CoordinateName="X"/>
-                    <uc:AxisState CoordinateName="Y"/>
-                    <uc:AxisState CoordinateName="Z"/>
+                    <uc:AxisState CoordinateName="X" 
+                                  Coordinate="{Binding XAxis.Position}"
+                                  LmtNeg="{Binding XAxis.NLmt}"
+                                  LmtPos="{Binding XAxis.PLmt}"
+                                  MotionDone="{Binding XAxis.MotionDone}"
+                                  />
+                    <uc:AxisState CoordinateName="Y"
+                                  Coordinate="{Binding YAxis.Position}"
+                                  LmtNeg="{Binding YAxis.NLmt}"
+                                  LmtPos="{Binding YAxis.PLmt}"
+                                  MotionDone="{Binding YAxis.MotionDone}"
+                                  />
+                    <uc:AxisState CoordinateName="Z"
+                                  Coordinate="{Binding ZAxis.Position}"
+                                  LmtNeg="{Binding ZAxis.NLmt}"
+                                  LmtPos="{Binding ZAxis.PLmt}"
+                                  MotionDone="{Binding ZAxis.MotionDone}"
+                                  />
                 </WrapPanel>
                 <Grid Margin="10">
                     <Border BorderThickness="4,0,0,0"                         

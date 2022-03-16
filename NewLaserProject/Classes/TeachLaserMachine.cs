@@ -56,7 +56,7 @@ namespace NewLaserProject.Classes
                         var tcb = CameraOffsetTeacher.GetBuilder();
                         tcb.SetOnGoLoadPointAction(() => _laserMachine.GoThereAsync(LMPlace.Loading))
                             .SetOnGoUnderCameraAction(() => _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition))
-                            .SetOnGoToSootAction(() => Task.Run(async () =>
+                            .SetOnGoToShotAction(() => Task.Run(async () =>
                             {
                                 _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true);
                                 _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset, true);

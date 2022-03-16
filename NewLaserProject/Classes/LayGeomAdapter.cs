@@ -21,12 +21,10 @@ namespace NewLaserProject.Classes
         public ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get => new(CalcGeometry()); }
         public IEnumerable<LayerGeometryCollection> CalcGeometry()
         {
-            foreach (var layerKV in _reader.GetLayers())
-            {
-                var geometries = ((IEnumerable<AdaptedGeometry>)_geomAdapter.GetGeometries()).Where(ag => ag.LayerName == layerKV.Key).Select(ag => ag.geometry);
-                var layerColor = GeometryAdapter.GetColorFromArgb(layerKV.Value);
-                yield return new LayerGeometryCollection(new GeometryCollection(geometries), layerKV.Key, true, layerColor, layerColor);
-            }
+            return _geomAdapter.GetGeometries()
+                .GroupBy(ag => ag.LayerName)
+                .Select(x => new LayerGeometryCollection(new GeometryCollection(x.Select(y => y.geometry)), x.Key, true, x.First().LayerColor, x.First().GeometryColor));
+                
         }
     }
 }

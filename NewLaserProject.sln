@@ -5,7 +5,11 @@ VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewLaserProject", "NewLaserProject\NewLaserProject.csproj", "{689B904E-7D69-4517-81EB-B21863679010}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewLaserTest", "NewLaserTest\NewLaserTest.csproj", "{39835C08-3634-4DA8-8B7D-1A0BEF362689}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewLaserTest", "NewLaserTest\NewLaserTest.csproj", "{39835C08-3634-4DA8-8B7D-1A0BEF362689}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineClassLibrary", "..\MachineClassLibrary\MachineClassLibrary.csproj", "{06A3987F-B947-411B-9A37-CD8807EB094A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineControlsLibrary", "..\MachineControlsLibrary\MachineControlsLibrary.csproj", "{125FD2E6-3483-4E9A-A111-53C1709E5C8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{39835C08-3634-4DA8-8B7D-1A0BEF362689}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39835C08-3634-4DA8-8B7D-1A0BEF362689}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39835C08-3634-4DA8-8B7D-1A0BEF362689}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06A3987F-B947-411B-9A37-CD8807EB094A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06A3987F-B947-411B-9A37-CD8807EB094A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06A3987F-B947-411B-9A37-CD8807EB094A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06A3987F-B947-411B-9A37-CD8807EB094A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{125FD2E6-3483-4E9A-A111-53C1709E5C8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{125FD2E6-3483-4E9A-A111-53C1709E5C8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{125FD2E6-3483-4E9A-A111-53C1709E5C8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{125FD2E6-3483-4E9A-A111-53C1709E5C8A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

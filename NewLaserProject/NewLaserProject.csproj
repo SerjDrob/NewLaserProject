@@ -23,7 +23,6 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="10.3.5" />
     <PackageReference Include="gong-wpf-dragdrop" Version="2.4.3" />
-    <PackageReference Include="MachineControlsLibrary" Version="1.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Toolkit.Diagnostics" Version="7.1.2" />
     <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
@@ -36,12 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="AdvMotAPI">
-      <HintPath>C:\Program Files\Advantech\Common Motion\Public\AdvMotAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="MachineClassLibrary">
-      <HintPath>..\..\MachineClassLibrary\bin\Debug\net5.0\MachineClassLibrary.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
+    <ProjectReference Include="..\..\MachineControlsLibrary\MachineControlsLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

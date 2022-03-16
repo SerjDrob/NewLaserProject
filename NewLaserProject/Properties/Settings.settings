@@ -87,16 +87,16 @@
       <Value Profile="(Default)">10</Value>
     </Setting>
     <Setting Name="ZObjective" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="CoolantSensorDsbl" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="XLoad" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">100</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="YLoad" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">60</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="CameraScale" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>
@@ -108,16 +108,16 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="XRightPoint" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">55</Value>
     </Setting>
     <Setting Name="YRightPoint" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="XLeftPoint" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">10</Value>
     </Setting>
     <Setting Name="YLeftPoint" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="ZeroFocusPoint" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0</Value>

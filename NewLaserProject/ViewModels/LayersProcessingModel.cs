@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace NewLaserProject.ViewModels
 {
@@ -11,25 +12,17 @@ namespace NewLaserProject.ViewModels
     {
         //private readonly string _fileName;
         private readonly IDxfReader _dxfReader;
-        public ObservableCollection<Layer> Layers { get; set; } = new();
+        public ObservableCollection<Layer> Layers { get; init; }
 
         public LayersProcessingModel(IDxfReader dxfReader)
         {
-
-            //_fileName = fileName;
             _dxfReader = dxfReader;
-            var layers = dxfReader.GetLayers();// document.Layers;
-            foreach (var layer in layers.Keys)
-            {
-                var lay = new Layer(layer);
-                //var objects = layers.GetReferences(layer.Name);
-                if (lay.AddObjects(objects))
-                {
-                    Layers.Add(lay);
-                }
-            }
+            var structure = _dxfReader.GetLayersStructure();
 
-            
+            var layers = structure
+                .Where(obj=>obj.Value.Any())
+                .Select(obj => new Layer(obj.Key, obj.Value));
+            Layers = new(layers);
         }
 
         [ICommand]
