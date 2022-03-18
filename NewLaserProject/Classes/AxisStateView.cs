@@ -1,4 +1,4 @@
 ﻿namespace NewLaserProject.Classes
 {
-    public record AxisStateView(double Position,bool NLmt, bool PLmt, bool MotionDone, bool MotionStart);
+    public record AxisStateView(double Position, double CmdPosition, bool NLmt, bool PLmt, bool MotionDone, bool MotionStart);
 }

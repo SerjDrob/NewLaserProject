@@ -2,6 +2,8 @@
   
   
   <PropertyGroup>
+    <!--<OutputType>Library</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>-->
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows7.0</TargetFramework>
     <LangVersion>Latest</LangVersion>
@@ -9,6 +11,21 @@
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <UseWPF>true</UseWPF>
     <DefineConstants>PCIInserted</DefineConstants>
+    <StartupObject>NewLaserProject.App</StartupObject>
+    <!--<Platforms>AnyCPU;x86</Platforms>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ApplicationIcon />
+    <StartupObject></StartupObject>-->
+  </PropertyGroup>
+  
+  
+  <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>-->
+  
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   
   <ItemGroup>

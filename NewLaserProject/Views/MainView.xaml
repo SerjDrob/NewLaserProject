@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NewLaserProject.Views"
+        xmlns:mcl="clr-namespace:MachineClassLibrary.Machine;assembly=MachineClassLibrary"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
@@ -22,6 +23,7 @@
         <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
         <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>
         <KeyBinding Command="{Binding LeftWaferCornerTeachCommand}" Key="F5"/>
+        <KeyBinding Command="{Binding ChangeVelocityCommand}" Key="Add"/>
 
     </Window.InputBindings>
     <i:Interaction.Triggers>
@@ -232,7 +234,14 @@
                         </Menu>
                     </ToolBar>
                 </ToolBarTray>
-                <Image Source="{Binding CameraImage}"/>
+                <Image Source="{Binding CameraImage}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDown" >
+                            <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
+                                                       PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Image>
             </DockPanel>
         </Border>
         <ToolBarTray Orientation="Vertical" Grid.Column="1" Grid.RowSpan="2">
@@ -245,6 +254,7 @@
                         </StackPanel>
                     </Button.ToolTip>
                     <Image Source="/Views/laserbeam_laser_13620.png" Height="20"/>
+
                 </Button>
                 <Button Command="{Binding MachineSettingsCommand}">
                     <Button.ToolTip>
@@ -296,20 +306,33 @@
                                   Coordinate="{Binding XAxis.Position}"
                                   LmtNeg="{Binding XAxis.NLmt}"
                                   LmtPos="{Binding XAxis.PLmt}"
-                                  MotionDone="{Binding XAxis.MotionDone}"
+                                  MotionDone="{Binding XAxis.MotionDone}" 
+                                  CmdCoordinate="{Binding XAxis.CmdPosition}"
                                   />
                     <uc:AxisState CoordinateName="Y"
                                   Coordinate="{Binding YAxis.Position}"
                                   LmtNeg="{Binding YAxis.NLmt}"
                                   LmtPos="{Binding YAxis.PLmt}"
                                   MotionDone="{Binding YAxis.MotionDone}"
+                                  CmdCoordinate="{Binding YAxis.CmdPosition}"
                                   />
                     <uc:AxisState CoordinateName="Z"
                                   Coordinate="{Binding ZAxis.Position}"
                                   LmtNeg="{Binding ZAxis.NLmt}"
                                   LmtPos="{Binding ZAxis.PLmt}"
                                   MotionDone="{Binding ZAxis.MotionDone}"
+                                  CmdCoordinate="{Binding ZAxis.CmdPosition}"
                                   />
+                    <TextBlock x:Name="VelText" Text="Быстро">
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
+                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Быстро"/>
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
+                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBlock>
                 </WrapPanel>
                 <Grid Margin="10">
                     <Border BorderThickness="4,0,0,0"                         

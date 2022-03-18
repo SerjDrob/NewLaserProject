@@ -75,9 +75,9 @@ namespace NewLaserProject.ViewModels
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
         public BitmapImage CameraImage { get; set; }
-        public AxisStateView XAxis { get; set; } = new AxisStateView(0, false, false, true, false);
-        public AxisStateView YAxis { get; set; } = new AxisStateView(0, false, false, true, false);
-        public AxisStateView ZAxis { get; set; } = new AxisStateView(0, false, false, true, false);
+        public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
+        public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
+        public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public LayersProcessingModel LPModel { get; set; }
         public TechWizardViewModel TWModel { get; set; }
         public bool LeftCornerBtnVisibility { get; set; } = false;
@@ -110,7 +110,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.OnBitmapChanged += _laserMachine_OnVideoSourceBmpChanged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             Settings.Default.Save();//wtf?
-            _coorSystem = GetCoorSystem();
+            //_coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
 
@@ -131,13 +131,13 @@ namespace NewLaserProject.ViewModels
             switch (e.Axis)
             {
                 case Ax.X:
-                    XAxis = new AxisStateView(e.Position, e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                    XAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
                     break;
                 case Ax.Y:
-                    YAxis = new AxisStateView(e.Position, e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                    YAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
                     break;
                 case Ax.Z:
-                    ZAxis = new AxisStateView(e.Position, e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                    ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
                     break;
             }
         }
@@ -161,7 +161,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         public void Test()
         {
-            _laserMachine.MoveAxInPosAsync(Ax.X, 10, true).Wait();
+            _laserMachine.MoveAxInPosAsync(Ax.X, 5, true);//.Wait();
             //techMessager.RealeaseMessage("TestMessage", InfoMessager.Icon.Danger);
             //var system = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(1, 21, 34, 4, 5, 6));
             //system.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem.json");
@@ -594,7 +594,31 @@ namespace NewLaserProject.ViewModels
             }
         }
 
+        [ICommand]
+        private void ChangeVelocity()
+        {
+            VelocityRegime = VelocityRegime switch
+            {
+                Velocity.Slow => Velocity.Fast,
+                Velocity.Fast => Velocity.Slow
+            };
+            _laserMachine.SetVelocity(VelocityRegime);
+        }
+
         #endregion
+        [ICommand]
+        private async Task VideoClick(object obj)
+        {
+            var mouseEvent = obj as System.Windows.Input.MouseButtonEventArgs;
+            var device = mouseEvent?.Device as System.Windows.Input.MouseDevice;
+            var control = mouseEvent?.Source as System.Windows.Controls.Image;
+            var width = control?.ActualWidth;
+            var height = control?.ActualHeight;
+            var imgX = device.GetPosition(control).X - (double)(width / 2);
+            var imgY = device.GetPosition(control).Y - (double)(height / 2);
+            await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { imgX, imgY });
+
+        }
 
         [ICommand]
         private void MachineSettings()
