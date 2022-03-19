@@ -19,7 +19,7 @@ public class CameraOffsetTeacher : ITeacher
 
     }
     private CameraOffsetTeacher(Func<Task> GoLoadPoint, Func<Task> GoUnderCamera, Func<Task> GoToSoot,
-        Func<Task> OnBiasTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart, Func<Task> GiveResult)
+        Func<Task> OnBiasTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart, Func<Task> GiveResult, Func<Task> SearchScorch)
     {
         _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
 
@@ -39,12 +39,18 @@ public class CameraOffsetTeacher : ITeacher
 
         _stateMachine.Configure(MyState.UnderCamera)
            .OnEntryAsync(GoUnderCamera)
+           .Permit(MyTrigger.Next, MyState.GoShot)
+           .Ignore(MyTrigger.Accept)
+           .Ignore(MyTrigger.Deny);
+
+        _stateMachine.Configure(MyState.GoShot)
+           .OnEntryAsync(GoToSoot, "Go under the laser, shoot and back under the camera")
            .Permit(MyTrigger.Next, MyState.AfterShot)
            .Ignore(MyTrigger.Accept)
            .Ignore(MyTrigger.Deny);
 
         _stateMachine.Configure(MyState.AfterShot)
-           .OnEntryAsync(GoToSoot, "Go under the laser, shoot and back under the camera")
+           .OnEntryAsync(SearchScorch)
            .Permit(MyTrigger.Next, MyState.RequestPermission)
            .Ignore(MyTrigger.Accept)
            .Ignore(MyTrigger.Deny);
@@ -100,10 +106,15 @@ public class CameraOffsetTeacher : ITeacher
     {
         public CameraOffsetTeacher Build()
         {
+            Guard.IsNotNull(GoLoadPoint, $"{nameof(GoLoadPoint)} isn't set");
+            Guard.IsNotNull(GoUnderCamera, $"{nameof(GoUnderCamera)} isn't set");
             Guard.IsNotNull(GoToSoot, $"{nameof(GoToSoot)} isn't set");
-            Guard.IsNotNull(GoUnderCamera, $"{nameof(GoUnderCamera)} isn't set");
-            Guard.IsNotNull(GoUnderCamera, $"{nameof(GoUnderCamera)} isn't set");
-            return new CameraOffsetTeacher(GoLoadPoint, GoUnderCamera, GoToSoot, OnBiasTought, RequestPermissionToAccept, RequestPermissionToStart, HasResult);
+            Guard.IsNotNull(OnBiasTought, $"{nameof(OnBiasTought)} isn't set");
+            Guard.IsNotNull(RequestPermissionToAccept, $"{nameof(RequestPermissionToAccept)} isn't set");
+            Guard.IsNotNull(RequestPermissionToStart, $"{nameof(RequestPermissionToStart)} isn't set");
+            Guard.IsNotNull(HasResult, $"{nameof(HasResult)} isn't set");
+            Guard.IsNotNull(SearchScorch, $"{nameof(SearchScorch)} isn't set");
+            return new CameraOffsetTeacher(GoLoadPoint, GoUnderCamera, GoToSoot, OnBiasTought, RequestPermissionToAccept, RequestPermissionToStart, HasResult, SearchScorch);
         }
         private Func<Task> GoToSoot;
         private Func<Task> GoUnderCamera;
@@ -112,6 +123,7 @@ public class CameraOffsetTeacher : ITeacher
         private Func<Task> RequestPermissionToAccept;
         private Func<Task> RequestPermissionToStart;
         private Func<Task> HasResult;
+        private Func<Task> SearchScorch;
 
         public CameraBiasTeacherBuilder SetOnGoToShotAction(Func<Task> action)
         {
@@ -148,6 +160,11 @@ public class CameraOffsetTeacher : ITeacher
             HasResult = action;
             return this;
         }
+        public CameraBiasTeacherBuilder SetOnSearchScorchAction(Func<Task> action)
+        {
+            SearchScorch = action;
+            return this;
+        }
     }
 
 
@@ -156,6 +173,7 @@ public class CameraOffsetTeacher : ITeacher
         Begin,
         AtLoadPoint,
         UnderCamera,
+        GoShot,
         AfterShot,
         RequestPermission,
         End,

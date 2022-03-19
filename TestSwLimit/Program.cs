@@ -12,7 +12,7 @@ namespace TestSwLimit
         {
             if (result != 0)
             {
-                var sb = new StringBuilder();
+                var sb = new StringBuilder(50);
                 Motion.mAcm_GetErrorMessage(result, sb, 50);
                 throw new Exception($"{sb} Error Code: [0x{result:X}]");
             }
@@ -121,6 +121,11 @@ namespace TestSwLimit
                     return;
                 }
             }
+            ushort status = 0;
+            Motion.mAcm_AxResetError(m_Axishand[0]);
+            Motion.mAcm_AxGetState(m_Axishand[0], ref status);
+            //AxisState.
+            Motion.mAcm_AxSetCmdPosition(m_Axishand[0], 3).CheckResult();
             var axisNum = 0;
             var buf = (uint)SwLmtEnable.SLMT_DIS;
             Motion.mAcm_SetProperty(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwPelEnable, ref buf, 4).CheckResult();
@@ -130,9 +135,11 @@ namespace TestSwLimit
             Motion.mAcm_SetProperty(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwPelReact, ref buf, 4).CheckResult();
             Motion.mAcm_SetProperty(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwMelReact, ref buf, 4).CheckResult();
             var pos = 5;
-            Motion.mAcm_SetProperty(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwPelValue, ref pos, 4).CheckResult();
+            Motion.mAcm_SetF64Property(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwPelValue, 5).CheckResult();//.mAcm_SetProperty(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwPelValue, ref pos, 4).CheckResult();
             int getPos = 0;
             uint bufL = 8;
+            double gP = 0;
+            Motion.mAcm_GetF64Property(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwPelValue, ref gP).CheckResult();
             Motion.mAcm_GetProperty(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwPelValue, ref getPos, ref bufL).CheckResult();
             buf = (uint)SwLmtEnable.SLMT_EN;
             Motion.mAcm_SetProperty(m_Axishand[axisNum], (uint)PropertyID.CFG_AxSwPelEnable, ref buf, 4).CheckResult();
