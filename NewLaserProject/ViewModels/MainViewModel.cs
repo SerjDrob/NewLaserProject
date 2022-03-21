@@ -43,23 +43,24 @@ namespace NewLaserProject.ViewModels
                 Icon.Process => PROCESSPATH,
                 Icon.Loading => LOADINGPATH
             };
-            PublishMessage?.Invoke(message, iconPath);
+            PublishMessage?.Invoke(message, iconPath, icon);
         }
         public void EraseMessage()
         {
-            PublishMessage?.Invoke(String.Empty, String.Empty);
+            PublishMessage?.Invoke(String.Empty, String.Empty, Icon.Empty);
         }
-        public event Action<string, string> PublishMessage;
-        public enum Icon
-        {
-            Info,
-            Danger,
-            Exclamation,
-            Process,
-            Loading
-        }
+        public event Action<string, string, Icon> PublishMessage;
+        
     }
-
+    public enum Icon
+    {
+        Info,
+        Danger,
+        Exclamation,
+        Process,
+        Loading,
+        Empty
+    }
     [AddINotifyPropertyChangedInterface]
     internal partial class MainViewModel
     {
@@ -70,7 +71,7 @@ namespace NewLaserProject.ViewModels
 
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
-
+        public Icon CurrentMessageType { get; private set; } = Icon.Empty;
         public int FileScale { get; set; } = 1000;
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
@@ -116,13 +117,14 @@ namespace NewLaserProject.ViewModels
 
             _laserMachine.StartCamera(0);
 
-            techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", InfoMessager.Icon.Danger);
+            techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
         }
 
-        private void TechMessager_PublishMessage(string message, string iconPath)
+        private void TechMessager_PublishMessage(string message, string iconPath, Icon icon)
         {
             TechInfo = message;
             IconPath = iconPath;
+            CurrentMessageType = icon;
         }
 
         public MainViewModel()
@@ -163,15 +165,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            try
-            {
-                await _laserMachine.MoveAxInPosAsync(Ax.X, 5, true);//.Wait();
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            TechInfo = "Hello";
             //techMessager.RealeaseMessage("TestMessage", InfoMessager.Icon.Danger);
             //var system = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(1, 21, 34, 4, 5, 6));
             //system.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem.json");
@@ -255,7 +249,7 @@ namespace NewLaserProject.ViewModels
                 await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
                 //});
                 //MessageBox.Show("Наведите перекрестие на угол и нажмите * чтобы продолжить", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
-                techMessager.RealeaseMessage("Наведите перекрестие на угол и нажмите * чтобы продолжить", InfoMessager.Icon.Exclamation);
+                techMessager.RealeaseMessage("Наведите перекрестие на угол и нажмите * чтобы продолжить", Icon.Exclamation);
             })
             .SetOnRequestPermissionToAcceptAction(() => Task.Run(async () =>
               {
@@ -279,13 +273,13 @@ namespace NewLaserProject.ViewModels
                  Settings.Default.YLeftPoint = _currentTeacher.GetParams()[1];
                  Settings.Default.Save();
                  //MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
-                 techMessager.RealeaseMessage($"Новое значение {_currentTeacher} установленно", InfoMessager.Icon.Info);
+                 techMessager.RealeaseMessage($"Новое значение {_currentTeacher} установленно", Icon.Info);
                  _canTeach = false;
              }))
             .SetOnCornerToughtAction(() => Task.Run(() =>
               {
                   //MessageBox.Show("Обучение отменено", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
-                  techMessager.RealeaseMessage("Обучение отменено", InfoMessager.Icon.Exclamation);
+                  techMessager.RealeaseMessage("Обучение отменено", Icon.Exclamation);
                   _canTeach = false;
               }));
             _currentTeacher = lwct.Build();
@@ -296,6 +290,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void TeachCameraOffset()
         {
+            //if(_canTeach) return;
             var teachPosition = new double[] { 1, 1 };
             double xOffset = 10;
             double yOffset = 10;
@@ -306,13 +301,13 @@ namespace NewLaserProject.ViewModels
                 {
                     await _laserMachine.GoThereAsync(LMPlace.Loading);
                     //MessageBox.Show("Установите подложку и нажмите * чтобы продолжить", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
-                    techMessager.RealeaseMessage("Установите подложку и нажмите * чтобы продолжить", InfoMessager.Icon.Info);
+                    techMessager.RealeaseMessage("Установите подложку и нажмите * чтобы продолжить", Icon.Info);
                 }))
                 .SetOnGoUnderCameraAction(() => Task.Run(async () =>
                 {
                     await _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition);
                     //MessageBox.Show("Выбирете место прожига и нажмите * чтобы продолжить", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
-                    techMessager.RealeaseMessage("Выбирете место прожига и нажмите * чтобы продолжить", InfoMessager.Icon.Info);
+                    techMessager.RealeaseMessage("Выбирете место прожига и нажмите * чтобы продолжить", Icon.Info);
                 }))
                 .SetOnGoToShotAction(()=> Task.Run(async () =>
                 {
@@ -325,7 +320,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnSearchScorchAction(() => 
                 {
-                    techMessager.RealeaseMessage("Совместите место прожига с перекрестием камеры и нажмите * чтобы продолжить", InfoMessager.Icon.Info);
+                    techMessager.RealeaseMessage("Совместите место прожига с перекрестием камеры и нажмите * чтобы продолжить", Icon.Info);
                     return Task.CompletedTask;
                 })
                 .SetOnRequestPermissionToStartAction(() => Task.Run(async () =>
@@ -354,7 +349,7 @@ namespace NewLaserProject.ViewModels
                 .SetOnBiasToughtAction(() => Task.Run(() =>
                 {
                     //MessageBox.Show("Обучение отменено", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
-                    techMessager.RealeaseMessage("Обучение отменено", InfoMessager.Icon.Exclamation);
+                    techMessager.RealeaseMessage("Обучение отменено", Icon.Exclamation);
                     _canTeach = false;
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
@@ -363,7 +358,7 @@ namespace NewLaserProject.ViewModels
                     Settings.Default.YOffset = _currentTeacher.GetParams()[1];
                     Settings.Default.Save();
                     //MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
-                    techMessager.RealeaseMessage("Новое значение установленно", InfoMessager.Icon.Exclamation);
+                    techMessager.RealeaseMessage("Новое значение установленно", Icon.Exclamation);
                     _canTeach = false;
                 }));
             _currentTeacher = tcb.Build();

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NewLaserProject.Views"
         xmlns:mcl="clr-namespace:MachineClassLibrary.Machine;assembly=MachineClassLibrary"
+        xmlns:vmdls="clr-namespace:NewLaserProject.ViewModels"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
@@ -35,32 +36,36 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Window.Resources>
-        <!--<Storyboard x:Key="DisappearMessage">            
-            <DoubleAnimation Storyboard.TargetName="ImportantMessage" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5"/>
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
-                <DiscreteObjectKeyFrame Value="{x:Static Visibility.Collapsed}" />
+        <Storyboard x:Key="DangerMessage">
+            <!--<ColorAnimationUsingKeyFrames
+                                Storyboard.TargetName="ImportantMessage"
+                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                Duration="0:0:3" AutoReverse="True">
+
+                <ColorAnimationUsingKeyFrames.KeyFrames>
+                    <LinearColorKeyFrame KeyTime="0:0:1" Value="Green" />
+                    <LinearColorKeyFrame KeyTime="0:0:1" Value="Red" />
+                </ColorAnimationUsingKeyFrames.KeyFrames>
+            </ColorAnimationUsingKeyFrames>-->
+
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
+                                           Storyboard.TargetProperty="Visibility"
+                                           
+                                           Duration="0:0:1" RepeatBehavior="5x" FillBehavior="Stop"
+                                           >
+                    <ObjectAnimationUsingKeyFrames.KeyFrames>
+                        <DiscreteObjectKeyFrame KeyTime="0:0:0.8" Value="{x:Static Visibility.Hidden}"/>
+                        <!--<DiscreteObjectKeyFrame KeyTime="0:0:5" Value="{x:Static Visibility.Visible}"/>-->
+                    </ObjectAnimationUsingKeyFrames.KeyFrames>
             </ObjectAnimationUsingKeyFrames>
+
         </Storyboard>
-        <Storyboard x:Key="AppearingMessage">
+        <Storyboard x:Key="ExclaimMessage">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
                 <DiscreteObjectKeyFrame Value="{x:Static Visibility.Visible}" />
             </ObjectAnimationUsingKeyFrames>
             <DoubleAnimation Storyboard.TargetName="ImportantMessage" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
-        </Storyboard>
-        <Storyboard x:Key="AppearingDisappearingMessage">
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
-                <DiscreteObjectKeyFrame Value="{x:Static Visibility.Visible}" />                
-            </ObjectAnimationUsingKeyFrames>
-            <DoubleAnimation Storyboard.TargetName="ImportantMessage" 
-                             Storyboard.TargetProperty="Opacity" 
-                             From="0" To="1" 
-                             Duration="0:0:1"                             
-                             AutoReverse="True"
-                             />
-            --><!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
-                <DiscreteObjectKeyFrame Value="{x:Static Visibility.Collapsed}" />
-            </ObjectAnimationUsingKeyFrames>--><!--
-        </Storyboard>-->
+        </Storyboard>       
     </Window.Resources>
     <Grid>
         <Grid.Resources>
@@ -103,7 +108,8 @@
             </i:Interaction.Triggers> 
         </Grid>-->
         <DockPanel Grid.Column="2" Grid.RowSpan="2">
-            <Border DockPanel.Dock="Top" 
+            <Border x:Name="ImportantMessage"
+                    DockPanel.Dock="Top" 
                     BorderThickness="2" 
                     BorderBrush="Blue"
                     Padding="2"
@@ -111,9 +117,15 @@
                     Height="30"
                     >
                 <DockPanel>
-                    <Image Source="{Binding IconPath}" DockPanel.Dock="Left" Margin="0,0,5,0"/>
-                    <TextBlock Text="{Binding TechInfo}" FontWeight="Bold" FontSize="15" Foreground="Red"/>
-                </DockPanel>
+                    <Image x:Name="ImportantIcon" Source="{Binding IconPath}" DockPanel.Dock="Left" Margin="0,0,5,0"/>
+                    <TextBlock x:Name="ImportantText" Text="{Binding TechInfo}" FontWeight="Bold" FontSize="15" Foreground="Red">
+                        <i:Interaction.Triggers>
+                            <i:PropertyChangedTrigger Binding="{Binding Text, ElementName=ImportantText}">
+                                <i:ControlStoryboardAction Storyboard="{StaticResource DangerMessage}"/>                                
+                            </i:PropertyChangedTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBlock>
+                </DockPanel>                
             </Border>
             <TabControl>
                 <TabItem>

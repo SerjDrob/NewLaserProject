@@ -45,8 +45,8 @@ public class CameraOffsetTeacher : ITeacher
 
         _stateMachine.Configure(MyState.GoShot)
            .OnEntryAsync(GoToSoot, "Go under the laser, shoot and back under the camera")
-           .Permit(MyTrigger.Next, MyState.AfterShot)
-           .Ignore(MyTrigger.Accept)
+           .Permit(MyTrigger.Accept, MyState.AfterShot)
+           .Ignore(MyTrigger.Next)
            .Ignore(MyTrigger.Deny);
 
         _stateMachine.Configure(MyState.AfterShot)
