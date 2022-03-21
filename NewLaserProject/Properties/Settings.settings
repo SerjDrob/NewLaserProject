@@ -99,7 +99,7 @@
       <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="CameraScale" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">0.01</Value>
     </Setting>
     <Setting Name="XOffset" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0</Value>

@@ -50,7 +50,7 @@ namespace NewLaserProject.ViewModels
             PublishMessage?.Invoke(String.Empty, String.Empty, Icon.Empty);
         }
         public event Action<string, string, Icon> PublishMessage;
-        
+
     }
     public enum Icon
     {
@@ -286,7 +286,7 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
         [ICommand]
-        private void RightWaferCornerTeach() { }
+        private void RightWaferCornerTeach() { }//WaferAligningTeacher
         [ICommand]
         private void TeachCameraOffset()
         {
@@ -309,16 +309,16 @@ namespace NewLaserProject.ViewModels
                     //MessageBox.Show("Выбирете место прожига и нажмите * чтобы продолжить", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                     techMessager.RealeaseMessage("Выбирете место прожига и нажмите * чтобы продолжить", Icon.Info);
                 }))
-                .SetOnGoToShotAction(()=> Task.Run(async () =>
-                {
-                    techMessager.EraseMessage();
-                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true);
-                    //await _laserMachine.PiercePointAsync();
-                    _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
-                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true);
-                    await _currentTeacher.Accept();
-                }))
-                .SetOnSearchScorchAction(() => 
+                .SetOnGoToShotAction(() => Task.Run(async () =>
+                 {
+                     techMessager.EraseMessage();
+                     await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true);
+                     //await _laserMachine.PiercePointAsync();
+                     _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                     await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true);
+                     await _currentTeacher.Accept();
+                 }))
+                .SetOnSearchScorchAction(() =>
                 {
                     techMessager.RealeaseMessage("Совместите место прожига с перекрестием камеры и нажмите * чтобы продолжить", Icon.Info);
                     return Task.CompletedTask;
@@ -500,6 +500,11 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
         [ICommand]
+        private void TeachCameraScale()
+        {
+
+        }
+        [ICommand]
         private Task TeachNext()
         {
             if (_canTeach)
@@ -630,8 +635,8 @@ namespace NewLaserProject.ViewModels
             var control = mouseEvent?.Source as System.Windows.Controls.Image;
             var width = control?.ActualWidth;
             var height = control?.ActualHeight;
-            var imgX = device.GetPosition(control).X - (double)(width / 2);
-            var imgY = device.GetPosition(control).Y - (double)(height / 2);
+            var imgX = (device.GetPosition(control).X - (double)(width / 2)) * Settings.Default.CameraScale;
+            var imgY = (device.GetPosition(control).Y - (double)(height / 2)) * Settings.Default.CameraScale;
             await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { imgX, imgY });
 
         }

@@ -3,10 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NewLaserProject.Views"
         xmlns:mcl="clr-namespace:MachineClassLibrary.Machine;assembly=MachineClassLibrary"
-        xmlns:vmdls="clr-namespace:NewLaserProject.ViewModels"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
         mc:Ignorable="d"
         xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
         Title="Лазер" Height="450" Width="800" WindowState="Maximized">
@@ -36,6 +35,7 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Window.Resources>
+        <cnvrt:DivideConverter x:Key="DivideConverter"/>
         <Storyboard x:Key="DangerMessage">
             <!--<ColorAnimationUsingKeyFrames
                                 Storyboard.TargetName="ImportantMessage"
@@ -215,12 +215,12 @@
                 </TabItem>
             </TabControl>
         </DockPanel>
-        <Border BorderBrush="#FF1E1F20" BorderThickness="3" Background="Blue" Opacity="0.2">
+        <Border BorderBrush="Black" BorderThickness="2">
             <DockPanel>
                 <ToolBarTray DockPanel.Dock="Top">
                     <ToolBar>
                         <ListBox Width="100">
-                            
+
                         </ListBox>
                         <Menu Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Background}">
                             <MenuItem>
@@ -246,14 +246,59 @@
                         </Menu>
                     </ToolBar>
                 </ToolBarTray>
-                <Image Source="{Binding CameraImage}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseDown" >
-                            <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
+                <Grid>
+                    <Image Panel.ZIndex="1" Source="{Binding CameraImage}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown" >
+                                <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
                                                        PassEventArgsToCommand="True"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </Image>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                    <Canvas MinHeight="150" Panel.ZIndex="1">
+                        <Line Stroke="Red" Fill="Red" 
+                              StrokeThickness="3" 
+                              X1="0" X2="50" Y1="0" Y2="0" 
+                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              />
+                        <Line Stroke="Red" Fill="Red" 
+                              StrokeThickness="3" 
+                              X1="25" X2="25" Y1="-25" Y2="25" 
+                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              />
+                        <Ellipse Width="25" Height="25" StrokeThickness="2" Stroke="Red"
+                                
+                                  Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                  Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                 >
+                            <Ellipse.RenderTransform>
+                                <TranslateTransform
+                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}"
+                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                    
+                                    />
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Line Stroke="Red" Fill="Red" 
+                              StrokeThickness="1" 
+                              X1="0" 
+                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}" 
+                              Y1="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, 
+                            Converter={StaticResource DivideConverter}, ConverterParameter=5}" 
+                              Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
+                              />
+                        <Line Stroke="Red" Fill="Red" 
+                              StrokeThickness="1" 
+                              X1="0" 
+                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}" 
+                              Y1="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, 
+                            Converter={StaticResource DivideConverter}, ConverterParameter=1.25}" 
+                              Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
+                              />
+                    </Canvas>
+                </Grid>
             </DockPanel>
         </Border>
         <ToolBarTray Orientation="Vertical" Grid.Column="1" Grid.RowSpan="2">
