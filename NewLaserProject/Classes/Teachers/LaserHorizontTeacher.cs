@@ -65,7 +65,6 @@ namespace NewLaserProject.Classes
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);
 
-            _stateMachine.Activate();
         }
         public static LaserHorizontTeacherBuilder GetBuilder() => new();
 
@@ -80,6 +79,14 @@ namespace NewLaserProject.Classes
             Guard.HasSizeEqualTo(ps, 2, nameof(ps));
             _points.AddRange(ps);
         }
+
+        public Task StartTeach()
+        {
+            throw new NotImplementedException();
+            _stateMachine.Activate();
+
+        }
+
         public class LaserHorizontTeacherBuilder
         {
             public LaserHorizontTeacher Build()

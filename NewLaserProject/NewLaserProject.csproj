@@ -29,12 +29,37 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <None Remove="Views\angle.png" />
-    <None Remove="Views\distance-32.png" />
-    <None Remove="Views\laserbeam_laser_13620.png" />
-    <None Remove="Views\learning.png" />
-    <None Remove="Views\rectangle.png" />
-    <None Remove="Views\settings.png" />
+    <None Remove="Views\Sources\angle.png" />
+    <None Remove="Views\Sources\distance-32.png" />
+    <None Remove="Views\Sources\laserbeam_laser_13620.png" />
+    <None Remove="Views\Sources\learning.png" />
+    <None Remove="Views\Sources\orth.png" />
+    <None Remove="Views\Sources\scale.png" />
+    <None Remove="Views\Sources\settings.png" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="Views\Sources\angle.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Sources\distance-32.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Sources\laserbeam_laser_13620.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Sources\learning.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Sources\orth.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Sources\scale.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Sources\settings.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -54,15 +79,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
     <ProjectReference Include="..\..\MachineControlsLibrary\MachineControlsLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Views\angle.png" />
-    <Resource Include="Views\distance-32.png" />
-    <Resource Include="Views\laserbeam_laser_13620.png" />
-    <Resource Include="Views\learning.png" />
-    <Resource Include="Views\rectangle.png" />
-    <Resource Include="Views\settings.png" />
   </ItemGroup>
 
   <ItemGroup>

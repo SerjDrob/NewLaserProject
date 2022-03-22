@@ -72,16 +72,10 @@ public class CameraOffsetTeacher : ITeacher
             .Ignore(MyTrigger.Next)
             .Ignore(MyTrigger.Accept)
             .Ignore(MyTrigger.Deny);
-
-        _stateMachine.ActivateAsync();
-
+        
     }
 
-    private void TestTask()
-    {
-        throw new NotImplementedException();
-    }
-
+    
     public override string ToString()
     {
         return $"dx: {_newOffset.dx}, dy: {_newOffset.dy}";
@@ -100,6 +94,11 @@ public class CameraOffsetTeacher : ITeacher
     public double[] GetParams()
     {
         return new double[] { _newOffset.dx, _newOffset.dy };
+    }
+
+    public async Task StartTeach()
+    {
+        await _stateMachine.ActivateAsync();
     }
 
     public class CameraBiasTeacherBuilder

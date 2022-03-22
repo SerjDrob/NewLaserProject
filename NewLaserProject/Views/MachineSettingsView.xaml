@@ -7,7 +7,7 @@
         xmlns:models="clr-namespace:NewLaserProject.ViewModels"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         Title="Настройки установки"
-        Icon="/Views/settings.png"
+        Icon="Sources/settings.png"
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen"
         xmlns:MyNamespace="clr-namespace:NewLaserProject.UserControls"

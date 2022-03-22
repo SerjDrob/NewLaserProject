@@ -54,7 +54,6 @@ public class WaferCornerTeacher : ITeacher
             .Ignore(MyTrigger.Accept)
             .Ignore(MyTrigger.Deny);
 
-        _stateMachine.ActivateAsync();
 
     }
 
@@ -76,6 +75,11 @@ public class WaferCornerTeacher : ITeacher
     public double[] GetParams()
     {
         return new double[] { _newCorner.x, _newCorner.y };
+    }
+
+    public async Task StartTeach()
+    {
+       await _stateMachine.ActivateAsync();
     }
 
     public class WaferCornerTeacherBuilder

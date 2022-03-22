@@ -7,24 +7,28 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
         mc:Ignorable="d"
+        xmlns:clr="clr-namespace:System;assembly=mscorlib"
         xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
         Title="Лазер" Height="450" Width="800" WindowState="Maximized">
     <Window.InputBindings>
         <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
         <KeyBinding Command="{Binding StartProcessCommand}" Key="Divide"/>
-        <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
-        <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
-        <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
+        
         <KeyBinding Command="{Binding MachineSettingsCommand}" Key="H"/>
         <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
         <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
         <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
         <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
         <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
-        <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>
-        <KeyBinding Command="{Binding LeftWaferCornerTeachCommand}" Key="F5"/>
+        <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>        
         <KeyBinding Command="{Binding ChangeVelocityCommand}" Key="Add"/>
-
+        
+        <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
+        <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
+        <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
+        <KeyBinding Command="{Binding TeachCameraScaleCommand}" Key="F5"/>
+        <KeyBinding Command="{Binding LeftWaferCornerTeachCommand}" Key="F6"/>
+        
     </Window.InputBindings>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
@@ -36,6 +40,8 @@
     </i:Interaction.Triggers>
     <Window.Resources>
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
+        <cnvrt:MulConvereter x:Key="MulConvereter"/>
+        <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>        
         <Storyboard x:Key="DangerMessage">
             <!--<ColorAnimationUsingKeyFrames
                                 Storyboard.TargetName="ImportantMessage"
@@ -239,7 +245,7 @@
                                 </MenuItem>
                                 <MenuItem Command="{Binding TeachOrthXYCommand}" Header="Ортогональность XY" InputGestureText="F4">
                                     <MenuItem.Icon>
-                                        <Image Source="/Views/laserbeam_laser_13620.png" Height="20"/>
+                                        <Image Source="/Views/orth.png" Height="20" StretchDirection="Both"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
                             </MenuItem>
@@ -247,7 +253,7 @@
                     </ToolBar>
                 </ToolBarTray>
                 <Grid>
-                    <Image Panel.ZIndex="1" Source="{Binding CameraImage}">
+                    <Image x:Name="VideoCamera" Panel.ZIndex="1" Source="{Binding CameraImage}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDown" >
                                 <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
@@ -259,14 +265,14 @@
                         <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="3" 
                               X1="0" X2="50" Y1="0" Y2="0" 
-                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Left="{Binding ElementName=VideoCamera, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Top="{Binding ElementName=VideoCamera, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               />
                         <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="3" 
                               X1="25" X2="25" Y1="-25" Y2="25" 
-                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Left="{Binding ElementName=VideoCamera, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Top="{Binding ElementName=VideoCamera, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               />
                         <Ellipse Width="25" Height="25" StrokeThickness="2" Stroke="Red"
                                 
@@ -280,23 +286,37 @@
                                     
                                     />
                             </Ellipse.RenderTransform>
-                        </Ellipse>
+                        </Ellipse>                        
+                    </Canvas>
+                    <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
+                            Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, Path=TeachScaleMarkerEnable}">
                         <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="1" 
                               X1="0" 
                               X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}" 
-                              Y1="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, 
-                            Converter={StaticResource DivideConverter}, ConverterParameter=5}" 
+                              
                               Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
-                              />
+                              >
+                            <Line.Y1>
+                                <MultiBinding Converter="{StaticResource MulConvereter}">
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioFirst"/>
+                                </MultiBinding>
+                            </Line.Y1>
+                        </Line>
                         <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="1" 
                               X1="0" 
-                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}" 
-                              Y1="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, 
-                            Converter={StaticResource DivideConverter}, ConverterParameter=1.25}" 
+                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}"                               
                               Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
-                              />
+                              >
+                            <Line.Y1>
+                                <MultiBinding Converter="{StaticResource MulConvereter}">
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
+                                    <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioSecond"/>
+                                </MultiBinding>
+                            </Line.Y1>
+                        </Line>
                     </Canvas>
                 </Grid>
             </DockPanel>
@@ -310,7 +330,7 @@
                             <TextBlock Foreground="Blue" FontWeight="DemiBold"  Text=" /"/>
                         </StackPanel>
                     </Button.ToolTip>
-                    <Image Source="/Views/laserbeam_laser_13620.png" Height="20"/>
+                    <Image Source="Sources/laserbeam_laser_13620.png" Height="20"/>
 
                 </Button>
                 <Button Command="{Binding MachineSettingsCommand}">
@@ -320,26 +340,31 @@
                             <TextBlock Foreground="Blue" FontWeight="DemiBold"  Text=" H"/>
                         </StackPanel>
                     </Button.ToolTip>
-                    <Image Source="/Views/settings.png" Height="20"/>
+                    <Image Source="Sources/settings.png" Height="20"/>
                 </Button>
                 <Menu Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Background}">
                     <MenuItem>
-                        <MenuItem.Header>                            
-                                <Image Source="/Views/learning.png" Height="20"/>
+                        <MenuItem.Header>
+                            <Image Source="Sources/learning.png" Height="20"/>
                         </MenuItem.Header>
                         <MenuItem Command="{Binding TeachCameraOffsetCommand}" Header="Смещение камеры" InputGestureText="F2">
                             <MenuItem.Icon>
-                                <Image Source="/Views/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
+                                <Image Source="Sources/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Command="{Binding TeachScanatorHorizontCommand}" Header="Горизонт сканатора" InputGestureText="F3">
                             <MenuItem.Icon>                               
-                                    <Image Source="/Views/angle.png" Height="20" /> 
+                                    <Image Source="Sources/angle.png" Height="20" /> 
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Command="{Binding TeachOrthXYCommand}" Header="Ортогональность XY" InputGestureText="F4">
                             <MenuItem.Icon>
-                                <Image Source="/Views/laserbeam_laser_13620.png" Height="20"/>
+                                <Image Source="Sources/orth.png" Height="20"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Command="{Binding TeachCameraScaleCommand}" Header="Масштаб видео" InputGestureText="F5">
+                            <MenuItem.Icon>
+                                <Image Source="Sources/scale.png" Height="20"/>
                             </MenuItem.Icon>
                         </MenuItem>
                     </MenuItem>

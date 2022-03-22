@@ -57,7 +57,6 @@ namespace NewLaserProject.Classes
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);
 
-            _stateMachine.Activate();
 
         }
 
@@ -83,6 +82,11 @@ namespace NewLaserProject.Classes
         }
 
         public double[] GetParams() => _points.ToArray();
+
+        public async Task StartTeach()
+        {
+            //await _stateMachine.Activate();
+        }
 
         public class XYOrthTeacherBuilder
         {
