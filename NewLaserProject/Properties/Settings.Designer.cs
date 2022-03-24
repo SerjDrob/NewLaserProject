@@ -526,5 +526,17 @@ namespace NewLaserProject.Properties {
                 this["PazAngle"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PreferedCameraCapabilities {
+            get {
+                return ((int)(this["PreferedCameraCapabilities"]));
+            }
+            set {
+                this["PreferedCameraCapabilities"] = value;
+            }
+        }
     }
 }

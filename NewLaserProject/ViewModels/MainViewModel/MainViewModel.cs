@@ -36,7 +36,7 @@ namespace NewLaserProject.ViewModels
         public Icon CurrentMessageType { get; private set; } = Icon.Empty;
         public int FileScale { get; set; } = 1000;
         public bool MirrorX { get; set; } = true;
-        public bool WaferTurn90 { get; set; } = true;
+        public bool WaferTurn90 { get; set; } = false;
         public BitmapImage CameraImage { get; set; }
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
@@ -45,7 +45,7 @@ namespace NewLaserProject.ViewModels
         public TechWizardViewModel TWModel { get; set; }
         public bool LeftCornerBtnVisibility { get; set; } = false;
         public bool RightCornerBtnVisibility { get; set; } = false;
-        public bool WaferContourVisibility { get; set; } = false;
+        public bool WaferContourVisibility { get; set; } = true;
         public bool IsFileSettingsEnable { get; set; } = false;
         public bool TeachScaleMarkerEnable { get; private set; } = false;
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
@@ -79,12 +79,21 @@ namespace NewLaserProject.ViewModels
             //_coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
-
-            _laserMachine.StartCamera(0);
+            CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
+            CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
+            _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
 
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
         }
+        public ObservableCollection<string> CameraCapabilities { get; set; }
+        public int CameraCapabilitiesIndex { get; set; }
 
+        [ICommand]
+        private void CameraCapabilitiesChanged()
+        {
+            _laserMachine.StopCamera();
+            _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+        }
         private void TechMessager_PublishMessage(string message, string iconPath, Icon icon)
         {
             TechInfo = message;
@@ -147,25 +156,25 @@ namespace NewLaserProject.ViewModels
             openFileDialog.FilterIndex = 2;
             openFileDialog.RestoreDirectory = true;
 
-            if ((bool)openFileDialog.ShowDialog())
+            if (openFileDialog.ShowDialog() ?? false)
             {
                 //Get the path of specified file
                 FileName = openFileDialog.FileName;
+                if (File.Exists(FileName))
+                {
+                    _dxfReader = new IMDxfReader(FileName);
+                    LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
+                    IsFileSettingsEnable = true;
+                    LPModel = new(_dxfReader);
+                    TWModel = new();
+                    LPModel.ObjectChosenEvent += TWModel.SetObjectsTC;
+                }
+                else
+                {
+                    IsFileSettingsEnable = false;
+                }
+            }
 
-            }
-            if (File.Exists(FileName))
-            {
-                _dxfReader = new IMDxfReader(FileName);
-                LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
-                IsFileSettingsEnable = true;
-                LPModel = new(_dxfReader);
-                TWModel = new();
-                LPModel.ObjectChosenEvent += TWModel.SetObjectsTC;
-            }
-            else
-            {
-                IsFileSettingsEnable = false;
-            }
 
         }
 

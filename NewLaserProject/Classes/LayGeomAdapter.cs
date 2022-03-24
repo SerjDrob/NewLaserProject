@@ -23,7 +23,9 @@ namespace NewLaserProject.Classes
         {
             return _geomAdapter.GetGeometries()
                 .GroupBy(ag => ag.LayerName)
-                .Select(x => new LayerGeometryCollection(new GeometryCollection(x.Select(y => y.geometry)), x.Key, true, x.First().LayerColor, x.First().GeometryColor));
+                .Select(x => 
+                new LayerGeometryCollection(
+                    new GeometryCollection(x.Select(y => y.geometry)), x.Key, true, x.First().LayerColor, x.First().GeometryColor));
                 
         }
     }

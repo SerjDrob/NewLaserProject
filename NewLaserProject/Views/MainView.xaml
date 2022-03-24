@@ -15,8 +15,7 @@
         <KeyBinding Command="{Binding StartProcessCommand}" Key="Divide"/>
         
         <KeyBinding Command="{Binding MachineSettingsCommand}" Key="H"/>
-        <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
-        <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
+        
         <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
         <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
         <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
@@ -28,6 +27,8 @@
         <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
         <KeyBinding Command="{Binding TeachCameraScaleCommand}" Key="F5"/>
         <KeyBinding Command="{Binding LeftWaferCornerTeachCommand}" Key="F6"/>
+        <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
+        <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
         
     </Window.InputBindings>
     <i:Interaction.Triggers>
@@ -87,32 +88,10 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
+            <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <!--<Grid x:Name="ImportantMessage" Grid.ColumnSpan="3" 
-              Grid.RowSpan="2" 
-              Height="200" 
-              Width="400" 
-              Panel.ZIndex="10"
-              VerticalAlignment="Top"
-              Background="GreenYellow"
-              Opacity="0"
-              Visibility="Collapsed"
-              >
-            <TextBlock Text="My text!!!" 
-                       FontSize="50" 
-                       HorizontalAlignment="Center" 
-                       VerticalAlignment="Center"/>
-            <i:Interaction.Triggers>
-                --><!--<i:DataTrigger Binding="{Binding ShowMessage}" Value="True">
-                    <i:ControlStoryboardAction Storyboard="{StaticResource DisappearMessage}"/>
-                </i:DataTrigger>--><!--
-                <i:DataTrigger Binding="{Binding ShowMessage}" Value="True">
-                    <i:ControlStoryboardAction Storyboard="{StaticResource AppearingDisappearingMessage}"/>
-                </i:DataTrigger>
-            </i:Interaction.Triggers> 
-        </Grid>-->
+        
         <DockPanel Grid.Column="2" Grid.RowSpan="2">
             <Border x:Name="ImportantMessage"
                     DockPanel.Dock="Top" 
@@ -153,7 +132,9 @@
                            IgnoredLayers="{Binding IgnoredLayers}" 
                            RenderTransformOrigin="0.5,0.5"
                            SelectedColor="Black"           
-                >
+                           MirrorX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.MirrorX}"
+                           Angle90="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferTurn90}"
+                           >
                         <Grid>
                             <Grid Height="48000" 
                                    Width="60000"
@@ -225,9 +206,17 @@
             <DockPanel>
                 <ToolBarTray DockPanel.Dock="Top">
                     <ToolBar>
-                        <ListBox Width="100">
+                        <Label Content="Качество видео" />
+                        <ComboBox ItemsSource="{Binding CameraCapabilities}"
+                                  SelectedIndex="{Binding CameraCapabilitiesIndex}"
+                                  MinWidth="100">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding CameraCapabilitiesChangedCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ComboBox>
 
-                        </ListBox>
                         <Menu Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Background}">
                             <MenuItem>
                                 <MenuItem.Header>
@@ -261,27 +250,29 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Image>
-                    <Canvas MinHeight="150" Panel.ZIndex="1">
+                    <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1">
                         <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="3" 
-                              X1="0" X2="50" Y1="0" Y2="0" 
-                              Canvas.Left="{Binding ElementName=VideoCamera, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              Canvas.Top="{Binding ElementName=VideoCamera, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              X1="-25" X2="25" Y1="0" Y2="0" 
+                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               />
-                        <Line Stroke="Red" Fill="Red" 
+                    <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="3" 
-                              X1="25" X2="25" Y1="-25" Y2="25" 
-                              Canvas.Left="{Binding ElementName=VideoCamera, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              Canvas.Top="{Binding ElementName=VideoCamera, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              />
-                        <Ellipse Width="25" Height="25" StrokeThickness="2" Stroke="Red"
+                              X1="0" X2="0" Y1="-25" Y2="25" 
+                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              >                       
+                    </Line>
+                        
+                    <Ellipse Width="25" Height="25" StrokeThickness="2" Stroke="Red"
                                 
                                   Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                   Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                  >
                             <Ellipse.RenderTransform>
                                 <TranslateTransform
-                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}"
+                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
                                     Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
                                     
                                     />
