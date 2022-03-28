@@ -9,6 +9,8 @@
         mc:Ignorable="d"
         xmlns:clr="clr-namespace:System;assembly=mscorlib"
         xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
+        xmlns:vm="clr-namespace:NewLaserProject.ViewModels"
+        xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
         Title="Лазер" Height="450" Width="800" WindowState="Maximized">
     <Window.InputBindings>
         <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
@@ -42,7 +44,8 @@
     <Window.Resources>
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
         <cnvrt:MulConvereter x:Key="MulConvereter"/>
-        <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>        
+        <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
+        <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
         <Storyboard x:Key="DangerMessage">
             <!--<ColorAnimationUsingKeyFrames
                                 Storyboard.TargetName="ImportantMessage"
@@ -123,24 +126,51 @@
                         </Border>
                     </TabItem.Header>
                     <uc:GraphWindow 
+                           x:Name="GraphWin"
                            LayGeoms="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LayGeoms}"                                            
+                           SpecSizeX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileSizeX}"
+                           SpecSizeY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileSizeY}"
                            SpecMargin="0.2" 
-                           SpecSizeX="60000"
-                           SpecSizeY="48000"
                            AutoProportion="True"
                            StrokeThickness="0.1"  
                            IgnoredLayers="{Binding IgnoredLayers}" 
                            RenderTransformOrigin="0.5,0.5"
                            SelectedColor="Black"           
-                           MirrorX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.MirrorX}"
-                           Angle90="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferTurn90}"
+                           MirrorX="{Binding Mode=TwoWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.MirrorX}"
+                           Angle90="{Binding Mode=TwoWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferTurn90}"
+                           OffsetX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetX}"                           
+                           OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetY}"                            
                            >
+                        <uc:GraphWindow.FieldSizeX>
+                            <MultiBinding Converter="{StaticResource MulConvereter}">
+                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferWidth"/>
+                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
+                            </MultiBinding>
+                        </uc:GraphWindow.FieldSizeX>
+                        <uc:GraphWindow.FieldSizeY>
+                            <MultiBinding Converter="{StaticResource MulConvereter}">
+                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferHeight"/>
+                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
+                            </MultiBinding>
+                        </uc:GraphWindow.FieldSizeY>
                         <Grid>
-                            <Grid Height="48000" 
-                                   Width="60000"
+                            <Grid 
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   >
+                                <Grid.Height>
+                                    <MultiBinding Converter="{StaticResource MulConvereter}">
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferHeight"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
+                                    </MultiBinding>
+                                </Grid.Height>
+                                
+                                <Grid.Width>
+                                    <MultiBinding Converter="{StaticResource MulConvereter}">
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferWidth"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
+                                    </MultiBinding>
+                                </Grid.Width>
 
                                 <Rectangle Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}"
                                        Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
@@ -360,7 +390,90 @@
                         </MenuItem>
                     </MenuItem>
                 </Menu>
-            </ToolBar>            
+            </ToolBar>
+            <ToolBar>
+                <Button Command="{Binding AlignWaferCommand}"  Content="Right">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Right}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Content="Left">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Left}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}"  Content="Top">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Top}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Content="Bottom">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Bottom}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}"  Content="Center">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Center}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Content="RT">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.RTCorner}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}"  Content="RB">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.RBCorner}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Content="LT">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.LTCorner}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Content="LB">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.LBCorner}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>                
+            </ToolBar>
         </ToolBarTray>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

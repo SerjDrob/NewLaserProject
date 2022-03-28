@@ -538,5 +538,29 @@ namespace NewLaserProject.Properties {
                 this["PreferedCameraCapabilities"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool WaferMirrorX {
+            get {
+                return ((bool)(this["WaferMirrorX"]));
+            }
+            set {
+                this["WaferMirrorX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool WaferAngle90 {
+            get {
+                return ((bool)(this["WaferAngle90"]));
+            }
+            set {
+                this["WaferAngle90"] = value;
+            }
+        }
     }
 }

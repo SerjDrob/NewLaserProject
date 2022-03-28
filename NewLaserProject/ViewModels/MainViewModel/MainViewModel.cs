@@ -23,6 +23,7 @@ using System.Windows.Media.Imaging;
 
 namespace NewLaserProject.ViewModels
 {
+
     [AddINotifyPropertyChangedInterface]
     internal partial class MainViewModel
     {
@@ -30,13 +31,9 @@ namespace NewLaserProject.ViewModels
         private readonly LaserMachine _laserMachine;
         private readonly string _projectDirectory;
         public string VideoScreenMessage { get; set; } = "";
-
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
-        public Icon CurrentMessageType { get; private set; } = Icon.Empty;
-        public int FileScale { get; set; } = 1000;
-        public bool MirrorX { get; set; } = true;
-        public bool WaferTurn90 { get; set; } = false;
+        public Icon CurrentMessageType { get; private set; } = Icon.Empty;        
         public BitmapImage CameraImage { get; set; }
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
@@ -44,28 +41,24 @@ namespace NewLaserProject.ViewModels
         public LayersProcessingModel LPModel { get; set; }
         public TechWizardViewModel TWModel { get; set; }
         public bool LeftCornerBtnVisibility { get; set; } = false;
-        public bool RightCornerBtnVisibility { get; set; } = false;
-        public bool WaferContourVisibility { get; set; } = true;
-        public bool IsFileSettingsEnable { get; set; } = false;
+        public bool RightCornerBtnVisibility { get; set; } = false;        
         public bool TeachScaleMarkerEnable { get; private set; } = false;
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
         public double ScaleMarkersRatioSecond { get => 1 - ScaleMarkersRatioFirst; }
 
-        private string _pierceSequenceJson = string.Empty;
-        public string FileName { get; set; } = "open new file";
-
-        public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
+        private string _pierceSequenceJson = string.Empty;       
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
 
 
 
         //---------------------------------------------
-        private IDxfReader _dxfReader;
         private CoorSystem<LMPlace> _coorSystem;
         private ITeacher _currentTeacher;
         private bool _canTeach = false;
         //---------------------------------------------
-
+        public MainViewModel()
+        {
+        }
         public MainViewModel(LaserMachine laserMachine)
         {
             techMessager = new();
@@ -101,9 +94,7 @@ namespace NewLaserProject.ViewModels
             CurrentMessageType = icon;
         }
 
-        public MainViewModel()
-        {
-        }
+
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
             switch (e.Axis)
@@ -124,6 +115,8 @@ namespace NewLaserProject.ViewModels
         {
             CameraImage = e.Image;
         }
+
+       
 
         [ICommand]
         private void StartProcess()
@@ -147,36 +140,7 @@ namespace NewLaserProject.ViewModels
             //LeftCornerBtnVisibility ^= true;
         }
 
-        [ICommand]
-        private void OpenFile()
-        {
-            var openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = "d:\\";
-            openFileDialog.Filter = "dxf files (*.dxf)|*.dxf";
-            openFileDialog.FilterIndex = 2;
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() ?? false)
-            {
-                //Get the path of specified file
-                FileName = openFileDialog.FileName;
-                if (File.Exists(FileName))
-                {
-                    _dxfReader = new IMDxfReader(FileName);
-                    LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
-                    IsFileSettingsEnable = true;
-                    LPModel = new(_dxfReader);
-                    TWModel = new();
-                    LPModel.ObjectChosenEvent += TWModel.SetObjectsTC;
-                }
-                else
-                {
-                    IsFileSettingsEnable = false;
-                }
-            }
-
-
-        }
+       
 
         [ICommand]
         private void OpenLayersProcessing()
