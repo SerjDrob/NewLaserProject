@@ -45,18 +45,12 @@
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
         <cnvrt:MulConvereter x:Key="MulConvereter"/>
         <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
+        <cnvrt:GetScaleConverter x:Key="GetScaleConvereter"/>
         <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
-        <Storyboard x:Key="DangerMessage">
-            <!--<ColorAnimationUsingKeyFrames
-                                Storyboard.TargetName="ImportantMessage"
-                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
-                                Duration="0:0:3" AutoReverse="True">
+        <clr:Boolean x:Key="TRUE">True</clr:Boolean>
+        <clr:Boolean x:Key="FALSE">False</clr:Boolean>
 
-                <ColorAnimationUsingKeyFrames.KeyFrames>
-                    <LinearColorKeyFrame KeyTime="0:0:1" Value="Green" />
-                    <LinearColorKeyFrame KeyTime="0:0:1" Value="Red" />
-                </ColorAnimationUsingKeyFrames.KeyFrames>
-            </ColorAnimationUsingKeyFrames>-->
+        <Storyboard x:Key="DangerMessage">            
 
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
                                            Storyboard.TargetProperty="Visibility"
@@ -64,11 +58,9 @@
                                            Duration="0:0:1" RepeatBehavior="5x" FillBehavior="Stop"
                                            >
                     <ObjectAnimationUsingKeyFrames.KeyFrames>
-                        <DiscreteObjectKeyFrame KeyTime="0:0:0.8" Value="{x:Static Visibility.Hidden}"/>
-                        <!--<DiscreteObjectKeyFrame KeyTime="0:0:5" Value="{x:Static Visibility.Visible}"/>-->
+                        <DiscreteObjectKeyFrame KeyTime="0:0:0.8" Value="{x:Static Visibility.Hidden}"/>                        
                     </ObjectAnimationUsingKeyFrames.KeyFrames>
             </ObjectAnimationUsingKeyFrames>
-
         </Storyboard>
         <Storyboard x:Key="ExclaimMessage">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
@@ -125,11 +117,13 @@
                             </StackPanel>
                         </Border>
                     </TabItem.Header>
-                    <uc:GraphWindow 
+                    <uc:GraphWindow                         
                            x:Name="GraphWin"
                            LayGeoms="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LayGeoms}"                                            
                            SpecSizeX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileSizeX}"
                            SpecSizeY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileSizeY}"
+                           FieldSizeX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FieldSizeX}"
+                           FieldSizeY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FieldSizeY}"
                            SpecMargin="0.2" 
                            AutoProportion="True"
                            StrokeThickness="0.1"  
@@ -141,7 +135,7 @@
                            OffsetX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetX}"                           
                            OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetY}"                            
                            >
-                        <uc:GraphWindow.FieldSizeX>
+                        <!--<uc:GraphWindow.FieldSizeX>
                             <MultiBinding Converter="{StaticResource MulConvereter}">
                                 <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferWidth"/>
                                 <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
@@ -152,35 +146,36 @@
                                 <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferHeight"/>
                                 <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
                             </MultiBinding>
-                        </uc:GraphWindow.FieldSizeY>
+                        </uc:GraphWindow.FieldSizeY>-->
                         <Grid>
-                            <Grid 
+                                <Grid 
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
+                                    
                                   >
-                                <Grid.Height>
-                                    <MultiBinding Converter="{StaticResource MulConvereter}">
-                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferHeight"/>
-                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
-                                    </MultiBinding>
-                                </Grid.Height>
-                                
-                                <Grid.Width>
-                                    <MultiBinding Converter="{StaticResource MulConvereter}">
-                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferWidth"/>
-                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
-                                    </MultiBinding>
-                                </Grid.Width>
+                                    <Grid.Height>
+                                        <MultiBinding Converter="{StaticResource MulConvereter}">
+                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferHeight"/>
+                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
+                                        </MultiBinding>
+                                    </Grid.Height>
 
-                                <Rectangle Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}"
+                                    <Grid.Width>
+                                        <MultiBinding Converter="{StaticResource MulConvereter}">
+                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferWidth"/>
+                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
+                                        </MultiBinding>
+                                    </Grid.Width>
+
+                                    <Rectangle Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}"
                                        Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
                                        Stroke="White"
-                                       StrokeThickness="200"
+                                       StrokeThickness="4"
                                        StrokeDashArray="5,5,5"
                                        Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferContourVisibility,
                                        Converter={StaticResource BTVConverter}}"
                                        />
-                                <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftWaferCornerTeachCommand}"
+                                    <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftWaferCornerTeachCommand}"
                                     Height="3000" 
                                     Width="3000"
                                     VerticalAlignment="Bottom" 
@@ -189,16 +184,16 @@
                                     Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftCornerBtnVisibility,
                                     Converter={StaticResource BTVConverter}}"
                                     >
-                                    <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
-                                        <Path.Data>
-                                            <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
-                                        </Path.Data>
-                                        <Path.RenderTransform>
-                                            <ScaleTransform ScaleY="-1"/>
-                                        </Path.RenderTransform>
-                                    </Path>
-                                </Button>
-                                <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightWaferCornerTeachCommand}"                              
+                                        <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                            <Path.Data>
+                                                <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
+                                            </Path.Data>
+                                            <Path.RenderTransform>
+                                                <ScaleTransform ScaleY="-1"/>
+                                            </Path.RenderTransform>
+                                        </Path>
+                                    </Button>
+                                    <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightWaferCornerTeachCommand}"                              
                                     Height="3000" 
                                     Width="3000"
                                     VerticalAlignment="Bottom" 
@@ -207,20 +202,37 @@
                                     Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightCornerBtnVisibility,
                                     Converter={StaticResource BTVConverter}}"
                                      >
-                                    <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
-                                        <Path.Data>
-                                            <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
-                                        </Path.Data>
-                                        <Path.RenderTransform>
-                                            <ScaleTransform ScaleY="-1" ScaleX="-1"/>
-                                        </Path.RenderTransform>
-                                    </Path>
-                                </Button>
+                                        <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                                            <Path.Data>
+                                                <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
+                                            </Path.Data>
+                                            <Path.RenderTransform>
+                                                <ScaleTransform ScaleY="-1" ScaleX="-1"/>
+                                            </Path.RenderTransform>
+                                        </Path>
+                                    </Button>                                
                             </Grid>
-                            <Grid.LayoutTransform>
-                                <ScaleTransform ScaleX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleX}"
-                                            ScaleY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleY}"/>
-                            </Grid.LayoutTransform>
+                                
+                               
+                            <Canvas>
+                                <uc:SpecCross 
+                                    X="0" 
+                                    Y="0" 
+                                    Color="Red" 
+                                    
+                                    
+                                    
+                                    Thickness="0.03"/>
+                                <!--<uc:SpecCross 
+                                    X="0" 
+                                    Y="0" 
+                                    Color="Red"
+                                    
+                                    
+                                    XScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleX}" 
+                                    YScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleY}" 
+                                    Thickness="0.03"/>-->
+                            </Canvas>
                         </Grid>
                     </uc:GraphWindow>
                 </TabItem>

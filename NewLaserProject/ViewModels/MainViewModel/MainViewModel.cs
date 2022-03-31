@@ -202,7 +202,7 @@ namespace NewLaserProject.ViewModels
                 case Key.Home:
                     try
                     {
-                        await _laserMachine.GoHomeAsync();
+                        await _laserMachine.GoHomeAsync().ConfigureAwait(false);
                         techMessager.EraseMessage();
                     }
                     catch (Exception ex)

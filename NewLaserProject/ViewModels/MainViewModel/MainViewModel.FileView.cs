@@ -17,10 +17,13 @@ internal partial class MainViewModel
     public bool WaferTurn90 { get; set; } = false;
     public double WaferOffsetX { get; set; }
     public double WaferOffsetY { get; set; }
-    public double WaferWidth { get; set; } = 120;
-    public double WaferHeight { get; set; } = 96;
+    public double WaferWidth { get; set; } = 48;
+    public double WaferHeight { get; set; } = 60;
+    public double WaferMargin { get; set; } = 0.2;
     public double FileSizeX { get; set; }
     public double FileSizeY { get; set; }
+    public double FieldSizeX { get => /*FileScale * WaferWidth*/60000; }
+    public double FieldSizeY { get => /*FileScale * WaferHeight*/48000; }
     public bool WaferContourVisibility { get; set; } = true;
     public bool IsFileSettingsEnable { get; set; } = false;
     public string FileName { get; set; } = "open new file";
@@ -66,6 +69,8 @@ internal partial class MainViewModel
 
         if (openFileDialog.ShowDialog() ?? false)
         {
+            //techMessager.RealeaseMessage("Загрузка...", Icon.Loading);
+
             //Get the path of specified file
             FileName = openFileDialog.FileName;
             if (File.Exists(FileName))
@@ -90,6 +95,7 @@ internal partial class MainViewModel
             {
                 IsFileSettingsEnable = false;
             }
+           // techMessager.EraseMessage();
         }
 
     }
