@@ -26,17 +26,17 @@ namespace NewLaserProject.Classes
             _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
 
             _stateMachine.Configure(MyState.Begin)
-                .OnEntryAsync(RequestPermissionToStart)
+                .OnActivateAsync(RequestPermissionToStart)
                 .Permit(MyTrigger.Accept, MyState.AtPoint)
                 .Permit(MyTrigger.Deny, MyState.End)
                 .Ignore(MyTrigger.Next);
 
             _stateMachine.Configure(MyState.AtPoint)
                 .OnEntryAsync(GoNextPoint)
-                .PermitReentryIf(MyTrigger.Accept, () => _points.Count < 3)
-                .PermitIf(MyTrigger.Accept, MyState.RequestPermission, new Tuple<Func<bool>, string>(() => _points.Count == 3, "Makes sure that count of points is enough to get learning done"))
+                .PermitReentryIf(MyTrigger.Next, () => _points.Count < 3)
+                .PermitIf(MyTrigger.Next, MyState.RequestPermission, new Tuple<Func<bool>, string>(() => _points.Count == 3, "Makes sure that count of points is enough to get learning done"))
                 .Permit(MyTrigger.Deny, MyState.End)
-                .Ignore(MyTrigger.Next);
+                .Ignore(MyTrigger.Accept);
 
 
             _stateMachine.Configure(MyState.RequestPermission)
@@ -56,8 +56,6 @@ namespace NewLaserProject.Classes
                 .Ignore(MyTrigger.Next)
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);
-
-
         }
 
 
@@ -85,7 +83,7 @@ namespace NewLaserProject.Classes
 
         public async Task StartTeach()
         {
-            //await _stateMachine.Activate();
+            await _stateMachine.ActivateAsync();
         }
 
         public class XYOrthTeacherBuilder

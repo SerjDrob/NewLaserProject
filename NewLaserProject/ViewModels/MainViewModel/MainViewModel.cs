@@ -69,13 +69,13 @@ namespace NewLaserProject.ViewModels
             _laserMachine.OnBitmapChanged += _laserMachine_OnVideoSourceBmpChanged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             Settings.Default.Save();//wtf?
-            //_coorSystem = GetCoorSystem();
+            _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
             CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
             CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-
+            TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
         }
         public ObservableCollection<string> CameraCapabilities { get; set; }
@@ -101,9 +101,11 @@ namespace NewLaserProject.ViewModels
             {
                 case Ax.X:
                     XAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                    ViewfinderX = _coorSystem?.FromSub(LMPlace.LeftCorner, XAxis.Position, YAxis.Position)[0] * FileScale ?? 0;
                     break;
                 case Ax.Y:
                     YAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                    ViewfinderY = -_coorSystem?.FromSub(LMPlace.LeftCorner, XAxis.Position, YAxis.Position)[1] * FileScale ?? 0;//Sign is illegal!!!!
                     break;
                 case Ax.Z:
                     ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
@@ -477,7 +479,7 @@ namespace NewLaserProject.ViewModels
         {
             coorSystem.SetRelatedSystem(LMPlace.Loading, 50, 20);
             coorSystem.SetRelatedSystem(LMPlace.UnderLaser, 1, 2);
-            coorSystem.SetRelatedSystem(LMPlace.LeftCorner, 1, 2);
+            coorSystem.SetRelatedSystem(LMPlace.LeftCorner, Settings.Default.XLeftPoint, Settings.Default.YLeftPoint);
             coorSystem.SetRelatedSystem(LMPlace.RightCorner, 1, 2);
         }
     }

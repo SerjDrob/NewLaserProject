@@ -4,10 +4,12 @@ using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
+using NewLaserProject.Classes.Teachers;
 using NewLaserProject.Properties;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -17,7 +19,7 @@ namespace NewLaserProject.ViewModels;
 internal partial class MainViewModel
 {
     [ICommand]
-    private void LeftWaferCornerTeach()
+    private async Task LeftWaferCornerTeach()
     {
         var lwct = WaferCornerTeacher.GetBuilder();
 
@@ -78,6 +80,7 @@ internal partial class MainViewModel
             _canTeach = false;
         }));
         _currentTeacher = lwct.Build();
+        await _currentTeacher.StartTeach();
         _canTeach = true;
     }
     [ICommand]
@@ -236,17 +239,31 @@ internal partial class MainViewModel
         _canTeach = true;
     }
     [ICommand]
-    private void TeachOrthXY(List<PointF> points)
+    private async void TeachOrthXY()
     {
+        var matrixElements = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem1.json");
+        var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
+            matrixElements[0],
+            matrixElements[1],
+            matrixElements[2],
+            matrixElements[3],
+            matrixElements[4],
+            matrixElements[5]
+            ));
+
+
+        var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();             
         Guard.IsEqualTo(points.Count, 3, nameof(points));
         using var pointsEnumerator = points.GetEnumerator();
-        var tcb = XYOrthTeacher.GetBuilder();
-        tcb.SetOnGoNextPointAction(() => Task.Run(async () =>
-        {
-            pointsEnumerator.MoveNext();
-            var point = pointsEnumerator.Current;
-            await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(point.X, point.Y), true);
-        }))
+        _currentTeacher = XYOrthTeacher.GetBuilder()
+            .SetOnGoNextPointAction(() => Task.Run(async () =>
+            {
+                pointsEnumerator.MoveNext();
+                var point = pointsEnumerator.Current;
+                await _laserMachine.MoveGpInPosAsync(Groups.XY, /*_coorSystem*/sys.ToGlobal(point.X, point.Y), true);
+                techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", Icon.Exclamation);
+               // _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+            }))
             .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
             {
                 if (MessageBox.Show("Обучить координатную систему лазера?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
@@ -260,7 +277,6 @@ internal partial class MainViewModel
             }))
             .SetOnRequestPermissionToAcceptAction(() => Task.Run(() =>
             {
-                _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
                 if (MessageBox.Show($"Принять новое значения координат для матрицы преобразования {_currentTeacher}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     _currentTeacher.Accept();
@@ -279,15 +295,16 @@ internal partial class MainViewModel
             {
                 var resultPoints = _currentTeacher.GetParams();
                 _coorSystem = new CoorSystem<LMPlace>(
-                    first: (new(points[0].X, points[0].Y), new((float)resultPoints[0], (float)resultPoints[1])),
-                    second: (new(points[1].X, points[1].Y), new((float)resultPoints[2], (float)resultPoints[3])),
-                    third: (new(points[2].X, points[2].Y), new((float)resultPoints[4], (float)resultPoints[5])));
+                    first: (new((float)points[0].X, (float)points[0].Y), new((float)resultPoints[0], (float)resultPoints[1])),
+                    second: (new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3])),
+                    third: (new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5])));
                 TuneCoorSystem(_coorSystem);
-                _coorSystem.SerializeObject("filePath");
+                _coorSystem.SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
                 MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                 _canTeach = false;
-            }));
-        _currentTeacher = tcb.Build();
+            }))
+            .Build();
+        await _currentTeacher.StartTeach();
         _canTeach = true;
     }
     [ICommand]
@@ -351,11 +368,85 @@ internal partial class MainViewModel
                 techMessager.RealeaseMessage("Новое значение установленно", Icon.Exclamation);
                 _canTeach = false;
             }));
-            _currentTeacher = tcs.Build();
+        _currentTeacher = tcs.Build();
         await _currentTeacher.StartTeach();
         _canTeach = true;
 
     }
+
+
+    /// <summary>
+    /// Teach horizontal or vertical dimension of machine mechanic
+    /// </summary>
+    /// <param name="horizontal">true stands for horizontal, false stands for vertical</param>
+    /// <returns></returns>
+    [ICommand]
+    private async Task TeachTheDimension(bool horizontal)
+    {
+        var coordinate = horizontal ? "X" : "Y";
+
+        _currentTeacher = WorkingDimensionTeacher.GetBuilder()
+            .SetOnRequestStartingAction(() => Task.Run(async () =>
+            {
+                if (MessageBox.Show($"Обучить габарит координаты {coordinate}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    await _currentTeacher.Accept();
+                }
+                else
+                {
+                    await _currentTeacher.Deny();
+                }
+            }))
+            .SetOnAtNegativeEdgeAction(() => Task.Run(async () =>
+            {
+                techMessager.RealeaseMessage($"Переместите координату {coordinate} до конца в отрицательную сторону и нажмите *", Icon.Info);
+            }))
+            .SetOnAtPositiveEdgeAction(() => Task.Run(async () =>
+            {
+                _currentTeacher.SetParams(new double[] { horizontal ? XAxis.Position : YAxis.Position });
+                techMessager.RealeaseMessage($"Переместите координату {coordinate} до конца в положительную сторону и нажмите *", Icon.Info);
+            }))
+            .SetOnDimensionToughtAction(() => Task.Run(async () =>
+            {
+                techMessager.RealeaseMessage("Обучение отменено", Icon.Exclamation);
+                _canTeach = false;
+            }))
+            .SetOnRequestAcceptionAction(() => Task.Run(async () =>
+             {
+                 _currentTeacher.SetParams(new double[] { horizontal ? XAxis.Position : YAxis.Position });
+
+                 if (MessageBox.Show($"Принять новый габарит координаты {coordinate} {_currentTeacher}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                 {
+                     await _currentTeacher.Accept();
+                 }
+                 else
+                 {
+                     await _currentTeacher.Deny();
+                 }
+
+             }))
+            .SetOnGiveResultAction(() => Task.Run(async () =>
+            {
+                if (horizontal)
+                {
+                    Settings.Default.XNegDimension = _currentTeacher.GetParams()[0];
+                    Settings.Default.XPosDimension = _currentTeacher.GetParams()[1];
+                }
+                else
+                {
+                    Settings.Default.YNegDimension = _currentTeacher.GetParams()[0];
+                    Settings.Default.YPosDimension = _currentTeacher.GetParams()[1];
+                }                
+                Settings.Default.Save();
+                techMessager.RealeaseMessage("Новое значение установленно", Icon.Exclamation);
+                _canTeach = false;
+            }))
+            .Build();
+        await _currentTeacher.StartTeach();
+        _canTeach = true;
+    }
+
+
     [ICommand]
     private Task TeachNext()
     {
@@ -374,4 +465,5 @@ internal partial class MainViewModel
         }
         return null;
     }
+
 }

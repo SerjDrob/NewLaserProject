@@ -22,8 +22,18 @@ internal partial class MainViewModel
     public double WaferMargin { get; set; } = 0.2;
     public double FileSizeX { get; set; }
     public double FileSizeY { get; set; }
-    public double FieldSizeX { get => /*FileScale * WaferWidth*/60000; }
-    public double FieldSizeY { get => /*FileScale * WaferHeight*/48000; }
+    public double FieldSizeX { get => FileScale * WaferWidth; }
+    public double FieldSizeY { get => FileScale * WaferHeight; }
+    public double XDimension { get; private set; }
+    public double YDimension { get; private set; }
+    public double XDimensionOffset { get; private set; }
+    public double YDimensionOffset { get; private set; }
+    public double CameraPosX { get; private set; }
+    public double CameraPosY { get; private set; }
+    public double ViewfinderX { get; set; }
+    public double ViewfinderY { get; set; }
+    public double LaserCameraOffsetX { get; set; } = -5;
+    public double LaserCameraOffsetY { get; set; } = 1;
     public bool WaferContourVisibility { get; set; } = true;
     public bool IsFileSettingsEnable { get; set; } = false;
     public string FileName { get; set; } = "open new file";
@@ -81,6 +91,7 @@ internal partial class MainViewModel
                 FileSizeY = Math.Round(fileSize.height);
                 LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
                 IsFileSettingsEnable = true;
+               
                 LPModel = new(_dxfReader);
                 TWModel = new();
 
@@ -95,10 +106,18 @@ internal partial class MainViewModel
             {
                 IsFileSettingsEnable = false;
             }
-           // techMessager.EraseMessage();
+            // techMessager.EraseMessage();
         }
 
     }
 
-
+    private void TuneMachineFileView()
+    {
+        XDimension = Settings.Default.XPosDimension - Settings.Default.XNegDimension;
+        YDimension = Settings.Default.YPosDimension - Settings.Default.YNegDimension;
+        XDimensionOffset = Settings.Default.XNegDimension;
+        YDimensionOffset = Settings.Default.YNegDimension;
+        CameraPosX = Settings.Default.XLeftPoint;
+        CameraPosY = Settings.Default.YLeftPoint;
+    }
 }

@@ -135,105 +135,21 @@
                            OffsetX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetX}"                           
                            OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetY}"                            
                            >
-                        <!--<uc:GraphWindow.FieldSizeX>
-                            <MultiBinding Converter="{StaticResource MulConvereter}">
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferWidth"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
-                            </MultiBinding>
-                        </uc:GraphWindow.FieldSizeX>
-                        <uc:GraphWindow.FieldSizeY>
-                            <MultiBinding Converter="{StaticResource MulConvereter}">
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferHeight"/>
-                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
-                            </MultiBinding>
-                        </uc:GraphWindow.FieldSizeY>-->
-                        <Grid>
-                                <Grid 
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                    
-                                  >
-                                    <Grid.Height>
-                                        <MultiBinding Converter="{StaticResource MulConvereter}">
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferHeight"/>
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
-                                        </MultiBinding>
-                                    </Grid.Height>
-
-                                    <Grid.Width>
-                                        <MultiBinding Converter="{StaticResource MulConvereter}">
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.WaferWidth"/>
-                                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" Path="DataContext.FileScale"/>
-                                        </MultiBinding>
-                                    </Grid.Width>
-
-                                    <Rectangle Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight}"
-                                       Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualWidth}"
-                                       Stroke="White"
-                                       StrokeThickness="4"
-                                       StrokeDashArray="5,5,5"
-                                       Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferContourVisibility,
-                                       Converter={StaticResource BTVConverter}}"
-                                       />
-                                    <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftWaferCornerTeachCommand}"
-                                    Height="3000" 
-                                    Width="3000"
-                                    VerticalAlignment="Bottom" 
-                                    HorizontalAlignment="Left"   
-                                    Style="{StaticResource CornerButton}"
-                                    Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LeftCornerBtnVisibility,
-                                    Converter={StaticResource BTVConverter}}"
-                                    >
-                                        <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
-                                            <Path.Data>
-                                                <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
-                                            </Path.Data>
-                                            <Path.RenderTransform>
-                                                <ScaleTransform ScaleY="-1"/>
-                                            </Path.RenderTransform>
-                                        </Path>
-                                    </Button>
-                                    <Button Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightWaferCornerTeachCommand}"                              
-                                    Height="3000" 
-                                    Width="3000"
-                                    VerticalAlignment="Bottom" 
-                                    HorizontalAlignment="Right"
-                                    Style="{StaticResource CornerButton}"
-                                    Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.RightCornerBtnVisibility,
-                                    Converter={StaticResource BTVConverter}}"
-                                     >
-                                        <Path RenderTransformOrigin="0.5,0.5" Stroke="Black" StrokeThickness="200" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
-                                            <Path.Data>
-                                                <PathGeometry Figures="M 20 20 h 1200 M 20 20 V 1200"/>
-                                            </Path.Data>
-                                            <Path.RenderTransform>
-                                                <ScaleTransform ScaleY="-1" ScaleX="-1"/>
-                                            </Path.RenderTransform>
-                                        </Path>
-                                    </Button>                                
-                            </Grid>
-                                
-                               
-                            <Canvas>
-                                <uc:SpecCross 
-                                    X="0" 
-                                    Y="0" 
-                                    Color="Red" 
-                                    
-                                    
-                                    
-                                    Thickness="0.03"/>
-                                <!--<uc:SpecCross 
-                                    X="0" 
-                                    Y="0" 
-                                    Color="Red"
-                                    
-                                    
+                       
+                        
+                        <uc:SpecCross 
+                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ViewfinderX}" 
+                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ViewfinderY}" 
+                                    Color="Red"                                
                                     XScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleX}" 
-                                    YScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleY}" 
-                                    Thickness="0.03"/>-->
-                            </Canvas>
-                        </Grid>
+                                    YScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleY}"
+                                    OffsetX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=MarginX}" 
+                                    OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=MarginY}"                                     
+                                    Thickness="3">
+                            <uc:SpecCross.RenderTransform>
+                                <ScaleTransform ScaleY="-1" CenterY="460.5"/>
+                            </uc:SpecCross.RenderTransform>
+                        </uc:SpecCross>
                     </uc:GraphWindow>
                 </TabItem>
                 <TabItem Header="Настройки" IsEnabled="{Binding IsFileSettingsEnable}">
@@ -484,7 +400,13 @@
                             <Binding Source="{x:Static vm:Aligning.LBCorner}"/>
                         </MultiBinding>
                     </Button.CommandParameter>
-                </Button>                
+                </Button>
+                <Button Command="{Binding TeachTheDimensionCommand}" 
+                        CommandParameter="{StaticResource TRUE}"
+                        Content="HorDim"/>
+                <Button Command="{Binding TeachTheDimensionCommand}" 
+                        CommandParameter="{StaticResource FALSE}"
+                        Content="VerDim"/>
             </ToolBar>
         </ToolBarTray>
         <Grid Grid.Row="1">
@@ -532,31 +454,83 @@
                         </i:Interaction.Triggers>
                     </TextBlock>
                 </WrapPanel>
-                <Grid Margin="10">
-                    <Border BorderThickness="4,0,0,0"                         
-                        Background="{x:Null}">
-                        <Border BorderThickness="0,4,0,0" 
-                            Background="{x:Null}" >
-                            <Border BorderThickness="0,0,4,0"
-                                Background="{x:Null}" >
-                                <Border BorderThickness="0,0,0,4"                                    
-                                    Background="{x:Null}" >
-                                    <Canvas>
-                                        <Rectangle
-                                            Canvas.Bottom="10"
-                                            Canvas.Left="20"
-                                            Width="60"
-                                            Height="48"
-                                            Fill="AliceBlue"
-                                            RenderTransformOrigin="0.5,0.5"
+                <Grid RenderTransformOrigin="0.5,0.5">                    
+                        <Border
+                            BorderBrush="Green"
+                            BorderThickness="3"
+                            Height="{Binding YDimension}"
+                            Width="{Binding XDimension}"
+                            >
+                            <Grid>
+                                <Canvas RenderTransformOrigin="0.5,0.5">
+                                    <Rectangle
+                                    Stroke="Blue"
+                                    Fill="AliceBlue"
+                                    Width="{Binding WaferWidth}"
+                                    Height="{Binding WaferHeight}"
+                                    Canvas.Left="{Binding XAxis.Position}"
+                                    Canvas.Bottom="{Binding YAxis.Position}"
+                                    >
+                                        <Rectangle.RenderTransform>
+                                            <ScaleTransform ScaleY="1" ScaleX="-1"/>
+                                        </Rectangle.RenderTransform>
+                                    </Rectangle>
+                                    <Ellipse 
+                                        x:Name="CameraCircle"
+                                    Width="6" 
+                                    Height="6" 
+                                    StrokeThickness="1"
+                                    Stroke="Black"
+                                    Canvas.Left="{Binding CameraPosX}"
+                                    Canvas.Bottom="{Binding CameraPosY}"
+                                    >
+                                        <Ellipse.RenderTransform>
+                                            <TranslateTransform X="-3" Y="3"/>
+                                        </Ellipse.RenderTransform>
+                                    </Ellipse>
+                                <Ellipse 
+                                        Width="6" 
+                                        Height="6"  
+                                        StrokeThickness="1"
+                                        Stroke="Red"
+                                        Canvas.Left="{Binding CameraPosX}"
+                                        Canvas.Bottom="{Binding CameraPosY}"
                                         >
-                                            
-                                        </Rectangle>
-                                    </Canvas>
-                                </Border>
-                            </Border>
-                        </Border>
-                    </Border>
+                                    <Ellipse.RenderTransform>
+                                        <TransformGroup>
+                                            <TranslateTransform X="-3" Y="3"/>
+                                            <TranslateTransform
+                                            X="{Binding LaserCameraOffsetX}"
+                                            Y="{Binding LaserCameraOffsetY}"                                            
+                                            />
+                                        </TransformGroup>
+                                    </Ellipse.RenderTransform>                                   
+                                </Ellipse>
+                                <Ellipse 
+                                    Width="2" 
+                                    Height="2" 
+                                    Fill="Red"   
+                                    Canvas.Left="0"
+                                    Canvas.Bottom="0"
+                                    >
+                                        <Ellipse.RenderTransform>
+                                            <TranslateTransform X="-1" Y="1"/>
+                                        </Ellipse.RenderTransform>
+                                    </Ellipse>
+                                    <Canvas.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="-1"/>
+                                            <TranslateTransform X="{Binding XDimensionOffset}"
+                                                            Y="{Binding YDimensionOffset}"
+                                                            />
+                                        </TransformGroup>
+                                    </Canvas.RenderTransform>
+                                </Canvas>
+                            </Grid>
+                        </Border>                   
+                    <Grid.RenderTransform>
+                        <ScaleTransform ScaleX="2" ScaleY="2"/>
+                    </Grid.RenderTransform>
                 </Grid>
             </DockPanel>
         </Grid>

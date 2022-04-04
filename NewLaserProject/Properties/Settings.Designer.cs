@@ -562,5 +562,53 @@ namespace NewLaserProject.Properties {
                 this["WaferAngle90"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double XNegDimension {
+            get {
+                return ((double)(this["XNegDimension"]));
+            }
+            set {
+                this["XNegDimension"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double XPosDimension {
+            get {
+                return ((double)(this["XPosDimension"]));
+            }
+            set {
+                this["XPosDimension"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double YNegDimension {
+            get {
+                return ((double)(this["YNegDimension"]));
+            }
+            set {
+                this["YNegDimension"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double YPosDimension {
+            get {
+                return ((double)(this["YPosDimension"]));
+            }
+            set {
+                this["YPosDimension"] = value;
+            }
+        }
     }
 }

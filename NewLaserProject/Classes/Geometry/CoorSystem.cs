@@ -9,7 +9,7 @@ namespace NewLaserProject.Classes.Geometry
 {
     public class CoorSystem<TPlaceEnum> : IDisposable where TPlaceEnum : Enum
     {
-        private Dictionary<TPlaceEnum, CoorSystem<TPlaceEnum>> _subSystems;
+        private Dictionary<TPlaceEnum, CoorSystem<TPlaceEnum>> _subSystems = new();
         private readonly Matrix _mainMatrix;
         public CoorSystem(Matrix mainMatrix)
         {
@@ -53,7 +53,7 @@ namespace NewLaserProject.Classes.Geometry
         {
             matrix.Multiply(_mainMatrix, MatrixOrder.Append);
             var sub = new CoorSystem<TPlaceEnum>(matrix);
-            _subSystems = new();
+            //_subSystems = new();
             if (!_subSystems.TryAdd(name, sub))
             {
                 _subSystems[name] = sub;
@@ -64,7 +64,7 @@ namespace NewLaserProject.Classes.Geometry
             var matrix = _mainMatrix.Clone();
             matrix.Translate((float)offsetX, (float)offsetY);
             var sub = new CoorSystem<TPlaceEnum>(matrix);
-            _subSystems = new();
+            //_subSystems = new();
             if (!_subSystems.TryAdd(name, sub))
             {
                 _subSystems[name] = sub;
