@@ -1,4 +1,4 @@
-﻿<Window x:Class="NewLaserProject.Views.MainView"
+﻿<hc:BlurWindow x:Class="NewLaserProject.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,6 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
         mc:Ignorable="d"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:clr="clr-namespace:System;assembly=mscorlib"
         xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
         xmlns:vm="clr-namespace:NewLaserProject.ViewModels"
@@ -15,15 +16,15 @@
     <Window.InputBindings>
         <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
         <KeyBinding Command="{Binding StartProcessCommand}" Key="Divide"/>
-        
+
         <KeyBinding Command="{Binding MachineSettingsCommand}" Key="H"/>
-        
+
         <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
         <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
         <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
-        <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>        
+        <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>
         <KeyBinding Command="{Binding ChangeVelocityCommand}" Key="Add"/>
-        
+
         <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
         <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
         <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
@@ -31,7 +32,7 @@
         <KeyBinding Command="{Binding LeftWaferCornerTeachCommand}" Key="F6"/>
         <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
         <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
-        
+
     </Window.InputBindings>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
@@ -50,16 +51,16 @@
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
 
-        <Storyboard x:Key="DangerMessage">            
+        <Storyboard x:Key="DangerMessage">
 
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
                                            Storyboard.TargetProperty="Visibility"
                                            
                                            Duration="0:0:1" RepeatBehavior="5x" FillBehavior="Stop"
                                            >
-                    <ObjectAnimationUsingKeyFrames.KeyFrames>
-                        <DiscreteObjectKeyFrame KeyTime="0:0:0.8" Value="{x:Static Visibility.Hidden}"/>                        
-                    </ObjectAnimationUsingKeyFrames.KeyFrames>
+                <ObjectAnimationUsingKeyFrames.KeyFrames>
+                    <DiscreteObjectKeyFrame KeyTime="0:0:0.8" Value="{x:Static Visibility.Hidden}"/>
+                </ObjectAnimationUsingKeyFrames.KeyFrames>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
         <Storyboard x:Key="ExclaimMessage">
@@ -67,14 +68,14 @@
                 <DiscreteObjectKeyFrame Value="{x:Static Visibility.Visible}" />
             </ObjectAnimationUsingKeyFrames>
             <DoubleAnimation Storyboard.TargetName="ImportantMessage" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
-        </Storyboard>       
+        </Storyboard>
     </Window.Resources>
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
                     <ResourceDictionary Source="pack://application:,,,/MachineControlsLibrary;component/Controls/Dictionary.xaml"/>
-                </ResourceDictionary.MergedDictionaries>                
+                </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
@@ -86,7 +87,7 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        
+
         <DockPanel Grid.Column="2" Grid.RowSpan="2">
             <Border x:Name="ImportantMessage"
                     DockPanel.Dock="Top" 
@@ -105,7 +106,7 @@
                             </i:PropertyChangedTrigger>
                         </i:Interaction.Triggers>
                     </TextBlock>
-                </DockPanel>                
+                </DockPanel>
             </Border>
             <TabControl>
                 <TabItem>
@@ -135,8 +136,8 @@
                            OffsetX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetX}"                           
                            OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetY}"                            
                            >
-                       
-                        
+
+
                         <uc:SpecCross 
                                     X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ViewfinderX}" 
                                     Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ViewfinderY}" 
@@ -215,15 +216,15 @@
                               Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               />
-                    <Line Stroke="Red" Fill="Red" 
+                        <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="3" 
                               X1="0" X2="0" Y1="-25" Y2="25" 
                               Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              >                       
-                    </Line>
-                        
-                    <Ellipse Width="25" Height="25" StrokeThickness="2" Stroke="Red"
+                              >
+                        </Line>
+
+                        <Ellipse Width="25" Height="25" StrokeThickness="2" Stroke="Red"
                                 
                                   Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                   Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
@@ -235,7 +236,7 @@
                                     
                                     />
                             </Ellipse.RenderTransform>
-                        </Ellipse>                        
+                        </Ellipse>
                     </Canvas>
                     <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
                             Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, Path=TeachScaleMarkerEnable}">
@@ -302,8 +303,8 @@
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Command="{Binding TeachScanatorHorizontCommand}" Header="Горизонт сканатора" InputGestureText="F3">
-                            <MenuItem.Icon>                               
-                                    <Image Source="Sources/angle.png" Height="20" /> 
+                            <MenuItem.Icon>
+                                <Image Source="Sources/angle.png" Height="20" />
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Command="{Binding TeachOrthXYCommand}" Header="Ортогональность XY" InputGestureText="F4">
@@ -318,6 +319,35 @@
                         </MenuItem>
                     </MenuItem>
                 </Menu>
+                <hc:SplitButton>
+                    <hc:SplitButton.Content>
+                        <Image Source="Sources/learning.png" Height="20"/>
+                    </hc:SplitButton.Content>
+                    <hc:SplitButton.DropDownContent>
+                        <StackPanel>
+                            <MenuItem Command="{Binding TeachCameraOffsetCommand}" Header="Смещение камеры" InputGestureText="F2">
+                                <MenuItem.Icon>
+                                    <Image Source="Sources/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Command="{Binding TeachScanatorHorizontCommand}" Header="Горизонт сканатора" InputGestureText="F3">
+                                <MenuItem.Icon>
+                                    <Image Source="Sources/angle.png" Height="20" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Command="{Binding TeachOrthXYCommand}" Header="Ортогональность XY" InputGestureText="F4">
+                                <MenuItem.Icon>
+                                    <Image Source="Sources/orth.png" Height="20"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Command="{Binding TeachCameraScaleCommand}" Header="Масштаб видео" InputGestureText="F5">
+                                <MenuItem.Icon>
+                                    <Image Source="Sources/scale.png" Height="20"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </StackPanel>
+                    </hc:SplitButton.DropDownContent>
+                </hc:SplitButton>
             </ToolBar>
             <ToolBar>
                 <Button Command="{Binding AlignWaferCommand}"  Content="Right">
@@ -413,14 +443,14 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
-                <ColumnDefinition/>                
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid.Resources>
                 <Style TargetType="Border">
-                    <Setter Property="BorderBrush" Value="Green"/>                    
+                    <Setter Property="BorderBrush" Value="Green"/>
                 </Style>
             </Grid.Resources>
-            <DockPanel Grid.Column="1">                
+            <DockPanel Grid.Column="1">
                 <WrapPanel DockPanel.Dock="Bottom">
                     <uc:AxisState CoordinateName="X" 
                                   Coordinate="{Binding XAxis.Position}"
@@ -454,16 +484,16 @@
                         </i:Interaction.Triggers>
                     </TextBlock>
                 </WrapPanel>
-                <Grid RenderTransformOrigin="0.5,0.5">                    
-                        <Border
+                <Grid RenderTransformOrigin="0.5,0.5">
+                    <Border
                             BorderBrush="Green"
                             BorderThickness="3"
                             Height="{Binding YDimension}"
                             Width="{Binding XDimension}"
                             >
-                            <Grid>
-                                <Canvas RenderTransformOrigin="0.5,0.5">
-                                    <Rectangle
+                        <Grid>
+                            <Canvas RenderTransformOrigin="0.5,0.5">
+                                <Rectangle
                                     Stroke="Blue"
                                     Fill="AliceBlue"
                                     Width="{Binding WaferWidth}"
@@ -471,11 +501,11 @@
                                     Canvas.Left="{Binding XAxis.Position}"
                                     Canvas.Bottom="{Binding YAxis.Position}"
                                     >
-                                        <Rectangle.RenderTransform>
-                                            <ScaleTransform ScaleY="1" ScaleX="-1"/>
-                                        </Rectangle.RenderTransform>
-                                    </Rectangle>
-                                    <Ellipse 
+                                    <Rectangle.RenderTransform>
+                                        <ScaleTransform ScaleY="1" ScaleX="-1"/>
+                                    </Rectangle.RenderTransform>
+                                </Rectangle>
+                                <Ellipse 
                                         x:Name="CameraCircle"
                                     Width="6" 
                                     Height="6" 
@@ -484,10 +514,10 @@
                                     Canvas.Left="{Binding CameraPosX}"
                                     Canvas.Bottom="{Binding CameraPosY}"
                                     >
-                                        <Ellipse.RenderTransform>
-                                            <TranslateTransform X="-3" Y="3"/>
-                                        </Ellipse.RenderTransform>
-                                    </Ellipse>
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform X="-3" Y="3"/>
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
                                 <Ellipse 
                                         Width="6" 
                                         Height="6"  
@@ -504,7 +534,7 @@
                                             Y="{Binding LaserCameraOffsetY}"                                            
                                             />
                                         </TransformGroup>
-                                    </Ellipse.RenderTransform>                                   
+                                    </Ellipse.RenderTransform>
                                 </Ellipse>
                                 <Ellipse 
                                     Width="2" 
@@ -513,21 +543,21 @@
                                     Canvas.Left="0"
                                     Canvas.Bottom="0"
                                     >
-                                        <Ellipse.RenderTransform>
-                                            <TranslateTransform X="-1" Y="1"/>
-                                        </Ellipse.RenderTransform>
-                                    </Ellipse>
-                                    <Canvas.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleX="-1"/>
-                                            <TranslateTransform X="{Binding XDimensionOffset}"
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform X="-1" Y="1"/>
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                                <Canvas.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="-1"/>
+                                        <TranslateTransform X="{Binding XDimensionOffset}"
                                                             Y="{Binding YDimensionOffset}"
                                                             />
-                                        </TransformGroup>
-                                    </Canvas.RenderTransform>
-                                </Canvas>
-                            </Grid>
-                        </Border>                   
+                                    </TransformGroup>
+                                </Canvas.RenderTransform>
+                            </Canvas>
+                        </Grid>
+                    </Border>
                     <Grid.RenderTransform>
                         <ScaleTransform ScaleX="2" ScaleY="2"/>
                     </Grid.RenderTransform>
@@ -536,4 +566,4 @@
         </Grid>
 
     </Grid>
-</Window>
+</hc:BlurWindow>
