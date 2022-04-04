@@ -21,7 +21,8 @@ namespace NewLaserProject.Classes
         {
 
         }
-        private XYOrthTeacher(Func<Task> OnXYOrthTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart, Func<Task> GiveResult, Func<Task> GoNextPoint)
+        private XYOrthTeacher(Func<Task> OnXYOrthTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart, 
+            Func<Task> GiveResult, Func<Task> GoNextPoint, Func<Task> WriteDownThePoint)
         {
             _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
 
@@ -34,10 +35,10 @@ namespace NewLaserProject.Classes
             _stateMachine.Configure(MyState.AtPoint)
                 .OnEntryAsync(GoNextPoint)
                 .PermitReentryIf(MyTrigger.Next, () => _points.Count < 3)
-                .PermitIf(MyTrigger.Next, MyState.RequestPermission, new Tuple<Func<bool>, string>(() => _points.Count == 3, "Makes sure that count of points is enough to get learning done"))
+                .PermitIf(MyTrigger.Next, MyState.RequestPermission, () => _points.Count == 3)
+                .OnExitAsync(WriteDownThePoint)
                 .Permit(MyTrigger.Deny, MyState.End)
                 .Ignore(MyTrigger.Accept);
-
 
             _stateMachine.Configure(MyState.RequestPermission)
                .OnEntryAsync(RequestPermissionToAccept)
@@ -99,15 +100,22 @@ namespace NewLaserProject.Classes
                 Guard.IsNotNull(RequestPermissionToStart, $"{nameof(RequestPermissionToStart)} isn't set");
                 Guard.IsNotNull(HasResult, $"{nameof(HasResult)} isn't set");
                 Guard.IsNotNull(GoNextPoint, $"{nameof(GoNextPoint)} isn't set");
-                return new XYOrthTeacher(OnXYOrthTought, RequestPermissionToAccept, RequestPermissionToStart, HasResult, GoNextPoint);
+                Guard.IsNotNull(WriteDownThePoint, $"{nameof(WriteDownThePoint)} isn't set");
+
+                return new XYOrthTeacher(OnXYOrthTought, RequestPermissionToAccept, RequestPermissionToStart, HasResult, GoNextPoint, WriteDownThePoint);
             }
             private Func<Task> OnXYOrthTought;
             private Func<Task> RequestPermissionToAccept;
             private Func<Task> RequestPermissionToStart;
             private Func<Task> HasResult;
             private Func<Task> GoNextPoint;
+            private Func<Task> WriteDownThePoint;
 
-
+            public XYOrthTeacherBuilder SetOnWriteDownThePointAction(Func<Task> action)
+            {
+                WriteDownThePoint = action;
+                return this;
+            }
             public XYOrthTeacherBuilder SetOnXYOrthToughtAction(Func<Task> action)
             {
                 OnXYOrthTought = action;
@@ -140,6 +148,7 @@ namespace NewLaserProject.Classes
         {
             Begin,
             AtPoint,
+            AskPoint,
             RequestPermission,
             End,
             HasResult

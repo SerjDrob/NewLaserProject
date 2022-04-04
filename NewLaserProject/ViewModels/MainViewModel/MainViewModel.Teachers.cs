@@ -254,6 +254,7 @@ internal partial class MainViewModel
 
         var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();             
         Guard.IsEqualTo(points.Count, 3, nameof(points));
+        
         using var pointsEnumerator = points.GetEnumerator();
         _currentTeacher = XYOrthTeacher.GetBuilder()
             .SetOnGoNextPointAction(() => Task.Run(async () =>
@@ -262,7 +263,10 @@ internal partial class MainViewModel
                 var point = pointsEnumerator.Current;
                 await _laserMachine.MoveGpInPosAsync(Groups.XY, /*_coorSystem*/sys.ToGlobal(point.X, point.Y), true);
                 techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", Icon.Exclamation);
-               // _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+            }))
+            .SetOnWriteDownThePointAction(() => Task.Run(async () =>
+            {
+                 _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
             }))
             .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
             {
