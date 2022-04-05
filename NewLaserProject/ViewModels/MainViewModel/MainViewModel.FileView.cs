@@ -36,7 +36,7 @@ internal partial class MainViewModel
     public double LaserCameraOffsetY { get; set; } = 1;
     public bool WaferContourVisibility { get; set; } = true;
     public bool IsFileSettingsEnable { get; set; } = false;
-    public string FileName { get; set; } = "open new file";
+    public string FileName { get; set; } = "Open the file";
     public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
 
     private IDxfReader _dxfReader;

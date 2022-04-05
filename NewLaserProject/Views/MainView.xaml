@@ -52,7 +52,6 @@
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
 
         <Storyboard x:Key="DangerMessage">
-
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
                                            Storyboard.TargetProperty="Visibility"
                                            
@@ -111,10 +110,15 @@
             <TabControl>
                 <TabItem>
                     <TabItem.Header>
-                        <Border BorderBrush="CadetBlue" Margin="0,0,10,0" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
+                        <Border BorderBrush="CadetBlue" Margin="0,0,10,0" CornerRadius="4" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.FileName}" Width="100" Margin="2" Background="LightYellow"/>
-                                <Button Command="{Binding OpenFileCommand}" Content="Файл" Style="{StaticResource CommandButton}"/>
+                                <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window},
+                                    Path=DataContext.FileName}"
+                                           hc:InfoElement.Placeholder="Open file"
+                                           Width="100" 
+                                           Margin="2" 
+                                           Background="LightYellow"/>
+                                <Button Command="{Binding OpenFileCommand}" Content="Файл" Style="{StaticResource ButtonPrimary.Small}" />
                             </StackPanel>
                         </Border>
                     </TabItem.Header>
@@ -153,7 +157,9 @@
                                     OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=MarginY}"                                     
                                     Thickness="3">
                             <uc:SpecCross.RenderTransform>
-                                <ScaleTransform ScaleY="-1" CenterY="460.5"/>
+                                <ScaleTransform ScaleY="-1" 
+                                                CenterY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Canvas}, Path=ActualHeight, 
+                                    Converter={StaticResource DivideConverter}, ConverterParameter=2}"/>
                             </uc:SpecCross.RenderTransform>
                         </uc:SpecCross>
                     </uc:GraphWindow>
@@ -170,16 +176,19 @@
             <DockPanel>
                 <ToolBarTray DockPanel.Dock="Top">
                     <ToolBar>
-                        <Label Content="Качество видео" />
-                        <ComboBox ItemsSource="{Binding CameraCapabilities}"
+                        <!--<Label Content="Качество видео" />-->
+                        <hc:ComboBox ItemsSource="{Binding CameraCapabilities}"
                                   SelectedIndex="{Binding CameraCapabilitiesIndex}"
-                                  MinWidth="100">
+                                  MinWidth="200"
+                                  hc:TitleElement.Title="Качество видео"
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  >
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
                                     <i:InvokeCommandAction Command="{Binding CameraCapabilitiesChangedCommand}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                        </ComboBox>
+                        </hc:ComboBox>
 
                         <Menu Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Background}">
                             <MenuItem>
@@ -244,7 +253,8 @@
                         </Ellipse>
                     </Canvas>
                     <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
-                            Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, Path=TeachScaleMarkerEnable}">
+                            Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, 
+                        Path=TeachScaleMarkerEnable}">
                         <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="1" 
                               X1="0" 
@@ -278,26 +288,26 @@
         </Border>
         <ToolBarTray Orientation="Vertical" Grid.Column="1" Grid.RowSpan="2">
             <ToolBar>
-                <Button Command="{Binding StartProcessCommand}">
+                <Button Command="{Binding StartProcessCommand}" HorizontalAlignment="Stretch">
                     <Button.ToolTip>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Запустить процесс"/>
                             <TextBlock Foreground="Blue" FontWeight="DemiBold"  Text=" /"/>
                         </StackPanel>
                     </Button.ToolTip>
-                    <Image Source="Sources/laserbeam_laser_13620.png" Height="20"/>
+                    <Image Source="Sources/laserbeam_laser_13620.png"/>
 
                 </Button>
-                <Button Command="{Binding MachineSettingsCommand}">
+                <Button Command="{Binding MachineSettingsCommand}" HorizontalAlignment="Stretch">
                     <Button.ToolTip>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Настройки приводов"/>
                             <TextBlock Foreground="Blue" FontWeight="DemiBold"  Text=" H"/>
                         </StackPanel>
                     </Button.ToolTip>
-                    <Image Source="Sources/settings.png" Height="20"/>
+                    <Image Source="Sources/settings.png"/>
                 </Button>
-                <Menu Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Background}">
+                <!--<Menu Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Background}">
                     <MenuItem>
                         <MenuItem.Header>
                             <Image Source="Sources/learning.png" Height="20"/>
@@ -323,10 +333,10 @@
                             </MenuItem.Icon>
                         </MenuItem>
                     </MenuItem>
-                </Menu>
+                </Menu>-->
                 <hc:SplitButton>
                     <hc:SplitButton.Content>
-                        <Image Source="Sources/learning.png" Height="20"/>
+                        <Image Source="Sources/learning.png"/>
                     </hc:SplitButton.Content>
                     <hc:SplitButton.DropDownContent>
                         <StackPanel>
@@ -442,6 +452,7 @@
                 <Button Command="{Binding TeachTheDimensionCommand}" 
                         CommandParameter="{StaticResource FALSE}"
                         Content="VerDim"/>
+
             </ToolBar>
         </ToolBarTray>
         <Grid Grid.Row="1">
@@ -569,6 +580,5 @@
                 </Grid>
             </DockPanel>
         </Grid>
-
     </Grid>
 </hc:BlurWindow>
