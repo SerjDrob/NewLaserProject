@@ -134,7 +134,12 @@
                            MirrorX="{Binding Mode=TwoWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.MirrorX}"
                            Angle90="{Binding Mode=TwoWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferTurn90}"
                            OffsetX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetX}"                           
-                           OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetY}"                            
+                           OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.WaferOffsetY}" 
+                           PointerDiameter="2000"
+                           PointerThickness="200"
+                           PointerX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerX}"
+                           PointerY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerY}"
+                           PointerVisibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerVisibility}"
                            >
 
 

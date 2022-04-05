@@ -7,7 +7,6 @@ using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.Teachers;
 using NewLaserProject.Properties;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +17,11 @@ namespace NewLaserProject.ViewModels;
 
 internal partial class MainViewModel
 {
+    public double TeacherPointerX { get; set; }
+    public double TeacherPointerY { get; set; }
+    public bool TeacherPointerVisibility { get; set; } = false;
+
+
     [ICommand]
     private async Task LeftWaferCornerTeach()
     {
@@ -252,9 +256,9 @@ internal partial class MainViewModel
             ));
 
 
-        var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();             
+        var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();
         Guard.IsEqualTo(points.Count, 3, nameof(points));
-        
+
         using var pointsEnumerator = points.GetEnumerator();
         _currentTeacher = XYOrthTeacher.GetBuilder()
             .SetOnGoNextPointAction(() => Task.Run(async () =>
@@ -263,10 +267,14 @@ internal partial class MainViewModel
                 var point = pointsEnumerator.Current;
                 await _laserMachine.MoveGpInPosAsync(Groups.XY, /*_coorSystem*/sys.ToGlobal(point.X, point.Y), true);
                 techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", Icon.Exclamation);
+                TeacherPointerX = point.X;
+                TeacherPointerY = point.Y;
+                TeacherPointerVisibility = true;
             }))
             .SetOnWriteDownThePointAction(() => Task.Run(async () =>
             {
-                 _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                TeacherPointerVisibility = false;
+                _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
             }))
             .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
             {
@@ -440,7 +448,7 @@ internal partial class MainViewModel
                 {
                     Settings.Default.YNegDimension = _currentTeacher.GetParams()[0];
                     Settings.Default.YPosDimension = _currentTeacher.GetParams()[1];
-                }                
+                }
                 Settings.Default.Save();
                 techMessager.RealeaseMessage("Новое значение установленно", Icon.Exclamation);
                 _canTeach = false;
