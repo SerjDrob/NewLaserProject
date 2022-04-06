@@ -46,7 +46,6 @@
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
         <cnvrt:MulConvereter x:Key="MulConvereter"/>
         <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
-        <cnvrt:GetScaleConverter x:Key="GetScaleConvereter"/>
         <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
