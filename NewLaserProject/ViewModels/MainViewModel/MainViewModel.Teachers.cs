@@ -1,5 +1,6 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Machine;
+using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -254,8 +255,7 @@ internal partial class MainViewModel
             matrixElements[4],
             matrixElements[5]
             ));
-
-
+        
         var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();
         Guard.IsEqualTo(points.Count, 3, nameof(points));
 
@@ -270,6 +270,11 @@ internal partial class MainViewModel
                 TeacherPointerX = point.X;
                 TeacherPointerY = point.Y;
                 TeacherPointerVisibility = true;
+                var geometries = new System.Windows.Media.GeometryCollection(new System.Windows.Media.Geometry[] { 
+                new System.Windows.Media.EllipseGeometry(new System.Windows.Point(1000,1000),2000,2000)
+                });
+                var lgc = new LayerGeometryCollection(geometries, "Pointer", true, System.Windows.Media.Brushes.GreenYellow, System.Windows.Media.Brushes.LightGoldenrodYellow);
+                //LayGeoms.Add(lgc);
             }))
             .SetOnWriteDownThePointAction(() => Task.Run(async () =>
             {

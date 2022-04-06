@@ -78,7 +78,7 @@
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
@@ -158,7 +158,7 @@
                                     Thickness="3">
                             <uc:SpecCross.RenderTransform>
                                 <ScaleTransform ScaleY="-1" 
-                                                CenterY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Canvas}, Path=ActualHeight, 
+                                                CenterY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:SpecCross}, Path=ActualHeight, 
                                     Converter={StaticResource DivideConverter}, ConverterParameter=2}"/>
                             </uc:SpecCross.RenderTransform>
                         </uc:SpecCross>
