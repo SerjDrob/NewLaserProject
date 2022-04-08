@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace TestSwLimit
 {
@@ -62,6 +63,14 @@ namespace TestSwLimit
 
         static void Main(string[] args)
         {
+
+
+            var m1 = new double[] { 1, 2, 3 };
+            var m2 = new double[] { 2, 3, 4 };
+
+            var m3 = m1.Zip(m2,(f,s)=>f+s).ToArray();
+
+
             var VersionIsOk = GetDevCfgDllDrvVer(); //Get Driver Version Number, this step is not necessary
 
             uint Result;

@@ -172,6 +172,7 @@ namespace NewLaserProject.ViewModels
             switch (key.Key)
             {
                 case Key.Tab:
+                    await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { 1, 1 });
                     break;
                 case Key.A:
                     _laserMachine.GoWhile(Ax.Y, AxDir.Pos);

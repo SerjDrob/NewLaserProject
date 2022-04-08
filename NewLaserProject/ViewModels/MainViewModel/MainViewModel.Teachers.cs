@@ -265,7 +265,7 @@ internal partial class MainViewModel
             {
                 pointsEnumerator.MoveNext();
                 var point = pointsEnumerator.Current;
-                await _laserMachine.MoveGpInPosAsync(Groups.XY, /*_coorSystem*/sys.ToGlobal(point.X, point.Y), true);
+                await _laserMachine.MoveGpInPosAsync(Groups.XY, /*_coorSystem*/sys.ToGlobal(point.X, point.Y), true).ConfigureAwait(false);
                 techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", Icon.Exclamation);
                 TeacherPointerX = point.X;
                 TeacherPointerY = point.Y;
