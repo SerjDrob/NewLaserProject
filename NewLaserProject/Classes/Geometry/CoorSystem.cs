@@ -12,6 +12,7 @@ namespace NewLaserProject.Classes.Geometry
     {
         private Dictionary<TPlaceEnum, CoorSystem<TPlaceEnum>> _subSystems = new();
         private readonly Matrix _mainMatrix;
+        private Matrix _skewMatrix;
         public CoorSystem(Matrix mainMatrix)
         {
             _mainMatrix = mainMatrix;
@@ -50,8 +51,30 @@ namespace NewLaserProject.Classes.Geometry
             var rotating = Math.Atan2(transformation.M12, transformation.M11);
             var translationX = transformation.M13;
             var translationY = transformation.M23;
+            _skewMatrix = new Matrix(new Matrix3x2());
         }
 
+        public record Transformations(Matrix3x2 Transformation, Matrix3x2 Skew, Matrix3x2 Rotation, Matrix3x2 Translation);
+        public Transformations GetTransform((PointF, PointF) first, (PointF, PointF) second, (PointF, PointF) third)
+        {
+            var m1 = new Matrix3(first.Item1.X, first.Item1.Y, 1, second.Item1.X, second.Item1.Y, 1, third.Item1.X, third.Item1.Y, 1);
+            var m2 = new Matrix3(first.Item2.X, first.Item2.Y, 1, second.Item2.X, second.Item2.Y, 1, third.Item2.X, third.Item2.Y, 1);
+            var invert = m1.Inverse();
+            var transformation = invert * m2;
+            transformation = transformation.Transpose();
+            var matrix = new Matrix3x2((float)transformation.M11, (float)transformation.M12, (float)transformation.M21, (float)transformation.M22, (float)transformation.M13, (float)transformation.M23);
+            var mainTrans = new Matrix(matrix);
+
+
+            var scaleX = Math.Sqrt(Math.Pow(transformation.M11, 2) + Math.Pow(transformation.M12, 2));
+            var scaleY = -Math.Sqrt(transformation.M11 * transformation.M22 - transformation.M12 * transformation.M21) / scaleX;
+            var shearY = Math.Atan2(transformation.M11 * transformation.M21 + transformation.M12 * transformation.M22, transformation.M11 * transformation.M11 + transformation.M12 * transformation.M12);
+            var rotating = Math.Atan2(transformation.M12, transformation.M11);
+            var translationX = transformation.M13;
+            var translationY = transformation.M23;
+            var skewTrans = new Matrix(new Matrix3x2());
+            throw new NotImplementedException();
+        }
         public Matrix3x2 GetMainMatrix() => _mainMatrix.MatrixElements;
         public void SetRelatedSystem(TPlaceEnum name, Matrix matrix)
         {
