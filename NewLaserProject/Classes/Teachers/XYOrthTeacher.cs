@@ -7,11 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
-{    
+{
     internal class XYOrthTeacher : ITeacher
     {
         private StateMachine<MyState, MyTrigger> _stateMachine;
-        private List<double> _points = new();
+        private List<(double x, double y)> _points = new();
 
         public static XYOrthTeacherBuilder GetBuilder()
         {
@@ -21,7 +21,7 @@ namespace NewLaserProject.Classes
         {
 
         }
-        private XYOrthTeacher(Func<Task> OnXYOrthTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart, 
+        private XYOrthTeacher(Func<Task> OnXYOrthTought, Func<Task> RequestPermissionToAccept, Func<Task> RequestPermissionToStart,
             Func<Task> GiveResult, Func<Task> GoNextPoint, Func<Task> WriteDownThePoint)
         {
             _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
@@ -34,8 +34,8 @@ namespace NewLaserProject.Classes
 
             _stateMachine.Configure(MyState.AtPoint)
                 .OnEntryAsync(GoNextPoint)
-                .PermitReentryIf(MyTrigger.Next, () => _points.Count < 3)
-                .PermitIf(MyTrigger.Next, MyState.RequestPermission, () => _points.Count == 3)
+                .PermitReentryIf(MyTrigger.Next, () => _points.Count < 2)
+                .PermitIf(MyTrigger.Next, MyState.RequestPermission, () => _points.Count == 2)
                 .OnExitAsync(WriteDownThePoint)
                 .Permit(MyTrigger.Deny, MyState.End)
                 .Ignore(MyTrigger.Accept);
@@ -62,12 +62,22 @@ namespace NewLaserProject.Classes
 
         public override string ToString()
         {
-            return _points.Chunk(2)
-                          .Select(point => $"(x:{point[0]}, y:{point[1]})")
+            return _points.Select(point => $"(x:{point.x}, y:{point.y})")
                           .Aggregate(new StringBuilder("Coordinates: "), (previous, current) => previous.AppendLine(current))
                           .ToString();
         }
-        public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
+        public async Task Next()
+        {
+            try
+            {
+                await _stateMachine.FireAsync(MyTrigger.Next);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
         public async Task Accept()
         {
             await _stateMachine.FireAsync(MyTrigger.Accept);
@@ -77,10 +87,10 @@ namespace NewLaserProject.Classes
         public void SetParams(params double[] ps)
         {
             Guard.HasSizeEqualTo(ps, 2, nameof(ps));
-            _points.AddRange(ps);
+            _points.Add((ps[0], ps[1]));
         }
 
-        public double[] GetParams() => _points.ToArray();
+        public double[] GetParams() => _points.Aggregate(new List<double>(), (acc, tup) => { acc.AddRange(new double[] { tup.x, tup.y }); return acc; }).ToArray();
 
         public async Task StartTeach()
         {
