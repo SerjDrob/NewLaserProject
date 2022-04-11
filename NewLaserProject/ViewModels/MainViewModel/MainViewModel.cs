@@ -464,7 +464,7 @@ namespace NewLaserProject.ViewModels
         }
         private CoorSystem<LMPlace> GetCoorSystem()
         {
-            var matrixElements = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json");
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json") ?? throw new NullReferenceException("CoorSystem in the file is invalid");
             var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
                 matrixElements[0],
                 matrixElements[1],

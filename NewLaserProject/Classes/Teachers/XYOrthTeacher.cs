@@ -66,7 +66,18 @@ namespace NewLaserProject.Classes
                           .Aggregate(new StringBuilder("Coordinates: "), (previous, current) => previous.AppendLine(current))
                           .ToString();
         }
-        public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
+        public async Task Next()
+        {
+            try
+            {
+                await _stateMachine.FireAsync(MyTrigger.Next);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
         public async Task Accept()
         {
             await _stateMachine.FireAsync(MyTrigger.Accept);

@@ -267,19 +267,15 @@ internal partial class MainViewModel
                 var point = pointsEnumerator.Current;
                 await _laserMachine.MoveGpInPosAsync(Groups.XY, /*_coorSystem*/sys.ToGlobal(point.X, point.Y), true).ConfigureAwait(false);
                 techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", Icon.Exclamation);
-                TeacherPointerX = point.X;
-                TeacherPointerY = point.Y;
-                TeacherPointerVisibility = true;
-                var geometries = new System.Windows.Media.GeometryCollection(new System.Windows.Media.Geometry[] { 
-                new System.Windows.Media.EllipseGeometry(new System.Windows.Point(1000,1000),2000,2000)
-                });
-                var lgc = new LayerGeometryCollection(geometries, "Pointer", true, System.Windows.Media.Brushes.GreenYellow, System.Windows.Media.Brushes.LightGoldenrodYellow);
-                //LayGeoms.Add(lgc);
+                //TeacherPointerX = point.X;
+                //TeacherPointerY = point.Y;
+                //TeacherPointerVisibility = true;               
             }))
             .SetOnWriteDownThePointAction(() => Task.Run(async () =>
             {
-                TeacherPointerVisibility = false;
-                _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                //TeacherPointerVisibility = false;
+                //_currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                _currentTeacher.SetParams(1, 1);
             }))
             .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
             {
@@ -315,8 +311,10 @@ internal partial class MainViewModel
                     first: (new((float)points[0].X, (float)points[0].Y), new((float)resultPoints[0], (float)resultPoints[1])),
                     second: (new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3])),
                     third: (new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5])));
-                TuneCoorSystem(_coorSystem);
+                //TuneCoorSystem(_coorSystem);
                 _coorSystem.SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
+                object obj = _coorSystem.GetMainMatrixElements();
+                //obj.SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
                 MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                 _canTeach = false;
             }))

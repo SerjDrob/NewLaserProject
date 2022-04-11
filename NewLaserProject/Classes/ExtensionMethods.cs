@@ -77,10 +77,10 @@ namespace NewLaserProject.Classes
             l.WriteLine(json);
             l.Flush();
         }
-        internal static object DeserilizeObject<T>(string filePath)
+        internal static T? DeserilizeObject<T>(string filePath)
         {
             var obj = JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(T));
-            return (T)obj;
+            return (T?)obj;
         }
     }
 }

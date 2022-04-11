@@ -1,9 +1,10 @@
 ﻿using Microsoft.Toolkit.Diagnostics;
+using netDxf;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-//using netDxf;
+using System.Numerics;
 
 namespace NewLaserProject.Classes.Geometry
 {
@@ -23,32 +24,35 @@ namespace NewLaserProject.Classes.Geometry
         /// <param name="third">Third pair of points. Item1 and Item2 are "point from" and "point to" respectively</param>
         public CoorSystem((PointF, PointF) first, (PointF, PointF) second, (PointF, PointF) third)
         {
-            var list = new List<(PointF, PointF)> { first, second, third };
-            list.Sort((f, s) =>
-            {
-                if (f.Item1.Y > s.Item1.Y) { return -1; }
-                else
-                {
-                    if (f.Item1.Y < s.Item1.Y) { return 1; }
-                    else { return 0; }
-                }
-            });
+            //var list = new List<(PointF, PointF)> { first, second, third };
 
-            list.Sort((f, s) =>
-            {
-                if (f.Item1.X < s.Item1.X) { return -1; }
-                else
-                {
-                    if (f.Item1.X > s.Item1.X) { return 1; }
-                    else { return 0; }
-                }
+            //var width = list.MaxBy(p => p.Item1.X).Item1.X - list.MinBy(p => p.Item1.X).Item1.X;
+            //var height = list.MaxBy(p => p.Item1.Y).Item1.Y - list.MinBy(p => p.Item1.Y).Item1.Y;
 
-            });
 
-            var size = new SizeF(MathF.Abs(list[1].Item1.X - list[0].Item1.X), MathF.Abs(list[1].Item1.Y - list[0].Item1.Y));
+            //var size = new SizeF(width, -height);
 
-            _mainMatrix = new Matrix(new RectangleF(list[0].Item1, size), new[] { list[0].Item2, list[1].Item2, list[2].Item2 });
+            //_mainMatrix = new Matrix(new RectangleF(list[0].Item1, size), new[] { list[0].Item2, list[1].Item2, list[2].Item2 });
+
+
+            var m1 = new Matrix3(first.Item1.X, first.Item1.Y, 1, second.Item1.X, second.Item1.Y, 1, third.Item1.X, third.Item1.Y, 1);
+            var m2 = new Matrix3(first.Item2.X, first.Item2.Y, 1, second.Item2.X, second.Item2.Y, 1, third.Item2.X, third.Item2.Y, 1);
+            var invert = m1.Inverse();
+            var transformation = invert * m2;
+            transformation = transformation.Transpose();
+            var matrix = new Matrix3x2((float)transformation.M11, (float)transformation.M12, (float)transformation.M21, (float)transformation.M22, (float)transformation.M13, (float)transformation.M23);
+            _mainMatrix = new Matrix(matrix);
+
+
+            var scaleX = Math.Sqrt(Math.Pow(transformation.M11, 2) + Math.Pow(transformation.M12, 2));
+            var scaleY = -Math.Sqrt(transformation.M11 * transformation.M22 - transformation.M12 * transformation.M21) / scaleX;
+            var shearY = Math.Atan2(transformation.M11 * transformation.M21 + transformation.M12 * transformation.M22, transformation.M11 * transformation.M11 + transformation.M12 * transformation.M12);
+            var rotating = Math.Atan2(transformation.M12, transformation.M11);
+            var translationX = transformation.M13;
+            var translationY = transformation.M23;
         }
+
+        public Matrix3x2 GetMainMatrix() => _mainMatrix.MatrixElements;
         public void SetRelatedSystem(TPlaceEnum name, Matrix matrix)
         {
             matrix.Multiply(_mainMatrix, MatrixOrder.Append);
