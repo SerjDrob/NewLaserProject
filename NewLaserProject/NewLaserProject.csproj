@@ -28,6 +28,11 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   
+  
+  <ItemGroup>
+    <Compile Remove="Classes\Geometry\FirstCoorSystem.cs" />
+  </ItemGroup>
+  
   <ItemGroup>
     <None Remove="Views\Sources\angle.png" />
     <None Remove="Views\Sources\distance-32.png" />
@@ -68,6 +73,10 @@
     <Content Include="Views\Sources\settings.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="Classes\Geometry\FirstCoorSystem.cs" />
   </ItemGroup>
 
   <ItemGroup>

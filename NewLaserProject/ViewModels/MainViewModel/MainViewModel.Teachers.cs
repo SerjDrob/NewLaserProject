@@ -10,6 +10,7 @@ using NewLaserProject.Properties;
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -247,7 +248,17 @@ internal partial class MainViewModel
     private async void TeachOrthXY()
     {
         var matrixElements = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem1.json");
-        var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
+        //var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
+        //    matrixElements[0],
+        //    matrixElements[1],
+        //    matrixElements[2],
+        //    matrixElements[3],
+        //    matrixElements[4],
+        //    matrixElements[5]
+        //    ));
+
+        var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
+        buider.SetWorkMatrix(new Matrix3x2(
             matrixElements[0],
             matrixElements[1],
             matrixElements[2],
@@ -255,6 +266,7 @@ internal partial class MainViewModel
             matrixElements[4],
             matrixElements[5]
             ));
+        var sys = buider.Build();
         
         var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();
         Guard.IsEqualTo(points.Count, 3, nameof(points));
@@ -307,10 +319,20 @@ internal partial class MainViewModel
             .SetOnHasResultAction(() => Task.Run(() =>
             {
                 var resultPoints = _currentTeacher.GetParams();
-                _coorSystem = new CoorSystem<LMPlace>(
-                    first: (new((float)points[0].X, (float)points[0].Y), new((float)resultPoints[0], (float)resultPoints[1])),
-                    second: (new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3])),
-                    third: (new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5])));
+                //_coorSystem = new CoorSystem<LMPlace>(
+                //    first: (new((float)points[0].X, (float)points[0].Y), new((float)resultPoints[0], (float)resultPoints[1])),
+                //    second: (new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3])),
+                //    third: (new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5])));
+
+
+                var builder = CoorSystem<Place>.GetThreePointSystemBuilder();
+
+                builder.SetFirstPointPair(new((float)points[0].X, (float)points[0].Y), new((float)resultPoints[0], (float)resultPoints[1]))
+                       .SetSecondPointPair(new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3]))
+                       .SetThirdPointPair(new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5]));
+
+                var _coorSystem = builder.FormWorkMatrix().Build();
+
                 //TuneCoorSystem(_coorSystem);
                 _coorSystem.SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
                 object obj = _coorSystem.GetMainMatrixElements();

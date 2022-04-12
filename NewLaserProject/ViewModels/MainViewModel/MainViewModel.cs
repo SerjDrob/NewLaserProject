@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -465,7 +466,17 @@ namespace NewLaserProject.ViewModels
         private CoorSystem<LMPlace> GetCoorSystem()
         {
             var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json") ?? throw new NullReferenceException("CoorSystem in the file is invalid");
-            var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
+            //var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
+            //    matrixElements[0],
+            //    matrixElements[1],
+            //    matrixElements[2],
+            //    matrixElements[3],
+            //    matrixElements[4],
+            //    matrixElements[5]
+            //    ));
+            
+            var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
+            buider.SetWorkMatrix(new Matrix3x2(
                 matrixElements[0],
                 matrixElements[1],
                 matrixElements[2],
@@ -473,6 +484,8 @@ namespace NewLaserProject.ViewModels
                 matrixElements[4],
                 matrixElements[5]
                 ));
+
+            var sys = buider.Build();
             TuneCoorSystem(sys);
             return sys;
         }
