@@ -70,30 +70,18 @@ namespace NewLaserTest
 
         public void CoorSystemTestMainTransformation(double x1, double y1, double x2, double y2)
         {
-
             var coorSys = _builder.FormWorkMatrix(2, 2, false).Build();
 
-            var initial = (x1, y1);
-            var expected = (Math.Round(x2, 3), Math.Round(y2, 3));
-
-            var result = coorSys.ToGlobal(initial.x1, initial.y1);
-            var res = (Math.Round(result[0], 3), Math.Round(result[1], 3));
-            Assert.That(res, Is.EqualTo(expected));
+            TestAsertion((a, b) => coorSys.ToGlobal(a, b), x1, y1, x2, y2);
         }
 
         [TestCase(0, 96, -55.42562584F, 110.85125168F)]
         [TestCase(120, 96, 64.57437416F, 110.85125168F)]
         public void CoorSystemTestPureDeformation(double x1, double y1, double x2, double y2)
         {
-
             var coorSys = _builderPureDeformation.FormWorkMatrix(0.5, 0.5, true).Build();
 
-            var initial = (x1, y1);
-            var expected = (Math.Round(x2, 3), Math.Round(y2, 3));
-
-            var result = coorSys.ToGlobal(initial.x1, initial.y1);
-            var res = (Math.Round(result[0], 3), Math.Round(result[1], 3));
-            Assert.That(res, Is.EqualTo(expected));
+            TestAsertion((a, b) => coorSys.ToGlobal(a, b), x1, y1, x2, y2);
         }
 
 
@@ -103,15 +91,9 @@ namespace NewLaserTest
 
         public void CoorSystemTestPureDeformation2(double x1, double y1, double x2, double y2)
         {
-
             var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
-
-            var initial = (x1, y1);
-            var expected = (Math.Round(x2, 3), Math.Round(y2, 3));
-
-            var result = coorSys.ToGlobal(initial.x1, initial.y1);
-            var res = (Math.Round(result[0], 3), Math.Round(result[1], 3));
-            Assert.That(res, Is.EqualTo(expected));
+            
+            TestAsertion((a, b) => coorSys.ToGlobal(a, b), x1, y1, x2, y2);
         }
 
         [TestCase(0, 96, -82.22745855F, 92.72887932F)]
@@ -120,17 +102,66 @@ namespace NewLaserTest
 
         public void CoorSystemTestRotatePureDeformation(double x1, double y1, double x2, double y2)
         {
-
             var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
 
             coorSys.BuildRelatedSystem()
                    .Rotate(15 * Math.PI / 180)
                    .Build(Place.one);
+                        
+            TestAsertion((a, b) => coorSys.ToSub(Place.one, a, b), x1, y1, x2, y2);
+        }
 
-            var initial = (x1, y1);
+
+        [TestCase(0, 96, -35.42562584F, 140.85125168F)]
+        [TestCase(120, 96, 84.57437416F, 140.85125168F)]
+        [TestCase(120, 0, 140F, 30F)]
+        public void CoorSystemTestTranslatePureDeformation(double x1, double y1, double x2, double y2)
+        {
+            var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
+
+            coorSys.BuildRelatedSystem()
+                   .Translate(20,30)
+                   .Build(Place.one);
+
+            TestAsertion((a, b) => coorSys.ToSub(Place.one, a, b), x1, y1, x2, y2);
+        }
+
+        [TestCase(0, 96, -70.67351338F, 126.88303501F)]
+        [TestCase(120, 96, 45.23758578F, 157.94132043F)]
+        [TestCase(120, 0, 127.46504433F, 65.2124411F)]
+        public void CoorSystemTestTranslateRotatePureDeformation(double x1, double y1, double x2, double y2)
+        {
+            var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
+
+            coorSys.BuildRelatedSystem()
+                   .Translate(20, 30)
+                   .Rotate(15 * Math.PI / 180)
+                   .Build(Place.one);
+
+            TestAsertion((a, b) => coorSys.ToSub(Place.one, a, b), x1, y1, x2, y2);
+        }
+
+        [TestCase(0, 96, -62.22745855F, 122.72887932F)]
+        [TestCase(120, 96, 53.68364061F, 153.78716474F)]
+        [TestCase(120, 0, 135.91109915F, 61.05828541F)]
+        public void CoorSystemTestRotateTranslatePureDeformation(double x1, double y1, double x2, double y2)
+        {
+            var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
+
+            coorSys.BuildRelatedSystem()
+                   .Rotate(15 * Math.PI / 180)
+                   .Translate(20, 30)
+                   .Build(Place.one);
+
+            TestAsertion((a, b) => coorSys.ToSub(Place.one, a, b), x1, y1, x2, y2);
+        }
+
+
+        private void TestAsertion(Func<double, double, double[]> func, double x1, double y1, double x2, double y2)
+        {
             var expected = (Math.Round(x2, 3), Math.Round(y2, 3));
 
-            var result = coorSys.ToSub(Place.one, initial.x1, initial.y1);
+            var result = func(x1, y1);
             var res = (Math.Round(result[0], 3), Math.Round(result[1], 3));
             Assert.That(res, Is.EqualTo(expected));
         }
