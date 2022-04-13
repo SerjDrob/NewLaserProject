@@ -15,8 +15,8 @@ namespace NewLaserProject.Classes.Geometry
 
         public CoorSystem()
         {
-            _workTransformation = new Matrix3(m11: 1, m12: 0, m13: 0, 
-                                              m21: 0, m22: 1, m23: 0, 
+            _workTransformation = new Matrix3(m11: 1, m12: 0, m13: 0,
+                                              m21: 0, m22: 1, m23: 0,
                                               m31: 0, m32: 0, m33: 1);
         }
 
@@ -115,7 +115,7 @@ namespace NewLaserProject.Classes.Geometry
             return _subSystems.ContainsKey(to) ? _subSystems[to].ToGlobal(x, y) : throw new KeyNotFoundException($"Subsystem {to} is not set");
         }
         public double[] FromGlobal(double x, double y)
-        {            
+        {
             try
             {
                 var vector = new netDxf.Vector3(x, y, 1);
@@ -225,6 +225,21 @@ namespace NewLaserProject.Classes.Geometry
             private Matrix3 GetSkew(Matrix3 mainTransformation)
             {
                 //var shearY = Math.Atan2(mainTransformation.M11 * mainTransformation.M21 + mainTransformation.M12 * mainTransformation.M22, mainTransformation.M11 * mainTransformation.M11 + mainTransformation.M12 * mainTransformation.M12);
+                var sk = (mainTransformation.M12 + mainTransformation.M21) / mainTransformation.M11;
+
+                var skew = new Matrix3(1,/* mainTransformation.M12*/sk, 0, 0, 1, 0, 0, 0, 1);
+
+                var p1 = new netDxf.Vector3(0, 48, 1);
+                var p2 = new netDxf.Vector3(60, 48, 1);
+                var p3 = new netDxf.Vector3(60, 0, 1);
+
+                var p11 = skew * p1;
+                var p21 = skew * p2;
+                var p31 = skew * p3;
+
+                var angle = Math.Atan2(mainTransformation.M21, mainTransformation.M11);
+
+                var scale = Math.Sqrt(Math.Pow(mainTransformation.M11, 2) + Math.Pow(mainTransformation.M21, 2));
 
                 var shearY = (mainTransformation.M11 * mainTransformation.M21 + mainTransformation.M12 * mainTransformation.M22)
                             / (mainTransformation.M11 * mainTransformation.M22 + mainTransformation.M12 * mainTransformation.M21);
@@ -267,7 +282,7 @@ namespace NewLaserProject.Classes.Geometry
 
             public WorkMatrixCoorSystemBuilder<TPlace> SetWorkMatrix(Matrix3x2 workMatrix)
             {
-                
+
                 _workMatrix = CoorSystem<TPlace>.ConvertMatrix(workMatrix);
                 return this;
             }

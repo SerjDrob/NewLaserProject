@@ -29,9 +29,13 @@ namespace NewLaserTest
             //         .SetSecondPointPair(new PointF(0, 48), new PointF(-24, 41.56921938F))
             //         .SetThirdPointPair(new PointF(60, 48), new PointF(27.96152423F, 71.56921938F));
 
-            _builder1.SetFirstPointPair(new PointF(0, 0), new PointF(0, 0))
-                     .SetSecondPointPair(new PointF(0, 48), new PointF(27.71281292F, 48))
-                     .SetThirdPointPair(new PointF(60, 48), new PointF(87.71281292F, 48));
+            //_builder1.SetFirstPointPair(new PointF(0, 0), new PointF(0, 0))
+            //         .SetSecondPointPair(new PointF(0, 48), new PointF(27.71281292F, 48))
+            //         .SetThirdPointPair(new PointF(60, 48), new PointF(87.71281292F, 48));
+
+            _builder1.SetFirstPointPair(new PointF(0, 48), new PointF(-63.71281292F, 151.42562584F))
+                     .SetSecondPointPair(new PointF(60, 48), new PointF(5.56921938F, 220.70765814F))
+                     .SetThirdPointPair(new PointF(60, 0), new PointF(101.56921938F, 124.70765814F));
         }
 
         //[Test]
