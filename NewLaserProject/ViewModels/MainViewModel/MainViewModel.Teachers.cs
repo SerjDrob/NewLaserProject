@@ -331,7 +331,7 @@ internal partial class MainViewModel
                        .SetSecondPointPair(new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3]))
                        .SetThirdPointPair(new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5]));
 
-                var _coorSystem = builder.FormWorkMatrix().Build();
+                var _coorSystem = builder.FormWorkMatrix(0.001,0.001,true).Build();
 
                 //TuneCoorSystem(_coorSystem);
                 _coorSystem.SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");

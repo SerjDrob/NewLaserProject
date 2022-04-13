@@ -3,10 +3,27 @@ using netDxf;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 
 namespace NewLaserProject.Classes.Geometry
 {
+    internal static class MatrixConverter
+    {
+        public static Matrix3 ConvertMatrix(this Matrix3x2 initMatrix)
+        {
+            return new Matrix3(m11: initMatrix.M11, m12: initMatrix.M12, m13: initMatrix.M31,
+                               m21: initMatrix.M21, m22: initMatrix.M22, m23: initMatrix.M32,
+                               m31: 0, m32: 0, m33: 1);
+        }
+
+        public static Matrix3x2 ConvertMatrix(this Matrix3 initMatrix)
+        {
+            return new Matrix3x2(m11: (float)initMatrix.M11, m12: (float)initMatrix.M12,
+                                 m21: (float)initMatrix.M21, m22: (float)initMatrix.M22,
+                                 m31: (float)initMatrix.M13, m32: (float)initMatrix.M23);
+        }
+    }
     public class CoorSystem<TPlaceEnum> : ICoorSystem<TPlaceEnum> where TPlaceEnum : Enum
     {
         private Dictionary<TPlaceEnum, CoorSystem<TPlaceEnum>> _subSystems = new();
@@ -73,19 +90,12 @@ namespace NewLaserProject.Classes.Geometry
         //}
         public void SetRelatedSystem(TPlaceEnum name, Matrix3x2 matrix)
         {
-            var transformation = ConvertMatrix(matrix) * _workTransformation;
+            var transformation = matrix.ConvertMatrix() * _workTransformation;
             var sub = new CoorSystem<TPlaceEnum>(transformation);
             if (!_subSystems.TryAdd(name, sub))
             {
                 _subSystems[name] = sub;
             }
-        }
-
-        public static Matrix3 ConvertMatrix(Matrix3x2 initMatrix)
-        {
-            return new Matrix3(m11: initMatrix.M11, m12: initMatrix.M12, m13: initMatrix.M31,
-                               m21: initMatrix.M21, m22: initMatrix.M22, m23: initMatrix.M32,
-                               m31: 0, m32: 0, m33: 1);
         }
 
         public void SetRelatedSystem(TPlaceEnum name, double offsetX, double offsetY)
@@ -101,7 +111,13 @@ namespace NewLaserProject.Classes.Geometry
                 _subSystems[name] = sub;
             }
         }
-
+        public void SetRelatedSystem(TPlaceEnum name, CoorSystem<TPlaceEnum> coorSystem)
+        {           
+            if (!_subSystems.TryAdd(name, coorSystem))
+            {
+                _subSystems[name] = coorSystem;
+            }
+        }
         public double[] ToGlobal(double x, double y)
         {
             var vector = new netDxf.Vector3(x, y, 1);
@@ -142,7 +158,10 @@ namespace NewLaserProject.Classes.Geometry
         }
         public static ThreePointCoorSystemBuilder<TPlaceEnum> GetThreePointSystemBuilder() => new ThreePointCoorSystemBuilder<TPlaceEnum>();
         public static WorkMatrixCoorSystemBuilder<TPlaceEnum> GetWorkMatrixSystemBuilder() => new WorkMatrixCoorSystemBuilder<TPlaceEnum>();
-
+        public RelatedSystemBuilder<TPlaceEnum> BuildRelatedSystem()
+        {
+            return new RelatedSystemBuilder<TPlaceEnum>(_workTransformation.ConvertMatrix(), this);
+        }
         public class ThreePointCoorSystemBuilder<TPlace> where TPlace : Enum
         {
             private (PointF originPoint, PointF derivativePoint) _firstPair;
@@ -169,7 +188,7 @@ namespace NewLaserProject.Classes.Geometry
                 _thirdPair = (originPoint, derivativePoint);
                 return this;
             }
-            public ThreePointCoorSystemBuilder<TPlace> FormWorkMatrix(params Transformation[] transformations)
+            public ThreePointCoorSystemBuilder<TPlace> FormWorkMatrix(double xScaleMul, double yScaleMul, bool pureDeformation)
             {
                 var first = _firstPair;
                 var second = _secondPair;
@@ -190,85 +209,51 @@ namespace NewLaserProject.Classes.Geometry
 
                 _mainTransformation = _mainTransformation.Transpose();
 
-                if (transformations.Length == 0)
+                if (!pureDeformation)
                 {
                     _workMatrix = _mainTransformation;
                 }
                 else
                 {
-                    foreach (var trans in transformations)
-                    {
-                        var transformation = trans switch
-                        {
-                            Transformation.Rotation => GetRotation(_mainTransformation),
-                            Transformation.Scaling => GetScale(_mainTransformation),
-                            Transformation.Skew => GetSkew(_mainTransformation),
-                            Transformation.Translation => GetTranslation(_mainTransformation)
-                        };
-                        _workMatrix = transformation * _workMatrix;
-                    }
+                    var pairs = new[] { first, second, third };
+
+                    var zeroPointPairs = pairs.Where(pair => pair.originPoint == new PointF(0, 0));
+
+                    Guard.IsTrue(zeroPointPairs.Count() == 1, nameof(zeroPointPairs), "Origin points must have one (0,0) point");
+
+
+                    var anglePoints = pairs.Where(point => point.originPoint.Y == 0)
+                                           .OrderBy(point => Math.Abs(point.originPoint.X))
+                                           .ToArray();
+
+                    var hasAmgle = anglePoints.Count() == 2;
+
+                    Guard.IsTrue(hasAmgle, nameof(hasAmgle), "Origin points must have two points with same ordinate");
+
+                    var zeroPointPair = zeroPointPairs.Single();
+
+                    var angle = Math.Atan2(anglePoints[1].derivativePoint.Y - anglePoints[0].derivativePoint.Y, anglePoints[1].derivativePoint.X - anglePoints[0].derivativePoint.X);
+                   
+                    var R = new Matrix3(m11: Math.Cos(angle), m12: -Math.Sin(angle), m13: 0,
+                                        m21: Math.Sin(angle), m22: Math.Cos(angle), m23: 0,
+                                        m31: 0, m32: 0, m33: 1);
+
+                    var deltaX = zeroPointPair.derivativePoint.X;
+                    var deltaY = zeroPointPair.derivativePoint.Y;
+
+                    var Translate = new Matrix3(m11: 1, m12: 0, m13: deltaX,
+                                                m21: 0, m22: 1, m23: deltaY,
+                                                m31: 0, m32: 0, m33: 1);
+
+                    var S = new Matrix3(m11: xScaleMul, m12: 0, m13: 0,
+                                        m21: 0, m22: yScaleMul, m23: 0,
+                                        m31: 0, m32: 0, m33: 1);
+
+                    var X = R.Inverse() * Translate.Inverse() * _mainTransformation * S.Inverse();
+                    _workMatrix = X;
                 }
                 _isWorkMatrixFormed = true;
                 return this;
-            }
-
-            private Matrix3 GetScale(Matrix3 mainTransformation)
-            {
-                var scaleX = Math.Sqrt(Math.Pow(mainTransformation.M11, 2) + Math.Pow(mainTransformation.M12, 2));
-                var scaleY = -Math.Sqrt(mainTransformation.M11 * mainTransformation.M22 - mainTransformation.M12 * mainTransformation.M21) / scaleX;
-
-                return new Matrix3(m11: scaleX, m12: 0, m13: 0,
-                                   m21: 0, m22: scaleY, m23: 0,
-                                   m31: 0, m32: 0, m33: 1);
-            }
-
-            private Matrix3 GetSkew(Matrix3 mainTransformation)
-            {
-                //var shearY = Math.Atan2(mainTransformation.M11 * mainTransformation.M21 + mainTransformation.M12 * mainTransformation.M22, mainTransformation.M11 * mainTransformation.M11 + mainTransformation.M12 * mainTransformation.M12);
-                var sk = (mainTransformation.M12 + mainTransformation.M21) / mainTransformation.M11;
-
-                var skew = new Matrix3(1,/* mainTransformation.M12*/sk, 0, 0, 1, 0, 0, 0, 1);
-
-                var p1 = new netDxf.Vector3(0, 48, 1);
-                var p2 = new netDxf.Vector3(60, 48, 1);
-                var p3 = new netDxf.Vector3(60, 0, 1);
-
-                var p11 = skew * p1;
-                var p21 = skew * p2;
-                var p31 = skew * p3;
-
-                var angle = Math.Atan2(mainTransformation.M21, mainTransformation.M11);
-
-                var scale = Math.Sqrt(Math.Pow(mainTransformation.M11, 2) + Math.Pow(mainTransformation.M21, 2));
-
-                var shearY = (mainTransformation.M11 * mainTransformation.M21 + mainTransformation.M12 * mainTransformation.M22)
-                            / (mainTransformation.M11 * mainTransformation.M22 + mainTransformation.M12 * mainTransformation.M21);
-
-                //var shearY = (mainTransformation.M11 * mainTransformation.M21 + mainTransformation.M12 * mainTransformation.M22)
-                //           / (mainTransformation.M11 * mainTransformation.M11 + mainTransformation.M12 * mainTransformation.M12);
-
-                shearY = Math.Atan(shearY);
-
-                return new Matrix3(m11: 1, m12: 0, m13: 0,
-                                   m21: shearY, m22: 1, m23: 0,
-                                   m31: 0, m32: 0, m33: 1);
-            }
-
-            private Matrix3 GetRotation(Matrix3 mainTransformation)
-            {
-                var rotating = Math.Atan2(mainTransformation.M12, mainTransformation.M11);
-
-                return new Matrix3(m11: Math.Cos(rotating), m12: -Math.Sin(rotating), m13: 0,
-                                   m21: Math.Sin(rotating), m22: Math.Cos(rotating), m23: 0,
-                                   m31: 0, m32: 0, m33: 1);
-            }
-            private Matrix3 GetTranslation(Matrix3 mainTransformation)
-            {
-                var translationX = mainTransformation.M13;
-                var translationY = mainTransformation.M23;
-                return new Matrix3(m11: 1, m12: 0, m13: translationX,
-                                   m21: 0, m22: 1, m23: translationY,
-                                   m31: 0, m32: 0, m33: 1);
             }
 
             public CoorSystem<TPlace> Build()
@@ -283,7 +268,7 @@ namespace NewLaserProject.Classes.Geometry
             public WorkMatrixCoorSystemBuilder<TPlace> SetWorkMatrix(Matrix3x2 workMatrix)
             {
 
-                _workMatrix = CoorSystem<TPlace>.ConvertMatrix(workMatrix);
+                _workMatrix = workMatrix.ConvertMatrix();
                 return this;
             }
             public CoorSystem<TPlace> Build()
@@ -292,14 +277,42 @@ namespace NewLaserProject.Classes.Geometry
             }
         }
 
-        public enum Transformation
+        public class RelatedSystemBuilder<TPlace> where TPlace : Enum
         {
-            Skew,
-            Scaling,
-            Rotation,
-            Translation
-        }
+            private Matrix3 _mainMatrix;
+            private readonly CoorSystem<TPlace> _parentSystem;
 
+            public RelatedSystemBuilder(Matrix3x2 mainMatrix, CoorSystem<TPlace> parentSystem)
+            {
+                _mainMatrix = mainMatrix.ConvertMatrix();
+                _parentSystem = parentSystem;
+            }
+            /// <summary>
+            /// Rotate initial matrix by the angle
+            /// </summary>
+            /// <param name="angle">Rotation angle in radian</param>
+            /// <returns>RelatedSystemBuilder</returns>
+            public RelatedSystemBuilder<TPlace> Rotate(double angle)
+            {
+                var R = new Matrix3(m11: Math.Cos(angle), m12: -Math.Sin(angle), m13: 0,
+                                    m21: Math.Sin(angle), m22: Math.Cos(angle), m23: 0,
+                                    m31: 0, m32: 0, m33: 1);
+                _mainMatrix = R * _mainMatrix;
+                return this;
+            }
+            public RelatedSystemBuilder<TPlace> Translate(double offsetX, double offsetY)
+            {
+                var Translate = new Matrix3(m11: 1, m12: 0, m13: offsetX,
+                                            m21: 0, m22: 1, m23: offsetY,
+                                            m31: 0, m32: 0, m33: 1);
+                _mainMatrix = Translate * _mainMatrix;
+                return this;
+            }
+            public void Build(TPlace place)
+            {
+                _parentSystem.SetRelatedSystem(place, _mainMatrix.ConvertMatrix());
+            }
+        }
 
     }
 }
