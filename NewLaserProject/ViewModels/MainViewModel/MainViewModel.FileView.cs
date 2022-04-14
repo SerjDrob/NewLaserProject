@@ -3,6 +3,7 @@ using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Properties;
 using System;
 using System.Collections.ObjectModel;
@@ -37,6 +38,7 @@ internal partial class MainViewModel
     public bool WaferContourVisibility { get; set; } = true;
     public bool IsFileSettingsEnable { get; set; } = false;
     public string FileName { get; set; } = "Open the file";
+    
     public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
 
     private IDxfReader _dxfReader;
@@ -98,9 +100,7 @@ internal partial class MainViewModel
                 MirrorX = Settings.Default.WaferMirrorX;
                 WaferTurn90 = Settings.Default.WaferAngle90;
                 WaferOffsetX = 0;
-                WaferOffsetY = 0;
-
-                LPModel.ObjectChosenEvent += TWModel.SetObjectsTC;
+                WaferOffsetY = 0;               
             }
             else
             {

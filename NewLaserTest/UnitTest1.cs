@@ -1,3 +1,4 @@
+using MachineClassLibrary.Laser.Entities;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
 using NUnit.Framework;
@@ -16,13 +17,16 @@ namespace NewLaserTest
 
         CoorSystem<Place>.ThreePointCoorSystemBuilder<Place> _builder;
         CoorSystem<Place>.ThreePointCoorSystemBuilder<Place> _builderPureDeformation;
-
-
+        //MainCoorSystem<Place>.ThreePointCoorSystemBuilder _builder;
+        
         [SetUp]
         public void Setup()
         {
 
             _builder = CoorSystem<Place>.GetThreePointSystemBuilder();
+
+
+            //_builder = MainCoorSystem<Place>.GetThreePointSystemBuilder();
 
             _builder.SetFirstPointPair(new PointF(0, 0), new PointF(120, 96))
                      .SetSecondPointPair(new PointF(60, 0), new PointF(235.91109915F, 127.05828541F))
@@ -164,6 +168,56 @@ namespace NewLaserTest
             var result = func(x1, y1);
             var res = (Math.Round(result[0], 3), Math.Round(result[1], 3));
             Assert.That(res, Is.EqualTo(expected));
+        }
+
+        [TestCase(new[] {Transformation.Turn90},1,60,48,59,1,47,59)]
+        [TestCase(new[] { Transformation.MirrorX }, 1, 60, 48, 59, 1, 1, 1)]
+        [TestCase(new[] { Transformation.MirrorY }, 1, 60, 48, 59, 1, 59, 47)]
+        [TestCase(new[] { Transformation.Turn90, Transformation.Turn90 }, 1, 60, 48, 59, 1, 59, 1)]
+        [TestCase(new[] { Transformation.Turn90, Transformation.MirrorX }, 1, 60, 48, 59, 1, 47, 1)]
+        [TestCase(new[] { Transformation.Turn90, Transformation.MirrorY }, 1, 60, 48, 59, 1, 1, 59)]
+        [TestCase(new[] { Transformation.Turn90, Transformation.MirrorY, Transformation.MirrorX }, 1, 60, 48, 59, 1, 1, 1)]
+        [TestCase(new[] { Transformation.MirrorY, Transformation.Turn90, Transformation.MirrorX }, 1, 60, 48, 59, 1, 1, 1)]
+        [TestCase(new[] { Transformation.MirrorX, Transformation.Scale }, 10, 60, 48, 59, 1, 10, 10)]
+        [TestCase(new[] { Transformation.MirrorX, Transformation.Scale, Transformation.Scale }, 10, 60, 48, 59, 1, 100, 100)]
+
+
+        public void TestLaserWaferTransformations(Transformation[] trSequence, float scale, double sizeX, double sizeY, double x1, double y1, double x2, double y2)
+        {
+            var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[]{ new PPoint(x1,y1,0,new MachineClassLibrary.Laser.Entities.Point(),"",0) },(sizeX,sizeY));
+            bool scaled = false;
+            foreach (var tr in trSequence)
+            {
+                switch (tr)
+                {
+                    case Transformation.MirrorX:
+                        wafer.MirrorX();
+                        break;
+                    case Transformation.MirrorY:
+                        wafer.MirrorY();
+                        break;
+                    case Transformation.Turn90:
+                        wafer.Turn90();
+                        break;
+                    case Transformation.Scale:
+                        if (!scaled)
+                        {
+                            wafer.Scale(scale);
+                        }
+                        break;                   
+                }
+            }
+
+            var point = wafer[0];
+            Assert.AreEqual(point.X, x2, 0);
+            Assert.AreEqual(point.Y, y2, 0);
+        }
+        public enum Transformation
+        {
+            MirrorX,
+            MirrorY,
+            Turn90,
+            Scale
         }
     }
 }

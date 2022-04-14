@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Diagnostics;
@@ -21,6 +22,8 @@ internal partial class MainViewModel
 {
     public double TeacherPointerX { get; set; }
     public double TeacherPointerY { get; set; }
+    private bool _tempMirrorX;
+    private bool _tempWaferTurn90;
     public bool TeacherPointerVisibility { get; set; } = false;
 
 
@@ -247,16 +250,13 @@ internal partial class MainViewModel
     [ICommand]
     private async void TeachOrthXY()
     {
-        var matrixElements = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem1.json");
-        //var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
-        //    matrixElements[0],
-        //    matrixElements[1],
-        //    matrixElements[2],
-        //    matrixElements[3],
-        //    matrixElements[4],
-        //    matrixElements[5]
-        //    ));
+        _tempMirrorX = MirrorX;
+        _tempWaferTurn90 = WaferTurn90;
+        MirrorX = false;
+        WaferTurn90 = false;
 
+        var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem1.json");
+                
         var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
         buider.SetWorkMatrix(new Matrix3x2(
             matrixElements[0],
@@ -267,27 +267,34 @@ internal partial class MainViewModel
             matrixElements[5]
             ));
         var sys = buider.Build();
-        
-        var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();
-        Guard.IsEqualTo(points.Count, 3, nameof(points));
 
+
+        using var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), (60, 48));        
+        
+
+
+        //var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();
+        var points = wafer.ToList() ?? throw new NullReferenceException();
+
+        Guard.IsEqualTo(points.Count, 3, nameof(points));
         using var pointsEnumerator = points.GetEnumerator();
+
         _currentTeacher = XYOrthTeacher.GetBuilder()
             .SetOnGoNextPointAction(() => Task.Run(async () =>
             {
                 pointsEnumerator.MoveNext();
                 var point = pointsEnumerator.Current;
+                _laserMachine.VelocityRegime = Velocity.Fast;
                 await _laserMachine.MoveGpInPosAsync(Groups.XY, /*_coorSystem*/sys.ToGlobal(point.X, point.Y), true).ConfigureAwait(false);
                 techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", Icon.Exclamation);
-                //TeacherPointerX = point.X;
-                //TeacherPointerY = point.Y;
-                //TeacherPointerVisibility = true;               
+                TeacherPointerX = point.X;
+                TeacherPointerY = point.Y;
+                TeacherPointerVisibility = true;
             }))
             .SetOnWriteDownThePointAction(() => Task.Run(async () =>
             {
-                //TeacherPointerVisibility = false;
-                //_currentTeacher.SetParams(XAxis.Position, YAxis.Position);
-                _currentTeacher.SetParams(1, 1);
+                TeacherPointerVisibility = false;
+                _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
             }))
             .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
             {
@@ -314,16 +321,16 @@ internal partial class MainViewModel
             .SetOnXYOrthToughtAction(() => Task.Run(() =>
             {
                 MessageBox.Show("Обучение отменено", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                MirrorX = _tempMirrorX;
+                WaferTurn90 = _tempWaferTurn90;
                 _canTeach = false;
             }))
             .SetOnHasResultAction(() => Task.Run(() =>
             {
-                var resultPoints = _currentTeacher.GetParams();
-                //_coorSystem = new CoorSystem<LMPlace>(
-                //    first: (new((float)points[0].X, (float)points[0].Y), new((float)resultPoints[0], (float)resultPoints[1])),
-                //    second: (new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3])),
-                //    third: (new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5])));
+                TeacherPointerVisibility = false;
+                techMessager.EraseMessage();
 
+                var resultPoints = _currentTeacher.GetParams();               
 
                 var builder = CoorSystem<Place>.GetThreePointSystemBuilder();
 
@@ -331,13 +338,16 @@ internal partial class MainViewModel
                        .SetSecondPointPair(new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3]))
                        .SetThirdPointPair(new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5]));
 
-                var _coorSystem = builder.FormWorkMatrix(0.001,0.001,true).Build();
+                //var _coorSystem = builder.FormWorkMatrix(0.001,0.001,true).Build();
+                var _coorSystem = builder.FormWorkMatrix(1, 1, false).Build();
 
                 //TuneCoorSystem(_coorSystem);
-                _coorSystem.SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
+                _coorSystem.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
                 object obj = _coorSystem.GetMainMatrixElements();
                 //obj.SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
                 MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                MirrorX = _tempMirrorX;
+                WaferTurn90 = _tempWaferTurn90;
                 _canTeach = false;
             }))
             .Build();
