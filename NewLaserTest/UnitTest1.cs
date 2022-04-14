@@ -18,7 +18,7 @@ namespace NewLaserTest
         CoorSystem<Place>.ThreePointCoorSystemBuilder<Place> _builder;
         CoorSystem<Place>.ThreePointCoorSystemBuilder<Place> _builderPureDeformation;
         //MainCoorSystem<Place>.ThreePointCoorSystemBuilder _builder;
-        
+
         [SetUp]
         public void Setup()
         {
@@ -96,7 +96,7 @@ namespace NewLaserTest
         public void CoorSystemTestPureDeformation2(double x1, double y1, double x2, double y2)
         {
             var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
-            
+
             TestAsertion((a, b) => coorSys.ToGlobal(a, b), x1, y1, x2, y2);
         }
 
@@ -111,7 +111,7 @@ namespace NewLaserTest
             coorSys.BuildRelatedSystem()
                    .Rotate(15 * Math.PI / 180)
                    .Build(Place.one);
-                        
+
             TestAsertion((a, b) => coorSys.ToSub(Place.one, a, b), x1, y1, x2, y2);
         }
 
@@ -124,7 +124,7 @@ namespace NewLaserTest
             var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
 
             coorSys.BuildRelatedSystem()
-                   .Translate(20,30)
+                   .Translate(20, 30)
                    .Build(Place.one);
 
             TestAsertion((a, b) => coorSys.ToSub(Place.one, a, b), x1, y1, x2, y2);
@@ -170,7 +170,7 @@ namespace NewLaserTest
             Assert.That(res, Is.EqualTo(expected));
         }
 
-        [TestCase(new[] {Transformation.Turn90},1,60,48,59,1,47,59)]
+        [TestCase(new[] { Transformation.Turn90 }, 1, 60, 48, 59, 1, 47, 59)]
         [TestCase(new[] { Transformation.MirrorX }, 1, 60, 48, 59, 1, 1, 1)]
         [TestCase(new[] { Transformation.MirrorY }, 1, 60, 48, 59, 1, 59, 47)]
         [TestCase(new[] { Transformation.Turn90, Transformation.Turn90 }, 1, 60, 48, 59, 1, 59, 1)]
@@ -180,12 +180,13 @@ namespace NewLaserTest
         [TestCase(new[] { Transformation.MirrorY, Transformation.Turn90, Transformation.MirrorX }, 1, 60, 48, 59, 1, 1, 1)]
         [TestCase(new[] { Transformation.MirrorX, Transformation.Scale }, 10, 60, 48, 59, 1, 10, 10)]
         [TestCase(new[] { Transformation.MirrorX, Transformation.Scale, Transformation.Scale }, 10, 60, 48, 59, 1, 100, 100)]
+        [TestCase(new[] { Transformation.MirrorX, Transformation.Scale, Transformation.Translte }, 10, 60, 48, 59, 1, 15, 16, 5, 6)]
 
 
-        public void TestLaserWaferTransformations(Transformation[] trSequence, float scale, double sizeX, double sizeY, double x1, double y1, double x2, double y2)
+        public void TestLaserWaferTransformations(Transformation[] trSequence, float scale, double sizeX,
+            double sizeY, double x1, double y1, double x2, double y2, float offsetX = 0, float offsetY = 0)
         {
-            var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[]{ new PPoint(x1,y1,0,new MachineClassLibrary.Laser.Entities.Point(),"",0) },(sizeX,sizeY));
-            bool scaled = false;
+            var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[] { new PPoint(x1, y1, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (sizeX, sizeY));
             foreach (var tr in trSequence)
             {
                 switch (tr)
@@ -200,11 +201,12 @@ namespace NewLaserTest
                         wafer.Turn90();
                         break;
                     case Transformation.Scale:
-                        if (!scaled)
-                        {
-                            wafer.Scale(scale);
-                        }
-                        break;                   
+                        wafer.Scale(scale);
+                        break;
+                    case Transformation.Translte:
+                        wafer.OffsetX(offsetX);
+                        wafer.OffsetY(offsetY);
+                        break;
                 }
             }
 
@@ -217,7 +219,8 @@ namespace NewLaserTest
             MirrorX,
             MirrorY,
             Turn90,
-            Scale
+            Scale,
+            Translte
         }
     }
 }

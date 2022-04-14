@@ -3,17 +3,16 @@ using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
 using NewLaserProject.Classes;
-using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Properties;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
 
 namespace NewLaserProject.ViewModels;
-
 internal partial class MainViewModel
 {
     public int FileScale { get; set; } = 1000;
+    [PropertyChanged.OnChangedMethod(nameof(MirrorChanged))]
     public bool MirrorX { get; set; } = true;
     public bool WaferTurn90 { get; set; } = false;
     public double WaferOffsetX { get; set; }
@@ -38,10 +37,26 @@ internal partial class MainViewModel
     public bool WaferContourVisibility { get; set; } = true;
     public bool IsFileSettingsEnable { get; set; } = false;
     public string FileName { get; set; } = "Open the file";
-    
+
     public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
 
     private IDxfReader _dxfReader;
+
+    
+    private void MirrorChanged()
+    {
+        
+    }
+
+    private void OffsetChanged()
+    {
+
+    }
+
+    private AngleChanged()
+    {
+
+    }
 
     [ICommand]
     private void AlignWafer(object obj)
@@ -93,14 +108,14 @@ internal partial class MainViewModel
                 FileSizeY = Math.Round(fileSize.height);
                 LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
                 IsFileSettingsEnable = true;
-               
+
                 LPModel = new(_dxfReader);
                 TWModel = new();
 
                 MirrorX = Settings.Default.WaferMirrorX;
                 WaferTurn90 = Settings.Default.WaferAngle90;
                 WaferOffsetX = 0;
-                WaferOffsetY = 0;               
+                WaferOffsetY = 0;
             }
             else
             {

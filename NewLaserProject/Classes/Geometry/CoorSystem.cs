@@ -32,7 +32,6 @@ namespace NewLaserProject.Classes.Geometry
                 _subSystems[name] = sub;
             }
         }
-
         public void SetRelatedSystem(TPlaceEnum name, double offsetX, double offsetY)
         {
             var translate = new Matrix3(m11: 1, m12: 0, m13: offsetX,
@@ -46,13 +45,6 @@ namespace NewLaserProject.Classes.Geometry
                 _subSystems[name] = sub;
             }
         }
-        //public void SetRelatedSystem(TPlaceEnum name, CoorSystem<TPlaceEnum> coorSystem)
-        //{           
-        //    if (!_subSystems.TryAdd(name, coorSystem))
-        //    {
-        //        _subSystems[name] = coorSystem;
-        //    }
-        //}
         public double[] ToGlobal(double x, double y)
         {
             var vector = new netDxf.Vector3(x, y, 1);

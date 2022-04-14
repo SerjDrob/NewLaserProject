@@ -2,18 +2,14 @@
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
-using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
-using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Win32;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using PropertyChanged;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Numerics;
@@ -34,7 +30,7 @@ namespace NewLaserProject.ViewModels
         public string VideoScreenMessage { get; set; } = "";
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
-        public Icon CurrentMessageType { get; private set; } = Icon.Empty;        
+        public Icon CurrentMessageType { get; private set; } = Icon.Empty;
         public BitmapImage CameraImage { get; set; }
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
@@ -42,12 +38,12 @@ namespace NewLaserProject.ViewModels
         public LayersProcessingModel LPModel { get; set; }
         public TechWizardViewModel TWModel { get; set; }
         public bool LeftCornerBtnVisibility { get; set; } = false;
-        public bool RightCornerBtnVisibility { get; set; } = false;        
+        public bool RightCornerBtnVisibility { get; set; } = false;
         public bool TeachScaleMarkerEnable { get; private set; } = false;
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
         public double ScaleMarkersRatioSecond { get => 1 - ScaleMarkersRatioFirst; }
 
-        private string _pierceSequenceJson = string.Empty;       
+        private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
 
 
@@ -119,7 +115,7 @@ namespace NewLaserProject.ViewModels
             CameraImage = e.Image;
         }
 
-       
+
 
         [ICommand]
         private void StartProcess()
@@ -143,7 +139,7 @@ namespace NewLaserProject.ViewModels
             //LeftCornerBtnVisibility ^= true;
         }
 
-       
+
 
         [ICommand]
         private void OpenLayersProcessing()
@@ -474,7 +470,7 @@ namespace NewLaserProject.ViewModels
             //    matrixElements[4],
             //    matrixElements[5]
             //    ));
-            
+
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             buider.SetWorkMatrix(new Matrix3x2(
                 matrixElements[0],
