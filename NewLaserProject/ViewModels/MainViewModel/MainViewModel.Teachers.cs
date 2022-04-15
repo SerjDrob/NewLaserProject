@@ -1,7 +1,6 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
-using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -25,16 +24,19 @@ internal partial class MainViewModel
     private bool _tempMirrorX;
     private bool _tempWaferTurn90;
     public bool TeacherPointerVisibility { get; set; } = false;
-
+    
 
     [ICommand]
-    private async Task LeftWaferCornerTeach()
+    private async Task WaferCornersTeach(bool leftCorner)
     {
+
         var lwct = WaferCornerTeacher.GetBuilder();
 
         lwct.SetOnRequestPermissionToStartAction(() => Task.Run(async () =>
         {
-            if (MessageBox.Show("Обучить левую точку пластины?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            var pointName = leftCorner ? "левую" : "правую";
+
+            if (MessageBox.Show($"Обучить {pointName} точку пластины?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 await _currentTeacher.Accept();
             }
@@ -45,16 +47,13 @@ internal partial class MainViewModel
         }))
         .SetOnGoCornerPointAction(async () =>
         {
-            var x = Settings.Default.XLeftPoint;
-            var y = Settings.Default.YLeftPoint;
+            var x = leftCorner ? Settings.Default.XLeftPoint : Settings.Default.XRightPoint;
+            var y = leftCorner ? Settings.Default.YLeftPoint : Settings.Default.XRightPoint;
             var z = Settings.Default.ZObjective;
 
-            // await Task.WhenAll(new Task[]
-            //{
             await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { x, y }, false);
-            await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
-            //});
-            //MessageBox.Show("Наведите перекрестие на угол и нажмите * чтобы продолжить", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+          //  await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
+
             techMessager.RealeaseMessage("Наведите перекрестие на угол и нажмите * чтобы продолжить", Icon.Exclamation);
         })
         .SetOnRequestPermissionToAcceptAction(() => Task.Run(async () =>
@@ -75,16 +74,26 @@ internal partial class MainViewModel
         }))
         .SetOnHasResultAction(() => Task.Run(() =>
         {
-            Settings.Default.XLeftPoint = _currentTeacher.GetParams()[0];
-            Settings.Default.YLeftPoint = _currentTeacher.GetParams()[1];
+            if (leftCorner)
+            {
+                Settings.Default.XLeftPoint = _currentTeacher.GetParams()[0];
+                Settings.Default.YLeftPoint = _currentTeacher.GetParams()[1]; 
+            }
+            else
+            {
+                Settings.Default.XRightPoint = _currentTeacher.GetParams()[0];
+                Settings.Default.YRightPoint = _currentTeacher.GetParams()[1];
+            }
             Settings.Default.Save();
-            //MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
             techMessager.RealeaseMessage($"Новое значение {_currentTeacher} установленно", Icon.Info);
+
+            //---Set new coordinate system
+            _coorSystem = GetCoorSystem();
+
             _canTeach = false;
         }))
         .SetOnCornerToughtAction(() => Task.Run(() =>
         {
-            //MessageBox.Show("Обучение отменено", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
             techMessager.RealeaseMessage("Обучение отменено", Icon.Exclamation);
             _canTeach = false;
         }));
@@ -92,8 +101,7 @@ internal partial class MainViewModel
         await _currentTeacher.StartTeach();
         _canTeach = true;
     }
-    [ICommand]
-    private void RightWaferCornerTeach() { }//WaferAligningTeacher
+    
     [ICommand]
     private async Task TeachCameraOffset()
     {
@@ -162,6 +170,10 @@ internal partial class MainViewModel
                 Settings.Default.YOffset = _currentTeacher.GetParams()[1];
                 Settings.Default.Save();
                 techMessager.RealeaseMessage("Новое значение установленно", Icon.Exclamation);
+
+                //---Set new coordinate system
+                _coorSystem = GetCoorSystem();
+
                 _canTeach = false;
             }));
         _currentTeacher = tcb.Build();
@@ -250,13 +262,13 @@ internal partial class MainViewModel
     [ICommand]
     private async void TeachOrthXY()
     {
-        _tempMirrorX = MirrorX;
+        //_tempMirrorX = MirrorX;
         _tempWaferTurn90 = WaferTurn90;
-        MirrorX = false;
+        //MirrorX = false;
         WaferTurn90 = false;
 
-        var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem1.json");
-                
+        var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/TeachingDeformation.json");
+
         var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
         buider.SetWorkMatrix(new Matrix3x2(
             matrixElements[0],
@@ -269,11 +281,8 @@ internal partial class MainViewModel
         var sys = buider.Build();
 
 
-        using var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), (60, 48));        
-        
+        using var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), (60, 48));
 
-
-        //var points = _dxfReader?.GetPoints().ToList() ?? throw new NullReferenceException();
         var points = wafer.ToList() ?? throw new NullReferenceException();
 
         Guard.IsEqualTo(points.Count, 3, nameof(points));
@@ -285,7 +294,7 @@ internal partial class MainViewModel
                 pointsEnumerator.MoveNext();
                 var point = pointsEnumerator.Current;
                 _laserMachine.VelocityRegime = Velocity.Fast;
-                await _laserMachine.MoveGpInPosAsync(Groups.XY, /*_coorSystem*/sys.ToGlobal(point.X, point.Y), true).ConfigureAwait(false);
+                await _laserMachine.MoveGpInPosAsync(Groups.XY, sys.ToGlobal(point.X, point.Y), true).ConfigureAwait(false);
                 techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", Icon.Exclamation);
                 TeacherPointerX = point.X;
                 TeacherPointerY = point.Y;
@@ -330,24 +339,28 @@ internal partial class MainViewModel
                 TeacherPointerVisibility = false;
                 techMessager.EraseMessage();
 
-                var resultPoints = _currentTeacher.GetParams();               
+                var resultPoints = _currentTeacher.GetParams();
 
                 var builder = CoorSystem<Place>.GetThreePointSystemBuilder();
 
                 builder.SetFirstPointPair(new((float)points[0].X, (float)points[0].Y), new((float)resultPoints[0], (float)resultPoints[1]))
                        .SetSecondPointPair(new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3]))
                        .SetThirdPointPair(new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5]));
+                
+                //minus means direction of ordinate axis
+                var pureSystem = builder.FormWorkMatrix(0.001, -0.001, true).Build();
+                var teachSystem = builder.FormWorkMatrix(1, 1, false).Build();
 
-                //var _coorSystem = builder.FormWorkMatrix(0.001,0.001,true).Build();
-                var _coorSystem = builder.FormWorkMatrix(1, 1, false).Build();
+                pureSystem.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/PureDeformation.json");
+                teachSystem.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/TeachingDeformation.json");
 
-                //TuneCoorSystem(_coorSystem);
-                _coorSystem.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
-                object obj = _coorSystem.GetMainMatrixElements();
-                //obj.SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem1.json");
                 MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                 MirrorX = _tempMirrorX;
                 WaferTurn90 = _tempWaferTurn90;
+
+                //---Set new coordinate system
+                _coorSystem = GetCoorSystem();
+
                 _canTeach = false;
             }))
             .Build();
@@ -513,4 +526,18 @@ internal partial class MainViewModel
         return null;
     }
 
+
+
+    public double TestPointX { get; set; } = 58;
+    public double TestPointY { get; set; } = 46;
+
+    [ICommand]
+    private async Task TestPoint1()
+    {
+        var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[] { new PPoint(TestPointX, TestPointY, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (60, 48));
+
+        var point = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, wafer[0].X, wafer[0].Y);
+
+        await _laserMachine.MoveGpInPosAsync(Groups.XY, point, true);
+    }
 }

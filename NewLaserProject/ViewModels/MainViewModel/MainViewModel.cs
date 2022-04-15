@@ -2,6 +2,7 @@
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
+using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -10,6 +11,7 @@ using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using PropertyChanged;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Numerics;
@@ -94,19 +96,26 @@ namespace NewLaserProject.ViewModels
 
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
-            switch (e.Axis)
+            try
             {
-                case Ax.X:
-                    XAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
-                    ViewfinderX = _coorSystem?.FromSub(LMPlace.LeftCorner, XAxis.Position, YAxis.Position)[0] * FileScale ?? 0;
-                    break;
-                case Ax.Y:
-                    YAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
-                    ViewfinderY = -_coorSystem?.FromSub(LMPlace.LeftCorner, XAxis.Position, YAxis.Position)[1] * FileScale ?? 0;//Sign is illegal!!!!
-                    break;
-                case Ax.Z:
-                    ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
-                    break;
+                switch (e.Axis)
+                {
+                    case Ax.X:
+                        XAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                        ViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[0] * FileScale ?? 0;
+                        break;
+                    case Ax.Y:
+                        YAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                        ViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[1] * FileScale ?? 0;
+                        break;
+                    case Ax.Z:
+                        ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+                //throw;
             }
         }
 
@@ -441,36 +450,13 @@ namespace NewLaserProject.ViewModels
                 .SetHomingVelocity(/*Settings.Default.ZVelService*/1)
                 .SetPositionAfterHoming(1)
                 .Configure();
-
-            //_machine.ConfigureGeometry(new Dictionary<Place, double>
-            //    {{Place.ZBladeTouch, Settings.Default.ZTouch}}
-            //);
-
-            //_machine.ConfigureDoubleFeatures(new Dictionary<MFeatures, double>
-            //{
-            //    {MFeatures.CameraBladeOffset, Settings.Default.DiskShift},
-            //    {MFeatures.ZBladeTouch, Settings.Default.ZTouch},
-            //    {MFeatures.CameraFocus, 3}
-            //});
-
-            //_machine.SetBridgeOnSensors(Sensors.ChuckVacuum, Settings.Default.VacuumSensorDsbl);
-            //_machine.SetBridgeOnSensors(Sensors.Coolant, Settings.Default.CoolantSensorDsbl);
-            //_machine.SetBridgeOnSensors(Sensors.Air, Settings.Default.AirSensorDsbl);
-            //_machine.SetBridgeOnSensors(Sensors.SpindleCoolant, Settings.Default.SpindleCoolantSensorDsbl);  
+           
 #endif
         }
         private CoorSystem<LMPlace> GetCoorSystem()
         {
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json") ?? throw new NullReferenceException("CoorSystem in the file is invalid");
-            //var sys = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(
-            //    matrixElements[0],
-            //    matrixElements[1],
-            //    matrixElements[2],
-            //    matrixElements[3],
-            //    matrixElements[4],
-            //    matrixElements[5]
-            //    ));
-
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/PureDeformation.json") ?? throw new NullReferenceException("CoorSystem in the file is invalid");
+            
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             buider.SetWorkMatrix(new Matrix3x2(
                 matrixElements[0],
@@ -487,6 +473,22 @@ namespace NewLaserProject.ViewModels
         }
         private void TuneCoorSystem(CoorSystem<LMPlace> coorSystem)
         {
+            var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
+            var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
+
+            var angle = Math.Atan2(dy, dx);
+
+            coorSystem.BuildRelatedSystem()
+                      .Rotate(angle)
+                      .Translate(Settings.Default.XLeftPoint, Settings.Default.YLeftPoint)
+                      .Build(LMPlace.FileOnWaferUnderCamera);
+
+            coorSystem.BuildRelatedSystem()
+                      .Rotate(angle)
+                      .Translate(Settings.Default.XLeftPoint + Settings.Default.XOffset, Settings.Default.YLeftPoint + Settings.Default.YOffset)
+                      .Build(LMPlace.FileOnWaferUnderLaser);
+
+
             coorSystem.SetRelatedSystem(LMPlace.Loading, 50, 20);
             coorSystem.SetRelatedSystem(LMPlace.UnderLaser, 1, 2);
             coorSystem.SetRelatedSystem(LMPlace.LeftCorner, Settings.Default.XLeftPoint, Settings.Default.YLeftPoint);

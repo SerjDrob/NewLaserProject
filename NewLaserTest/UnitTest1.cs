@@ -89,6 +89,20 @@ namespace NewLaserTest
         }
 
 
+        [TestCase(120, 0, 125.91109915F, 41.05828541F)]
+        [TestCase(120, 96, 43.68364061F, 133.78716474F)]
+        public void CoorSystemTestToSubPureDeformation(double x1, double y1, double x2, double y2)
+        {
+            var coorSys = _builderPureDeformation.FormWorkMatrix(0.5, 0.5, true).Build();
+            coorSys.BuildRelatedSystem()
+                   .Rotate(15 * Math.PI / 180)
+                   .Translate(10, 10)
+                   .Build(Place.one);
+
+            TestAsertion((a, b) => coorSys.ToSub(Place.one, a, b), x1, y1, x2, y2);
+        }
+
+
         [TestCase(0, 96, -55.42562584F, 110.85125168F)]
         [TestCase(120, 96, 64.57437416F, 110.85125168F)]
         [TestCase(-180, -80, -133.81197846F, -92.37604307F)]

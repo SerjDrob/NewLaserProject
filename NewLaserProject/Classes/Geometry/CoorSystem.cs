@@ -13,6 +13,10 @@ namespace NewLaserProject.Classes.Geometry
         private Dictionary<TPlaceEnum, CoorSystem<TPlaceEnum>> _subSystems = new();
 
         private readonly Matrix3 _workTransformation;
+
+        private bool _axisXNeg = false;
+        private bool _axisYNeg = false;
+
         public CoorSystem()
         {
             _workTransformation = new Matrix3(m11: 1, m12: 0, m13: 0,
@@ -23,7 +27,7 @@ namespace NewLaserProject.Classes.Geometry
         private CoorSystem(Matrix3 mainMatrix)
         {
             _workTransformation = mainMatrix;
-        }        
+        }
         public void SetRelatedSystem(TPlaceEnum name, Matrix3x2 matrix)
         {
             var sub = new CoorSystem<TPlaceEnum>(matrix.ConvertMatrix());
@@ -64,7 +68,16 @@ namespace NewLaserProject.Classes.Geometry
                 var vector = new netDxf.Vector3(x, y, 1);
                 var result = _workTransformation.Inverse() * vector;
 
-                return new double[2] { result.X, result.Y };
+                var _axisXSign = _axisXNeg ? -1 : 1;
+                var _axisYSign = _axisYNeg ? -1 : 1;
+
+                var resX = _axisXSign * result.X;
+                var resY = _axisYSign * result.Y;
+
+                _axisXNeg = false;
+                _axisYNeg = false;
+
+                return new double[2] { resX, resY };
             }
             catch (Exception)
             {
@@ -75,7 +88,10 @@ namespace NewLaserProject.Classes.Geometry
         public double[] FromSub(TPlaceEnum from, double x, double y)
         {
             Guard.IsNotNull(_subSystems, nameof(_subSystems));
-            return _subSystems.ContainsKey(from) ? _subSystems[from].FromGlobal(x, y) : throw new KeyNotFoundException($"Subsystem {from} is not set");
+            var point = _subSystems.ContainsKey(from) ? _subSystems[from].WithAxes(_axisXNeg, _axisYNeg).FromGlobal(x, y) : throw new KeyNotFoundException($"Subsystem {from} is not set");
+            _axisXNeg = false;
+            _axisYNeg = false;
+            return point;
         }
         public float[] GetMainMatrixElements()
         {
@@ -160,7 +176,7 @@ namespace NewLaserProject.Classes.Geometry
                     var zeroPointPair = zeroPointPairs.Single();
 
                     var angle = Math.Atan2(anglePoints[1].derivativePoint.Y - anglePoints[0].derivativePoint.Y, anglePoints[1].derivativePoint.X - anglePoints[0].derivativePoint.X);
-                   
+
                     var R = new Matrix3(m11: Math.Cos(angle), m12: -Math.Sin(angle), m13: 0,
                                         m21: Math.Sin(angle), m22: Math.Cos(angle), m23: 0,
                                         m31: 0, m32: 0, m33: 1);
@@ -203,7 +219,6 @@ namespace NewLaserProject.Classes.Geometry
                 return new CoorSystem<TPlace>(_workMatrix);
             }
         }
-
         public class RelatedSystemBuilder<TPlace> where TPlace : Enum
         {
             private Matrix3 _mainMatrix;
@@ -235,16 +250,33 @@ namespace NewLaserProject.Classes.Geometry
                 _mainMatrix = Translate * _mainMatrix;
                 return this;
             }
+
+            public RelatedSystemBuilder<TPlace> Scale(double scale)
+            {
+                var Translate = new Matrix3(m11: scale, m12: 0, m13: 0,
+                                            m21: 0, m22: scale, m23: 0,
+                                            m31: 0, m32: 0, m33: 1);
+                _mainMatrix = Translate * _mainMatrix;
+                return this;
+            }
+
             public void Build(TPlace place)
             {
                 _parentSystem.SetRelatedSystem(place, _mainMatrix.ConvertMatrix());
             }
         }
 
+        public CoorSystem<TPlaceEnum> WithAxes(bool negX, bool negY)
+        {
+            _axisXNeg = negX;
+            _axisYNeg = negY;
+            return this;
+        }
+
     }
 
-    public abstract class CoorSys<T,TPlaceEnum> where T : CoorSys<T,TPlaceEnum>, new() where TPlaceEnum:Enum
-    {        
+    public abstract class CoorSys<T, TPlaceEnum> where T : CoorSys<T, TPlaceEnum>, new() where TPlaceEnum : Enum
+    {
         protected abstract CoorSys<T, TPlaceEnum> Initialize(Matrix3x2 matrix3);
         public abstract void SetRelatedSystem(TPlaceEnum name, Matrix3x2 matrix);
         public abstract double[] ToGlobal(double x, double y);
@@ -252,7 +284,7 @@ namespace NewLaserProject.Classes.Geometry
         public abstract double[] FromGlobal(double x, double y);
         public abstract double[] FromSub(TPlaceEnum from, double x, double y);
         public abstract float[] GetMainMatrixElements();
-        public abstract RelatedSystemBuilder BuildRelatedSystem();       
+        public abstract RelatedSystemBuilder BuildRelatedSystem();
         public class ThreePointCoorSystemBuilder
         {
             private T _system;
@@ -434,7 +466,7 @@ namespace NewLaserProject.Classes.Geometry
             {
                 _subSystems[name] = sub;
             }
-        }        
+        }
         public override double[] ToGlobal(double x, double y)
         {
             var vector = new netDxf.Vector3(x, y, 1);
