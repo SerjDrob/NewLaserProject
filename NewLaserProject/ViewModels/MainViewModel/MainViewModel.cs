@@ -127,15 +127,33 @@ namespace NewLaserProject.ViewModels
 
 
         [ICommand]
-        private void StartProcess()
+        private async Task StartProcess()
         {
             //is dxf valid?
-            using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (60, 48));
+            using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (58000, 46000));
+            wafer.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();
             if (MirrorX) wafer.MirrorX();
-            wafer.Scale(FileScale);
-            var process = new LaserProcess<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
-            process.Start();
+            //var process = new LaserProcess<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
+            //process.Start();
+
+            foreach (var circle in wafer)
+            {
+                var position = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, circle.X, circle.Y);
+
+                try
+                {
+                    await _laserMachine.MoveGpInPosAsync(Groups.XY, position, true);//.WaitAsync(TimeSpan.FromMilliseconds(5000));
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+                await Task.Delay(500);
+            }
+
+
         }
         [ICommand]
         private async Task Test()
@@ -311,10 +329,13 @@ namespace NewLaserProject.ViewModels
                     (Ax.Z, 0)
                     });
 
-            _laserMachine.ConfigureAxesGroups(new Dictionary<Groups, Ax[]>
-                {
-                    {Groups.XY, new[] {Ax.X, Ax.Y}}
-                });
+            //_laserMachine.ConfigureAxesGroups(new Dictionary<Groups, Ax[]>
+            //    {
+            //        {Groups.XY, new[] {Ax.X, Ax.Y}}
+            //    });
+
+
+            _laserMachine.AddGroup(Groups.XY, new[] { Ax.X, Ax.Y });
 
             //_laserMachine.ConfigureValves(new Dictionary<Valves, (Ax, Do)>
             //    {
@@ -450,13 +471,13 @@ namespace NewLaserProject.ViewModels
                 .SetHomingVelocity(/*Settings.Default.ZVelService*/1)
                 .SetPositionAfterHoming(1)
                 .Configure();
-           
+
 #endif
         }
         private CoorSystem<LMPlace> GetCoorSystem()
         {
             var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/PureDeformation.json") ?? throw new NullReferenceException("CoorSystem in the file is invalid");
-            
+
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             buider.SetWorkMatrix(new Matrix3x2(
                 matrixElements[0],

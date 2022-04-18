@@ -186,6 +186,9 @@ namespace NewLaserTest
 
         [TestCase(new[] { Transformation.Turn90 }, 1, 60, 48, 59, 1, 47, 59)]
         [TestCase(new[] { Transformation.MirrorX }, 1, 60, 48, 59, 1, 1, 1)]
+
+        [TestCase(new[] { Transformation.MirrorX, Transformation.Scale }, 0.001F, 60000, 48000, 59000, 1000, 1, 1)]
+
         [TestCase(new[] { Transformation.MirrorY }, 1, 60, 48, 59, 1, 59, 47)]
         [TestCase(new[] { Transformation.Turn90, Transformation.Turn90 }, 1, 60, 48, 59, 1, 59, 1)]
         [TestCase(new[] { Transformation.Turn90, Transformation.MirrorX }, 1, 60, 48, 59, 1, 47, 1)]
@@ -225,8 +228,8 @@ namespace NewLaserTest
             }
 
             var point = wafer[0];
-            Assert.AreEqual(point.X, x2, 0);
-            Assert.AreEqual(point.Y, y2, 0);
+            Assert.AreEqual(point.X, x2, 0.0001);
+            Assert.AreEqual(point.Y, y2, 0.0001);
         }
         public enum Transformation
         {

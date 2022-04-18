@@ -225,7 +225,7 @@
                     </ToolBar>
                 </ToolBarTray>
                 <Grid>
-                    <Image x:Name="VideoCamera" Panel.ZIndex="1" Source="{Binding CameraImage}">
+                    <Image x:Name="VideoCamera" Panel.ZIndex="1" Source="{Binding CameraImage}">                        
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDown" >
                                 <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 

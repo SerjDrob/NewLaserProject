@@ -48,10 +48,10 @@ internal partial class MainViewModel
         .SetOnGoCornerPointAction(async () =>
         {
             var x = leftCorner ? Settings.Default.XLeftPoint : Settings.Default.XRightPoint;
-            var y = leftCorner ? Settings.Default.YLeftPoint : Settings.Default.XRightPoint;
+            var y = leftCorner ? Settings.Default.YLeftPoint : Settings.Default.YRightPoint;
             var z = Settings.Default.ZObjective;
 
-            await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { x, y }, false);
+            await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { x, y }, true);
           //  await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
 
             techMessager.RealeaseMessage("Наведите перекрестие на угол и нажмите * чтобы продолжить", Icon.Exclamation);
