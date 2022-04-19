@@ -59,9 +59,11 @@
                                     </ToggleButton.Style>
                                 </ToggleButton>
                             </StackPanel>
-                            <!--<Button Content="SaveListing" Command="{Binding SaveListingCommand}"/>
-                            <Button Content="LoadListing" Command="{Binding LoadListingCommand}"/>
-                            <Button Content="CheckListing" Command="{Binding CheckListingCommand}"/>-->
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="SaveListing" Command="{Binding SaveListingCommand}"/>
+                                <Button Content="LoadListing" Command="{Binding LoadListingCommand}"/>
+                                <Button Content="CheckListing" Command="{Binding CheckListingCommand}"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
                 </Grid>

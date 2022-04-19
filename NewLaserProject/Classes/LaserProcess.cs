@@ -5,8 +5,10 @@ using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using NewLaserProject.Classes.Geometry;
+using NewLaserProject.Classes.ProgBlocks;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
@@ -36,22 +38,28 @@ namespace NewLaserProject.Classes
 
             var iteratorBlock = new Block();
 
-            var btb = new BTBuilder(_pierceSequenceJson);
+            var btb = new BTBuilderX(_pierceSequenceJson);
 
             var pTicker = new Ticker();
 
-            _pierceSequence = btb.SetModuleAction(ModuleType.AddDiameter, new FuncProxy<Action<double>>(tapper => { _circlePierceParams = new CirclePierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
-                                 .SetModuleAction(ModuleType.AddZ, new FuncProxy<Action<double>>(z => _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true)))
-                                 .SetModuleAction(ModuleType.Pierce, new FuncProxy<Action<MarkLaserParams>>(mlp => Pierce(mlp)))
-                                 .SetModuleAction(ModuleType.Delay, new FuncProxy<Action<int>>(delay => Task.Delay(delay).Wait()))
+            //_pierceSequence = btb.SetModuleAction(ModuleType.AddDiameter, new FuncProxy<Action<double>>(tapper => { _circlePierceParams = new CirclePierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
+            //                     .SetModuleAction(ModuleType.AddZ, new FuncProxy<Action<double>>(z => _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true)))
+            //                     .SetModuleAction(ModuleType.Pierce, new FuncProxy<Action<MarkLaserParams>>(mlp => Pierce(mlp)))
+            //                     .SetModuleAction(ModuleType.Delay, new FuncProxy<Action<int>>(delay => Task.Delay(delay).Wait()))
+            //                     .GetSequence();
+
+            _pierceSequence = btb.SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(tapper => { _circlePierceParams = new CirclePierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
+                                 .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => Task.Run(async () => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); })))
+                                 .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => Pierce(mlp)))
+                                 .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => Task.Run(async()=> { await Task.Delay(delay); })))
                                  .GetSequence();
 
             //move'n'pierce sequence
             var mpSequence = new Sequence()
-                                .Hire(new Leaf(() =>
+                                .Hire(new Leaf(()=> Task.Run( async () =>
                                 {
-                                    _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.UnderLaser, _currentObject.X, _currentObject.Y), true);
-                                }))
+                                    await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, _currentObject.X, _currentObject.Y), true);
+                                })))
                                 .Hire(_pierceSequence)
                                 .Hire(new Leaf(() => { }).WaitForMe().SetBlock(_pauseBlock));
 
@@ -69,13 +77,15 @@ namespace NewLaserProject.Classes
 
             _rootSequence = new Sequence()
                                 .Hire(mpTicker)
-                                .Hire(new Leaf(() => _laserMachine.GoThereAsync(LMPlace.Loading)));
+                                .Hire(new Leaf(() => Task.Run(async () => { await _laserMachine.GoThereAsync(LMPlace.Loading); })));
         }
         private void Pierce(MarkLaserParams markLaserParams)
         {
+            _circlePierceParams = new CirclePierceParams(0.1, 1, 0.05, 0.05, Material.Polycor);
             var paramsAdapter = _currentObject switch
             {
-                PCircle => new CircleParamsAdapter(_circlePierceParams)
+                PCircle => new CircleParamsAdapter(_circlePierceParams),
+                _ => throw new ArgumentException($"{nameof(_currentObject)} matches isn't found")
             };
             var perfBuilder = new PerforatorBuilder<T>(_currentObject, markLaserParams, paramsAdapter);
             _laserMachine.PierceObjectAsync(perfBuilder).Wait();
@@ -83,6 +93,7 @@ namespace NewLaserProject.Classes
         public async Task<bool> Start()
         {
             CreateProcess();
+            Debug.Write(_rootSequence);
             return await _rootSequence.DoWork();
         }
         public void Pause() => _pauseBlock.UnBlockMe();

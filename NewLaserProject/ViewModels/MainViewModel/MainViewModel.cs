@@ -9,6 +9,7 @@ using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
+using Newtonsoft.Json;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
@@ -134,24 +135,25 @@ namespace NewLaserProject.ViewModels
             wafer.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();
             if (MirrorX) wafer.MirrorX();
-            //var process = new LaserProcess<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
-            //process.Start();
+            _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json"); 
+            var process = new LaserProcess<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
+            process.Start();
 
-            foreach (var circle in wafer)
-            {
-                var position = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, circle.X, circle.Y);
+            //foreach (var circle in wafer)
+            //{
+            //    var position = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, circle.X, circle.Y);
 
-                try
-                {
-                    await _laserMachine.MoveGpInPosAsync(Groups.XY, position, true);//.WaitAsync(TimeSpan.FromMilliseconds(5000));
-                }
-                catch (Exception ex)
-                {
+            //    try
+            //    {
+            //        await _laserMachine.MoveGpInPosAsync(Groups.XY, position, true);//.WaitAsync(TimeSpan.FromMilliseconds(5000));
+            //    }
+            //    catch (Exception ex)
+            //    {
 
-                    throw;
-                }
-                await Task.Delay(500);
-            }
+            //        throw;
+            //    }
+            //    await Task.Delay(500);
+            //}
 
 
         }

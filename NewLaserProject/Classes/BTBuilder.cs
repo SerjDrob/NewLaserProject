@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.BehaviourTree;
+using MachineClassLibrary.Laser;
 using NewLaserProject;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
@@ -62,7 +63,7 @@ namespace NewLaserProject.Classes
                 }
             }
             return sequence;
-            var f = new FuncProxy<Action<int>>(x => { });
+            //var f = new FuncProxy<Action<int>>(x => { });
         }
     }
 
@@ -89,21 +90,32 @@ namespace NewLaserProject.Classes
         private readonly List<IProgBlock> _progModules;
         public BTBuilderX(string jsonTree)
         {
-            _progModules = JsonConvert.DeserializeObject<List<IProgBlock>>(jsonTree, new JsonSerializerSettings
+            try
             {
-                TypeNameHandling = TypeNameHandling.Objects,
-                SerializationBinder = new TypesBinder
+                _progModules = JsonConvert.DeserializeObject<List<IProgBlock>>(jsonTree, new JsonSerializerSettings
                 {
-                    KnownTypes = new List<Type>
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    SerializationBinder = new TypesBinder
                     {
-                        typeof(AddZBlock),
-                        typeof(DelayBlock),
-                        typeof(LoopBlock),
-                        typeof(PierceBlock),
-                        typeof(TapperBlock)
+                        KnownTypes = new List<Type>
+                        {
+                            typeof(AddZBlock),
+                            typeof(DelayBlock),
+                            typeof(LoopBlock),
+                            typeof(PierceBlock),
+                            typeof(TapperBlock),
+                            typeof(MarkLaserParams),
+                            typeof(PenParams),
+                            typeof(HatchParams)
+                        }
                     }
-                }
-            });
+                }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
         public BTBuilderX SetModuleAction(Type type, IFuncProxy funcProxy)
         {
@@ -133,7 +145,8 @@ namespace NewLaserProject.Classes
                             TapperBlock tapperBlock => fp.GetActionWithArguments(tapperBlock.Tapper),
                             AddZBlock addZBlock => fp.GetActionWithArguments(addZBlock.DeltaZ),
                             DelayBlock delayBlock => fp.GetActionWithArguments(delayBlock.DelayTime),
-                            PierceBlock pierceBlock => fp.GetActionWithArguments(pierceBlock.MarkParams)
+                            PierceBlock pierceBlock => fp.GetActionWithArguments(pierceBlock.MarkParams),
+                            _ => throw new ArgumentException($"Unknown type {nameof(item)}")
                         };
                         sequence.Hire(new Leaf(action));
                     }
@@ -148,7 +161,7 @@ namespace NewLaserProject.Classes
                 }
             }
             return sequence;
-            var f = new FuncProxy<Action<int>>(x => { });
+           // var f = new FuncProxy<Action<int>>(x => { });
         }
     }
 }

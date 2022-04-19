@@ -31,6 +31,8 @@ namespace NewLaserProject.ViewModels
             typeof(PenParams),
             typeof(HatchParams)
         };
+        private readonly string _projectDirectory;
+
         public ObservableCollection<IProgBlock> ProgBlocks { get; set; }
         public ObservableCollection<IProgBlock> Listing { get; set; } = new();
         public IProgBlock DraggedBlock { get; set; }
@@ -47,6 +49,8 @@ namespace NewLaserProject.ViewModels
                 new LoopBlock(),
                 new DelayBlock()
             };
+            var workingDirectory = Environment.CurrentDirectory;
+            _projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
         }
         public override void Drop(IDropInfo dropInfo)
         {
@@ -138,9 +142,9 @@ namespace NewLaserProject.ViewModels
                 }
             });
             //Trace.WriteLine(json);
-            //using var writer = new StreamWriter("D:/CircleListing.json", false);
+            using var writer = new StreamWriter($"{_projectDirectory}/TechnologyFiles/CircleListing.json", false);
             //using var writer = new StreamWriter("D:/PolylineListing.json", false);
-            using var writer = new StreamWriter("D:/LineListing.json", false);
+            //using var writer = new StreamWriter("D:/LineListing.json", false);
 
             var l = new TextWriterTraceListener(writer);
             l.WriteLine(json);
