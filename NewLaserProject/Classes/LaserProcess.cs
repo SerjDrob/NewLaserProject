@@ -56,12 +56,9 @@ namespace NewLaserProject.Classes
 
             //move'n'pierce sequence
             var mpSequence = new Sequence()
-                                .Hire(new Leaf(()=> Task.Run( async () =>
-                                {
-                                    await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, _currentObject.X, _currentObject.Y), true);
-                                })))
-                                .Hire(_pierceSequence)
-                                .Hire(new Leaf(() => { }).WaitForMe().SetBlock(_pauseBlock));
+                                .Hire(new Leaf(()=> Task.Run(async() => await GoCurrentPoint())))                                
+                                //.Hire(_pierceSequence)
+                                .Hire(new Leaf(()=>new Task(() => { })).WaitForMe().SetBlock(_pauseBlock));
 
             var mpTicker = new Ticker()
                                .SetActionBeforeWork(() =>
@@ -77,8 +74,31 @@ namespace NewLaserProject.Classes
 
             _rootSequence = new Sequence()
                                 .Hire(mpTicker)
-                                .Hire(new Leaf(() => Task.Run(async () => { await _laserMachine.GoThereAsync(LMPlace.Loading); })));
+                                .Hire(new Leaf(/*_laserMachine.GoThereAsync(LMPlace.Loading)*/() => new Task(() => { })));
         }
+
+
+        private Task GoCurrentPoint()
+        {
+            if (_currentObject is null)
+            {
+                //return Task.CompletedTask;
+            }
+            try
+            {
+                Debug.WriteLine($"I'm going to point({_currentObject.X},{_currentObject.Y})");
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return new Task(() => { });
+           // await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, _currentObject.X, _currentObject.Y), true);
+        }
+
+
+
         private void Pierce(MarkLaserParams markLaserParams)
         {
             _circlePierceParams = new CirclePierceParams(0.1, 1, 0.05, 0.05, Material.Polycor);
@@ -94,7 +114,7 @@ namespace NewLaserProject.Classes
         {
             CreateProcess();
             Debug.Write(_rootSequence);
-            return await _rootSequence.DoWork();
+            return await _rootSequence.DoWorkAsync();
         }
         public void Pause() => _pauseBlock.UnBlockMe();
         public void Resume()

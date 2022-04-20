@@ -137,7 +137,15 @@ namespace NewLaserProject.ViewModels
             if (MirrorX) wafer.MirrorX();
             _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json"); 
             var process = new LaserProcess<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
-            process.Start();
+            try
+            {
+                process.Start();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
 
             //foreach (var circle in wafer)
             //{

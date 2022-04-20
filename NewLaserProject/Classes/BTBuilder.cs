@@ -10,6 +10,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
@@ -50,7 +51,7 @@ namespace NewLaserProject.Classes
                             ModuleType.Delay => fp.GetActionWithArguments(item.DelayTime),
                             ModuleType.Pierce => fp.GetActionWithArguments(item.MarkParams)
                         };
-                        sequence.Hire(new Leaf(action));
+                        sequence.Hire(new Leaf(()=>Task.Run(action)));
                     }
                     else
                     {
@@ -148,7 +149,7 @@ namespace NewLaserProject.Classes
                             PierceBlock pierceBlock => fp.GetActionWithArguments(pierceBlock.MarkParams),
                             _ => throw new ArgumentException($"Unknown type {nameof(item)}")
                         };
-                        sequence.Hire(new Leaf(action));
+                        sequence.Hire(new Leaf(()=>Task.Run(action)));
                     }
                     else
                     {

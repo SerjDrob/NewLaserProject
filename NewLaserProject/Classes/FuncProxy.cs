@@ -1,8 +1,5 @@
 ﻿using MachineClassLibrary.Laser;
 using Microsoft.Toolkit.Diagnostics;
-using NewLaserProject;
-using NewLaserProject.Classes;
-using NewLaserProject.ViewModels;
 using System;
 
 namespace NewLaserProject.Classes
