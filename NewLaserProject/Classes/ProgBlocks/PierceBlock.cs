@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.ProgBlocks
 {
-    internal class PierceBlock : IProgBlock
+    /*internal*/public class PierceBlock : IProgBlock
     {
         public bool CanAcceptChildren { get; set; }
         public MarkLaserParams MarkParams { get; set; }          
