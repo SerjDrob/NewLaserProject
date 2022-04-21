@@ -153,8 +153,20 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void LoadListing()
         {
-            var listing = JsonConvert.DeserializeObject(File.ReadAllText("D:/CircleListing.json"), typeof(ObservableCollection<ProgModuleItemVM>));
-            Listing = (ObservableCollection<IProgBlock>)listing;
+            //var listing = JsonConvert.DeserializeObject<ObservableCollection<ProgModuleItemVM>>(File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json"));
+            //Listing = (ObservableCollection<IProgBlock>)listing;
+            //Listing = new(listing);
+
+            var listing = JsonConvert.DeserializeObject<List<IProgBlock>>(File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json"), new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                SerializationBinder = new TypesBinder
+                {
+                    KnownTypes = _knownBlockTypes
+                }
+            });
+
+            Listing = new ObservableCollection<IProgBlock>(listing);
         }
         [ICommand]
         private void CheckListing()

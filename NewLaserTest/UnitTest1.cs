@@ -7,8 +7,11 @@ using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.ProgBlocks;
 using NUnit.Framework;
+using Stateless;
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -251,30 +254,74 @@ public class Tests
     {
         var expectedStr = "ch1ch2t1bbch1ch2t1bb";
         var sb = new StringBuilder();
-        var tree1 = Tree.SetAction(() => { sb.Append("t1"); });
-        var mainTree = Tree.StartLoop(2)
-                     .AddChild(Tree.SetAction(() => { sb.Append("ch1"); }))
-                     .AddChild(Tree.SetAction(() => { sb.Append("ch2"); }))
+        var tree1 = ActionTree.SetAction(() => { sb.Append("t1"); });
+        var mainTree = ActionTree.StartLoop(2)
+                     .AddChild(ActionTree.SetAction(() => { sb.Append("ch1"); }))
+                     .AddChild(ActionTree.SetAction(() => { sb.Append("ch2"); }))
                      .AddChild(tree1)
                      .AddChild(
-                                Tree.StartLoop(2)
-                                    .AddChild(Tree.SetAction(() => { sb.Append("b"); }))
+                                ActionTree.StartLoop(2)
+                                    .AddChild(ActionTree.SetAction(() => { sb.Append("b"); }))
                                     .EndLoop
                                )
                      .EndLoop;
         mainTree.DoAction();
         Assert.That(sb.ToString() == expectedStr);
     }
-    public void TestTreeBuilder()
+    [TestCase("CircleListing.json", "t1z2d3t4z5z5z5d6z7z7d6z7z7t4z5z5z5d6z7z7d6z7z7t8")]
+    public void TestTreeBuilder(string filePath, string expectedResult)
     {
-        var btb = new BTBuilderY("");
+        var workingDirectory = Environment.CurrentDirectory;
 
-        var tree = btb.SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(tapper => { }))
-                      .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => { }))
-                      .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => { }))
-                      .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => { }))
+        var directory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+        var json = File.ReadAllText($"{directory}/Files/{filePath}");
+        var btb = new BTBuilderY(json);
+        var sb = new StringBuilder();
+        var tree = btb.SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(tapper => { sb.Append($"t{tapper}");}))
+                      .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => { sb.Append($"z{z}"); }))
+                      .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => {sb.Append("mpl"); }))
+                      .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => { sb.Append($"d{delay}"); }))
                       .GetTree();
         tree.DoAction();
+        Assert.That(sb.ToString() == expectedResult);
+    }
+
+    [Test]
+    public void StateMachineTest()
+    {
+        var stateMachine = new StateMachine<State, Trigger>(State.Started);
+
+
+        var n = 0;
+        var count = 3;
+
+        stateMachine.Configure(State.Started)
+            .OnActivate(() => { Debug.WriteLine("1"); })
+            .Permit(Trigger.Pause,State.Paused)
+            .Ignore(Trigger.Deny);
+
+        stateMachine.Configure(State.Paused)
+            .OnEntry(() => { Debug.WriteLine($"2 n = {n}"); })
+            .OnEntry(() => { Debug.WriteLine($"3 n = {n}"); })
+            .OnExit(() => { n++; })
+            .PermitReentryIf(Trigger.Pause, () => n < count);
+
+        stateMachine.Activate();
+        do
+        {
+            stateMachine.Fire(Trigger.Pause);
+        }while(n<count);
+    }
+    enum State
+    {
+        Started,
+        Paused,
+        Denied
+    }
+    enum Trigger
+    {
+        Pause,
+        Deny
     }
 }
 

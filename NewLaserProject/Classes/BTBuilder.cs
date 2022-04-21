@@ -206,14 +206,14 @@ public class BTBuilderY
     }
 
 
-    public Tree GetTree()
+    public ActionTree GetTree()
     {
         var result = ParseModules(_progModules);
         return result;
     }
-    private Tree ParseModules(IEnumerable<IProgBlock> progModules)
+    private ActionTree ParseModules(IEnumerable<IProgBlock> progModules)
     {
-        var mainLoop = Tree.StartLoop(1);
+        var mainLoop = ActionTree.StartLoop(1);
         foreach (var item in progModules)
         {
             if (item.GetType() != typeof(LoopBlock))
@@ -229,7 +229,7 @@ public class BTBuilderY
                         PierceBlock pierceBlock => fp.GetActionWithArguments(pierceBlock.MarkParams),
                         _ => throw new ArgumentException($"Unknown type {nameof(item)}")
                     };
-                    mainLoop.AddChild(Tree.SetAction(action));
+                    mainLoop.AddChild(ActionTree.SetAction(action));
                 }
                 else
                 {
@@ -238,7 +238,8 @@ public class BTBuilderY
             }
             else if (item.GetType() == typeof(LoopBlock))
             {
-                mainLoop.AddChild(ParseModules(((LoopBlock)item).Children));
+                var loop = (LoopBlock)item;
+                mainLoop.AddChild(ActionTree.StartLoop(loop.LoopCount).AddChild(ParseModules(loop.Children)).EndLoop);
             }
         }
         return mainLoop.EndLoop;
