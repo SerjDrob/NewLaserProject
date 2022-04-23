@@ -139,6 +139,8 @@ namespace NewLaserProject.ViewModels
             var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
             try
             {
+                var directory = Directory.GetCurrentDirectory();
+                _laserMachine.InitMarkDevice(directory);
                 await process.StartAsync();
             }
             catch (Exception ex)
