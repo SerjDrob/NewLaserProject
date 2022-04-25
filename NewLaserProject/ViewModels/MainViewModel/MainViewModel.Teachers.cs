@@ -50,12 +50,15 @@ namespace NewLaserProject.ViewModels
             {
                 var x = leftCorner ? Settings.Default.XLeftPoint : Settings.Default.XRightPoint;
                 var y = leftCorner ? Settings.Default.YLeftPoint : Settings.Default.YRightPoint;
-                var z = Settings.Default.ZObjective;
+                var z = Settings.Default.ZeroFocusPoint; //Settings.Default.ZObjective;
 
-                await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { x, y }, true);
-            //  await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
+                _laserMachine.SetVelocity(Velocity.Fast);
+                await Task.WhenAll(
+                    _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { x, y }, true),
+                    _laserMachine.MoveAxInPosAsync(Ax.Z, z)
+                    );
 
-            techMessager.RealeaseMessage("Наведите перекрестие на угол и нажмите * чтобы продолжить", Icon.Exclamation);
+                techMessager.RealeaseMessage("Наведите перекрестие на угол и нажмите * чтобы продолжить", Icon.Exclamation);
             })
             .SetOnRequestPermissionToAcceptAction(() => Task.Run(async () =>
             {
@@ -88,8 +91,8 @@ namespace NewLaserProject.ViewModels
                 Settings.Default.Save();
                 techMessager.RealeaseMessage($"Новое значение {_currentTeacher} установленно", Icon.Info);
 
-            //---Set new coordinate system
-            _coorSystem = GetCoorSystem();
+                //---Set new coordinate system
+                _coorSystem = GetCoorSystem();
 
                 _canTeach = false;
             }))
@@ -107,10 +110,11 @@ namespace NewLaserProject.ViewModels
         private async Task TeachCameraOffset()
         {
             //if(_canTeach) return;
-            var teachPosition = new double[] { 1, 1 };
-            double xOffset = 10;
-            double yOffset = 10;
-
+            var teachPosition = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 10, 10);
+            double xOffset = Settings.Default.XOffset;
+            double yOffset = Settings.Default.YOffset;
+            var zCamera = Settings.Default.ZeroFocusPoint;
+            var zLaser = Settings.Default.ZeroPiercePoint;
 
             var tcb = CameraOffsetTeacher.GetBuilder();
             tcb.SetOnGoLoadPointAction(() => Task.Run(async () =>
@@ -120,16 +124,27 @@ namespace NewLaserProject.ViewModels
             }))
                 .SetOnGoUnderCameraAction(() => Task.Run(async () =>
                 {
-                    await _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition);
+                    _laserMachine.SetVelocity(Velocity.Fast);
+                    await Task.WhenAll(
+                        _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition),
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
+                        );
                     techMessager.RealeaseMessage("Выбирете место прожига и нажмите * чтобы продолжить", Icon.Info);
                 }))
                 .SetOnGoToShotAction(() => Task.Run(async () =>
                 {
-                    techMessager.EraseMessage();
-                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true);
-                //await _laserMachine.PiercePointAsync();
-                _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
-                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true);
+                techMessager.EraseMessage();
+                    _laserMachine.SetVelocity(Velocity.Fast);
+                    await Task.WhenAll(
+                            _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
+                            _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser)
+                            );
+                    await _laserMachine.PiercePointAsync();
+                    _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                    await Task.WhenAll(
+                             _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true),
+                             _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
+                             );
                     await _currentTeacher.Accept();
                 }))
                 .SetOnSearchScorchAction(() =>
@@ -172,8 +187,8 @@ namespace NewLaserProject.ViewModels
                     Settings.Default.Save();
                     techMessager.RealeaseMessage("Новое значение установленно", Icon.Exclamation);
 
-                //---Set new coordinate system
-                _coorSystem = GetCoorSystem();
+                    //---Set new coordinate system
+                    _coorSystem = GetCoorSystem();
 
                     _canTeach = false;
                 }));
@@ -348,8 +363,8 @@ namespace NewLaserProject.ViewModels
                            .SetSecondPointPair(new((float)points[1].X, (float)points[1].Y), new((float)resultPoints[2], (float)resultPoints[3]))
                            .SetThirdPointPair(new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5]));
 
-                //minus means direction of ordinate axis
-                var pureSystem = builder.FormWorkMatrix(0.001, -0.001, true).Build();
+                    //minus means direction of ordinate axis
+                    var pureSystem = builder.FormWorkMatrix(0.001, -0.001, true).Build();
                     var teachSystem = builder.FormWorkMatrix(1, 1, false).Build();
 
                     pureSystem.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/PureDeformation.json");
@@ -359,8 +374,8 @@ namespace NewLaserProject.ViewModels
                     MirrorX = _tempMirrorX;
                     WaferTurn90 = _tempWaferTurn90;
 
-                //---Set new coordinate system
-                _coorSystem = GetCoorSystem();
+                    //---Set new coordinate system
+                    _coorSystem = GetCoorSystem();
 
                     _canTeach = false;
                 }))
@@ -540,6 +555,12 @@ namespace NewLaserProject.ViewModels
             var point = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, wafer[0].X, wafer[0].Y);
 
             await _laserMachine.MoveGpInPosAsync(Groups.XY, point, true);
+        }
+
+        [ICommand]
+        private void TestPierce()
+        {
+            _laserMachine.PierceLineAsync(-10, 0, 10, 0);
         }
     }
 }

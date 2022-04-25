@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
-    public class LaserProcess<T> where T : class
+    public class LaserProcess<T> where T : class, IShape
     {
         private readonly string _pierceSequenceJson;
         private readonly LaserMachine _laserMachine;
@@ -131,7 +131,7 @@ namespace NewLaserProject.Classes
     }
 
 
-    public class LaserProcess2<T> where T : class
+    public class LaserProcess2<T> where T : class, IShape
     {
 
         private readonly LaserWafer<T> _wafer;
@@ -189,7 +189,7 @@ namespace NewLaserProject.Classes
 
 
 
-            void Pierce<TObj>(MarkLaserParams markLaserParams, IProcObject<TObj> procObject) where TObj : class
+            void Pierce<TObj>(MarkLaserParams markLaserParams, IProcObject<TObj> procObject) where TObj : class, IShape
             {
                 //_circlePierceParams = new CirclePierceParams(0.1, 1, 0.05, 0.05, Material.Polycor);
                 var paramsAdapter = procObject switch

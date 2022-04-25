@@ -17,8 +17,8 @@ namespace NewLaserProject.ViewModels
         public bool WaferTurn90 { get; set; } = false;
         public double WaferOffsetX { get; set; }
         public double WaferOffsetY { get; set; }
-        public double WaferWidth { get; set; } = 58;
-        public double WaferHeight { get; set; } = 46;
+        public double WaferWidth { get; set; } = 48;
+        public double WaferHeight { get; set; } = 60;
         public double WaferMargin { get; set; } = 0.2;
         public double FileSizeX { get; set; }
         public double FileSizeY { get; set; }
@@ -88,6 +88,7 @@ namespace NewLaserProject.ViewModels
                 if (File.Exists(FileName))
                 {
                     _dxfReader = new IMDxfReader(FileName);
+                    var segments = _dxfReader.GetAllSegments();
                     var fileSize = _dxfReader.GetSize();
                     FileSizeX = Math.Round(fileSize.width);
                     FileSizeY = Math.Round(fileSize.height);

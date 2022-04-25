@@ -75,6 +75,10 @@ namespace NewLaserProject.ViewModels
             CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
             CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+
+            var directory = Directory.GetCurrentDirectory();
+            _laserMachine.InitMarkDevice(directory);
+
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
         }
@@ -138,9 +142,7 @@ namespace NewLaserProject.ViewModels
             _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json"); 
             var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
             try
-            {
-                var directory = Directory.GetCurrentDirectory();
-                _laserMachine.InitMarkDevice(directory);
+            {               
                 await process.StartAsync();
             }
             catch (Exception ex)
@@ -430,7 +432,7 @@ namespace NewLaserProject.ViewModels
 
             var ZVelRegimes = new Dictionary<Velocity, double>
             {
-                {Velocity.Fast,1/* Settings.Default.ZVelHigh*/},
+                {Velocity.Fast, Settings.Default.ZVelHigh},
                 {Velocity.Slow, Settings.Default.ZVelLow},
                 {Velocity.Service, Settings.Default.ZVelService}
             };

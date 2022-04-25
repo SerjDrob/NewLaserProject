@@ -468,7 +468,7 @@
                         Content="Point1"/>
                 <TextBox Text="{Binding TestPointX}"/>
                 <TextBox Text="{Binding TestPointY}"/>
-
+                <Button Command="{Binding TestPierceCommand}" Content="Pierce"/>
             </ToolBar>
         </ToolBarTray>
         <Grid Grid.Row="1">
