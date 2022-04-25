@@ -6,7 +6,6 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.ProgBlocks;
-using Stateless;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,7 +18,7 @@ namespace NewLaserProject.Classes
         private readonly string _pierceSequenceJson;
         private readonly LaserMachine _laserMachine;
         private readonly CoorSystem<LMPlace> _coorSystem;
-        private CirclePierceParams _circlePierceParams;
+        private PierceParams _circlePierceParams;
         private Sequence _pierceSequence;
         private Sequence _rootSequence;
         private IProcObject<T> _currentObject;
@@ -49,7 +48,7 @@ namespace NewLaserProject.Classes
             //                     .SetModuleAction(ModuleType.Delay, new FuncProxy<Action<int>>(delay => Task.Delay(delay).Wait()))
             //                     .GetSequence();
 
-            _pierceSequence = btb.SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(tapper => { _circlePierceParams = new CirclePierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
+            _pierceSequence = btb.SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(tapper => { _circlePierceParams = new PierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
                                  .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => Task.Run(async () => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); })))
                                  .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => Pierce(mlp)))
                                  .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => Task.Run(async () => { await Task.Delay(delay); })))
@@ -102,7 +101,7 @@ namespace NewLaserProject.Classes
 
         private void Pierce(MarkLaserParams markLaserParams)
         {
-            _circlePierceParams = new CirclePierceParams(0.1, 1, 0.05, 0.05, Material.Polycor);
+            _circlePierceParams = new PierceParams(0.1, 1, 0.05, 0.05, Material.Polycor);
             var paramsAdapter = _currentObject switch
             {
                 PCircle => new CircleParamsAdapter(_circlePierceParams),
@@ -128,108 +127,6 @@ namespace NewLaserProject.Classes
             _rootSequence.CancellAction(true);
         }
 
-    }
-
-
-    public class LaserProcess2<T> where T : class, IShape
-    {
-
-        private readonly LaserWafer<T> _wafer;
-        private readonly string _jsonPierce;
-        private readonly LaserMachine _laserMachine;
-        private readonly CoorSystem<LMPlace> _coorSystem;
-        private StateMachine<State, Trigger> _stateMachine;
-        private bool _inProcess = false;
-        private CirclePierceParams _circlePierceParams;
-
-        public LaserProcess2(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, CoorSystem<LMPlace> coorSystem)
-        {
-            _wafer = wafer;
-            _jsonPierce = jsonPierce;
-            _laserMachine = laserMachine;
-            _coorSystem = coorSystem;
-        }
-
-
-        public void CreateProcess()
-        {
-            double[] position = { 0, 0 };
-            var waferEnumerator = _wafer.GetEnumerator();
-            var pierceAction = new BTBuilderY(_jsonPierce)
-                .SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(tapper => { _circlePierceParams = new CirclePierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
-                .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => Task.Run(async () => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); })))
-                .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => Pierce(mlp, waferEnumerator.Current)))
-                .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => Task.Run(async () => { await Task.Delay(delay); })))
-                .GetTree()
-                .GetAction();
-
-            _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
-
-            _stateMachine.Configure(State.Started)
-                .OnActivate(() => { _inProcess = waferEnumerator.MoveNext(); })
-                .Ignore(Trigger.Pause)
-                .Permit(Trigger.Deny, State.Denied)
-                .Permit(Trigger.Next, State.Working);
-
-            _stateMachine.Configure(State.Working)
-                .OnEntry(() =>
-                {
-                    var procObject = waferEnumerator.Current;
-                    position = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, procObject.X, procObject.Y);
-                })
-                .OnEntryAsync(() => _laserMachine.MoveGpInPosAsync(Groups.XY, position, true))                
-                .OnEntry(pierceAction)
-                .OnEntryAsync(() => Task.Delay(1000))
-                .OnEntry(() => { _inProcess = waferEnumerator.MoveNext(); })
-                .PermitReentryIf(Trigger.Next, () => _inProcess)
-                .Ignore(Trigger.Pause);
-
-
-            _stateMachine.Activate();
-
-
-
-            void Pierce<TObj>(MarkLaserParams markLaserParams, IProcObject<TObj> procObject) where TObj : class, IShape
-            {
-                //_circlePierceParams = new CirclePierceParams(0.1, 1, 0.05, 0.05, Material.Polycor);
-                var paramsAdapter = procObject switch
-                {
-                    PCircle => new CircleParamsAdapter(_circlePierceParams),
-                    _ => throw new ArgumentException($"{nameof(waferEnumerator.Current)} matches isn't found")
-                };
-                var perfBuilder = new PerforatorBuilder<TObj>(procObject, markLaserParams, paramsAdapter);
-
-                _laserMachine.PierceObjectAsync(perfBuilder).Wait();
-            }
-        }
-
-        public async Task StartAsync()
-        {
-            CreateProcess();
-            _inProcess = true;
-
-            while (_inProcess)
-            {
-                await _stateMachine.FireAsync(Trigger.Next);
-            }
-
-        }
-
-
-
-        enum State
-        {
-            Started,
-            Working,
-            Paused,
-            Denied
-        }
-        enum Trigger
-        {
-            Next,
-            Pause,
-            Deny
-        }
     }
 
 
