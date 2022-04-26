@@ -273,6 +273,8 @@ namespace NewLaserProject.Classes.Geometry
             return this;
         }
 
+        public ICoorSystem<TPlaceEnum> ExtractSubSystem(TPlaceEnum from) => _subSystems[from];       
+        
     }
 
     public abstract class CoorSys<T, TPlaceEnum> where T : CoorSys<T, TPlaceEnum>, new() where TPlaceEnum : Enum

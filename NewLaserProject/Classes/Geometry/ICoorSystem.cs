@@ -14,5 +14,6 @@ namespace NewLaserProject.Classes.Geometry
         void SetRelatedSystem(TPlaceEnum name, Matrix3x2 matrix);
         double[] ToGlobal(double x, double y);
         double[] ToSub(TPlaceEnum to, double x, double y);
+        ICoorSystem<TPlaceEnum> ExtractSubSystem(TPlaceEnum from);
     }
 }

@@ -33,6 +33,8 @@ namespace NewLaserProject.ViewModels
         public string VideoScreenMessage { get; set; } = "";
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
+        public bool ProcessUnderCamera { get; set; } = false;
+        public bool OnProcess { get; set; } = false;
         public Icon CurrentMessageType { get; private set; } = Icon.Empty;
         public BitmapImage CameraImage { get; set; }
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
@@ -48,7 +50,6 @@ namespace NewLaserProject.ViewModels
 
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
-
 
 
         //---------------------------------------------
@@ -107,11 +108,13 @@ namespace NewLaserProject.ViewModels
                 {
                     case Ax.X:
                         XAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
-                        ViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[0] * FileScale ?? 0;
+                        LaserViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderLaser, XAxis.Position, YAxis.Position)[0] * FileScale ?? 0;
+                        CameraViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[0] * FileScale ?? 0;
                         break;
                     case Ax.Y:
                         YAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
-                        ViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[1] * FileScale ?? 0;
+                        LaserViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderLaser, XAxis.Position, YAxis.Position)[1] * FileScale ?? 0;
+                        CameraViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[1] * FileScale ?? 0;
                         break;
                     case Ax.Z:
                         ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
@@ -135,20 +138,26 @@ namespace NewLaserProject.ViewModels
         private async Task StartProcess()
         {
             //is dxf valid?
-            using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (58000, 46000));
+            using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (60000, 48000));
             wafer.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();
             if (MirrorX) wafer.MirrorX();
-            _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json"); 
-            var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, _coorSystem);
+            _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
+            var coorSystem = ProcessUnderCamera ? _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera) : _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
+            var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
             try
-            {               
+            {
+                OnProcess = true;
                 await process.StartAsync();
             }
             catch (Exception ex)
             {
 
                 throw;
+            }
+            finally
+            {
+                OnProcess = false;
             }
 
             //foreach (var circle in wafer)

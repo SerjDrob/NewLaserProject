@@ -157,21 +157,38 @@
                            PointerY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerY}"
                            PointerVisibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerVisibility}"-->
 
-                        <uc:SpecCross 
-                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ViewfinderX}" 
-                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.ViewfinderY}" 
-                                    Color="Red"                                
+                        <Grid>
+                            <uc:SpecCross 
+                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.CameraViewfinderX}" 
+                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.CameraViewfinderY}" 
+                                    Color="LightGreen"                                
                                     XScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleX}" 
                                     YScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleY}"
                                     OffsetX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=MarginX}" 
                                     OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=MarginY}"                                     
-                                    Thickness="3">
-                            <uc:SpecCross.RenderTransform>
-                                <ScaleTransform ScaleY="-1" 
+                                    Thickness="1">
+                                <uc:SpecCross.RenderTransform>
+                                    <ScaleTransform ScaleY="-1" 
                                                 CenterY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:SpecCross}, Path=ActualHeight, 
                                     Converter={StaticResource DivideConverter}, ConverterParameter=2}"/>
-                            </uc:SpecCross.RenderTransform>
-                        </uc:SpecCross>
+                                </uc:SpecCross.RenderTransform>
+                            </uc:SpecCross>
+                            <uc:SpecCross 
+                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LaserViewfinderX}" 
+                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.LaserViewfinderY}" 
+                                    Color="OrangeRed"                               
+                                    XScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleX}" 
+                                    YScale="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=ScaleY}"
+                                    OffsetX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=MarginX}" 
+                                    OffsetY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:GraphWindow}, Path=MarginY}"                                     
+                                    Thickness="1">
+                                <uc:SpecCross.RenderTransform>
+                                    <ScaleTransform ScaleY="-1" 
+                                                CenterY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=uc:SpecCross}, Path=ActualHeight, 
+                                    Converter={StaticResource DivideConverter}, ConverterParameter=2}"/>
+                                </uc:SpecCross.RenderTransform>
+                            </uc:SpecCross>
+                        </Grid>
                     </uc:GraphWindow>
                 </TabItem>
                 <TabItem Header="Настройки" IsEnabled="{Binding IsFileSettingsEnable}">

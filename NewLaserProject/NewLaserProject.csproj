@@ -10,7 +10,7 @@
     <Nullable>enable</Nullable>
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <UseWPF>true</UseWPF>
-    <!--<DefineConstants>PCIInserted</DefineConstants>-->
+    <DefineConstants>PCIInserted</DefineConstants>
     <StartupObject>NewLaserProject.App</StartupObject>
     <!--<Platforms>AnyCPU;x86</Platforms>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -116,6 +116,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="TempFiles\" />
     <Folder Include="TechnologyFiles\" />
   </ItemGroup>
 

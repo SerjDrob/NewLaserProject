@@ -17,17 +17,20 @@ namespace NewLaserProject.Classes
         private readonly LaserWafer<T> _wafer;
         private readonly string _jsonPierce;
         private readonly LaserMachine _laserMachine;
-        private readonly CoorSystem<LMPlace> _coorSystem;
+        private readonly ICoorSystem<LMPlace> _coorSystem;
         private StateMachine<State, Trigger> _stateMachine;
         private bool _inProcess = false;
         private PierceParams _pierceParams;
 
-        public LaserProcess2(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, CoorSystem<LMPlace> coorSystem)
+        private readonly double _zPiercing;
+
+        public LaserProcess2(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem, double zPiercing)
         {
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
             _coorSystem = coorSystem;
+            _zPiercing = zPiercing;
         }
 
 
@@ -55,11 +58,14 @@ namespace NewLaserProject.Classes
                 .OnEntry(() =>
                 {
                     var procObject = waferEnumerator.Current;
-                    position = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, procObject.X, procObject.Y);
-                })
-                .OnEntryAsync(() => _laserMachine.MoveGpInPosAsync(Groups.XY, position, true))                
+                    position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
+                })            
+                .OnEntryAsync(() => Task.WhenAll(
+                    _laserMachine.MoveGpInPosAsync(Groups.XY, position, true), 
+                    _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing)
+                    ))
+                .OnEntryAsync(()=>Task.Delay(1000))
                 .OnEntry(pierceAction)
-                .OnEntryAsync(() => Task.Delay(1000))
                 .OnEntry(() => { _inProcess = waferEnumerator.MoveNext(); })
                 .PermitReentryIf(Trigger.Next, () => _inProcess)
                 .Ignore(Trigger.Pause);

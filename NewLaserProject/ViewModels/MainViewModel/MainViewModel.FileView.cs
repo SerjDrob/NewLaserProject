@@ -30,8 +30,10 @@ namespace NewLaserProject.ViewModels
         public double YDimensionOffset { get; private set; }
         public double CameraPosX { get; private set; }
         public double CameraPosY { get; private set; }
-        public double ViewfinderX { get; set; }
-        public double ViewfinderY { get; set; }
+        public double CameraViewfinderX { get; set; }
+        public double CameraViewfinderY { get; set; }
+        public double LaserViewfinderX { get; set; }
+        public double LaserViewfinderY { get; set; }
         public double LaserCameraOffsetX { get; set; } = -5;
         public double LaserCameraOffsetY { get; set; } = 1;
         public bool WaferContourVisibility { get; set; } = true;
@@ -88,6 +90,12 @@ namespace NewLaserProject.ViewModels
                 if (File.Exists(FileName))
                 {
                     _dxfReader = new IMDxfReader(FileName);
+
+                    var curveEnumerator = _dxfReader.GetAllDxfCurves(Path.Combine(_projectDirectory, "TempFiles")).GetEnumerator();
+                    var c = curveEnumerator.MoveNext();
+                    var curve = curveEnumerator.Current;
+
+
                     var segments = _dxfReader.GetAllSegments();
                     var fileSize = _dxfReader.GetSize();
                     FileSizeX = Math.Round(fileSize.width);

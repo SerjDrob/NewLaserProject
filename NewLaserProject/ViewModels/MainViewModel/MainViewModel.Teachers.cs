@@ -119,6 +119,7 @@ namespace NewLaserProject.ViewModels
             var tcb = CameraOffsetTeacher.GetBuilder();
             tcb.SetOnGoLoadPointAction(() => Task.Run(async () =>
             {
+                _laserMachine.SetVelocity(Velocity.Fast);
                 await _laserMachine.GoThereAsync(LMPlace.Loading);
                 techMessager.RealeaseMessage("Установите подложку и нажмите * чтобы продолжить", Icon.Info);
             }))
