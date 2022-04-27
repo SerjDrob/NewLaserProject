@@ -5,15 +5,23 @@ HEADER
   9
 $ACADVER
   1
-AC1014
+AC1032
   9
 $ACADMAINTVER
- 70
-     0
+ 90
+        0
   9
 $DWGCODEPAGE
   3
 ANSI_1252
+  9
+$LASTSAVEDBY
+  1
+
+  9
+$REQUIREDVERSIONS
+160
+0
   9
 $INSBASE
  10
@@ -25,17 +33,17 @@ $INSBASE
   9
 $EXTMIN
  10
--19.2261275791823
+-3.15000033378601
  20
--15.8358771510243
+-3.10000038146973
  30
 0.0
   9
 $EXTMAX
  10
-16.2971953910478
+3.15000009536743
  20
-17.2647274375262
+3.10000014305115
  30
 0.0
   9
@@ -71,17 +79,9 @@ $MIRRTEXT
  70
      0
   9
-$DRAGMODE
- 70
-     2
-  9
 $LTSCALE
  40
 1.0
-  9
-$OSMODE
- 70
-    37
   9
 $ATTMODE
  70
@@ -114,10 +114,6 @@ $CECOLOR
 $CELTSCALE
  40
 1.0
-  9
-$DELOBJ
- 70
-     1
   9
 $DISPSILH
  70
@@ -319,17 +315,9 @@ $DIMALTTZ
  70
      0
   9
-$DIMFIT
- 70
-     0
-  9
 $DIMUPT
  70
      0
-  9
-$DIMUNIT
- 70
-     2
   9
 $DIMDEC
  70
@@ -352,6 +340,90 @@ $DIMTXSTY
 STANDARD
   9
 $DIMAUNIT
+ 70
+     0
+  9
+$DIMADEC
+ 70
+     0
+  9
+$DIMALTRND
+ 40
+0.0
+  9
+$DIMAZIN
+ 70
+     0
+  9
+$DIMDSEP
+ 70
+    46
+  9
+$DIMATFIT
+ 70
+     0
+  9
+$DIMFRAC
+ 70
+     0
+  9
+$DIMLDRBLK
+  1
+
+  9
+$DIMLUNIT
+ 70
+     2
+  9
+$DIMLWD
+ 70
+    -2
+  9
+$DIMLWE
+ 70
+    -2
+  9
+$DIMTMOVE
+ 70
+     0
+  9
+$DIMFXL
+ 40
+1.0
+  9
+$DIMFXLON
+ 70
+     0
+  9
+$DIMJOGANG
+ 40
+0.785398163397448
+  9
+$DIMTFILL
+ 70
+     0
+  9
+$DIMTFILLCLR
+ 70
+     0
+  9
+$DIMARCSYM
+ 70
+     0
+  9
+$DIMLTYPE
+  6
+
+  9
+$DIMLTEX1
+  6
+
+  9
+$DIMLTEX2
+  6
+
+  9
+$DIMTXTDIRECTION
  70
      0
   9
@@ -399,10 +471,6 @@ $LIMCHECK
  70
      0
   9
-$BLIPMODE
- 70
-     0
-  9
 $CHAMFERA
  40
 0.0
@@ -425,19 +493,27 @@ $SKPOLY
   9
 $TDCREATE
  40
-2459696.80146299
+2459697.74126593
+  9
+$TDUCREATE
+ 40
+2459697.44959927
   9
 $TDUPDATE
  40
-2459696.80146334
+2459697.74126596
+  9
+$TDUUPDATE
+ 40
+2459697.44959929
   9
 $TDINDWG
  40
-0.000000347241898
+0.000000023149306
   9
 $TDUSRTIMER
  40
-0.000000347241898
+0.000000023149306
   9
 $USRTIMER
  70
@@ -463,14 +539,6 @@ $PLINEWID
  40
 0.0
   9
-$COORDS
- 70
-     1
-  9
-$SPLFRAME
- 70
-     0
-  9
 $SPLINETYPE
  70
      6
@@ -478,14 +546,6 @@ $SPLINETYPE
 $SPLINESEGS
  70
      8
-  9
-$ATTDIA
- 70
-     1
-  9
-$ATTREQ
- 70
-     1
   9
 $HANDSEED
   5
@@ -510,6 +570,10 @@ $SURFU
 $SURFV
  70
      6
+  9
+$UCSBASE
+  2
+
   9
 $UCSNAME
   2
@@ -539,6 +603,66 @@ $UCSYDIR
  30
 0.0
   9
+$UCSORTHOREF
+  2
+
+  9
+$UCSORTHOVIEW
+ 70
+     0
+  9
+$UCSORGTOP
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGBOTTOM
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGLEFT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGRIGHT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGFRONT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGBACK
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSBASE
+  2
+
+  9
 $PUCSNAME
   2
 
@@ -564,6 +688,62 @@ $PUCSYDIR
 0.0
  20
 1.0
+ 30
+0.0
+  9
+$PUCSORTHOREF
+  2
+
+  9
+$PUCSORTHOVIEW
+ 70
+     0
+  9
+$PUCSORGTOP
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGBOTTOM
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGLEFT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGRIGHT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGFRONT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGBACK
+ 10
+0.0
+ 20
+0.0
  30
 0.0
   9
@@ -687,10 +867,6 @@ $TREEDEPTH
  70
   3020
   9
-$PICKSTYLE
- 70
-     1
-  9
 $CMLSTYLE
   2
 STANDARD
@@ -710,6 +886,222 @@ $PROXYGRAPHICS
 $MEASUREMENT
  70
      0
+  9
+$CELWEIGHT
+370
+    -1
+  9
+$ENDCAPS
+280
+     0
+  9
+$JOINSTYLE
+280
+     0
+  9
+$LWDISPLAY
+290
+     0
+  9
+$INSUNITS
+ 70
+     0
+  9
+$HYPERLINKBASE
+  1
+
+  9
+$STYLESHEET
+  1
+
+  9
+$XEDIT
+290
+     1
+  9
+$CEPSNTYPE
+380
+     0
+  9
+$PSTYLEMODE
+290
+     1
+  9
+$FINGERPRINTGUID
+  2
+{EFFE73E8-B66F-4302-A5B2-A40E2F7EBF10}
+  9
+$VERSIONGUID
+  2
+{5BDD622C-55E3-4208-98F4-72E5A3A92C36}
+  9
+$EXTNAMES
+290
+     1
+  9
+$PSVPSCALE
+ 40
+0.0
+  9
+$OLESTARTUP
+290
+     0
+  9
+$SORTENTS
+280
+   127
+  9
+$INDEXCTL
+280
+     0
+  9
+$HIDETEXT
+280
+     0
+  9
+$XCLIPFRAME
+280
+     2
+  9
+$HALOGAP
+280
+     0
+  9
+$OBSCOLOR
+ 70
+   257
+  9
+$OBSLTYPE
+280
+     0
+  9
+$INTERSECTIONDISPLAY
+280
+     0
+  9
+$INTERSECTIONCOLOR
+ 70
+   257
+  9
+$DIMASSOC
+280
+     1
+  9
+$PROJECTNAME
+  1
+
+  9
+$CAMERADISPLAY
+290
+     0
+  9
+$LENSLENGTH
+ 40
+50.0
+  9
+$CAMERAHEIGHT
+ 40
+0.0
+  9
+$STEPSPERSEC
+ 40
+2.0
+  9
+$STEPSIZE
+ 40
+6.0
+  9
+$3DDWFPREC
+ 40
+2.0
+  9
+$PSOLWIDTH
+ 40
+0.25
+  9
+$PSOLHEIGHT
+ 40
+4.0
+  9
+$LOFTANG1
+ 40
+1.5707963267949
+  9
+$LOFTANG2
+ 40
+1.5707963267949
+  9
+$LOFTMAG1
+ 40
+0.0
+  9
+$LOFTMAG2
+ 40
+0.0
+  9
+$LOFTPARAM
+ 70
+     7
+  9
+$LOFTNORMALS
+280
+     1
+  9
+$LATITUDE
+ 40
+37.795
+  9
+$LONGITUDE
+ 40
+-122.394
+  9
+$NORTHDIRECTION
+ 40
+0.0
+  9
+$TIMEZONE
+ 70
+ -8000
+  9
+$LIGHTGLYPHDISPLAY
+280
+     1
+  9
+$TILEMODELIGHTSYNCH
+280
+     1
+  9
+$SOLIDHIST
+280
+     0
+  9
+$SHOWHIST
+280
+     1
+  9
+$DWFFRAME
+280
+     2
+  9
+$DGNFRAME
+280
+     0
+  9
+$REALWORLDSCALE
+290
+     1
+  9
+$INTERFERECOLOR
+ 62
+     1
+  9
+$CSHADOW
+280
+     0
+  9
+$SHADOWPLANELOCATION
+ 40
+0.0
   0
 ENDSEC
   0
@@ -736,6 +1128,8 @@ AcDbSymbolTable
 VPORT
   5
 2
+330
+1
 100
 AcDbSymbolTableRecord
 100
@@ -780,16 +1174,14 @@ AcDbViewportTableRecord
 0.0
  37
 0.0
- 40
-1.0
- 41
-1.0
  42
 50.0
  43
 0.0
  44
 0.0
+ 45
+1.0
  50
 0.0
  51
@@ -798,18 +1190,24 @@ AcDbViewportTableRecord
      0
  72
   1000
- 73
-     1
  74
      3
- 75
+  1
+
+281
      0
- 76
+170
      0
- 77
+ 61
      0
- 78
+292
+     1
+282
      0
+141
+0.0
+142
+0.0
   0
 ENDTAB
   0
@@ -826,6 +1224,8 @@ AcDbSymbolTable
 LTYPE
   5
 5
+330
+3
 100
 AcDbSymbolTableRecord
 100
@@ -846,6 +1246,8 @@ BYBLOCK
 LTYPE
   5
 4
+330
+3
 100
 AcDbSymbolTableRecord
 100
@@ -866,6 +1268,8 @@ BYLAYER
 LTYPE
   5
 6
+330
+3
 100
 AcDbSymbolTableRecord
 100
@@ -898,6 +1302,8 @@ AcDbSymbolTable
 LAYER
   5
 8
+330
+7
 100
 AcDbSymbolTableRecord
 100
@@ -910,6 +1316,12 @@ AcDbLayerTableRecord
      7
   6
 CONTINUOUS
+290
+     1
+370
+    -2
+390
+0
   0
 ENDTAB
   0
@@ -926,6 +1338,8 @@ AcDbSymbolTable
 STYLE
   5
 B
+330
+9
 100
 AcDbSymbolTableRecord
 100
@@ -948,10 +1362,14 @@ ANNOTATIVE
 txt
   4
 
+1071
+        0
   0
 STYLE
   5
 A
+330
+9
 100
 AcDbSymbolTableRecord
 100
@@ -974,6 +1392,8 @@ STANDARD
 txt
   4
 
+1071
+        0
   0
 ENDTAB
   0
@@ -1014,6 +1434,8 @@ AcDbSymbolTable
 APPID
   5
 F
+330
+E
 100
 AcDbSymbolTableRecord
 100
@@ -1026,6 +1448,8 @@ ACAD
 APPID
   5
 12
+330
+E
 100
 AcDbSymbolTableRecord
 100
@@ -1038,6 +1462,8 @@ ACAD_MLEADERVER
 APPID
   5
 11
+330
+E
 100
 AcDbSymbolTableRecord
 100
@@ -1050,6 +1476,8 @@ ACAD_NAV_VCDISPLAY
 APPID
   5
 10
+330
+E
 100
 AcDbSymbolTableRecord
 100
@@ -1070,10 +1498,14 @@ DIMSTYLE
 AcDbSymbolTable
  70
      2
+100
+AcDbDimStyleTable
   0
 DIMSTYLE
 105
 15
+330
+13
 100
 AcDbSymbolTableRecord
 100
@@ -1086,12 +1518,6 @@ ANNOTATIVE
 
   4
 
-  5
-
-  6
-
-  7
-
  40
 1.0
  41
@@ -1126,6 +1552,8 @@ ANNOTATIVE
      0
  78
      0
+ 79
+     0
 140
 0.18
 141
@@ -1142,6 +1570,8 @@ ANNOTATIVE
 1.0
 147
 0.09
+148
+0.0
 170
      0
 171
@@ -1160,6 +1590,8 @@ ANNOTATIVE
      0
 178
      0
+179
+     0
 270
      1
 271
@@ -1171,6 +1603,14 @@ ANNOTATIVE
 274
      0
 275
+     0
+276
+     0
+277
+     1
+278
+    46
+279
      0
 280
      0
@@ -1190,12 +1630,28 @@ ANNOTATIVE
      0
 288
      1
+289
+     0
 340
 
+341
+
+342
+
+343
+
+344
+
+371
+    -2
+372
+    -2
   0
 DIMSTYLE
 105
 14
+330
+13
 100
 AcDbSymbolTableRecord
 100
@@ -1208,12 +1664,6 @@ STANDARD
 
   4
 
-  5
-
-  6
-
-  7
-
  40
 1.0
  41
@@ -1248,6 +1698,8 @@ STANDARD
      0
  78
      0
+ 79
+     0
 140
 0.18
 141
@@ -1264,6 +1716,8 @@ STANDARD
 1.0
 147
 0.09
+148
+0.0
 170
      0
 171
@@ -1282,6 +1736,8 @@ STANDARD
      0
 178
      0
+179
+     0
 270
      1
 271
@@ -1293,6 +1749,14 @@ STANDARD
 274
      0
 275
+     0
+276
+     0
+277
+     1
+278
+    46
+279
      0
 280
      0
@@ -1312,8 +1776,22 @@ STANDARD
      0
 288
      1
+289
+     0
 340
 
+341
+
+342
+
+343
+
+344
+
+371
+    -2
+372
+    -2
   0
 ENDTAB
   0
@@ -1330,22 +1808,38 @@ AcDbSymbolTable
 BLOCK_RECORD
   5
 17
+330
+16
 100
 AcDbSymbolTableRecord
 100
 AcDbBlockTableRecord
   2
 *MODEL_SPACE
+ 70
+     0
+280
+     1
+281
+     1
   0
 BLOCK_RECORD
   5
 18
+330
+16
 100
 AcDbSymbolTableRecord
 100
 AcDbBlockTableRecord
   2
 *PAPER_SPACE
+ 70
+     0
+280
+     1
+281
+     1
   0
 ENDTAB
   0
@@ -1382,6 +1876,8 @@ AcDbBlockBegin
 ENDBLK
   5
 1A
+330
+0
 100
 AcDbEntity
   8
@@ -1416,6 +1912,8 @@ AcDbBlockBegin
 ENDBLK
   5
 1C
+330
+0
 100
 AcDbEntity
   8
@@ -1436,46 +1934,76 @@ LWPOLYLINE
 AcDbEntity
   8
 0
+370
+     0
+430
+
+440
+        0
+284
+     0
 100
 AcDbPolyline
  90
-        7
+        8
  70
      1
  10
-16.2971953910478
+-2.85000014305115
  20
--8.62778072539719
+-3.10000038146973
+ 91
+        0
  10
-5.98025467800365
+2.84999990463257
  20
--15.0758686710498
+-3.10000038146973
+ 91
+        0
  42
--0.171149400413899
+0.414213562373095
  10
-2.7345338748956
+3.15000009536743
  20
--15.8002613434589
+-2.80000019073486
+ 91
+        0
  10
--10.4175797853666
+3.15000009536743
  20
--14.2220077042275
+2.79999995231628
+ 91
+        0
  42
--0.625823660159702
+0.414213562373095
  10
--16.2971953910478
+2.84999990463257
  20
-2.77782849250724
+3.10000014305115
+ 91
+        0
  10
--3.27476254009611
+-2.85000014305115
  20
-15.8002613434589
+3.10000014305115
+ 91
+        0
  42
--0.511918293852485
+0.414213562373095
  10
-4.73290732083622
+-3.15000033378601
  20
-14.500795415026
+2.79999995231628
+ 91
+        0
+ 10
+-3.15000033378601
+ 20
+-2.80000019073486
+ 91
+        0
+ 42
+0.41421356237309
   0
 ENDSEC
   0
@@ -1488,6 +2016,8 @@ DICTIONARY
 1E
 100
 AcDbDictionary
+281
+     0
   3
 ACAD_GROUP
 350
@@ -1500,6 +2030,8 @@ DICTIONARY
 1E
 100
 AcDbDictionary
+281
+     0
   0
 ENDSEC
   0

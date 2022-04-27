@@ -80,7 +80,7 @@ namespace NewLaserProject.Classes
                 IParamsAdapting paramsAdapter = procObject switch
                 {
                     PCircle => new CircleParamsAdapter(_pierceParams),
-                    PCurve => new CurveParamsAdapter(_pierceParams),
+                    PCurve or PDxfCurve or PDxfCurve2=> new CurveParamsAdapter(_pierceParams),
                     _ => throw new ArgumentException($"{nameof(waferEnumerator.Current)} matches isn't found")
                 };
                 var perfBuilder = new PerforatorBuilder<TObj>(procObject, markLaserParams, paramsAdapter);

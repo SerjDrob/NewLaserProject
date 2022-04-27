@@ -9,12 +9,12 @@ using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
-using Newtonsoft.Json;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
@@ -138,13 +138,16 @@ namespace NewLaserProject.ViewModels
         private async Task StartProcess()
         {
             //is dxf valid?
-            using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (60000, 48000));
+            //using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (60000, 48000));
+            using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"),"PAZ"), (60000, 48000));
             wafer.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();
             if (MirrorX) wafer.MirrorX();
             _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
             var coorSystem = ProcessUnderCamera ? _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera) : _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
-            var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
+            //var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
+            var process = new LaserProcess2<DxfCurve>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
+
             try
             {
                 OnProcess = true;

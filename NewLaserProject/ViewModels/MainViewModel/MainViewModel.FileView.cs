@@ -91,12 +91,12 @@ namespace NewLaserProject.ViewModels
                 {
                     _dxfReader = new IMDxfReader(FileName);
 
-                    var curveEnumerator = _dxfReader.GetAllDxfCurves(Path.Combine(_projectDirectory, "TempFiles")).GetEnumerator();
-                    var c = curveEnumerator.MoveNext();
-                    var curve = curveEnumerator.Current;
+                    //var curveEnumerator = _dxfReader.GetAllDxfCurves(Path.Combine(_projectDirectory, "TempFiles")).GetEnumerator();
+                    //var c = curveEnumerator.MoveNext();
+                    //var curve = curveEnumerator.Current;
 
 
-                    var segments = _dxfReader.GetAllSegments();
+                    //var segments = _dxfReader.GetAllSegments();
                     var fileSize = _dxfReader.GetSize();
                     FileSizeX = Math.Round(fileSize.width);
                     FileSizeY = Math.Round(fileSize.height);
