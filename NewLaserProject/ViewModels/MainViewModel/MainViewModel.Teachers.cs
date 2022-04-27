@@ -134,7 +134,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnGoToShotAction(() => Task.Run(async () =>
                 {
-                techMessager.EraseMessage();
+                    techMessager.EraseMessage();
                     _laserMachine.SetVelocity(Velocity.Fast);
                     await Task.WhenAll(
                             _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
@@ -200,38 +200,55 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void TeachScanatorHorizont()
         {
-            var waferWidth = 60;
+            var waferWidth = 48;
             var delta = 5;
             var xLeft = delta;
             var xRight = waferWidth - delta;
-            var waferHeight = 48;
+            var waferHeight = 60;
             float tempX = 0;
+            var zCamera = Settings.Default.ZeroFocusPoint;
+            var zLaser = Settings.Default.ZeroPiercePoint;
 
             var tcb = LaserHorizontTeacher.GetBuilder();
 
-            tcb.SetGoUnderCameraAction(async () =>
-            {
-                await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(waferWidth / 2, waferHeight / 2));
-                VideoScreenMessage = "Выберете место на пластине для прожига горизонтальной линии";
-            })
+            tcb.SetGoUnderCameraAction(() => Task.Run(async () =>
+             {
+                 _laserMachine.SetVelocity(Velocity.Fast);
+                 await Task.WhenAll(
+                 _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(waferWidth / 2, waferHeight / 2)),
+                 _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
+                 techMessager.RealeaseMessage("Выберете место на пластине для прожига горизонтальной линии", Icon.Info);
+             }))
                 .SetGoAtFirstPointAction(() => Task.Run(async () =>
                 {
-                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { Settings.Default.XOffset, Settings.Default.YOffset }, true);
+                    _laserMachine.SetVelocity(Velocity.Fast);
+                    await Task.WhenAll(
+                        _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { Settings.Default.XOffset, Settings.Default.YOffset }, true),
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser));
+
                     var matrix = new System.Drawing.Drawing2D.Matrix();
-                    matrix.Rotate((float)Settings.Default.PazAngle);
+                    matrix.Rotate((float)Settings.Default.PazAngle * 180 / MathF.PI);
                     var points = new PointF[] { new PointF(xLeft - waferWidth / 2, 0), new PointF(xRight - waferWidth / 2, 0) };
                     matrix.TransformPoints(points);
                     tempX = points[0].X;
                     await _laserMachine.PierceLineAsync(-waferWidth / 2, 0, waferWidth / 2, 0);
-                    await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(tempX, waferHeight / 2));
-                    VideoScreenMessage = "Установите перекрестие на первую точку линии и нажмите *";
+
+                    await Task.WhenAll( 
+                        _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)),
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
+
+                    techMessager.RealeaseMessage("Установите перекрестие на первую точку линии и нажмите *", Icon.Info);
                     tempX = points[1].X;
                 }))
                 .SetGoAtSecondPointAction(() => Task.Run(async () =>
                 {
                     _currentTeacher.SetParams(new double[] { XAxis.Position, YAxis.Position });
-                    await _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(tempX, waferHeight / 2));
-                    VideoScreenMessage = "Установите перекрестие на вторую точку линии и нажмите *";
+                    _laserMachine.SetVelocity(Velocity.Fast);
+
+                    await Task.WhenAll(
+                        _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)),
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
+                    techMessager.RealeaseMessage("Установите перекрестие на вторую точку линии и нажмите *", Icon.Info);
                 }))
                 .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
                 {
@@ -255,6 +272,7 @@ namespace NewLaserProject.ViewModels
                     {
                         _currentTeacher.Deny();
                     }
+                    techMessager.EraseMessage();
                 }))
                 .SetOnLaserHorizontToughtAction(() => Task.Run(() =>
                 {
@@ -264,10 +282,12 @@ namespace NewLaserProject.ViewModels
                 .SetOnHasResultAction(() => Task.Run(() =>
                 {
                     var result = _currentTeacher.GetParams();
-                    var point1 = new PointF((float)result[0], (float)result[1]);
-                    var point2 = new PointF((float)result[2], (float)result[3]);
-                    double AC = point2.X - point1.X;
-                    double CB = point2.Y - point1.Y;
+
+                    var first = _coorSystem.FromSub(LMPlace.FileOnWaferUnderCamera, result[0], result[1]);
+                    var second = _coorSystem.FromSub(LMPlace.FileOnWaferUnderCamera, result[2], result[3]);
+
+                    double AC = second[0] - first[0];
+                    double CB = second[1] - first[1];
                     Settings.Default.PazAngle = Math.Atan2(CB, AC);
                     Settings.Default.Save();
                     MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
