@@ -215,7 +215,7 @@ namespace NewLaserProject.ViewModels
              {
                  _laserMachine.SetVelocity(Velocity.Fast);
                  await Task.WhenAll(
-                 _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(waferWidth / 2, waferHeight / 2)),
+                 _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, waferWidth / 2, waferHeight / 2)),
                  _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
                  techMessager.RealeaseMessage("Выберете место на пластине для прожига горизонтальной линии", Icon.Info);
              }))
@@ -283,8 +283,8 @@ namespace NewLaserProject.ViewModels
                 {
                     var result = _currentTeacher.GetParams();
 
-                    var first = _coorSystem.FromSub(LMPlace.FileOnWaferUnderCamera, result[0], result[1]);
-                    var second = _coorSystem.FromSub(LMPlace.FileOnWaferUnderCamera, result[2], result[3]);
+                    var first = _coorSystem.FromGlobal(result[0], result[1]);
+                    var second = _coorSystem.FromGlobal(result[2], result[3]);
 
                     double AC = second[0] - first[0];
                     double CB = second[1] - first[1];
