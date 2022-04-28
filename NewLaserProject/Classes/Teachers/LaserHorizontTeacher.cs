@@ -24,7 +24,7 @@ namespace NewLaserProject.Classes
             _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
 
             _stateMachine.Configure(MyState.Begin)
-                .OnEntryAsync(RequestPermissionToStart)
+                .OnActivateAsync(RequestPermissionToStart)
                 .Permit(MyTrigger.Accept, MyState.UnderCamera)
                 .Permit(MyTrigger.Deny, MyState.End)
                 .Ignore(MyTrigger.Next);
@@ -80,11 +80,9 @@ namespace NewLaserProject.Classes
             _points.AddRange(ps);
         }
 
-        public Task StartTeach()
+        public async Task StartTeach()
         {
-            throw new NotImplementedException();
-            _stateMachine.Activate();
-
+            await _stateMachine.ActivateAsync();
         }
 
         public class LaserHorizontTeacherBuilder

@@ -18,7 +18,7 @@ namespace NewLaserProject.ViewModels
         public double WaferOffsetX { get; set; }
         public double WaferOffsetY { get; set; }
         public double WaferWidth { get; set; } = 48;
-        public double WaferHeight { get; set; } = 60;
+        public double WaferHeight { get; set; } = 30;
         public double WaferMargin { get; set; } = 0.2;
         public double FileSizeX { get; set; }
         public double FileSizeY { get; set; }

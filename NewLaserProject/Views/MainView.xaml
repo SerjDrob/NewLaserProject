@@ -325,6 +325,8 @@
                     <Image Source="Sources/laserbeam_laser_13620.png"/>
 
                 </Button>
+                <Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
+                <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>
                 <Button Command="{Binding MachineSettingsCommand}" HorizontalAlignment="Stretch">
                     <Button.ToolTip>
                         <StackPanel Orientation="Horizontal">

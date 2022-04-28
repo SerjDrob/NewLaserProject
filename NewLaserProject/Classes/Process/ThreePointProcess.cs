@@ -1,5 +1,4 @@
 ﻿using MachineClassLibrary.Classes;
-using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
@@ -23,17 +22,20 @@ namespace NewLaserProject.Classes.Process
         private readonly ICoorSystem<LMPlace> _coorSystem;
         private StateMachine<State, Trigger> _stateMachine;
         private bool _inProcess = false;
-        private PierceParams _pierceParams;
         private readonly IEnumerable<PPoint> _refPoints;
         private readonly double _zPiercing;
         private readonly double _zCamera;
         private readonly InfoMessager _infoMessager;
         private double _xActual;
         private double _yActual;
+        private readonly double _dX;
+        private readonly double _dY;
+        private readonly double _pazAngle;
+        private double _matrixAngle;
 
         public ThreePointProcess(LaserWafer<T> wafer, IEnumerable<PPoint> refPoints,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
-            double zPiercing, double zCamera, InfoMessager infoMessager)
+            double zPiercing, double zCamera, InfoMessager infoMessager, double dX, double dY, double pazAngle)
         {
             Guard.IsEqualTo(refPoints.Count(), 3, nameof(refPoints));
             _wafer = wafer;
@@ -44,6 +46,9 @@ namespace NewLaserProject.Classes.Process
             _refPoints = refPoints;
             _zCamera = zCamera;
             _infoMessager = infoMessager;
+            _dX = dX;
+            _dY = dY;
+            _pazAngle = pazAngle;
         }
 
 
@@ -53,28 +58,33 @@ namespace NewLaserProject.Classes.Process
             var resultPoints = new List<PointF>();
             var refPointsEnumerator = _refPoints.GetEnumerator();
             refPointsEnumerator.MoveNext();
-            var refX = refPointsEnumerator.Current.X;
-            var refY = refPointsEnumerator.Current.Y;
+            var refX = 0d;// refPointsEnumerator.Current.X;
+            var refY = 0d;// refPointsEnumerator.Current.Y;            
+
+
 
             var originPoints = _refPoints.Select(p => new PointF((float)p.X, (float)p.Y)).ToArray();
 
             CoorSystem<LMPlace> workCoorSys = new();
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
-            LaserProcess2<T> process = null;
+            LaserProcess2<T> process = new();
 
 
             _stateMachine.Configure(State.Started)
+                .OnActivate(() => _infoMessager.RealeaseMessage("Next", ViewModels.Icon.Info))
                 .Permit(Trigger.Next, State.GoRefPoint)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.GoRefPoint)
                 .OnEntry(() => _laserMachine.SetVelocity(Velocity.Fast))
+                .OnEntry(() => { refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y; })
                 .OnEntryAsync(() => Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(refX, refY)),
                                               _laserMachine.MoveAxInPosAsync(Ax.Z, _zCamera)))
                 .OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
-                .OnExit(() => resultPoints.Add(new((float)_xActual, (float)_yActual)))
+                .OnExit(() => resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY))))
+                .OnExit(() => refPointsEnumerator.MoveNext())
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
                 .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
                 .Permit(Trigger.Deny, State.Denied)
@@ -88,26 +98,32 @@ namespace NewLaserProject.Classes.Process
                     .SetFirstPointPair(originPoints[0], resultPoints[0])
                     .SetSecondPointPair(originPoints[1], resultPoints[1])
                     .SetThirdPointPair(originPoints[2], resultPoints[2])
+                    .FormWorkMatrix(0.001, 0.001, false)
                     .Build())
-                .OnEntry(()=>_stateMachine.Fire(Trigger.Next))
+                .OnEntry(() => _matrixAngle = workCoorSys.GetMatrixAngle())
+                .OnEntry(() => _stateMachine.Fire(Trigger.Next))
                 .Permit(Trigger.Next, State.Working)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Working)
-                .OnEntry(() => process = new LaserProcess2<T>(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zPiercing))
-                .OnEntry(process.CreateProcess)
-                .OnEntryAsync(process.StartAsync)
+                .OnEntry(() => process = new LaserProcess2<T>(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zPiercing, _pazAngle - _matrixAngle))
+                .OnEntry(() => process.CreateProcess())
+                .OnEntryAsync(() => process.StartAsync())
                 .Ignore(Trigger.Next)
                 .Ignore(Trigger.Deny)
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Denied)
                 .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
-                .OnEntry(()=>_infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation));
-            
-            
+                .OnEntry(() => _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation));
+
+            //void MoveNext()
+            //{
+            //    var res = refPointsEnumerator.MoveNext();
+            //}
         }
+
 
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {

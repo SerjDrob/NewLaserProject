@@ -171,8 +171,12 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task StartThreePointProcess()
         {
-            using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), (60000, 48000));
-            using var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), (60000, 48000));
+
+
+            var topologySize = _dxfReader.GetSize();
+
+            var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
+            var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), topologySize);
             wafer.Scale(1F / FileScale);
             waferPoints.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();
@@ -186,7 +190,8 @@ namespace NewLaserProject.ViewModels
             var points = waferPoints.Cast<PPoint>();
 
             _threePointsProcess = new ThreePointProcess<DxfCurve>(wafer, points, _pierceSequenceJson, _laserMachine,
-                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, techMessager);
+                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, techMessager,
+                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
 
             try
             {
@@ -214,7 +219,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            TechInfo = "Hello";
+            //TechInfo = "Hello";
             //techMessager.RealeaseMessage("TestMessage", InfoMessager.Icon.Danger);
             //var system = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(1, 21, 34, 4, 5, 6));
             //system.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem.json");

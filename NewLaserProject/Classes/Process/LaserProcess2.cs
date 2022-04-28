@@ -23,14 +23,21 @@ namespace NewLaserProject.Classes
         private PierceParams _pierceParams;
 
         private readonly double _zPiercing;
+        private readonly double _curveAngle;
 
-        public LaserProcess2(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem, double zPiercing)
+        public LaserProcess2()
+        {
+
+        }
+
+        public LaserProcess2(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem, double zPiercing, double curveAngle = 0)
         {
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
             _coorSystem = coorSystem;
             _zPiercing = zPiercing;
+            _curveAngle = curveAngle;
         }
 
 
@@ -83,9 +90,12 @@ namespace NewLaserProject.Classes
                     PCurve or PDxfCurve or PDxfCurve2=> new CurveParamsAdapter(_pierceParams),
                     _ => throw new ArgumentException($"{nameof(waferEnumerator.Current)} matches isn't found")
                 };
-                var perfBuilder = new PerforatorBuilder<TObj>(procObject, markLaserParams, paramsAdapter);
-
-                _laserMachine.PierceObjectAsync(perfBuilder).Wait();
+                var perforator = procObject switch
+                {
+                    PCurve or PDxfCurve or PDxfCurve2 => new PerforatorFactory<TObj>(procObject, markLaserParams, paramsAdapter).GetPerforator(_curveAngle),
+                    PCircle => new PerforatorFactory<TObj>(procObject, markLaserParams, paramsAdapter).GetPerforator()
+                };
+                _laserMachine.PierceObjectAsync(perforator).Wait();
             }
         }
 

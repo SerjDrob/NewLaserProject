@@ -11,8 +11,8 @@
           "PenParams": {
             "$type": "PenParams",
             "nPenNo": 0,
-            "nMarkLoop": 7,
-            "dMarkSpeed": 43.0,
+            "nMarkLoop": 15,
+            "dMarkSpeed": 100.0,
             "dPowerRatio": 100.0,
             "dCurrent": 3.0,
             "nFreq": 30000,
@@ -56,6 +56,6 @@
         }
       }
     ],
-    "LoopCount": 10
+    "LoopCount": 20
   }
 ]

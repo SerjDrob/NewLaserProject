@@ -198,7 +198,7 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
         [ICommand]
-        private void TeachScanatorHorizont()
+        private async Task TeachScanatorHorizont()
         {
             var waferWidth = 48;
             var delta = 5;
@@ -230,7 +230,7 @@ namespace NewLaserProject.ViewModels
                     matrix.Rotate((float)Settings.Default.PazAngle * 180 / MathF.PI);
                     var points = new PointF[] { new PointF(xLeft - waferWidth / 2, 0), new PointF(xRight - waferWidth / 2, 0) };
                     matrix.TransformPoints(points);
-                    tempX = points[0].X;
+                    tempX = points[0].X + waferWidth / 2;
                     await _laserMachine.PierceLineAsync(-waferWidth / 2, 0, waferWidth / 2, 0);
 
                     await Task.WhenAll( 
@@ -238,7 +238,7 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
 
                     techMessager.RealeaseMessage("Установите перекрестие на первую точку линии и нажмите *", Icon.Info);
-                    tempX = points[1].X;
+                    tempX = points[1].X + waferWidth / 2;
                 }))
                 .SetGoAtSecondPointAction(() => Task.Run(async () =>
                 {
@@ -294,6 +294,7 @@ namespace NewLaserProject.ViewModels
                     _canTeach = false;
                 }));
             _currentTeacher = tcb.Build();
+            await _currentTeacher.StartTeach();
             _canTeach = true;
         }
         [ICommand]
@@ -579,9 +580,13 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void TestPierce()
+        private async Task TestPierce()
         {
-            _laserMachine.PierceLineAsync(-10, 0, 10, 0);
+            await _laserMachine.PierceLineAsync(-5, 5, 5, 5);
+            await _laserMachine.PierceLineAsync(-5, -5, 5, -5);
+            await _laserMachine.PierceLineAsync(-5, -5, -5, 5);
+            await _laserMachine.PierceLineAsync(5, -5, 5, 5);
+
         }
     }
 }

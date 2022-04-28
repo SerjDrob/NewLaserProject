@@ -107,8 +107,8 @@ namespace NewLaserProject.Classes
                 PCircle => new CircleParamsAdapter(_circlePierceParams),
                 _ => throw new ArgumentException($"{nameof(_currentObject)} matches isn't found")
             };
-            var perfBuilder = new PerforatorBuilder<T>(_currentObject, markLaserParams, paramsAdapter);
-            _laserMachine.PierceObjectAsync(perfBuilder).Wait();
+            var perforator = new PerforatorFactory<T>(_currentObject, markLaserParams, paramsAdapter).GetPerforator();
+            _laserMachine.PierceObjectAsync(perforator).Wait();
         }
         public async Task<bool> Start()
         {
