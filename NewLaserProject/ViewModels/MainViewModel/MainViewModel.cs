@@ -7,6 +7,7 @@ using MachineClassLibrary.VideoCapture;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
+using NewLaserProject.Classes.Process;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using PropertyChanged;
@@ -56,6 +57,8 @@ namespace NewLaserProject.ViewModels
         private CoorSystem<LMPlace> _coorSystem;
         private ITeacher _currentTeacher;
         private bool _canTeach = false;
+        private ThreePointProcess<DxfCurve> _threePointsProcess;
+
         //---------------------------------------------
         public MainViewModel()
         {
@@ -139,7 +142,7 @@ namespace NewLaserProject.ViewModels
         {
             //is dxf valid?
             //using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (60000, 48000));
-            using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"),"PAZ"), (60000, 48000));
+            using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), (60000, 48000));
             wafer.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();
             if (MirrorX) wafer.MirrorX();
@@ -163,24 +166,51 @@ namespace NewLaserProject.ViewModels
                 OnProcess = false;
             }
 
-            //foreach (var circle in wafer)
-            //{
-            //    var position = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, circle.X, circle.Y);
+        }
 
-            //    try
-            //    {
-            //        await _laserMachine.MoveGpInPosAsync(Groups.XY, position, true);//.WaitAsync(TimeSpan.FromMilliseconds(5000));
-            //    }
-            //    catch (Exception ex)
-            //    {
+        [ICommand]
+        private async Task StartThreePointProcess()
+        {
+            using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), (60000, 48000));
+            using var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), (60000, 48000));
+            wafer.Scale(1F / FileScale);
+            waferPoints.Scale(1F / FileScale);
+            if (WaferTurn90) wafer.Turn90();
+            if (WaferTurn90) waferPoints.Turn90();
+            if (MirrorX) wafer.MirrorX();
+            if (MirrorX) waferPoints.MirrorX();
 
-            //        throw;
-            //    }
-            //    await Task.Delay(500);
-            //}
+            _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
+            var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
 
+            var points = waferPoints.Cast<PPoint>();
+
+            _threePointsProcess = new ThreePointProcess<DxfCurve>(wafer, points, _pierceSequenceJson, _laserMachine,
+                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, techMessager);
+
+            try
+            {
+                OnProcess = true;
+                await _threePointsProcess.StartAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            finally
+            {
+                OnProcess = false;
+            }
 
         }
+
+        [ICommand]
+        private Task TPProcessNext()
+        {
+            return _threePointsProcess.Next();
+        }
+
         [ICommand]
         private async Task Test()
         {
