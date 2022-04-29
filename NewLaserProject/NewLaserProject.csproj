@@ -30,7 +30,7 @@
   
   
   <ItemGroup>
-    <Compile Remove="Classes\Geometry\FirstCoorSystem.cs" />
+    <Compile Remove="Classes\Geometry\FirstCoorSystem.cs" />	  
   </ItemGroup>
   
   <ItemGroup>
@@ -113,6 +113,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Update="TechnologyFiles\CircleListing.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -120,4 +123,10 @@
     <Folder Include="TechnologyFiles\" />
   </ItemGroup>
 
+	<ItemGroup>
+		<ContentWithTargetPath Include="EZCAD\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+		</ContentWithTargetPath>
+	</ItemGroup>
 </Project>

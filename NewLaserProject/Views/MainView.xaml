@@ -94,7 +94,7 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-
+       
         <DockPanel Grid.Column="2" Grid.RowSpan="2">
             <Border x:Name="ImportantMessage"
                     DockPanel.Dock="Top" 
@@ -394,6 +394,7 @@
                 </hc:SplitButton>
             </ToolBar>
             <ToolBar>
+                <Button Content="Материал" Command="{Binding ChooseMaterialCommand}"/>
                 <Button Command="{Binding AlignWaferCommand}"  Content="Right">
                     <Button.CommandParameter>
                         <MultiBinding Converter="{StaticResource AligningArgsConverters}">
@@ -501,46 +502,13 @@
                     <Setter Property="BorderBrush" Value="Green"/>
                 </Style>
             </Grid.Resources>
-            <DockPanel Grid.Column="1">
-                <WrapPanel DockPanel.Dock="Bottom">
-                    <uc:AxisState CoordinateName="X" 
-                                  Coordinate="{Binding XAxis.Position}"
-                                  LmtNeg="{Binding XAxis.NLmt}"
-                                  LmtPos="{Binding XAxis.PLmt}"
-                                  MotionDone="{Binding XAxis.MotionDone}" 
-                                  CmdCoordinate="{Binding XAxis.CmdPosition}"
-                                  />
-                    <uc:AxisState CoordinateName="Y"
-                                  Coordinate="{Binding YAxis.Position}"
-                                  LmtNeg="{Binding YAxis.NLmt}"
-                                  LmtPos="{Binding YAxis.PLmt}"
-                                  MotionDone="{Binding YAxis.MotionDone}"
-                                  CmdCoordinate="{Binding YAxis.CmdPosition}"
-                                  />
-                    <uc:AxisState CoordinateName="Z"
-                                  Coordinate="{Binding ZAxis.Position}"
-                                  LmtNeg="{Binding ZAxis.NLmt}"
-                                  LmtPos="{Binding ZAxis.PLmt}"
-                                  MotionDone="{Binding ZAxis.MotionDone}"
-                                  CmdCoordinate="{Binding ZAxis.CmdPosition}"
-                                  />
-                    <TextBlock x:Name="VelText" Text="Быстро">
-                        <i:Interaction.Triggers>
-                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
-                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Быстро"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
-                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
-                            </i:DataTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBlock>
-                </WrapPanel>
-                <Grid RenderTransformOrigin="0.5,0.5">
+            <Grid Grid.Column="1">
+                <!--<Grid RenderTransformOrigin="0.5,0.5">
                     <Border
                             BorderBrush="Green"
                             BorderThickness="3"
-                            Height="{Binding YDimension}"
-                            Width="{Binding XDimension}"
+                            Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.YDimension}"
+                            Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.XDimension}"
                             >
                         <Grid>
                             <Canvas RenderTransformOrigin="0.5,0.5">
@@ -612,8 +580,42 @@
                     <Grid.RenderTransform>
                         <ScaleTransform ScaleX="2" ScaleY="2"/>
                     </Grid.RenderTransform>
-                </Grid>
-            </DockPanel>
+                </Grid>-->
+                <WrapPanel>
+                    <uc:AxisState CoordinateName="X" 
+                                  Coordinate="{Binding XAxis.Position}"
+                                  LmtNeg="{Binding XAxis.NLmt}"
+                                  LmtPos="{Binding XAxis.PLmt}"
+                                  MotionDone="{Binding XAxis.MotionDone}" 
+                                  CmdCoordinate="{Binding XAxis.CmdPosition}"
+                                  />
+                    <uc:AxisState CoordinateName="Y"
+                                  Coordinate="{Binding YAxis.Position}"
+                                  LmtNeg="{Binding YAxis.NLmt}"
+                                  LmtPos="{Binding YAxis.PLmt}"
+                                  MotionDone="{Binding YAxis.MotionDone}"
+                                  CmdCoordinate="{Binding YAxis.CmdPosition}"
+                                  />
+                    <uc:AxisState CoordinateName="Z"
+                                  Coordinate="{Binding ZAxis.Position}"
+                                  LmtNeg="{Binding ZAxis.NLmt}"
+                                  LmtPos="{Binding ZAxis.PLmt}"
+                                  MotionDone="{Binding ZAxis.MotionDone}"
+                                  CmdCoordinate="{Binding ZAxis.CmdPosition}"
+                                  />
+                    <TextBlock x:Name="VelText" Text="Быстро">
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
+                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Быстро"/>
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
+                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBlock>
+                </WrapPanel>
+
+            </Grid>
         </Grid>
     </Grid>
 </hc:Window>
