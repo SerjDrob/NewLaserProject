@@ -19,15 +19,16 @@ namespace NewLaserProject.ViewModels
         private async Task StartProcess()
         {
             //is dxf valid?
-            //using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), (60000, 48000));
-            using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), (60000, 48000));
+            //using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), topologySize);
+            var topologySize = _dxfReader.GetSize();
+            using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
             wafer.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();
             if (MirrorX) wafer.MirrorX();
             _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
             var coorSystem = ProcessUnderCamera ? _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera) : _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
             //var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
-            var process = new LaserProcess2<DxfCurve>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
+            var process = new LaserProcess2<DxfCurve>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness);
 
             try
             {
@@ -68,7 +69,7 @@ namespace NewLaserProject.ViewModels
             var points = waferPoints.Cast<PPoint>();
 
             _threePointsProcess = new ThreePointProcess<DxfCurve>(wafer, points, _pierceSequenceJson, _laserMachine,
-                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, techMessager,
+                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
 
             try

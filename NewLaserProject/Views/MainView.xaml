@@ -314,8 +314,14 @@
             </DockPanel>
         </Border>
         <ToolBarTray Orientation="Vertical" Grid.Column="1" Grid.RowSpan="2">
+            
             <ToolBar>
-                <Button Command="{Binding StartProcessCommand}" HorizontalAlignment="Stretch">
+                <ToolBar.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    </Style>
+                </ToolBar.Resources>
+                <Button Command="{Binding StartProcessCommand}" >
                     <Button.ToolTip>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Запустить процесс"/>
@@ -327,7 +333,7 @@
                 </Button>
                 <Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
                 <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>
-                <Button Command="{Binding MachineSettingsCommand}" HorizontalAlignment="Stretch">
+                <Button Command="{Binding MachineSettingsCommand}" >
                     <Button.ToolTip>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Настройки приводов"/>
@@ -394,7 +400,24 @@
                 </hc:SplitButton>
             </ToolBar>
             <ToolBar>
-                <Button Content="Материал" Command="{Binding ChooseMaterialCommand}"/>
+                <Button Command="{Binding ChooseMaterialCommand}" MinHeight="50">
+                    <hc:Poptip.Instance>
+                        <hc:Poptip Content="Введите параметры подложки" PlacementType="TopLeft"/>
+                    </hc:Poptip.Instance>
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Подложка" Style="{StaticResource TextBlockDefaultBold }" Margin="0,0,0,3"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+                            <TextBlock Text="{Binding WaferWidth}" Style="{StaticResource TextBlockDefaultThiLight}"/>
+                            <TextBlock Text="X" Style="{StaticResource TextBlockDefaultThiLight}"/>
+                            <TextBlock Text="{Binding WaferHeight}" Style="{StaticResource TextBlockDefaultThiLight}"/>
+                            <TextBlock Text="X" Style="{StaticResource TextBlockDefaultThiLight}"/>
+                            <TextBlock Text="{Binding WaferThickness}" Style="{StaticResource TextBlockDefaultThiLight}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+
+                </Button>
                 <Button Command="{Binding AlignWaferCommand}"  Content="Right">
                     <Button.CommandParameter>
                         <MultiBinding Converter="{StaticResource AligningArgsConverters}">

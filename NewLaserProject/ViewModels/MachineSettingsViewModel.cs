@@ -2,6 +2,7 @@
 using FluentValidation.Validators;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Views;
 using Newtonsoft.Json.Serialization;
 using PropertyChanged;
 using System;
@@ -88,9 +89,25 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void TeachRightPoint() => (XRightPoint, YRightPoint) = (_currentX, _currentY);
         [ICommand]
-        private void TeachZCamera() => ZCamera = _currentZ;
+        private void TeachZCamera()
+        {
+            var waferThickness = 0.5;
+            var dc = new AskThicknessVM { Thickness = waferThickness };
+            new AskThicknesView { DataContext = dc }.ShowDialog();
+            waferThickness = dc.Thickness;
+
+            ZCamera = _currentZ + waferThickness;
+        }
         [ICommand]
-        private void TeachZLaser() => ZLaser = _currentZ;
+        private void TeachZLaser()
+        {
+            var waferThickness = 0.5;
+            var dc = new AskThicknessVM { Thickness = waferThickness };
+            new AskThicknesView { DataContext = dc }.ShowDialog();
+            waferThickness = dc.Thickness;
+
+            ZLaser = _currentZ + waferThickness;
+        }
         [ICommand]
         private void TeachLoadPoint() => (XLoad, YLoad) = (_currentX, _currentY);
     }

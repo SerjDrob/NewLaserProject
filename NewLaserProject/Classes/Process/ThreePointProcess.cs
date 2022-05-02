@@ -23,8 +23,9 @@ namespace NewLaserProject.Classes.Process
         private StateMachine<State, Trigger> _stateMachine;
         private bool _inProcess = false;
         private readonly IEnumerable<PPoint> _refPoints;
-        private readonly double _zPiercing;
-        private readonly double _zCamera;
+        private readonly double _zeroZPiercing;
+        private readonly double _zeroZCamera;
+        private readonly double _waferThickness;
         private readonly InfoMessager _infoMessager;
         private double _xActual;
         private double _yActual;
@@ -35,20 +36,22 @@ namespace NewLaserProject.Classes.Process
 
         public ThreePointProcess(LaserWafer<T> wafer, IEnumerable<PPoint> refPoints,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
-            double zPiercing, double zCamera, InfoMessager infoMessager, double dX, double dY, double pazAngle)
+            double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager, 
+            double dX, double dY, double pazAngle)
         {
             Guard.IsEqualTo(refPoints.Count(), 3, nameof(refPoints));
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
             _coorSystem = coorSystem;
-            _zPiercing = zPiercing;
+            _zeroZPiercing = zeroZPiercing;
             _refPoints = refPoints;
-            _zCamera = zCamera;
+            _zeroZCamera = zeroZCamera;
             _infoMessager = infoMessager;
             _dX = dX;
             _dY = dY;
             _pazAngle = pazAngle;
+            _waferThickness = waferThickness;
         }
 
 
@@ -81,7 +84,7 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(() => _laserMachine.SetVelocity(Velocity.Fast))
                 .OnEntry(() => { refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y; })
                 .OnEntryAsync(() => Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(refX, refY)),
-                                              _laserMachine.MoveAxInPosAsync(Ax.Z, _zCamera)))
+                                              _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness)))
                 .OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
                 .OnExit(() => resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY))))
                 .OnExit(() => refPointsEnumerator.MoveNext())
@@ -107,7 +110,7 @@ namespace NewLaserProject.Classes.Process
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Working)
-                .OnEntry(() => process = new LaserProcess2<T>(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zPiercing, _pazAngle - _matrixAngle))
+                .OnEntry(() => process = new LaserProcess2<T>(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zeroZPiercing, _waferThickness, _pazAngle - _matrixAngle))
                 .OnEntry(() => process.CreateProcess())
                 .OnEntryAsync(() => process.StartAsync())
                 .Ignore(Trigger.Next)

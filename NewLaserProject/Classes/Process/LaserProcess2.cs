@@ -24,13 +24,15 @@ namespace NewLaserProject.Classes
 
         private readonly double _zPiercing;
         private readonly double _curveAngle;
+        private readonly double _waferThickness;
 
         public LaserProcess2()
         {
 
         }
 
-        public LaserProcess2(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem, double zPiercing, double curveAngle = 0)
+        public LaserProcess2(LaserWafer<T> wafer, string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem, 
+            double zPiercing, double waferThickness, double curveAngle = 0)
         {
             _wafer = wafer;
             _jsonPierce = jsonPierce;
@@ -38,6 +40,7 @@ namespace NewLaserProject.Classes
             _coorSystem = coorSystem;
             _zPiercing = zPiercing;
             _curveAngle = curveAngle;
+            _waferThickness = waferThickness;
         }
 
 

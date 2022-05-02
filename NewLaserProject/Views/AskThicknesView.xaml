@@ -1,0 +1,24 @@
+﻿<hc:PopupWindow x:Class="NewLaserProject.Views.AskThicknesView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewLaserProject.Views"
+        mc:Ignorable="d"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        SizeToContent="WidthAndHeight" 
+                WindowStyle="ToolWindow"  
+                ShowInTaskbar="False" 
+                WindowStartupLocation="CenterScreen" 
+                ResizeMode="NoResize">
+    <Grid>
+        <hc:NumericUpDown Maximum="2"
+                          Minimum="0.05"
+                          Increment="0.125"
+                          DecimalPlaces="3"
+                          hc:InfoElement.Title="Введите толщину материала" 
+                          Style="{StaticResource NumericUpDownPlus}" 
+                          hc:InfoElement.Necessary="True"
+                          Value="{Binding Thickness}"/>
+    </Grid>
+</hc:PopupWindow>
