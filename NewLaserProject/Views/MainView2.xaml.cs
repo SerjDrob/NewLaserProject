@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HandyControl.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace NewLaserProject.Views
     /// <summary>
     /// Interaction logic for MainView2.xaml
     /// </summary>
-    public partial class MainView2 : Window
+    public partial class MainView2 : GlowWindow
     {
         public MainView2()
         {

@@ -9,6 +9,7 @@ using NewLaserProject.Classes.Teachers;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -26,8 +27,8 @@ namespace NewLaserProject.ViewModels
         private bool _tempMirrorX;
         private bool _tempWaferTurn90;
         public bool TeacherPointerVisibility { get; set; } = false;
-
-
+        public List<string> TeachingSteps { get; set; }
+        public int StepIndex { get; set; }
         [ICommand]
         private async Task WaferCornersTeach(bool leftCorner)
         {
@@ -111,6 +112,16 @@ namespace NewLaserProject.ViewModels
         private async Task TeachCameraOffset()
         {
             //if(_canTeach) return;
+
+            TeachingSteps = new() 
+            {
+                "Установка подложки",
+                "Выбор места прожига", 
+                "Совмещение прожига"
+            };
+            StepIndex = -1;
+
+            StartVideoCapture();
             var teachPosition = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 10, 10);
             double xOffset = Settings.Default.XOffset;
             double yOffset = Settings.Default.YOffset;
@@ -120,17 +131,21 @@ namespace NewLaserProject.ViewModels
 
             var dc = new AskThicknessVM { Thickness = waferThickness };
             new AskThicknesView { DataContext = dc }.ShowDialog();
+
+            
             waferThickness = dc.Thickness;
 
             var tcb = CameraOffsetTeacher.GetBuilder();
             tcb.SetOnGoLoadPointAction(() => Task.Run(async () =>
             {
+                StepIndex++;
                 _laserMachine.SetVelocity(Velocity.Fast);
                 await _laserMachine.GoThereAsync(LMPlace.Loading);
                 techMessager.RealeaseMessage("Установите подложку и нажмите * чтобы продолжить", Icon.Info);
             }))
                 .SetOnGoUnderCameraAction(() => Task.Run(async () =>
-                {                    
+                {
+                    StepIndex++;
                     _laserMachine.SetVelocity(Velocity.Fast);
                     await Task.WhenAll(
                         _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition),
@@ -156,6 +171,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnSearchScorchAction(() =>
                 {
+                    StepIndex++;
                     techMessager.RealeaseMessage("Совместите место прожига с перекрестием камеры и нажмите * чтобы продолжить", Icon.Info);
                     return Task.CompletedTask;
                 })
@@ -185,6 +201,8 @@ namespace NewLaserProject.ViewModels
                 .SetOnBiasToughtAction(() => Task.Run(() =>
                 {
                     techMessager.RealeaseMessage("Обучение отменено", Icon.Exclamation);
+                    StopVideoCapture();
+                    TeachingSteps?.Clear();                    
                     _canTeach = false;
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
@@ -196,7 +214,8 @@ namespace NewLaserProject.ViewModels
 
                     //---Set new coordinate system
                     _coorSystem = GetCoorSystem();
-
+                    StopVideoCapture();
+                    TeachingSteps?.Clear();
                     _canTeach = false;
                 }));
             _currentTeacher = tcb.Build();

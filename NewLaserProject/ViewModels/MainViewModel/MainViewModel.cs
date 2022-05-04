@@ -9,6 +9,7 @@ using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.Process;
 using NewLaserProject.Properties;
+using NewLaserProject.UserControls;
 using NewLaserProject.Views;
 using PropertyChanged;
 using System;
@@ -78,7 +79,7 @@ namespace NewLaserProject.ViewModels
             CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
             CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-
+            _laserMachine.FreezeCameraImage();
             var directory = Directory.GetCurrentDirectory();
             _laserMachine.InitMarkDevice(directory);
 
@@ -87,6 +88,7 @@ namespace NewLaserProject.ViewModels
         }
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
+        public bool ShowVideo { get; set; }
 
         [ICommand]
         private void CameraCapabilitiesChanged()
@@ -136,8 +138,16 @@ namespace NewLaserProject.ViewModels
         }
 
 
-
-
+        private void StartVideoCapture()
+        {
+            _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+            ShowVideo = true;
+        }
+        private void StopVideoCapture()
+        {
+            _laserMachine.StopCamera();
+            ShowVideo = false;
+        }
 
         [ICommand]
         private async Task Test()
@@ -148,6 +158,8 @@ namespace NewLaserProject.ViewModels
             //system.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem.json");
             //var m = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json");
             //LeftCornerBtnVisibility ^= true;
+            //StartVideoCapture();
+            HandyControl.Controls.Dialog.Show(new TextDialog());
         }
 
 
