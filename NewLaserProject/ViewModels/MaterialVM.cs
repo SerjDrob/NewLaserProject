@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HandyControl.Controls;
-using HandyControl;
+using HandyControl.Properties;
 using System.ComponentModel;
 
 namespace NewLaserProject.ViewModels

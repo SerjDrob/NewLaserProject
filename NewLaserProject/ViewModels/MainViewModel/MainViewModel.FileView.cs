@@ -112,6 +112,7 @@ namespace NewLaserProject.ViewModels
 
                     LPModel = new(_dxfReader);
                     TWModel = new();
+                    //LPModel.ObjectChosenEvent += TWModel.SetObjectsTC;
 
                     MirrorX = Settings.Default.WaferMirrorX;
                     WaferTurn90 = Settings.Default.WaferAngle90;

@@ -232,6 +232,33 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-        </ResourceDictionary>
+            <Style x:Key="PlayButton" BasedOn="{StaticResource ButtonCustom}" TargetType="Button">
+                <Setter Property="UseLayoutRounding" Value="False"/>
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="Width" Value="30"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid>
+                                <Border Background="{StaticResource DefaultBrush}" Padding="5">
+                                    <Path Data="{StaticResource PlaySignGeometry}" Stretch="Uniform" Fill="{DynamicResource SuccessBrush}"/>
+                                </Border>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value=".9"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Opacity" Value=".6"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.4"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>        
     </Application.Resources>
 </Application>

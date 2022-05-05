@@ -12,7 +12,7 @@ namespace NewLaserProject.ViewModels
     {
         //private readonly string _fileName;
         private readonly IDxfReader _dxfReader;
-        public ObservableCollection<Layer> Layers { get; init; }
+        public ObservableCollection<Layer> Layers { get; private set; }
 
         public LayersProcessingModel(IDxfReader dxfReader)
         {
@@ -24,7 +24,14 @@ namespace NewLaserProject.ViewModels
                 .Select(obj => new Layer(obj.Key, obj.Value));
             Layers = new(layers);
         }
-
+        [ICommand]
+        private void CheckObject(Text text)
+        {
+            foreach (var item in Layers.SelectMany(l => l.Objects).Where(o => o.Value != text.Value))
+            {
+                item.IsProcessed = false;
+            }
+        }
         [ICommand]
         private void ChooseObject(object param)
         {

@@ -72,7 +72,7 @@ namespace NewLaserProject.Classes.Process
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
             LaserProcess2<T> process = new();
-
+            SwitchCamera?.Invoke(this, true);
 
             _stateMachine.Configure(State.Started)
                 .OnActivate(() => _infoMessager.RealeaseMessage("Next", ViewModels.Icon.Info))
@@ -96,6 +96,7 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.GetRefPoint)
                 .OnEntry(_infoMessager.EraseMessage)
                 .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
+                .OnEntry(()=>SwitchCamera?.Invoke(this,false))
                 .OnEntry(() => workCoorSys = new CoorSystem<LMPlace>
                     .ThreePointCoorSystemBuilder<LMPlace>()
                     .SetFirstPointPair(originPoints[0], resultPoints[0])
@@ -127,6 +128,7 @@ namespace NewLaserProject.Classes.Process
             //}
         }
 
+        public event EventHandler<bool> SwitchCamera;
 
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {

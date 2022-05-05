@@ -69,9 +69,10 @@ namespace NewLaserProject.ViewModels
             var points = waferPoints.Cast<PPoint>();
 
             _threePointsProcess = new ThreePointProcess<DxfCurve>(wafer, points, _pierceSequenceJson, _laserMachine,
-                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, /*WaferThickness*/0.25, techMessager,
                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
 
+            _threePointsProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
             try
             {
                 OnProcess = true;
@@ -87,6 +88,18 @@ namespace NewLaserProject.ViewModels
                 OnProcess = false;
             }
 
+        }
+
+        private void _threePointsProcess_SwitchCamera(object? sender, bool e)
+        {
+            if (e)
+            {
+                StartVideoCapture();
+            }
+            else
+            {
+                StopVideoCapture();
+            }
         }
 
         [ICommand]

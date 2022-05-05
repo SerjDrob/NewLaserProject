@@ -28,11 +28,15 @@
                                 <i:EventTrigger EventName="MouseDown">
                                     <i:InvokeCommandAction 
                                         Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.ChooseObjectCommand}"
-                                        CommandParameter="{Binding}"
+                                        CommandParameter="{Binding}" 
+                                        PassEventArgsToCommand="True"
                                         />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                            <CheckBox Content="{Binding Value}" IsChecked="{Binding IsProcessed}" VerticalContentAlignment="Top"/>
+                            <CheckBox Content="{Binding Value}" 
+                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.CheckObjectCommand}" 
+                                      CommandParameter="{Binding}"
+                                      IsChecked="{Binding IsProcessed}" VerticalContentAlignment="Top"/>
                             <TextBlock Text=" [ " Foreground="Blue" />
                             <TextBlock Text="{Binding Count}" Foreground="Blue"/>
                             <TextBlock Text=" ]" Foreground="Blue" />
