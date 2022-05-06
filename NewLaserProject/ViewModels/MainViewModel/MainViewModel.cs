@@ -159,7 +159,8 @@ namespace NewLaserProject.ViewModels
             //var m = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json");
             //LeftCornerBtnVisibility ^= true;
             //StartVideoCapture();
-           // HandyControl.Controls.Dialog.Show(new TextDialog());
+            // HandyControl.Controls.Dialog.Show(new TextDialog());
+            ProcessingObjectIndex++;
         }
 
 

@@ -8,7 +8,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol" 
              xmlns:Controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary" 
-             
+             xmlns:entities ="clr-namespace:MachineClassLibrary.Laser.Entities;assembly=MachineClassLibrary"
              >
     <Application.Resources>
         <ResourceDictionary>
@@ -30,7 +30,23 @@
             <DataTemplate x:Key="Nothing">
                 <Grid/>
             </DataTemplate>
-            
+
+            <DataTemplate DataType="{x:Type entities:PCircle}">
+                <Path Data="{StaticResource CircleGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
+                    </Path.LayoutTransform>
+                </Path>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type entities:PCurve}">
+                <Path Data="{StaticResource CurveGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
+                    </Path.LayoutTransform>
+                </Path>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type pblocks:LoopBlock}">
                 <GroupBox Style="{StaticResource LoopBox}" DataContext="{Binding}">
                     <GroupBox.Header>

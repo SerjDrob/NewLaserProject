@@ -481,6 +481,39 @@
                     </Border>
                 </Expander>
             </hc:SimplePanel>
+            <ListView DockPanel.Dock="Top" SelectionMode="Single" SelectedIndex="{Binding ProcessingObjectIndex}" ItemsSource="{Binding ProcessingObjects}" Height="300">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Слой" DisplayMemberBinding="{Binding LayerName}"/>
+                        <GridViewColumn Header="Тип">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Координаты">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock >
+                                        <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
+                                        <Run Text="&#215;"/>
+                                        <Run Text="{Binding Y}"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Обработка">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="True"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+
+            </ListView>
             <hc:StepBar DockPanel.Dock="Top" Dock="Left" ItemsSource="{Binding TeachingSteps}" StepIndex="{Binding StepIndex}"/>
 
             <WrapPanel DockPanel.Dock="Bottom">

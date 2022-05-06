@@ -6,6 +6,7 @@ using NewLaserProject.Classes.Process;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,35 +16,39 @@ namespace NewLaserProject.ViewModels
 {
     internal partial class MainViewModel
     {
+        public ObservableCollection<IProcObject> ProcessingObjects { get; set; } = new();
+        public int ProcessingObjectIndex { get; set; } = 1;
+
         [ICommand]
         private async Task StartProcess()
         {
-            //is dxf valid?
-            //using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), topologySize);
-            var topologySize = _dxfReader.GetSize();
-            using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
-            wafer.Scale(1F / FileScale);
-            if (WaferTurn90) wafer.Turn90();
-            if (MirrorX) wafer.MirrorX();
-            _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
-            var coorSystem = ProcessUnderCamera ? _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera) : _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
-            //var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
-            var process = new LaserProcess2<DxfCurve>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness);
+            ProcessingObjects = new(_dxfReader.GetCircles());
+            ////is dxf valid?
+            ////using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), topologySize);
+            //var topologySize = _dxfReader.GetSize();
+            //using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
+            //wafer.Scale(1F / FileScale);
+            //if (WaferTurn90) wafer.Turn90();
+            //if (MirrorX) wafer.MirrorX();
+            //_pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
+            //var coorSystem = ProcessUnderCamera ? _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera) : _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
+            ////var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
+            //var process = new LaserProcess2<DxfCurve>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness);
 
-            try
-            {
-                OnProcess = true;
-                await process.StartAsync();
-            }
-            catch (Exception ex)
-            {
+            //try
+            //{
+            //    OnProcess = true;
+            //    await process.StartAsync();
+            //}
+            //catch (Exception ex)
+            //{
 
-                throw;
-            }
-            finally
-            {
-                OnProcess = false;
-            }
+            //    throw;
+            //}
+            //finally
+            //{
+            //    OnProcess = false;
+            //}
 
         }
 
