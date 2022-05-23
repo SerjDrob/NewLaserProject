@@ -1,0 +1,19 @@
+[
+  {
+    "$type": "PierceBlock",
+    "CanAcceptChildren": false,
+    "MarkParams": null
+  },
+  {
+    "$type": "LoopBlock",
+    "CanAcceptChildren": true,
+    "Children": [
+      {
+        "$type": "DelayBlock",
+        "CanAcceptChildren": false,
+        "DelayTime": 0
+      }
+    ],
+    "LoopCount": 0
+  }
+]

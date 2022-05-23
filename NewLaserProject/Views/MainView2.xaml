@@ -93,8 +93,8 @@
                     </Style>
                 </ToolBar.Resources>
                 <Button Style="{StaticResource PlayButton}" HorizontalAlignment="Stretch"/>
-                <Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
-                <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>
+                <!--<Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
+                <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>-->
                 <Button Command="{Binding MachineSettingsCommand}" HorizontalAlignment="Stretch">
                     <Button.ToolTip>
                         <StackPanel Orientation="Horizontal">
@@ -155,6 +155,11 @@
             </ToolBar>
         </ToolBarTray>
         <TabControl Margin="1" Grid.Column="1">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding DbLoadCommand}" PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             <TabItem>
                 <TabItem.Header>
                     <Border BorderBrush="CadetBlue" Margin="0,0,10,0" CornerRadius="4" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
@@ -375,13 +380,22 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Настройки" IsEnabled="{Binding IsFileSettingsEnable}">
+            <!--IsEnabled="{Binding IsFileSettingsEnable}"-->
+            <TabItem Header="Мастер технологий" TabIndex="1">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Selector.Selected">
+                        <i:InvokeCommandAction Command="{Binding DbLoadCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <DockPanel>
-                    <ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>
-                    <ContentControl x:Name="TW" Content="{Binding TWModel, Mode=TwoWay}"/>
+                    <!--<ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>-->
+                    <!--<ContentControl x:Name="TW" Content="{Binding TWModel, Mode=TwoWay}"/>-->
+                    <ContentControl Content="{Binding LaserDbVM}"/>
                 </DockPanel>
             </TabItem>
-
+            <TabItem Header="Настройки" TabIndex="2">
+                <ContentControl Content="{Binding AppSngsVM}"/>
+            </TabItem>
         </TabControl>
         <DockPanel Grid.Column="2" VerticalAlignment="Stretch" LastChildFill="False">
             <Border x:Name="ImportantMessage"
@@ -481,39 +495,65 @@
                     </Border>
                 </Expander>
             </hc:SimplePanel>
-            <ListView DockPanel.Dock="Top" SelectionMode="Single" SelectedIndex="{Binding ProcessingObjectIndex}" ItemsSource="{Binding ProcessingObjects}" Height="300">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Слой" DisplayMemberBinding="{Binding LayerName}"/>
-                        <GridViewColumn Header="Тип">
-                            <GridViewColumn.CellTemplate>
+            <DockPanel>
+                <ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>
+                <DataGrid DockPanel.Dock="Left" 
+                      AutoGenerateColumns="False" 
+                      ItemsSource="{Binding ProcessingObjects}"
+                      SelectionMode="Single"
+                      Height="100"
+                      Style="{StaticResource DataGrid.Small}"
+                      >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding ProcGridSelectionCommand}"
+                                           PassEventArgsToCommand="True"
+                                           />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+                    <DataGrid.ItemContainerStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="IsSelected" Value="{Binding IsBeingProcessed}"/>
+                        </Style>
+                    </DataGrid.ItemContainerStyle>
+                    <!--<DataGrid.RowHeaderTemplate>
+                    <DataTemplate>
+                        <CheckBox IsChecked="False"/>
+                    </DataTemplate>
+                </DataGrid.RowHeaderTemplate>-->
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
+                        <DataGridTemplateColumn Header="Тип">
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ContentControl Content="{Binding}"/>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Координаты">
-                            <GridViewColumn.CellTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Координаты">
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock >
                                         <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
                                         <Run Text="&#215;"/>
-                                        <Run Text="{Binding Y}"/>
+                                        <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
                                     </TextBlock>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Обработка">
-                            <GridViewColumn.CellTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Обработка">
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <CheckBox IsChecked="True"/>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Масштаб" Binding="{Binding Scale}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
 
-            </ListView>
             <hc:StepBar DockPanel.Dock="Top" Dock="Left" ItemsSource="{Binding TeachingSteps}" StepIndex="{Binding StepIndex}"/>
 
             <WrapPanel DockPanel.Dock="Bottom">

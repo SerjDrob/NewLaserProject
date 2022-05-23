@@ -41,6 +41,8 @@ namespace NewLaserProject.ViewModels
         public bool IsFileSettingsEnable { get; set; } = false;
         public string FileName { get; set; } = "Open the file";
 
+        public LaserDbViewModel LaserDbVM { get; set; }
+
         public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
 
         private IDxfReader _dxfReader;
@@ -111,7 +113,10 @@ namespace NewLaserProject.ViewModels
                     IsFileSettingsEnable = true;
 
                     LPModel = new(_dxfReader);
-                    TWModel = new();
+                    TWModel = new();                  
+
+
+
                     //LPModel.ObjectChosenEvent += TWModel.SetObjectsTC;
 
                     MirrorX = Settings.Default.WaferMirrorX;

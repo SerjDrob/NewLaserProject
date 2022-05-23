@@ -1,0 +1,19 @@
+[
+  {
+    "$type": "PierceBlock",
+    "CanAcceptChildren": false,
+    "MarkParams": null
+  },
+  {
+    "$type": "LoopBlock",
+    "CanAcceptChildren": true,
+    "Children": [
+      {
+        "$type": "TapperBlock",
+        "CanAcceptChildren": false,
+        "Tapper": 0.0
+      }
+    ],
+    "LoopCount": 1
+  }
+]

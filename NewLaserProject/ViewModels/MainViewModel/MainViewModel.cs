@@ -51,7 +51,7 @@ namespace NewLaserProject.ViewModels
 
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
-
+        public AppSettingsVM AppSngsVM { get; set; } = new();
 
         //---------------------------------------------
         private CoorSystem<LMPlace> _coorSystem;
@@ -82,9 +82,15 @@ namespace NewLaserProject.ViewModels
             _laserMachine.FreezeCameraImage();
             var directory = Directory.GetCurrentDirectory();
             _laserMachine.InitMarkDevice(directory);
-
             TuneMachineFileView();
-            techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
+            techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);          
+            
+
+        }
+        [ICommand]
+        private void DbLoad(object args)
+        {
+            if(LaserDbVM is null) LaserDbVM = new();
         }
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
@@ -160,7 +166,9 @@ namespace NewLaserProject.ViewModels
             //LeftCornerBtnVisibility ^= true;
             //StartVideoCapture();
             // HandyControl.Controls.Dialog.Show(new TextDialog());
+            
             ProcessingObjectIndex++;
+            ProcessGridChangeSelection(ProcessingObjectIndex);
         }
 
 

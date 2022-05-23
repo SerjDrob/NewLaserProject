@@ -1,9 +1,11 @@
-﻿namespace NewLaserProject.Classes.ProgBlocks
+﻿using System.Linq;
+
+namespace NewLaserProject.Classes.ProgBlocks
 {
     internal class LoopBlock : IProgBlock
     {
         public bool CanAcceptChildren { get; set; } = true;
-        public ChildrenObservCollection<IProgBlock> Children { get; private set; }
+        public ChildrenObservCollection<IProgBlock> Children { get; protected set; }
         public LoopBlock()
         {
             Children = new(this);

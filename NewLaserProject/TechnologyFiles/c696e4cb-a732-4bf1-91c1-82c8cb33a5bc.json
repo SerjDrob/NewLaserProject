@@ -1,0 +1,13 @@
+{
+  "$type": "MainLoop",
+  "Shuffle": true,
+  "CanAcceptChildren": true,
+  "Children": [
+    {
+      "$type": "TapperBlock",
+      "CanAcceptChildren": false,
+      "Tapper": 0.02
+    }
+  ],
+  "LoopCount": 3
+}

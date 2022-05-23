@@ -1,0 +1,19 @@
+{
+  "$type": "MainLoop",
+  "Shuffle": false,
+  "CanAcceptChildren": true,
+  "Children": [
+    {
+      "$type": "TapperBlock",
+      "CanAcceptChildren": false,
+      "Tapper": 0.02,
+      "Sign": false
+    },
+    {
+      "$type": "AddZBlock",
+      "CanAcceptChildren": false,
+      "DeltaZ": -0.03
+    }
+  ],
+  "LoopCount": 3
+}

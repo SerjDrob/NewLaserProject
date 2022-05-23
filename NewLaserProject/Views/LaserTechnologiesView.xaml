@@ -1,0 +1,144 @@
+﻿<UserControl x:Class="NewLaserProject.Views.LaserTechnologiesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" 
+             DataContext="{Binding}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <CollectionViewSource x:Key="TechnologyBase"
+                              Source="{Binding Technologies}"/>
+        <CollectionViewSource x:Key="MaterialBase"
+                              Source="{Binding Materials}"/>
+    </UserControl.Resources>
+    <Grid>
+        <StackPanel>
+            <GroupBox Style="{StaticResource GroupBoxTab}" BorderThickness="3">
+                <GroupBox.Header>
+                    <Grid Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=GroupBox}, Path=ActualWidth}">
+                        <TextBlock Text="Технологии" HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitleBold}"/>
+                    </Grid>
+                </GroupBox.Header>
+                <DataGrid AutoGenerateColumns="False"  
+                  Height="200"
+                  VerticalScrollBarVisibility="Visible"
+                  hc:ScrollViewerAttach.AutoHide="False"
+                          BorderBrush="{StaticResource InfoBrush}"
+                          BorderThickness="1"
+                  ItemsSource="{Binding Source={StaticResource TechnologyBase}}"
+                  Style="{StaticResource DataGrid.Small}"
+                  >                    
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Программа" Binding="{Binding ProgramName}"/>
+                        <DataGridTextColumn Header="Материал" Binding="{Binding Material.Name}"/>
+                        <DataGridTextColumn Header="Толщина" Binding="{Binding Material.Thickness}"/>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                            Path=DataContext.ViewTechnologyCommand}" CommandParameter="{Binding}"                                            
+                                            hc:IconElement.Geometry="{StaticResource DocGeometry}" 
+                                            Style="{StaticResource ButtonInfo.Small}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                            Path=DataContext.EditTechnologyCommand}" CommandParameter="{Binding}"                                            
+                                            Content="Edit"
+                                            Style="{StaticResource ButtonWarning.Small}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                            Path=DataContext.DeleteTechnologyCommand}" CommandParameter="{Binding}"                                            
+                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
+                                            Style="{StaticResource ButtonDanger.Small}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                   
+                </DataGrid>
+            </GroupBox>
+            <GroupBox Style="{StaticResource GroupBoxTab}">
+                <GroupBox.Header>
+                    <DockPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=GroupBox}, Path=ActualWidth}">
+                        <TextBlock Text="Материалы" DockPanel.Dock="Left" Style="{StaticResource TextBlockSubTitleBold}"/>
+                        <Button hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                hc:Poptip.Content="Создать материал"
+                                hc:Poptip.Placement="RightTop"
+                                hc:Poptip.Offset="12"
+                                DockPanel.Dock="Right"
+                        Command="{Binding AddMaterialCommand}"
+                        Style="{StaticResource ButtonSuccess.Small}"/>
+                    </DockPanel>
+                </GroupBox.Header>
+                <DataGrid AutoGenerateColumns="False"
+                          Height="200"
+                          VerticalScrollBarVisibility="Visible"
+                          hc:ScrollViewerAttach.AutoHide="False"
+                          BorderBrush="{StaticResource InfoBrush}"
+                          BorderThickness="1"
+                          ItemsSource="{Binding Source={StaticResource MaterialBase}}"
+                          Style="{StaticResource DataGrid.Small}"
+                          >
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Название" Binding="{Binding Name}"/>
+                        <DataGridTextColumn Header="Толщина"  Binding="{Binding Thickness}"/>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                            Path=DataContext.AssignTechnologyCommand}" CommandParameter="{Binding}"                                            
+                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                            Content="Технология"
+                                            Style="{StaticResource ButtonSuccess.Small}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                            Path=DataContext.ViewMaterialCommand}" CommandParameter="{Binding}"                                            
+                                            hc:IconElement.Geometry="{StaticResource DocGeometry}" 
+                                            Style="{StaticResource ButtonInfo.Small}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                            Path=DataContext.EditMaterialCommand}" CommandParameter="{Binding}"                                            
+                                            Content="Edit"
+                                            Style="{StaticResource ButtonWarning.Small}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                            Path=DataContext.DeleteMaterialCommand}" CommandParameter="{Binding}"                                            
+                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
+                                            Style="{StaticResource ButtonDanger.Small}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>                
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,19 @@
+[
+  {
+    "$type": "LoopBlock",
+    "CanAcceptChildren": true,
+    "Children": [
+      {
+        "$type": "DelayBlock",
+        "CanAcceptChildren": false,
+        "DelayTime": 0
+      },
+      {
+        "$type": "AddZBlock",
+        "CanAcceptChildren": false,
+        "DeltaZ": 0.0
+      }
+    ],
+    "LoopCount": 0
+  }
+]
