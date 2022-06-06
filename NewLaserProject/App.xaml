@@ -16,8 +16,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Views/WizardDictionary.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinViolet.xaml"/>
-                <!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDark.xaml"/>-->
+                <!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinViolet.xaml"/>-->
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDark.xaml"/>
 
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
                 <ResourceDictionary Source="Geometries.xaml"/>
@@ -46,7 +46,7 @@
                 <Grid/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type entities:PCircle}">
+            <DataTemplate x:Key="LaserCircleDataTemplate" DataType="{x:Type entities:PCircle}">
                 <Path Data="{StaticResource CircleGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
                     <Path.LayoutTransform>
                         <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
@@ -54,7 +54,7 @@
                 </Path>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type entities:PCurve}">
+            <DataTemplate x:Key="LaserCurveDataTemplate" DataType="{x:Type entities:PCurve}">
                 <Path Data="{StaticResource CurveGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
                     <Path.LayoutTransform>
                         <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
@@ -62,6 +62,22 @@
                 </Path>
             </DataTemplate>
 
+            <DataTemplate x:Key="LaserLineDataTemplate" DataType="{x:Type entities:PLine}">
+                <Path Data="{StaticResource LineGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="0.6" ScaleY="-0.6"/>
+                    </Path.LayoutTransform>
+                </Path>
+            </DataTemplate>
+
+            <DataTemplate x:Key="LaserPointDataTemplate" DataType="{x:Type entities:PPoint}">
+                <Path Data="{StaticResource PointGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
+                    </Path.LayoutTransform>
+                </Path>
+            </DataTemplate>
+            
             <DataTemplate DataType="{x:Type pblocks:LoopBlock}">
                 <GroupBox Style="{StaticResource LoopBox}" DataContext="{Binding}">
                     <GroupBox.Header>
@@ -71,44 +87,8 @@
                                               Minimum="1"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Width="80"
-                                              />
-
-                            <!--<ToggleButton IsChecked="False" 
-                                          hc:Poptip.Content="Порядок обхода"
-                                          hc:Poptip.Placement="RightTop"
-                                          Style="{StaticResource ToggleButtonFlip}"
-                                          Background="{StaticResource SuccessBrush}"
-                                          HorizontalAlignment="Right"
-                                          Margin="0,0,5,0"
-                                          Padding="3"
-                                          >
-                                <hc:StatusSwitchElement.CheckedElement>
-                                    <Path Data="{StaticResource ShuffleGeometry}" 
-                                      Stroke="{StaticResource LightSuccessBrush}" 
-                                      StrokeThickness="1"
-                                      RenderTransformOrigin="0.5 0.5">
-                                        <Path.RenderTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform ScaleY="-1"/>
-
-                                            </TransformGroup>
-                                        </Path.RenderTransform>
-                                    </Path>
-                                </hc:StatusSwitchElement.CheckedElement>
-                                <Path Data="{StaticResource SequntelyGeometry}" 
-                                      Stroke="{StaticResource LightSuccessBrush}" 
-                                      StrokeThickness="1"
-                                      RenderTransformOrigin="0.5 0.5">
-                                    <Path.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleY="-1"/>
-
-                                        </TransformGroup>
-                                    </Path.RenderTransform>
-                                </Path>
-                            </ToggleButton>-->
+                                              />                            
                         </DockPanel>
-
                     </GroupBox.Header>
                     <ItemsControl                           
                           ItemsSource="{Binding Children}"
@@ -221,7 +201,7 @@
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type pblocks:RepairZBlock}">
-                <ItemsControl Style="{StaticResource RepairZBlock}">
+                <ItemsControl Style="{StaticResource CoorBlock}">
                     <Label Content="На исходную глубину" Style="{StaticResource BlockLabel}"/>                    
                 </ItemsControl>
             </DataTemplate>
@@ -386,32 +366,14 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <Style x:Key="PlayButton" BasedOn="{StaticResource ButtonCustom}" TargetType="Button">
-                <Setter Property="UseLayoutRounding" Value="False"/>
-                <Setter Property="Height" Value="30"/>
-                <!--<Setter Property="Width" Value="30"/>-->
-                <Setter Property="Template">
+            <Style x:Key="PlayButton" BasedOn="{StaticResource ButtonDefault}" TargetType="Button">
+                <Setter Property="Content">
                     <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Grid>
-                                <Border Background="{StaticResource DefaultBrush}" Padding="5">
-                                    <Path Data="{StaticResource PlaySignGeometry}" Stretch="Uniform" Fill="{DynamicResource SuccessBrush}"/>
-                                </Border>
-                            </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Opacity" Value=".9"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter Property="Opacity" Value=".6"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Opacity" Value="0.4"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
+                            <Path Data="{StaticResource PlaySignGeometry}" Stretch="UniformToFill"  Fill="{DynamicResource SuccessBrush}">
+                                
+                            </Path>
                     </Setter.Value>
-                </Setter>
+                </Setter>                
             </Style>
         </ResourceDictionary>        
     </Application.Resources>

@@ -1,0 +1,25 @@
+{
+  "$type": "MainLoop",
+  "Shuffle": false,
+  "CanAcceptChildren": true,
+  "Children": [
+    {
+      "$type": "LoopBlock",
+      "CanAcceptChildren": true,
+      "Children": [
+        {
+          "$type": "AddZBlock",
+          "CanAcceptChildren": false,
+          "DeltaZ": 0.0
+        },
+        {
+          "$type": "PierceBlock",
+          "CanAcceptChildren": false,
+          "MarkParams": null
+        }
+      ],
+      "LoopCount": 3
+    }
+  ],
+  "LoopCount": 0
+}

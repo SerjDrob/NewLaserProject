@@ -4,7 +4,7 @@
 
 namespace NewLaserProject.Migrations
 {
-    public partial class initialcreate : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -43,6 +43,32 @@ namespace NewLaserProject.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "DefaultLayerEntityTechnology",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    LayerNameFilter = table.Column<string>(type: "TEXT", nullable: false),
+                    EntityType = table.Column<int>(type: "INTEGER", nullable: false),
+                    TechnologyId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DefaultLayerEntityTechnology", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DefaultLayerEntityTechnology_Technology_TechnologyId",
+                        column: x => x.TechnologyId,
+                        principalTable: "Technology",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DefaultLayerEntityTechnology_TechnologyId",
+                table: "DefaultLayerEntityTechnology",
+                column: "TechnologyId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Technology_MaterialId",
                 table: "Technology",
@@ -51,6 +77,9 @@ namespace NewLaserProject.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "DefaultLayerEntityTechnology");
+
             migrationBuilder.DropTable(
                 name: "Technology");
 

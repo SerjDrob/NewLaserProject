@@ -21,5 +21,6 @@ namespace NewLaserProject.Views.Selectors
             ModuleType.Delay => DelayTimeDataTemplate,
             _ => null
         };
+        
     }
 }

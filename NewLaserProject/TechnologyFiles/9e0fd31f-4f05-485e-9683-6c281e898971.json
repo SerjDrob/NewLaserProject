@@ -1,8 +1,13 @@
 {
   "$type": "MainLoop",
-  "Shuffle": false,
+  "Shuffle": true,
   "CanAcceptChildren": true,
   "Children": [
+    {
+      "$type": "TapperBlock",
+      "CanAcceptChildren": false,
+      "Tapper": 0.05
+    },
     {
       "$type": "PierceBlock",
       "CanAcceptChildren": false,
@@ -26,7 +31,7 @@
           "JumpPosTC": 1000,
           "JumpDistTC": 1000,
           "EndComp": 0.0,
-          "AccDist": 3.0,
+          "AccDist": 1.0,
           "PointTime": 1.0,
           "PulsePointMode": true,
           "PulseNum": 2,
@@ -56,5 +61,5 @@
       }
     }
   ],
-  "LoopCount": 4
+  "LoopCount": 3
 }

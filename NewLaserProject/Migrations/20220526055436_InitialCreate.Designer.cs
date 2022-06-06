@@ -10,13 +10,36 @@ using NewLaserProject.Data;
 namespace NewLaserProject.Migrations
 {
     [DbContext(typeof(LaserDbContext))]
-    [Migration("20220516154313_initialcreate")]
-    partial class initialcreate
+    [Migration("20220526055436_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.4");
+
+            modelBuilder.Entity("NewLaserProject.Data.Models.DefaultLayerEntityTechnology", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EntityType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LayerNameFilter")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TechnologyId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TechnologyId");
+
+                    b.ToTable("DefaultLayerEntityTechnology");
+                });
 
             modelBuilder.Entity("NewLaserProject.Data.Models.Material", b =>
                 {
@@ -58,6 +81,17 @@ namespace NewLaserProject.Migrations
                     b.HasIndex("MaterialId");
 
                     b.ToTable("Technology");
+                });
+
+            modelBuilder.Entity("NewLaserProject.Data.Models.DefaultLayerEntityTechnology", b =>
+                {
+                    b.HasOne("NewLaserProject.Data.Models.Technology", "Technology")
+                        .WithMany()
+                        .HasForeignKey("TechnologyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Technology");
                 });
 
             modelBuilder.Entity("NewLaserProject.Data.Models.Technology", b =>

@@ -9,6 +9,7 @@
         ShowCancel="True"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
+        Background="{DynamicResource DefaultBrush}"  
         >
     <Grid>
         <StackPanel>

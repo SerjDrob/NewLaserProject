@@ -83,9 +83,11 @@
                     </StackPanel>
                 </GroupBox.Header>
                 <DockPanel>
-                    <ItemsControl 
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" CanContentScroll="True" Height="300">
+                        <ItemsControl 
                           ItemsSource="{Binding Listing}"
-                          Background="#FFF9F9F9" 
+                            Height="4000"
+                          Background="{DynamicResource DefaultBrush}" 
                           HorizontalAlignment="Stretch" 
                           VerticalAlignment="Stretch" 
                           dd:DragDrop.IsDragSource="True"  
@@ -93,19 +95,20 @@
                           dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext}" 
                           dd:DragDrop.DropAdornerTemplate="{StaticResource DraggedBlock}"                              
                           >
-                        <ItemsControl.ItemTemplate >
-                            <DataTemplate>
-                                <ContentControl Content="{Binding}" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                            <ItemsControl.ItemTemplate >
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </DockPanel>
             </GroupBox>
             <GroupBox Header="Элементы"  
                       Visibility="{Binding EditEnable, Converter={StaticResource Boolean2VisibilityConverter}}"
                       DockPanel.Dock="Right">
                 <ItemsControl ItemsSource="{Binding ProgBlocks}"
-                          Background="#FFF9F9F9" 
+                          Background="{DynamicResource DefaultBrush}" 
                           dd:DragDrop.IsDragSource="True" 
                           dd:DragDrop.IsDropTarget="True"
                           dd:DragDrop.DragDropCopyKeyState="LeftMouseButton"

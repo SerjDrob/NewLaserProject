@@ -20,22 +20,24 @@ namespace NewLaserProject.ViewModels
         public ObservableCollection<Technology> Technologies { get; set; }// = new();
         public ObservableCollection<Material> Materials { get; set; }// = new();
 
-        private LaserDbContext _laserDbContext;
-        public LaserDbViewModel()
+        public LaserDbViewModel(DbContext db)
         {
-            _laserDbContext = new LaserDbContextFactory().CreateDbContext(null);
-            _laserDbContext.Database.EnsureCreated();
-            _laserDbContext.Set<Technology>()
+            _db = db;
+
+            _db.Set<Technology>()
                 .Include(t => t.Material)
                 .LoadAsync()
                 //TODO: fix it!
-                .ContinueWith(_ => Technologies = _laserDbContext.Set<Technology>().Local.ToObservableCollection())
+                .ContinueWith(_ => Technologies = _db.Set<Technology>().Local.ToObservableCollection())
                 .ConfigureAwait(false);
-            _laserDbContext.Set<Material>()
+
+            _db.Set<Material>()
                 .LoadAsync()
-                .ContinueWith(_ => Materials = _laserDbContext.Set<Material>().Local.ToObservableCollection())
+                .ContinueWith(_ => Materials = _db.Set<Material>().Local.ToObservableCollection())
                 .ConfigureAwait(false);
+
         }
+        private readonly DbContext _db;
 
         [ICommand]
         private void AddMaterial()
@@ -54,8 +56,8 @@ namespace NewLaserProject.ViewModels
             if (result ?? false)
             {
                 var newMaterial = new Material(material);
-                _laserDbContext.Set<Material>().Add(newMaterial);
-                _laserDbContext.SaveChanges();
+                _db.Add(newMaterial);
+                _db.SaveChanges();
             }
         }
 
@@ -81,9 +83,9 @@ namespace NewLaserProject.ViewModels
                 newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(path);
 
                 newTechnology.ProgramName = writeTechVM.TechnologyName;
-                _laserDbContext.Set<Technology>()
-                    .Add(newTechnology);
-                _laserDbContext.SaveChanges();
+                _db.Set<Technology>()
+                          .Add(newTechnology);
+                _db.SaveChanges();
             }
         }
 
@@ -104,8 +106,8 @@ namespace NewLaserProject.ViewModels
             if (result ?? false)
             {
                 technology.ProcessingProgram = techWizard.SaveListingToFolder(Path.Combine(projectDirectory, "TechnologyFiles"));
-                _laserDbContext.Set<Technology>().Update(technology);
-                _laserDbContext.SaveChanges();
+                _db.Set<Technology>().Update(technology);
+                _db.SaveChanges();
                 File.Delete(path);
             }
         }
@@ -127,10 +129,10 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void DeleteTechnology(Technology technology)
         {            
-            _laserDbContext.Set<Technology>()
+            _db.Set<Technology>()
                 .Remove(technology);
             DeleteTechnologyFile(technology);
-            _laserDbContext.SaveChanges();            
+            _db.SaveChanges();            
         }
         private void DeleteTechnologyFile(Technology technology)
         {
@@ -140,7 +142,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void DeleteMaterial(Material material)
         {
-            var deletingMaterial = _laserDbContext.Remove(material);
+            var deletingMaterial = _db.Remove(material);
             if (deletingMaterial is not null)
             {
                 deletingMaterial
@@ -148,7 +150,7 @@ namespace NewLaserProject.ViewModels
                     .Technologies?
                     .ForEach(t=>DeleteTechnologyFile(t));
             }
-            _laserDbContext.SaveChanges();
+            _db.SaveChanges();
         }
     }
 }
