@@ -47,8 +47,8 @@
     <Color x:Key="SliderTrackDarkColor">#FFC5CBF9</Color>
 
     <Color x:Key="NavButtonFrameColor">#FF3843C4</Color>
-    <System:Double x:Key="LoopWidth">234</System:Double>
-    <System:Double x:Key="BlockWidth">218</System:Double>
+    <System:Double x:Key="LoopWidth">250</System:Double>
+    <System:Double x:Key="BlockWidth">234</System:Double>
 
     <LinearGradientBrush x:Key="MenuPopupBrush" EndPoint="0.5,1" StartPoint="0.5,0">
         <GradientStop Color="{DynamicResource ControlLightColor}" Offset="0" />
@@ -109,7 +109,7 @@
                         </Border>
                     </Grid>
                 </ControlTemplate>
-            </Setter.Value>
+            </Setter.Value>           
         </Setter>
         <Setter Property="ItemsPanel">
             <Setter.Value>
@@ -118,6 +118,39 @@
                 </ItemsPanelTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="RepairZBlock" TargetType="ItemsControl" BasedOn="{StaticResource CoorBlock}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ItemsControl">
+                    <Grid Width="{StaticResource BlockWidth}">
+                        <Border Padding="2" BorderThickness="1" CornerRadius="8" BorderBrush="AntiqueWhite" >
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="LightGray" Offset="0.0" />
+                                            <GradientStop Color="AntiqueWhite" Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <ItemsPresenter/>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="PierceBlock" TargetType="ItemsControl" BasedOn="{StaticResource CoorBlock}">
         <Setter Property="Template">
@@ -140,7 +173,12 @@
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
-        </Setter>        
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="SizeBlock" TargetType="ItemsControl" BasedOn="{StaticResource CoorBlock}">
         <Setter Property="Template">
@@ -164,6 +202,11 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="DelayBlock" TargetType="ItemsControl" BasedOn="{StaticResource CoorBlock}">
         <Setter Property="Template">
@@ -187,12 +230,17 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="LoopBox" TargetType="GroupBox">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="GroupBox">
-                    <Grid Width="{StaticResource LoopWidth}">
+                    <Grid MinWidth="{StaticResource LoopWidth}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -240,17 +288,89 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
-    
+    <Style x:Key="MainLoop" TargetType="GroupBox">
+        <Setter Property="Template">
+            <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid VerticalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" BorderThickness="1,1,1,0" CornerRadius="8,8,0,0">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStopCollection>
+                                                <GradientStop Color="{DynamicResource BorderLightColor}" Offset="0.0" />
+                                                <GradientStop Color="{DynamicResource BorderDarkColor}" Offset="1.0" />
+                                            </GradientStopCollection>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStopCollection>
+                                                <GradientStop Color="{DynamicResource ControlLightColor}" Offset="0.0" />
+                                                <GradientStop Color="{DynamicResource ControlMediumColor}" Offset="1.0" />
+                                            </GradientStopCollection>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+
+                                <ContentPresenter Margin="4" ContentSource="Header" RecognizesAccessKey="True" />
+                            </Border>
+
+                            <Border Grid.Row="1" BorderThickness="8,0,8,8"  CornerRadius="0,0,2,2">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStopCollection>
+                                                <GradientStop Color="{DynamicResource ControlMediumColor}" Offset="0.0" />
+                                                <GradientStop Color="{DynamicResource ControlLightColor}" Offset="1.5" />
+                                            </GradientStopCollection>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <ContentPresenter Margin="4" />
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
     <Style x:Key="BlockLabel" TargetType="Label">
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="FontSize" Value="12"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     
     <Style x:Key="BlockTextBox" TargetType="TextBox" BasedOn="{StaticResource DefaultStyle}">
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     
     <Style x:Key="BlockButton" TargetType="Button" BasedOn="{StaticResource DefaultStyle}"/>

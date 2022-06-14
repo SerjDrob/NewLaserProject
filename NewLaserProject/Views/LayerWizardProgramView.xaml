@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:dd="urn:gong-wpf-dragdrop"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -17,94 +18,115 @@
                 </DataTemplate>
             </ResourceDictionary>
         </Grid.Resources>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="auto"/>
+        <!--<Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
-        <GroupBox Header="Программа">
-            <DockPanel>
-                <Grid DockPanel.Dock="Top">
-                    <Border BorderThickness="2" 
-                            BorderBrush="Gray"
-                            CornerRadius="2"
-                            Background="#FFC2C3C9"
-                            Padding="10"
-                            >
-                        <StackPanel>
-                            <TextBlock Text="Исходное значение Z:"/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Тип объектов: "/>
-                                <TextBlock Foreground="Blue" Text="{Binding ObjectsType}"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Количество объектов: "/>
-                                <TextBlock Foreground="Blue" Text="{Binding ObjectsCount}"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" >
-                                <TextBlock Text="Порядок обхода объектов: " VerticalAlignment="Center"/>
-                                <ToggleButton >
-                                    <ToggleButton.Style>
-                                        <Style TargetType="{x:Type ToggleButton}">
-                                            <Setter Property="Content" Value=" Случайный "/>
-                                            <Style.Triggers>
-                                                <Trigger Property="IsChecked" Value="True">
-                                                    <Setter Property="Content" Value=" Согласно файлу "/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ToggleButton.Style>
-                                </ToggleButton>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="SaveListing" Command="{Binding SaveListingCommand}"/>
-                                <Button Content="LoadListing" Command="{Binding LoadListingCommand}"/>
-                                <Button Content="CheckListing" Command="{Binding CheckListingCommand}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-                <ItemsControl Padding="20"
+        </Grid.RowDefinitions>-->
+        <DockPanel>
+            <GroupBox IsEnabled="{Binding EditEnable}"
+                      DockPanel.Dock="Left"
+                      MinWidth="300"
+                      >
+                <GroupBox.Header>                    
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <TextBlock Text="Программа" Style="{StaticResource TextBlockSubTitleBold}"/>
+                        <DockPanel Margin="3">
+                            <Label Content="Основной цикл" DockPanel.Dock="Left" Style="{StaticResource BlockLabel}"/>
+                            <hc:NumericUpDown Value="{Binding MainLoopCount, FallbackValue=2}" 
+                                              DockPanel.Dock="Left"
+                                              Minimum="1"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Width="80"
+                                              Margin="0,0,50,0"
+                                              />
+
+                            <ToggleButton IsChecked="{Binding MainLoopShuffle}" 
+                                          hc:Poptip.Content="Порядок обхода"
+                                          hc:Poptip.Placement="RightTop"
+                                          Style="{StaticResource ToggleButtonFlip}"
+                                          Background="{StaticResource SuccessBrush}"
+                                          HorizontalAlignment="Right"
+                                          Margin="0,0,5,0"
+                                          DockPanel.Dock="Right"
+                                          Padding="3"
+                                          >
+                                <hc:StatusSwitchElement.CheckedElement>
+                                    <Path Data="{StaticResource ShuffleGeometry}" 
+                                      Stroke="{StaticResource LightSuccessBrush}" 
+                                      StrokeThickness="1"
+                                      RenderTransformOrigin="0.5 0.5">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform ScaleY="-1"/>
+
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </hc:StatusSwitchElement.CheckedElement>
+                                <Path Data="{StaticResource SequntelyGeometry}" 
+                                      Stroke="{StaticResource LightSuccessBrush}" 
+                                      StrokeThickness="1"
+                                      RenderTransformOrigin="0.5 0.5">
+                                    <Path.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleY="-1"/>
+
+                                        </TransformGroup>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </ToggleButton>
+                        </DockPanel>
+                    </StackPanel>
+                </GroupBox.Header>
+                <DockPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" CanContentScroll="True" Height="300">
+                        <ItemsControl 
                           ItemsSource="{Binding Listing}"
-                          Background="#FFF9F9F9" 
+                            Height="4000"
+                          Background="{DynamicResource DarkMaskBrush}" 
                           HorizontalAlignment="Stretch" 
                           VerticalAlignment="Stretch" 
                           dd:DragDrop.IsDragSource="True"  
                           dd:DragDrop.IsDropTarget="True"
                           dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext}" 
                           dd:DragDrop.DropAdornerTemplate="{StaticResource DraggedBlock}"                              
-                          >                    
-                    <ItemsControl.ItemTemplate >
-                        <DataTemplate>
-                            <ContentControl Content="{Binding}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </DockPanel>
-        </GroupBox>
-        <GroupBox Header="Элементы" Grid.Column="1" >
-            <ItemsControl ItemsSource="{Binding ProgBlocks}"
-                          Background="#FFF9F9F9" 
+                          >
+                            <ItemsControl.ItemTemplate >
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </GroupBox>
+            <GroupBox Header="Элементы"  
+                      Visibility="{Binding EditEnable, Converter={StaticResource Boolean2VisibilityConverter}}"
+                      DockPanel.Dock="Right">
+                <ItemsControl ItemsSource="{Binding ProgBlocks}"
+                          Background="{DynamicResource DarkMaskBrush}" 
                           dd:DragDrop.IsDragSource="True" 
                           dd:DragDrop.IsDropTarget="True"
                           dd:DragDrop.DragDropCopyKeyState="LeftMouseButton"
                           dd:DragDrop.DropHandler="{Binding}"
                           dd:DragDrop.DropAdornerTemplate="{StaticResource DraggedBlock}"
                           Padding="20"                          
-                          >                
-                <ItemsControl.ItemTemplate >
-                    <DataTemplate>                       
-                        <ContentControl Content="{Binding}">
-                            <ContentControl.RenderTransform>
-                                <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
-                            </ContentControl.RenderTransform>
-                        </ContentControl>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </GroupBox>
+                          >
+                    <ItemsControl.ItemTemplate >
+                        <DataTemplate>
+                            <ContentControl Content="{Binding}">
+                                <ContentControl.RenderTransform>
+                                    <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                </ContentControl.RenderTransform>
+                            </ContentControl>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </GroupBox>
+        </DockPanel>
     </Grid>
 </UserControl>

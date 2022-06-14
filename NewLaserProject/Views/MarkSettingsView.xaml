@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NewLaserProject.Views"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
         mc:Ignorable="d"
-        Width="270"
         WindowStyle="ToolWindow"
-        SizeToContent="Height"
+        Width="450"
+        Height="500"
         ResizeMode="NoResize"
         Title="Параметры лазера">
     <Grid>
@@ -41,93 +42,7 @@
             </Style>
 
         </Grid.Resources>
-        <TabControl Padding="10">
-            <TabItem Header="Перо">
-                <UniformGrid Rows="21" Columns="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFE8E8EC">
-                    <Label Content="nPenNo"/>
-                    <TextBox Text="{Binding PenNo}"/>
-                    <Label Content="nMarkLoop"/>
-                    <TextBox Text="{Binding MarkLoop}"/>
-                    <Label Content="dMarkSpeed"/>
-                    <TextBox Text="{Binding MarkSpeed}"/>
-                    <Label Content="dPowerRatio"/>
-                    <TextBox Text="{Binding PowerRatio}"/>
-                    <Label Content="dCurrent"/>
-                    <TextBox Text="{Binding Current}"/>
-                    <Label Content="nFreq"/>
-                    <TextBox Text="{Binding Freq}"/>
-                    <Label Content="nQPulseWidth"/>
-                    <TextBox Text="{Binding QPulseWidth}"/>
-                    <Label Content="nStartTC"/>
-                    <TextBox Text="{Binding StartTC}"/>
-                    <Label Content="nLaserOnTC"/>
-                    <TextBox Text="{Binding LaserOnTC}"/>
-                    <Label Content="nLaserOffTC"/>
-                    <TextBox Text="{Binding LaserOffTC}"/>
-                    <Label Content="nEndTC"/>
-                    <TextBox Text="{Binding EndTC}"/>
-                    <Label Content="nPolyTC"/>
-                    <TextBox Text="{Binding PolyTC}"/>
-                    <Label Content="dJumpSpeed"/>
-                    <TextBox Text="{Binding JumpSpeed}"/>
-                    <Label Content="nJumpPosTC"/>
-                    <TextBox Text="{Binding JumpPosTC}"/>
-                    <Label Content="nJumpDistTC"/>
-                    <TextBox Text="{Binding JumpDistTC}"/>
-                    <Label Content="dEndComp"/>
-                    <TextBox Text="{Binding EndComp}"/>
-                    <Label Content="dAccDist"/>
-                    <TextBox Text="{Binding AccDist}"/>
-                    <Label Content="dPointTime"/>
-                    <TextBox Text="{Binding PointTime}"/>
-                    <Label Content ="bPulsePointMode"/>
-                    <CheckBox IsChecked="{Binding PulsePointMode}"/>
-                    <Label Content="nPulseNum"/>
-                    <TextBox Text="{Binding PulseNum}"/>
-                    <Label Content="dFlySpeed"/>
-                    <TextBox Text="{Binding FlySpeed}"/>
-                </UniformGrid>
-            </TabItem>
-            <TabItem Header="Штриховка">
-                <UniformGrid Rows="18" Columns="2" HorizontalAlignment="Center" VerticalAlignment="Top" Background="#FFE8E8EC">
-                    <Label Content="bEnableContour"/>
-                    <CheckBox IsChecked="{Binding EnableContour}"/>
-                    <Label Content="nParamIndex"/>
-                    <TextBox Text="{Binding ParamIndex}"/>
-                    <Label Content="bEnableHatch"/>
-                    <CheckBox IsChecked="{Binding EnableHatch}"/>
-                    <Label Content="nPenNo"/>
-                    <TextBox Text="{Binding PenNo}"/>
-                    <Label Content="nHatchType"/>
-                    <TextBox Text="{Binding HatchType}"/>
-                    <Label Content="bHatchAllCalc"/>
-                    <CheckBox IsChecked="{Binding HatchAllCalc}"/>
-                    <Label Content="bHatchEdge"/>
-                    <CheckBox IsChecked="{Binding HatchEdge}"/>
-                    <Label Content="bHatchAverageLine"/>
-                    <CheckBox IsChecked="{Binding HatchAverageLine}"/>
-                    <Label Content="dHatchLineDist"/>
-                    <TextBox Text="{Binding HatchLineDist}"/>
-                    <Label Content="dHatchEdgeDist"/>
-                    <TextBox Text="{Binding HatchEdgeDist}"/>
-                    <Label Content="dHatchStartOffset"/>
-                    <TextBox Text="{Binding HatchStartOffset}"/>
-                    <Label Content="dHatchEndOffset"/>
-                    <TextBox Text="{Binding HatchEndOffset}"/>
-                    <Label Content="dHatchLineReduction"/>
-                    <TextBox Text="{Binding HatchLineReduction}"/>
-                    <Label Content="dHatchLoopDist"/>
-                    <TextBox Text="{Binding HatchLoopDist}"/>
-                    <Label Content="nEdgeLoop"/>
-                    <TextBox Text="{Binding EdgeLoop}"/>
-                    <Label Content="nHatchLoopRev"/>
-                    <CheckBox IsChecked="{Binding HatchLoopRev}"/>
-                    <Label Content="bHatchAutoRotate"/>
-                    <CheckBox IsChecked="{Binding HatchAutoRotate}"/>
-                    <Label Content="dHatchRotateAngle"/>
-                    <TextBox Text="{Binding HatchRotateAngle}"/>
-                </UniformGrid>
-            </TabItem>
-        </TabControl>
+
+        <hc:PropertyGrid SelectedObject="{Binding}"/>
     </Grid>
 </Window>

@@ -13,6 +13,9 @@
         xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
         xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" x:Class="NewLaserProject.Views.MainView2"
+        xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
+        xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
+    
         mc:Ignorable="d"
         
         ActiveGlowColor="{DynamicResource PrimaryColor}"
@@ -27,12 +30,21 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Window.Resources>
+        <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
+        <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
+        <Localconverters:TextToEntityConverter x:Key="TextToEntityConverter"/>
+        <CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>
+        <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
+        <CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>
+
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
         <cnvrt:MulConvereter x:Key="MulConvereter"/>
         <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
+        
         <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
+        <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
 
         <Storyboard x:Key="DangerMessage">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
@@ -53,31 +65,6 @@
         </Storyboard>
     </Window.Resources>
 
-
-    <Window.InputBindings>
-        <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
-        <KeyBinding Command="{Binding StartProcessCommand}" Key="Divide"/>
-
-        <KeyBinding Command="{Binding MachineSettingsCommand}" Key="H"/>
-
-        <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
-        <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
-        <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
-        <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>
-        <KeyBinding Command="{Binding ChangeVelocityCommand}" Key="Add"/>
-
-        <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
-        <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
-        <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
-        <KeyBinding Command="{Binding TeachCameraScaleCommand}" Key="F5"/>
-
-        <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource TRUE}" Key="F6"/>
-        <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource FALSE}" Key="F7"/>
-
-        <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
-        <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
-
-    </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
@@ -93,19 +80,21 @@
                     </Style>
                 </ToolBar.Resources>
                 <Button Style="{StaticResource PlayButton}" HorizontalAlignment="Stretch"/>
-                <Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
-                <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>
-                <Button Command="{Binding MachineSettingsCommand}" HorizontalAlignment="Stretch">
+                <!--<Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
+                <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>-->
+                <Button hc:IconElement.Geometry="{StaticResource SpurGearGeometry}"
+                        hc:IconElement.Width="15"
+                        Command="{Binding MachineSettingsCommand}" 
+                        HorizontalAlignment="Stretch">
                     <Button.ToolTip>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Настройки приводов"/>
                             <TextBlock Foreground="Blue" FontWeight="DemiBold"  Text=" H"/>
                         </StackPanel>
                     </Button.ToolTip>
-                    <Image Source="Sources/settings.png"/>
                 </Button>
 
-                <hc:SplitButton HorizontalAlignment="Stretch">
+                <hc:SplitButton hc:IconElement.Geometry="{StaticResource AcademicHatGeometry}" HorizontalAlignment="Stretch">
                     <hc:SplitButton.DropDownContent>
                         <StackPanel>
                             <MenuItem Command="{Binding TeachCameraOffsetCommand}" Header="Смещение камеры" InputGestureText="F2">
@@ -130,7 +119,7 @@
                             </MenuItem>
                         </StackPanel>
                     </hc:SplitButton.DropDownContent>
-                    <Image Source="Sources/learning.png"/>
+                    <!--<Image Source="Sources/learning.png"/>-->
                 </hc:SplitButton>
             </ToolBar>
             <ToolBar>
@@ -142,11 +131,11 @@
                         <TextBlock Text="Подложка" Style="{StaticResource TextBlockDefaultBold}" Margin="0,0,0,3"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
-                            <TextBlock Text="{Binding WaferWidth}" Style="{StaticResource TextBlockDefaultThiLight}"/>
-                            <TextBlock Text="X" Style="{StaticResource TextBlockDefaultThiLight}"/>
-                            <TextBlock Text="{Binding WaferHeight}" Style="{StaticResource TextBlockDefaultThiLight}"/>
-                            <TextBlock Text="X" Style="{StaticResource TextBlockDefaultThiLight}"/>
-                            <TextBlock Text="{Binding WaferThickness}" Style="{StaticResource TextBlockDefaultThiLight}"/>
+                            <TextBlock Text="{Binding WaferWidth}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                            <TextBlock Text="X" Style="{StaticResource TextBlockDefaultPrimary}"/>
+                            <TextBlock Text="{Binding WaferHeight}" Style="{StaticResource TextBlockDefaultPrimary}"/>
+                            <TextBlock Text="X" Style="{StaticResource TextBlockDefaultPrimary}"/>
+                            <TextBlock Text="{Binding WaferThickness}" Style="{StaticResource TextBlockDefaultPrimary}"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -154,8 +143,8 @@
                 </Button>
             </ToolBar>
         </ToolBarTray>
-        <TabControl Margin="1" Grid.Column="1">
-            <TabItem>
+        <TabControl Margin="1" Grid.Column="1">            
+            <TabItem>                
                 <TabItem.Header>
                     <Border BorderBrush="CadetBlue" Margin="0,0,10,0" CornerRadius="4" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -168,6 +157,28 @@
                         </StackPanel>
                     </Border>
                 </TabItem.Header>
+                <TabItem.InputBindings>
+                    <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
+                    <KeyBinding Command="{Binding StartProcessCommand}" Key="Divide"/>
+
+                    <KeyBinding Command="{Binding MachineSettingsCommand}" Modifiers="Ctrl" Key="H"/>
+
+                    <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
+                    <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
+                    <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
+                    <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>
+
+                    <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
+                    <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
+                    <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
+                    <KeyBinding Command="{Binding TeachCameraScaleCommand}" Key="F5"/>
+
+                    <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource TRUE}" Key="F6"/>
+                    <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource FALSE}" Key="F7"/>
+
+                    <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
+                    <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
+                </TabItem.InputBindings>
                 <Grid>
                     <uc:GraphWindow                         
                            x:Name="GraphWin"
@@ -179,7 +190,7 @@
                            SpecMargin="0.2" 
                            AutoProportion="True"
                            StrokeThickness="0.1"  
-                           IgnoredLayers="{Binding IgnoredLayers}" 
+                           IgnoredLayers="{Binding DataContext.IgnoredLayers, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}" 
                            RenderTransformOrigin="0.5,0.5"
                            SelectedColor="Black"           
                            MirrorX="{Binding DataContext.MirrorX, Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
@@ -375,13 +386,30 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Настройки" IsEnabled="{Binding IsFileSettingsEnable}">
+            <TabItem Header="Мастер технологий" TabIndex="1">
+                <i:Interaction.Triggers>
+                    <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
+                                   Value="True">
+                        <i:InvokeCommandAction Command="{Binding DbLoadCommand}"/>
+                    </i:DataTrigger>                    
+                </i:Interaction.Triggers>                
                 <DockPanel>
-                    <ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>
-                    <ContentControl x:Name="TW" Content="{Binding TWModel, Mode=TwoWay}"/>
+                    <ContentControl Content="{Binding LaserDbVM}"/>
                 </DockPanel>
             </TabItem>
-
+            <TabItem Header="Настройки" TabIndex="2">
+                <i:Interaction.Triggers>
+                    <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
+                                   Value="True">
+                        <i:InvokeCommandAction Command="{Binding AppSettingsOpenCommand}"/>
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
+                                   Value="False">
+                        <i:InvokeCommandAction Command="{Binding AppSettingsCloseCommand}"/>
+                    </i:DataTrigger>
+                </i:Interaction.Triggers>
+                <ContentControl Content="{Binding AppSngsVM}"/>
+            </TabItem>
         </TabControl>
         <DockPanel Grid.Column="2" VerticalAlignment="Stretch" LastChildFill="False">
             <Border x:Name="ImportantMessage"
@@ -481,39 +509,158 @@
                     </Border>
                 </Expander>
             </hc:SimplePanel>
-            <ListView DockPanel.Dock="Top" SelectionMode="Single" SelectedIndex="{Binding ProcessingObjectIndex}" ItemsSource="{Binding ProcessingObjects}" Height="300">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Слой" DisplayMemberBinding="{Binding LayerName}"/>
-                        <GridViewColumn Header="Тип">
-                            <GridViewColumn.CellTemplate>
+            <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+                <!--<ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>-->
+                <GroupBox Header="Текущий процесс" DockPanel.Dock="Top">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="36"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ComboBox ItemsSource="{Binding Source={StaticResource FileStructure}}"
+                                     SelectedIndex="{Binding DefLayerIndex}"
+                                     SelectedItem="{Binding CurrentLayerFilter}"
+                                     >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding LayerName}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <uclocal:ItemsButton x:Name="testname" Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
+                                        ItemSelector="{StaticResource EntitySelector}"
+                                        SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
+                                        SetIndex="{Binding DefEntityIndex}"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Stretch"
+                                        />
+
+                        <ComboBox x:Name="Materials"
+                                     ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
+                                     SelectedIndex="{Binding DefMaterialIndex}"
+                                     Grid.Column="2"
+                                     >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding Thickness}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox ItemsSource="{Binding Source={StaticResource MaterialSource}, 
+                            Path=Technologies}"
+                                  SelectedIndex="{Binding DefTechnologyIndex}"
+                                     SelectedItem="{Binding CurrentTechnology}"  
+                                     Grid.Column="3"                                  
+                                     >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <Button 
+                                Command="{Binding AddDefaultTechnologyCommand}"
+                                VerticalAlignment="Bottom"
+                                Style="{StaticResource PlayButton}"
+                                             Grid.Column="4"
+                                
+                                />
+                        <TreeView Grid.Row="1" x:Name="LayersList" Height="150" 
+                                  ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="{x:Type TreeViewItem}">
+                                    <Setter Property="IsExpanded" Value="True" />
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                            <TreeView.Resources>
+                                <HierarchicalDataTemplate DataType="{x:Type vm:Layer}" ItemsSource="{Binding Objects}">
+                                    <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
+                                </HierarchicalDataTemplate>
+                                <DataTemplate DataType="{x:Type vm:Text}">
+                                    <StackPanel Orientation="Horizontal">  
+                                        <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
+                                        <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
+                                                        ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                        <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
+                                        <TextBlock Text="{Binding Count}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                                        <TextBlock Text=" ]" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
+                    </Grid>
+                </GroupBox>
+                <DataGrid DockPanel.Dock="Left" 
+                      AutoGenerateColumns="False" 
+                      ItemsSource="{Binding ProcessingObjects}"
+                      SelectionMode="Single"
+                      Height="100"
+                      Style="{StaticResource DataGrid.Small}"
+                      >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding ProcGridSelectionCommand}"
+                                           PassEventArgsToCommand="True"
+                                           />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+
+                    <DataGrid.ItemContainerStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="IsSelected" Value="{Binding IsBeingProcessed}"/>
+                        </Style>
+                    </DataGrid.ItemContainerStyle>
+                    <!--<DataGrid.RowHeaderTemplate>
+                    <DataTemplate>
+                        <CheckBox IsChecked="False"/>
+                    </DataTemplate>
+                </DataGrid.RowHeaderTemplate>-->
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
+                        <DataGridTemplateColumn Header="Тип">
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ContentControl Content="{Binding}"/>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Координаты">
-                            <GridViewColumn.CellTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Координаты">
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock >
                                         <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
                                         <Run Text="&#215;"/>
-                                        <Run Text="{Binding Y}"/>
+                                        <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
                                     </TextBlock>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Обработка">
-                            <GridViewColumn.CellTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Обработка">
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <CheckBox IsChecked="True"/>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Масштаб" Binding="{Binding Scale}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
 
-            </ListView>
             <hc:StepBar DockPanel.Dock="Top" Dock="Left" ItemsSource="{Binding TeachingSteps}" StepIndex="{Binding StepIndex}"/>
 
             <WrapPanel DockPanel.Dock="Bottom">

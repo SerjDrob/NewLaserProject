@@ -6,6 +6,7 @@ using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using Microsoft.Extensions.DependencyInjection;
+using NewLaserProject.Data;
 using NewLaserProject.ViewModels;
 using NewLaserProject.Views;
 using System.Windows;
@@ -29,7 +30,8 @@ namespace NewLaserProject
                    //.AddScoped(typeof(IMarkLaser), typeof(MockLaser))
                    .AddScoped(typeof(IVideoCapture), typeof(USBCamera))
                    .AddSingleton<LaserMachine>()
-                   .AddSingleton<MainViewModel>();
+                   .AddSingleton<MainViewModel>()
+                   .AddDbContext<LaserDbContext>();
 
         }
         protected override void OnStartup(StartupEventArgs e)
@@ -39,7 +41,8 @@ namespace NewLaserProject
 #if PCIInserted
             var viewModel = provider.GetService<MainViewModel>();
 #else
-            var viewModel = new MainViewModel();
+            var db = provider.GetService<LaserDbContext>();
+            var viewModel = new MainViewModel(db);
 #endif   
             base.OnStartup(e);
             new MainView()

@@ -5,10 +5,12 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.Process;
+using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Properties;
 using NewLaserProject.UserControls;
 using NewLaserProject.Views;
@@ -20,6 +22,7 @@ using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -29,6 +32,9 @@ namespace NewLaserProject.ViewModels
     [AddINotifyPropertyChangedInterface]
     internal partial class MainViewModel
     {
+        const string APP_SETTINGS_FOLDER = "AppSettings";
+
+
         private InfoMessager techMessager;
         private readonly LaserMachine _laserMachine;
         private readonly string _projectDirectory;
@@ -42,8 +48,8 @@ namespace NewLaserProject.ViewModels
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
-        public LayersProcessingModel LPModel { get; set; }
-        public TechWizardViewModel TWModel { get; set; }
+        //public LayersProcessingModel LPModel { get; set; }
+        //public TechWizardViewModel TWModel { get; set; }
         public bool LeftCornerBtnVisibility { get; set; } = false;
         public bool RightCornerBtnVisibility { get; set; } = false;
         public bool TeachScaleMarkerEnable { get; private set; } = false;
@@ -52,19 +58,24 @@ namespace NewLaserProject.ViewModels
 
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
-
-
+        public AppSettingsVM AppSngsVM { get; set; }
+        
+        private readonly DbContext _db;
+        public ObservableCollection<string> CameraCapabilities { get; set; }
+        public int CameraCapabilitiesIndex { get; set; }
+        public bool ShowVideo { get; set; }
         //---------------------------------------------
         private CoorSystem<LMPlace> _coorSystem;
         private ITeacher _currentTeacher;
         private bool _canTeach = false;
-        private ThreePointProcess<DxfCurve> _threePointsProcess;
+        private ThreePointProcess _threePointsProcess;
 
         //---------------------------------------------
-        public MainViewModel()
+        public MainViewModel(DbContext db)
         {
+            _db = db;
         }
-        public MainViewModel(LaserMachine laserMachine)
+        public MainViewModel(LaserMachine laserMachine, DbContext db)
         {
             techMessager = new();
             techMessager.PublishMessage += TechMessager_PublishMessage;
@@ -83,14 +94,38 @@ namespace NewLaserProject.ViewModels
            // _laserMachine.FreezeCameraImage();
             var directory = Directory.GetCurrentDirectory();
             _laserMachine.InitMarkDevice(directory);
-
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
+            _db = db;
+            AppSngsVM = new(_db);
         }
-        public ObservableCollection<string> CameraCapabilities { get; set; }
-        public int CameraCapabilitiesIndex { get; set; }
-        public bool ShowVideo { get; set; }
+        [ICommand]
+        private void DbLoad()
+        {
+            if(LaserDbVM is null) LaserDbVM = new(_db);
+        }
+        [ICommand]
+        private void AppSettingsOpen()
+        {
+            if (AppSngsVM is null) AppSngsVM = new(_db);
+        }
+        [ICommand]
+        private void AppSettingsClose()
+        {
+            if (AppSngsVM is not null)
+            {
+                var result = new DefaultProcessFilterDTO
+                {
+                    LayerFilterId = AppSngsVM.DefLayerEntTechnology.DefaultLayerFilter.Id,
+                    MaterialId = AppSngsVM.DefaultMaterial.Id,
+                    EntityType=(uint)AppSngsVM.DefaultEntityType,
+                    DefaultWidth=AppSngsVM.DefaultWidth,
+                    DefaultHeight=AppSngsVM.DefaultHeight
+                };
 
+                result.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultProcessFilter.json"));
+            }
+        }
         [ICommand]
         private void CameraCapabilitiesChanged()
         {
@@ -163,7 +198,7 @@ namespace NewLaserProject.ViewModels
             // HandyControl.Controls.Dialog.Show(new TextDialog());
             //ProcessingObjectIndex++;
 
-            var z = Settings.Default.ZeroPiercePoint - 0.5;
+            ProcessGridChangeSelection(ProcessingObjectIndex);
             await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
             var path = Path.Join("D:", "line.dxf");
 
@@ -226,6 +261,8 @@ namespace NewLaserProject.ViewModels
         private async Task KeyDown(object args)
         {
             var key = (KeyEventArgs)args;
+            if (key.OriginalSource is TextBoxBase) return;
+                     
             switch (key.Key)
             {
                 case Key.Tab:
@@ -278,6 +315,8 @@ namespace NewLaserProject.ViewModels
         private async Task KeyUp(object args)
         {
             var key = (KeyEventArgs)args;
+            if (key.OriginalSource is TextBoxBase) return;
+
             switch (key.Key)
             {
                 case Key.Tab:

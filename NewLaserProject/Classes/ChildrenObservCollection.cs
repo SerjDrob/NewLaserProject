@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace NewLaserProject.Classes
@@ -13,5 +15,10 @@ namespace NewLaserProject.Classes
         {
             _parent = parent;
         }
+        public ChildrenObservCollection(T parent, IEnumerable<T> collection):base(collection)
+        {
+            _parent = parent;
+        }
+       
     }
 }

@@ -1,12 +1,18 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser.Entities;
 using MachineControlsLibrary.Classes;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
 using NewLaserProject.Classes;
+using NewLaserProject.Data.Models;
+using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Properties;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace NewLaserProject.ViewModels
 {
@@ -41,7 +47,17 @@ namespace NewLaserProject.ViewModels
         public bool IsFileSettingsEnable { get; set; } = false;
         public string FileName { get; set; } = "Open the file";
 
+        public Dictionary<string, bool> IgnoredLayers { get; set; }
+        public LaserDbViewModel LaserDbVM { get; set; }
+
         public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
+        public ObservableCollection<Material> AvailableMaterials { get; set; } = new();
+        public IDictionary<string, IEnumerable<(string objType, int count)>> LayersStructure { get; private set; }
+
+        public int DefLayerIndex { get; set; }
+        public int DefEntityIndex { get; set; }
+        public int DefMaterialIndex { get; set; }
+        public int DefTechnologyIndex { get; set; }
 
         private IDxfReader _dxfReader;
 
@@ -107,11 +123,68 @@ namespace NewLaserProject.ViewModels
                     var fileSize = _dxfReader.GetSize();
                     FileSizeX = Math.Round(fileSize.width);
                     FileSizeY = Math.Round(fileSize.height);
+                    IgnoredLayers = new(_db.Set<DefaultLayerFilter>()
+                                            .AsNoTracking()
+                                            .Select(d => KeyValuePair.Create(d.Filter, d.IsVisible)));
                     LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
-                    IsFileSettingsEnable = true;
+                    
+                    _db.Set<Material>()
+                      .Include(m => m.Technologies)
+                      .Load();
+                    AvailableMaterials = _db.Set<Material>().Local.ToObservableCollection();
 
-                    LPModel = new(_dxfReader);
-                    TWModel = new();
+                    LayersStructure = _dxfReader.GetLayersStructure();
+
+                    var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(Path.Combine(ProjectPath.GetFolderPath(APP_SETTINGS_FOLDER), "DefaultProcessFilter.json"));
+
+                    if (defLayerProcDTO is not null)
+                    {
+                        var defLayerName = _db.Set<DefaultLayerFilter>()
+                            .SingleOrDefault(d => d.Id == defLayerProcDTO.LayerFilterId)?.Filter;
+
+                        if (defLayerName is not null)
+                        {
+                            var layer = LayersStructure.Keys
+                                .ToList()
+                                .SingleOrDefault(k => k.Contains(defLayerName, StringComparison.InvariantCultureIgnoreCase));
+                            if (layer is not null)
+                            {
+                                DefLayerIndex = LayersStructure.Keys.ToList()
+                                    .IndexOf(layer);
+                                
+                                DefEntityIndex = LayersStructure[layer]
+                                    .Select(e => LaserEntDxfTypeAdapter.GetLaserEntity(e.objType))
+                                    .ToList()
+                                    .IndexOf((LaserEntity)defLayerProcDTO.EntityType);
+                            }
+                        }
+                        else
+                        {
+                            DefLayerIndex = 0;
+                        }
+
+                        DefMaterialIndex = AvailableMaterials.ToList().FindIndex(m => m.Id == defLayerProcDTO.MaterialId);
+
+                        var defLayerEntTechnology = _db.Set<DefaultLayerEntityTechnology>().ToList()
+                            .Where(d => d.DefaultLayerFilterId == defLayerProcDTO.LayerFilterId
+                            && d.EntityType == (LaserEntity)defLayerProcDTO.EntityType
+                            && d.Technology.MaterialId == defLayerProcDTO.MaterialId)
+                            .Select(d => d.Technology)
+                            .Single();
+
+                        DefTechnologyIndex = AvailableMaterials.Where(m => m.Id == defLayerProcDTO.MaterialId)
+                            .SingleOrDefault()?
+                            .Technologies?
+                            .FindIndex(t => t.Id == defLayerEntTechnology.Id) ?? -1;
+                    }
+
+                    IsFileSettingsEnable = true;
+                    
+                    //LPModel = new(_dxfReader);
+                    //TWModel = new();                  
+
+
+
                     //LPModel.ObjectChosenEvent += TWModel.SetObjectsTC;
 
                     MirrorX = Settings.Default.WaferMirrorX;

@@ -10,18 +10,46 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace NewLaserProject.ViewModels
 {
     internal partial class MainViewModel
     {
-        public ObservableCollection<IProcObject> ProcessingObjects { get; set; } = new();
-        public int ProcessingObjectIndex { get; set; } = 1;
+        public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
+        public int ProcessingObjectIndex { get; set; } = -1;
+
+        [ICommand]
+        private void ProcGridSelection(SelectionChangedEventArgs e)
+        {
+            var dataGrid = e.Source as DataGrid;
+            if (dataGrid != null && e.AddedItems != null && e.AddedItems.Count > 0)
+            {
+                // find row for the first selected item
+                //DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator.ContainerFromItem(e.AddedItems[0]);
+                //if (row != null && row.Item != null)
+                //{
+                //    dataGrid.ScrollIntoView(row.Item);
+                //}
+                dataGrid.ScrollIntoView(e.AddedItems[0]);
+            }
+        }
+
+        private void ProcessGridChangeSelection(int index)
+        {
+            foreach (var item in ProcessingObjects)
+            {
+                item.IsBeingProcessed = false;
+            }
+            ProcessingObjects[index].IsBeingProcessed = true;
+            ProcessingObjects=new(ProcessingObjects);
+        }
 
         [ICommand]
         private async Task StartProcess()
         {
+            
             ProcessingObjects = new(_dxfReader.GetCircles());
             ////is dxf valid?
             ////using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), topologySize);
@@ -73,7 +101,7 @@ namespace NewLaserProject.ViewModels
 
             var points = waferPoints.Cast<PPoint>();
 
-            _threePointsProcess = new ThreePointProcess<DxfCurve>(wafer, points, _pierceSequenceJson, _laserMachine,
+            _threePointsProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
 

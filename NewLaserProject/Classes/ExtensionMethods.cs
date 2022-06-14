@@ -3,6 +3,7 @@ using NewLaserProject.ViewModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -82,5 +83,11 @@ namespace NewLaserProject.Classes
             var obj = JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(T));
             return (T?)obj;
         }
+
+        internal static ObservableCollection<T> ToObservableCollection<T>(this IEnumerable<T> en)
+        {
+            return new ObservableCollection<T>(en);
+        }
     }
+    
 }
