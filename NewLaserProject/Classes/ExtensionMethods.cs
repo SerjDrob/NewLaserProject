@@ -89,4 +89,5 @@ namespace NewLaserProject.Classes
             return new ObservableCollection<T>(en);
         }
     }
+    
 }

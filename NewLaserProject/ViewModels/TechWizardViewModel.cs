@@ -137,19 +137,24 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void SetPiercingParams(object progModule)
         {
-            var item = (PierceBlock)progModule;
-            if (item.MarkParams is null)
+            //var item = (PierceBlock)progModule;
+            //if (item.MarkParams is null)
+            //{
+            //   var markSettings = new MarkSettingsViewModel();
+            //    new MarkSettingsView { DataContext = markSettings }.ShowDialog();
+            //    item.MarkParams = markSettings.GetLaserParams();
+            //}
+            //else
+            //{                
+            //    var markSettingsVM = _markParamsToMSVMMapper.Map<MarkSettingsViewModel>(item.MarkParams);
+            //    new MarkSettingsView { DataContext = markSettingsVM }.ShowDialog();
+            //    item.MarkParams = markSettingsVM.GetLaserParams();
+            //}
+
+            var extParamsView = new ExtMarkParamsView
             {
-                var markSettings = new MarkSettingsViewModel();
-                new MarkSettingsView { DataContext = markSettings }.ShowDialog();
-                item.MarkParams = markSettings.GetLaserParams();
-            }
-            else
-            {                
-                var markSettingsVM = _markParamsToMSVMMapper.Map<MarkSettingsViewModel>(item.MarkParams);
-                new MarkSettingsView { DataContext = markSettingsVM }.ShowDialog();
-                item.MarkParams = markSettingsVM.GetLaserParams();
-            }
+                DataContext = new ExtendedParams()
+            }.ShowDialog();
         }
 
         //[ICommand]

@@ -67,7 +67,7 @@ namespace NewLaserProject.ViewModels
         private CoorSystem<LMPlace> _coorSystem;
         private ITeacher _currentTeacher;
         private bool _canTeach = false;
-        private ThreePointProcess<DxfCurve> _threePointsProcess;
+        private ThreePointProcess _threePointsProcess;
 
         //---------------------------------------------
         public MainViewModel(DbContext db)

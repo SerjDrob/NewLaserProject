@@ -1,6 +1,6 @@
 ﻿namespace NewLaserProject.Classes.ProgBlocks
 {
-    internal interface IProgBlock
+    /*internal*/public interface IProgBlock
     {
         bool CanAcceptChildren { get; set; }
     }

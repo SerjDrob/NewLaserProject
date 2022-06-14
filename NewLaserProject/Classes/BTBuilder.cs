@@ -168,50 +168,55 @@ namespace NewLaserProject.Classes
     }
     public class BTBuilderY
     {
-        private readonly List<IProgBlock> _progModules;
+        private readonly MainLoop _progModules;
         private Dictionary<Type, IFuncProxy> _actions = new();
+        public bool MainLoopShuffle { get => _progModules.Shuffle; }
+        public int MainLoopCount { get => _progModules.LoopCount; }
 
         public BTBuilderY(string jsonTree)
         {
-            try
+           
+            _progModules = JsonConvert.DeserializeObject<MainLoop>(jsonTree, new JsonSerializerSettings
             {
-                _progModules = JsonConvert.DeserializeObject<List<IProgBlock>>(jsonTree, new JsonSerializerSettings
+                TypeNameHandling = TypeNameHandling.Objects,
+                SerializationBinder = new TypesBinder
                 {
-                    TypeNameHandling = TypeNameHandling.Objects,
-                    SerializationBinder = new TypesBinder
-                    {
-                        KnownTypes = new List<Type>
+                    KnownTypes = new List<Type>
                     {
                         typeof(AddZBlock),
                         typeof(DelayBlock),
                         typeof(LoopBlock),
                         typeof(PierceBlock),
-                        typeof(TapperBlock),
+                        typeof(TapperBlock),                        
+                        typeof(RepairZBlock),
                         typeof(MarkLaserParams),
                         typeof(PenParams),
-                        typeof(HatchParams)
+                        typeof(HatchParams),
+                        typeof(MainLoop)
                     }
-                    }
-                }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+                }
+            }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
         }
+
         public BTBuilderY SetModuleAction(Type type, IFuncProxy funcProxy)
         {
             _actions.TryAdd(type, funcProxy);
             return this;
         }
-
-
+          
+        public BTBuilderY SetModuleAction<TBlock>(IFuncProxy funcProxy) where TBlock : IProgBlock
+        {
+            _actions.TryAdd(typeof(TBlock), funcProxy);
+            return this;
+        }
+        
         public ActionTree GetTree()
         {
-            var result = ParseModules(_progModules);
+            var result = ParseModules(_progModules.Children);
             return result;
         }
+
+        
         private ActionTree ParseModules(IEnumerable<IProgBlock> progModules)
         {
             var mainLoop = ActionTree.StartLoop(1);
@@ -241,6 +246,86 @@ namespace NewLaserProject.Classes
                 {
                     var loop = (LoopBlock)item;
                     mainLoop.AddChild(ActionTree.StartLoop(loop.LoopCount).AddChild(ParseModules(loop.Children)).EndLoop);
+                }
+            }
+            return mainLoop.EndLoop;
+        }
+    }
+
+    public class BTBuilderZ
+    {
+        private readonly MainLoop _progModules;
+        private Dictionary<Type, IFuncProxy2> _functions = new();
+        public bool MainLoopShuffle { get => _progModules.Shuffle; }
+        public int MainLoopCount { get => _progModules.LoopCount; }
+
+        public BTBuilderZ(string jsonTree)
+        {
+
+            _progModules = JsonConvert.DeserializeObject<MainLoop>(jsonTree, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                SerializationBinder = new TypesBinder
+                {
+                    KnownTypes = new List<Type>
+                    {
+                        typeof(AddZBlock),
+                        typeof(DelayBlock),
+                        typeof(LoopBlock),
+                        typeof(PierceBlock),
+                        typeof(TapperBlock),
+                        typeof(RepairZBlock),
+                        typeof(MarkLaserParams),
+                        typeof(PenParams),
+                        typeof(HatchParams),
+                        typeof(MainLoop)
+                    }
+                }
+            }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
+        }
+
+        public BTBuilderZ SetModuleFunction<TBlock>(IFuncProxy2 funcProxy) where TBlock : IProgBlock
+        {
+            _functions.TryAdd(typeof(TBlock), funcProxy);
+            return this;
+        }
+
+        public FuncTree GetTree()
+        {
+            var result = ParseModules(_progModules.Children);
+            return result;
+        }
+
+
+        private FuncTree ParseModules(IEnumerable<IProgBlock> progModules)
+        {
+            var mainLoop = FuncTree.StartLoop(1);
+            foreach (var item in progModules)
+            {
+                if (item.GetType() != typeof(LoopBlock))
+                {
+                    IFuncProxy2 fp;
+                    if (_functions.TryGetValue(item.GetType(), out fp))
+                    {
+                        var function = item switch
+                        {
+                            TapperBlock tapperBlock => fp.GetFuncWithArguments(tapperBlock.Tapper),
+                            AddZBlock addZBlock => fp.GetFuncWithArguments(addZBlock.DeltaZ),
+                            DelayBlock delayBlock => fp.GetFuncWithArguments(delayBlock.DelayTime),
+                            PierceBlock pierceBlock => fp.GetFuncWithArguments(pierceBlock.MarkParams),
+                            _ => throw new ArgumentException($"Unknown type {nameof(item)}")
+                        };
+                        mainLoop.AddChild(FuncTree.SetFunc(function));
+                    }
+                    else
+                    {
+                        throw new KeyNotFoundException($"There is no value for {item.GetType()} key");
+                    }
+                }
+                else if (item.GetType() == typeof(LoopBlock))
+                {
+                    var loop = (LoopBlock)item;
+                    mainLoop.AddChild(FuncTree.StartLoop(loop.LoopCount).AddChild(ParseModules(loop.Children)).EndLoop);
                 }
             }
             return mainLoop.EndLoop;

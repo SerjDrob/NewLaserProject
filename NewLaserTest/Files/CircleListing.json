@@ -1,70 +1,76 @@
-[
-  {
-    "$type": "TapperBlock",
-    "CanAcceptChildren": false,
-    "Tapper": 1.0
-  },
-  {
-    "$type": "AddZBlock",
-    "CanAcceptChildren": false,
-    "DeltaZ": 2.0
-  },
-  {
-    "$type": "DelayBlock",
-    "CanAcceptChildren": false,
-    "DelayTime": 3
-  },
-  {
-    "$type": "LoopBlock",
-    "CanAcceptChildren": true,
-    "Children": [
-      {
-        "$type": "TapperBlock",
-        "CanAcceptChildren": false,
-        "Tapper": 4.0
-      },
-      {
-        "$type": "LoopBlock",
-        "CanAcceptChildren": true,
-        "Children": [
-          {
-            "$type": "AddZBlock",
-            "CanAcceptChildren": false,
-            "DeltaZ": 5.0
-          }
-        ],
-        "LoopCount": 3
-      },
-      {
-        "$type": "LoopBlock",
-        "CanAcceptChildren": true,
-        "Children": [
-          {
-            "$type": "DelayBlock",
-            "CanAcceptChildren": false,
-            "DelayTime": 6
-          },
-          {
-            "$type": "LoopBlock",
-            "CanAcceptChildren": true,
-            "Children": [
-              {
-                "$type": "AddZBlock",
-                "CanAcceptChildren": false,
-                "DeltaZ": 7.0
-              }
-            ],
-            "LoopCount": 2
-          }
-        ],
-        "LoopCount": 2
-      }
-    ],
-    "LoopCount": 2
-  },
-  {
-    "$type": "TapperBlock",
-    "CanAcceptChildren": false,
-    "Tapper": 8.0
-  }
-]
+{
+  "$type": "MainLoop",
+  "Shuffle": true,
+  "CanAcceptChildren": true,
+  "Children": [
+    {
+      "$type": "TapperBlock",
+      "CanAcceptChildren": false,
+      "Tapper": 1.0
+    },
+    {
+      "$type": "AddZBlock",
+      "CanAcceptChildren": false,
+      "DeltaZ": 2.0
+    },
+    {
+      "$type": "DelayBlock",
+      "CanAcceptChildren": false,
+      "DelayTime": 3
+    },
+    {
+      "$type": "LoopBlock",
+      "CanAcceptChildren": true,
+      "Children": [
+        {
+          "$type": "TapperBlock",
+          "CanAcceptChildren": false,
+          "Tapper": 4.0
+        },
+        {
+          "$type": "LoopBlock",
+          "CanAcceptChildren": true,
+          "Children": [
+            {
+              "$type": "AddZBlock",
+              "CanAcceptChildren": false,
+              "DeltaZ": 5.0
+            }
+          ],
+          "LoopCount": 3
+        },
+        {
+          "$type": "LoopBlock",
+          "CanAcceptChildren": true,
+          "Children": [
+            {
+              "$type": "DelayBlock",
+              "CanAcceptChildren": false,
+              "DelayTime": 6
+            },
+            {
+              "$type": "LoopBlock",
+              "CanAcceptChildren": true,
+              "Children": [
+                {
+                  "$type": "AddZBlock",
+                  "CanAcceptChildren": false,
+                  "DeltaZ": 7.0
+                }
+              ],
+              "LoopCount": 2
+            }
+          ],
+          "LoopCount": 2
+        }
+      ],
+      "LoopCount": 2
+    },
+    {
+      "$type": "TapperBlock",
+      "CanAcceptChildren": false,
+      "Tapper": 8.0
+    }
+  ],
+  "LoopCount": 1
+}

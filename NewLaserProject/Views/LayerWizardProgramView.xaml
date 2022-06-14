@@ -87,7 +87,7 @@
                         <ItemsControl 
                           ItemsSource="{Binding Listing}"
                             Height="4000"
-                          Background="{DynamicResource DefaultBrush}" 
+                          Background="{DynamicResource DarkMaskBrush}" 
                           HorizontalAlignment="Stretch" 
                           VerticalAlignment="Stretch" 
                           dd:DragDrop.IsDragSource="True"  
@@ -108,7 +108,7 @@
                       Visibility="{Binding EditEnable, Converter={StaticResource Boolean2VisibilityConverter}}"
                       DockPanel.Dock="Right">
                 <ItemsControl ItemsSource="{Binding ProgBlocks}"
-                          Background="{DynamicResource DefaultBrush}" 
+                          Background="{DynamicResource DarkMaskBrush}" 
                           dd:DragDrop.IsDragSource="True" 
                           dd:DragDrop.IsDropTarget="True"
                           dd:DragDrop.DragDropCopyKeyState="LeftMouseButton"

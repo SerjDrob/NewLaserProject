@@ -44,6 +44,5 @@
         </Grid.Resources>
 
         <hc:PropertyGrid SelectedObject="{Binding}"/>
-
     </Grid>
 </Window>

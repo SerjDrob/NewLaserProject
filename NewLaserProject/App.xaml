@@ -222,7 +222,8 @@
                 <ItemsControl Style="{StaticResource PierceBlock}">
                     <Label Content="Прошивка" Style="{StaticResource BlockLabel}"/>
                     <Button Content="Параметры" 
-                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.SetPiercingParamsCommand}" 
+                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, 
+                        Path=DataContext.SetPiercingParamsCommand}" 
                             CommandParameter="{Binding}"
                             Style="{StaticResource ButtonPrimary.Small}">
                         <Button.Resources>

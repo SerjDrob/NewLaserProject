@@ -14,9 +14,11 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Process
 {
-    internal class ThreePointProcess<T> where T : class, IShape
+    //TODO make it non generic class, LaserWafer<T> is just IEnumerable<IProcObject>
+    internal class ThreePointProcess//<T> where T : class, IShape
     {
-        private readonly LaserWafer<T> _wafer;
+        //private readonly LaserWafer<T> _wafer;
+        private readonly IEnumerable<IProcObject> _wafer;
         private readonly string _jsonPierce;
         private readonly LaserMachine _laserMachine;
         private readonly ICoorSystem<LMPlace> _coorSystem;
@@ -34,7 +36,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _pazAngle;
         private double _matrixAngle;
 
-        public ThreePointProcess(LaserWafer<T> wafer, IEnumerable<PPoint> refPoints,
+        public ThreePointProcess(IEnumerable<IProcObject> wafer, IEnumerable<PPoint> refPoints,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager, 
             double dX, double dY, double pazAngle)
@@ -71,7 +73,7 @@ namespace NewLaserProject.Classes.Process
             CoorSystem<LMPlace> workCoorSys = new();
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
-            LaserProcess2<T> process = new();
+            LaserProcess2 process = new();
             SwitchCamera?.Invoke(this, true);
 
             _stateMachine.Configure(State.Started)
@@ -111,7 +113,7 @@ namespace NewLaserProject.Classes.Process
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Working)
-                .OnEntry(() => process = new LaserProcess2<T>(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zeroZPiercing, _waferThickness, _pazAngle - _matrixAngle))
+                .OnEntry(() => process = new LaserProcess2(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zeroZPiercing, _waferThickness, _pazAngle - _matrixAngle))
                 .OnEntry(() => process.CreateProcess())
                 .OnEntryAsync(() => process.StartAsync())
                 .Ignore(Trigger.Next)
