@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
@@ -79,7 +80,7 @@ namespace NewLaserProject.ViewModels
             CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
             CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-            _laserMachine.FreezeCameraImage();
+           // _laserMachine.FreezeCameraImage();
             var directory = Directory.GetCurrentDirectory();
             _laserMachine.InitMarkDevice(directory);
 
@@ -160,7 +161,42 @@ namespace NewLaserProject.ViewModels
             //LeftCornerBtnVisibility ^= true;
             //StartVideoCapture();
             // HandyControl.Controls.Dialog.Show(new TextDialog());
-            ProcessingObjectIndex++;
+            //ProcessingObjectIndex++;
+
+            var z = Settings.Default.ZeroPiercePoint - 0.5;
+            await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
+            var path = Path.Join("D:", "line.dxf");
+
+
+        //    "nPenNo": 0,
+        //"nMarkLoop": 35,
+        //"dMarkSpeed": 100.0,
+        //"dPowerRatio": 100.0,
+        //"dCurrent": 3.0,
+        //"nFreq": 30000,
+        //"nQPulseWidth": 15,
+        //"nStartTC": 0,
+        //"nLaserOnTC": 0,
+        //"nLaserOffTC": 0,
+        //"nEndTC": 0,
+        //"nPolyTC": 0,
+        //"dJumpSpeed": 1000.0,
+        //"nJumpPosTC": 1000,
+        //"nJumpDistTC": 1000,
+        //"dEndComp": 0.0,
+        //"dAccDist": 1.0,
+        //"dPointTime": 1.0,
+        //"bPulsePointMode": true,
+        //"nPulseNum": 2,
+        //"dFlySpeed": 1000.0
+
+            var result = Lmc.lmc1_SetPenParam(0,1,50,50,3,30000,15,0,0,0,0,0,1000,1000,1000,0,1,1,true,2,1000);
+            result = Lmc.lmc1_AddFileToLib(path,"square",0,0,0,0,1,0,false);
+            for (int i = 0; i < 50; i++)
+            {
+
+                await Task.Run(() => Lmc.lmc1_MarkEntity("square")); 
+            }
         }
 
 

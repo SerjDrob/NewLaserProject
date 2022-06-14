@@ -14,10 +14,8 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Process
 {
-    internal class ThreePointProcess<T> where T : class, IShape
+    internal class TestThreePoints
     {
-        private readonly LaserWafer<T> _wafer;
-        private readonly string _jsonPierce;
         private readonly LaserMachine _laserMachine;
         private readonly ICoorSystem<LMPlace> _coorSystem;
         private StateMachine<State, Trigger> _stateMachine;
@@ -34,17 +32,14 @@ namespace NewLaserProject.Classes.Process
         private readonly double _pazAngle;
         private double _matrixAngle;
 
-        public ThreePointProcess(LaserWafer<T> wafer, IEnumerable<PPoint> refPoints,
-            string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
-            double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager, 
-            double dX, double dY, double pazAngle)
+        public TestThreePoints(IEnumerable<PPoint> refPoints,
+            LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
+            double zeroZCamera, double waferThickness, InfoMessager infoMessager,
+            double dX, double dY, double pazAngle, double zeroZPiercing)
         {
             Guard.IsEqualTo(refPoints.Count(), 3, nameof(refPoints));
-            _wafer = wafer;
-            _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
             _coorSystem = coorSystem;
-            _zeroZPiercing = zeroZPiercing;
             _refPoints = refPoints;
             _zeroZCamera = zeroZCamera;
             _infoMessager = infoMessager;
@@ -52,9 +47,10 @@ namespace NewLaserProject.Classes.Process
             _dY = dY;
             _pazAngle = pazAngle;
             _waferThickness = waferThickness;
+            _zeroZPiercing = zeroZPiercing;
         }
 
-
+        CoorSystem<LMPlace> workCoorSys = new();
         public void CreateProcess()
         {
             _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
@@ -68,10 +64,9 @@ namespace NewLaserProject.Classes.Process
 
             var originPoints = _refPoints.Select(p => new PointF((float)p.X, (float)p.Y)).ToArray();
 
-            CoorSystem<LMPlace> workCoorSys = new();
+            
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
-            LaserProcess2<T> process = new();
             SwitchCamera?.Invoke(this, true);
 
             _stateMachine.Configure(State.Started)
@@ -83,14 +78,10 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.GoRefPoint)
                 .OnEntry(() => _laserMachine.SetVelocity(Velocity.Fast))
                 .OnEntry(() => { refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y; })
-                .OnEntryAsync(() => 
-                {
-                    var points = _coorSystem.ToGlobal(refX, refY);
-                    return Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, points),
-                                               _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
-                    })
+                .OnEntryAsync(() => Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(refX, refY)),
+                                              _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness)))
                 .OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
-                .OnExit(() => resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY))))
+                .OnExit(() => resultPoints.Add(new((float)(_xActual), (float)(_yActual))))
                 .OnExit(() => refPointsEnumerator.MoveNext())
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
                 .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
@@ -100,7 +91,7 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.GetRefPoint)
                 .OnEntry(_infoMessager.EraseMessage)
                 .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
-                .OnEntry(()=>SwitchCamera?.Invoke(this,false))
+                //.OnEntry(() => SwitchCamera?.Invoke(this, false))
                 .OnEntry(() => workCoorSys = new CoorSystem<LMPlace>
                     .ThreePointCoorSystemBuilder<LMPlace>()
                     .SetFirstPointPair(originPoints[0], resultPoints[0])
@@ -110,26 +101,14 @@ namespace NewLaserProject.Classes.Process
                     .Build())
                 .OnEntry(() => _matrixAngle = workCoorSys.GetMatrixAngle())
                 .OnEntry(() => _stateMachine.Fire(Trigger.Next))
-                .Permit(Trigger.Next, State.Working)
-                .Permit(Trigger.Deny, State.Denied)
-                .Ignore(Trigger.Pause);
-
-            _stateMachine.Configure(State.Working)
-                .OnEntry(() => process = new LaserProcess2<T>(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zeroZPiercing, _waferThickness, _pazAngle - _matrixAngle))
-                .OnEntry(() => process.CreateProcess())
-                .OnEntryAsync(() => process.StartAsync())
                 .Ignore(Trigger.Next)
                 .Ignore(Trigger.Deny)
-                .Ignore(Trigger.Pause);
+                .Ignore(Trigger.Pause)
+                .Permit(Trigger.Deny, State.Denied);            
 
             _stateMachine.Configure(State.Denied)
                 .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
-                .OnEntry(() => _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation));
-
-            //void MoveNext()
-            //{
-            //    var res = refPointsEnumerator.MoveNext();
-            //}
+                .OnEntry(() => _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation));          
         }
 
         public event EventHandler<bool> SwitchCamera;
@@ -148,6 +127,40 @@ namespace NewLaserProject.Classes.Process
                     break;
             }
         }
+
+        public async Task TestPoint(double x, double y)
+        {
+            var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[] { new PPoint(x, y, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (60, 48));
+
+            var point = workCoorSys.ToGlobal(wafer[0].X, wafer[0].Y);
+
+
+            await Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, point, true),
+            _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZPiercing - _waferThickness));
+            await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { _dX, _dY }, true);
+
+            for (int i = 0; i < 2; i++)
+            {
+                //await _laserMachine.PierceLineAsync(0.1, 0.1, 0.5, 0.1);
+                //await _laserMachine.PierceLineAsync(0.1, 0.1, 0.1, 0.5);
+
+                //await _laserMachine.PierceLineAsync(-0.4, -0.4, -0.9, -0.4);
+                //await _laserMachine.PierceLineAsync(-0.4, -0.4, -0.4, -0.9); 
+
+
+                await _laserMachine.PierceLineAsync(-0.1, -0.1, -0.5, -0.1);
+                await _laserMachine.PierceLineAsync(-0.1, -0.1, -0.1, -0.5);
+
+                await _laserMachine.PierceLineAsync(0.4, 0.4, 0.9, 0.4);
+                await _laserMachine.PierceLineAsync(0.4, 0.4, 0.4, 0.9);
+
+            }
+
+            await Task.WhenAll(_laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -_dX, -_dY }, true),
+                                              _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
+
+        }
+
 
         public async Task StartAsync()
         {
@@ -186,3 +199,4 @@ namespace NewLaserProject.Classes.Process
         }
     }
 }
+

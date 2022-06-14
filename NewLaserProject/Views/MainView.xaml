@@ -252,13 +252,13 @@
                     </Image>
                     <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1">
                         <Line Stroke="Red" Fill="Red" 
-                              StrokeThickness="3" 
+                              StrokeThickness="1" 
                               X1="-25" X2="25" Y1="0" Y2="0" 
                               Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               />
                         <Line Stroke="Red" Fill="Red" 
-                              StrokeThickness="3" 
+                              StrokeThickness="1" 
                               X1="0" X2="0" Y1="-25" Y2="25" 
                               Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                               Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
@@ -331,6 +331,8 @@
                     <Image Source="Sources/laserbeam_laser_13620.png"/>
 
                 </Button>
+                <!--<Button Content="PAZ" Command="{Binding StartTestThreePointsCommand}"/>
+                <Button Content="Next" Command="{Binding TTPNextCommand}"/>-->
                 <Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
                 <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>
                 <Button Command="{Binding MachineSettingsCommand}" >

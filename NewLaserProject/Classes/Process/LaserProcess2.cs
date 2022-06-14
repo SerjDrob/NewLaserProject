@@ -72,7 +72,7 @@ namespace NewLaserProject.Classes
                 })            
                 .OnEntryAsync(() => Task.WhenAll(
                     _laserMachine.MoveGpInPosAsync(Groups.XY, position, true), 
-                    _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing)
+                    _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness)
                     ))
                 .OnEntryAsync(()=>Task.Delay(1000))
                 .OnEntry(pierceAction)

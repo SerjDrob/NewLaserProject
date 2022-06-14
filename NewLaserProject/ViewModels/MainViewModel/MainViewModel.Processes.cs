@@ -74,7 +74,7 @@ namespace NewLaserProject.ViewModels
             var points = waferPoints.Cast<PPoint>();
 
             _threePointsProcess = new ThreePointProcess<DxfCurve>(wafer, points, _pierceSequenceJson, _laserMachine,
-                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, /*WaferThickness*/0.25, techMessager,
+                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
 
             _threePointsProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
@@ -95,6 +95,59 @@ namespace NewLaserProject.ViewModels
 
         }
 
+
+        private TestThreePoints _testThreePointsProcess;
+
+        [ICommand]
+        private async Task StartTestThreePoints()
+        {
+
+
+            var topologySize = _dxfReader.GetSize();
+
+            var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
+            var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), topologySize);
+            wafer.Scale(1F / FileScale);
+            waferPoints.Scale(1F / FileScale);
+            if (WaferTurn90) wafer.Turn90();
+            if (WaferTurn90) waferPoints.Turn90();
+            if (MirrorX) wafer.MirrorX();
+            if (MirrorX) waferPoints.MirrorX();
+
+            _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
+            var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+
+            var points = waferPoints.Cast<PPoint>();
+
+            _testThreePointsProcess = new TestThreePoints(points, _laserMachine,
+                        coorSystem, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, Settings.Default.ZeroPiercePoint);
+
+            _testThreePointsProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
+            try
+            {
+                OnProcess = true;
+                await _testThreePointsProcess.StartAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            finally
+            {
+                OnProcess = false;
+            }
+
+        }
+
+        [ICommand]
+        private Task TTPNext()
+        {
+            return _testThreePointsProcess.Next();
+        }
+
+
         private void _threePointsProcess_SwitchCamera(object? sender, bool e)
         {
             if (e)
@@ -113,17 +166,18 @@ namespace NewLaserProject.ViewModels
             return _threePointsProcess.Next();
         }
 
+
         [ICommand]
         private void ChooseMaterial()
         {
-            var material = new MaterialVM { Width = WaferWidth, Height = WaferHeight, Thickness = 0.5 };
+            var material = new MaterialVM { Width = WaferWidth, Height = WaferHeight, Thickness = WaferThickness };
             new MaterialSettingsView
             {
                 DataContext = material
             }.ShowDialog();
             WaferWidth = material.Width;
             WaferHeight = material.Height;
-
+            WaferThickness = material.Thickness;
         }
     }
 }

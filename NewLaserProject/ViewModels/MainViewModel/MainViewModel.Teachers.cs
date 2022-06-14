@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using Microsoft.Toolkit.Diagnostics;
@@ -11,6 +12,7 @@ using NewLaserProject.Views;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -161,7 +163,23 @@ namespace NewLaserProject.ViewModels
                             _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
                             _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - waferThickness)
                             );
-                    await _laserMachine.PiercePointAsync();
+                    //await _laserMachine.PiercePointAsync();
+                    for (int i = 0; i < 2; i++)
+                    {
+                        await _laserMachine.PierceLineAsync(-0.5, 0, 0.5, 0);
+                        await _laserMachine.PierceLineAsync(0, -0.5, 0, 0.5);
+                    }
+
+
+                    await _laserMachine.PierceLineAsync(-0.4, 0.4, 0.4, 0.4);
+                    await _laserMachine.PierceLineAsync(-0.4, -0.4, 0.4, -0.4);
+                    await _laserMachine.PierceLineAsync(-0.4, -0.4, -0.4, 0.4);
+                    await _laserMachine.PierceLineAsync(0.4, -0.4, 0.4, 0.4);
+
+
+                    //await _laserMachine.PierceLineAsync(0, 0, 0, 0.4);
+                    //await _laserMachine.PierceLineAsync(0, 0, 0.2, 0);
+
                     _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
                     await Task.WhenAll(
                              _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true),
@@ -361,8 +379,8 @@ namespace NewLaserProject.ViewModels
                     var point = pointsEnumerator.Current;
                     _laserMachine.VelocityRegime = Velocity.Fast;
                     await Task.WhenAll(
-                        _laserMachine.MoveGpInPosAsync(Groups.XY, sys.ToGlobal(point.X, point.Y), true),
-                        _laserMachine.MoveAxInPosAsync(Ax.Z, zFocus - waferThickness)).ConfigureAwait(false);
+                        _laserMachine.MoveGpInPosAsync(Groups.XY, sys.ToGlobal(point.X, point.Y), true)/*,
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zFocus - waferThickness)*/).ConfigureAwait(false);
                     techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", Icon.Exclamation);
                     TeacherPointerX = point.X;
                     TeacherPointerY = point.Y;
@@ -594,7 +612,7 @@ namespace NewLaserProject.ViewModels
             return null;
         }
 
-
+        private CoorSystem<LMPlace> _testCoorSys; 
 
         public double TestPointX { get; set; } = 58;
         public double TestPointY { get; set; } = 46;
@@ -602,11 +620,12 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task TestPoint1()
         {
-            var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[] { new PPoint(TestPointX, TestPointY, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (60, 48));
+            //var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[] { new PPoint(TestPointX, TestPointY, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (60, 48));
 
-            var point = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, wafer[0].X, wafer[0].Y);
+            //var point = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, wafer[0].X, wafer[0].Y);
 
-            await _laserMachine.MoveGpInPosAsync(Groups.XY, point, true);
+            //await _laserMachine.MoveGpInPosAsync(Groups.XY, point, true);
+            await _testThreePointsProcess.TestPoint(TestPointX, TestPointY);
         }
 
         [ICommand]

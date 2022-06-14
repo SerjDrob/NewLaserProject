@@ -120,7 +120,6 @@
 
   <ItemGroup>
     <Folder Include="TempFiles\" />
-    <Folder Include="TechnologyFiles\" />
   </ItemGroup>
 
 	<ItemGroup>
