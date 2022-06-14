@@ -188,50 +188,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            //TechInfo = "Hello";
-            //techMessager.RealeaseMessage("TestMessage", InfoMessager.Icon.Danger);
-            //var system = new CoorSystem<LMPlace>(new System.Drawing.Drawing2D.Matrix(1, 21, 34, 4, 5, 6));
-            //system.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/CoorSystem.json");
-            //var m = (float[])ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/CoorSystem.json");
-            //LeftCornerBtnVisibility ^= true;
-            //StartVideoCapture();
-            // HandyControl.Controls.Dialog.Show(new TextDialog());
-            //ProcessingObjectIndex++;
-
-            ProcessGridChangeSelection(ProcessingObjectIndex);
-            await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
-            var path = Path.Join("D:", "line.dxf");
-
-
-        //    "nPenNo": 0,
-        //"nMarkLoop": 35,
-        //"dMarkSpeed": 100.0,
-        //"dPowerRatio": 100.0,
-        //"dCurrent": 3.0,
-        //"nFreq": 30000,
-        //"nQPulseWidth": 15,
-        //"nStartTC": 0,
-        //"nLaserOnTC": 0,
-        //"nLaserOffTC": 0,
-        //"nEndTC": 0,
-        //"nPolyTC": 0,
-        //"dJumpSpeed": 1000.0,
-        //"nJumpPosTC": 1000,
-        //"nJumpDistTC": 1000,
-        //"dEndComp": 0.0,
-        //"dAccDist": 1.0,
-        //"dPointTime": 1.0,
-        //"bPulsePointMode": true,
-        //"nPulseNum": 2,
-        //"dFlySpeed": 1000.0
-
-            var result = Lmc.lmc1_SetPenParam(0,1,50,50,3,30000,15,0,0,0,0,0,1000,1000,1000,0,1,1,true,2,1000);
-            result = Lmc.lmc1_AddFileToLib(path,"square",0,0,0,0,1,0,false);
-            for (int i = 0; i < 50; i++)
-            {
-
-                await Task.Run(() => Lmc.lmc1_MarkEntity("square")); 
-            }
+            
         }
 
 
