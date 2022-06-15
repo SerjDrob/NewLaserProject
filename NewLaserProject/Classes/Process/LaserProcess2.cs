@@ -59,7 +59,7 @@ namespace NewLaserProject.Classes
                 .SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(tapper => { _pierceParams = new PierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
                 .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => Task.Run(async () => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); })))
  //TODO fix it!!!
-                //               .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => Pierce(mlp, waferEnumerator.Current)))
+             //   .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => Pierce<PDxfCurve2>(mlp, waferEnumerator.Current)))
                 .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => Task.Run(async () => { await Task.Delay(delay); })));
 
             var pierceAction = _pierceActionBuilder.GetTree().GetAction();

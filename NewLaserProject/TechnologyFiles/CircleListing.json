@@ -1,61 +1,67 @@
-[
-  {
-    "$type": "LoopBlock",
-    "CanAcceptChildren": true,
-    "Children": [
-      {
-        "$type": "PierceBlock",
-        "CanAcceptChildren": false,
-        "MarkParams": {
-          "$type": "MarkLaserParams",
-          "PenParams": {
-            "$type": "PenParams",
-            "nPenNo": 0,
-            "nMarkLoop": 1,
-            "dMarkSpeed": 40.0,
-            "dPowerRatio": 100.0,
-            "dCurrent": 3.0,
-            "nFreq": 30000,
-            "nQPulseWidth": 15,
-            "nStartTC": 0,
-            "nLaserOnTC": 0,
-            "nLaserOffTC": 0,
-            "nEndTC": 0,
-            "nPolyTC": 0,
-            "dJumpSpeed": 1000.0,
-            "nJumpPosTC": 1000,
-            "nJumpDistTC": 1000,
-            "dEndComp": 0.0,
-            "dAccDist": 1.0,
-            "dPointTime": 1.0,
-            "bPulsePointMode": true,
-            "nPulseNum": 2,
-            "dFlySpeed": 1000.0
-          },
-          "HatchParams": {
-            "$type": "HatchParams",
-            "bEnableContour": true,
-            "nParamIndex": 1,
-            "bEnableHatch": 13,
-            "nPenNo": 0,
-            "nHatchType": 3,
-            "bHatchAllCalc": false,
-            "bHatchEdge": true,
-            "bHatchAverageLine": true,
-            "dHatchLineDist": 0.01,
-            "dHatchEdgeDist": 0.01,
-            "dHatchStartOffset": 0.01,
-            "dHatchEndOffset": 0.01,
-            "dHatchLineReduction": 0.01,
-            "dHatchLoopDist": 1.0,
-            "nEdgeLoop": 1,
-            "nHatchLoopRev": true,
-            "bHatchAutoRotate": false,
-            "dHatchRotateAngle": 0.0
+{
+  "$type": "MainLoop",
+  "Shuffle": false,
+  "CanAcceptChildren": true,
+  "Children": [
+    {
+      "$type": "LoopBlock",
+      "CanAcceptChildren": true,
+      "Children": [
+        {
+          "$type": "PierceBlock",
+          "CanAcceptChildren": false,
+          "MarkParams": {
+            "$type": "MarkLaserParams",
+            "PenParams": {
+              "$type": "PenParams",
+              "nPenNo": 0,
+              "nMarkLoop": 1,
+              "dMarkSpeed": 40.0,
+              "dPowerRatio": 100.0,
+              "dCurrent": 3.0,
+              "nFreq": 30000,
+              "nQPulseWidth": 15,
+              "nStartTC": 0,
+              "nLaserOnTC": 0,
+              "nLaserOffTC": 0,
+              "nEndTC": 0,
+              "nPolyTC": 0,
+              "dJumpSpeed": 1000.0,
+              "nJumpPosTC": 1000,
+              "nJumpDistTC": 1000,
+              "dEndComp": 0.0,
+              "dAccDist": 1.0,
+              "dPointTime": 1.0,
+              "bPulsePointMode": true,
+              "nPulseNum": 2,
+              "dFlySpeed": 1000.0
+            },
+            "HatchParams": {
+              "$type": "HatchParams",
+              "bEnableContour": true,
+              "nParamIndex": 1,
+              "bEnableHatch": 13,
+              "nPenNo": 0,
+              "nHatchType": 3,
+              "bHatchAllCalc": false,
+              "bHatchEdge": true,
+              "bHatchAverageLine": true,
+              "dHatchLineDist": 0.01,
+              "dHatchEdgeDist": 0.01,
+              "dHatchStartOffset": 0.01,
+              "dHatchEndOffset": 0.01,
+              "dHatchLineReduction": 0.01,
+              "dHatchLoopDist": 1.0,
+              "nEdgeLoop": 1,
+              "nHatchLoopRev": true,
+              "bHatchAutoRotate": false,
+              "dHatchRotateAngle": 0.0
+            }
           }
         }
-      }
-    ],
-    "LoopCount":60
-  }
-]
+      ],
+      "LoopCount": 60
+    }
+  ],
+  "LoopCount": 0
+}
