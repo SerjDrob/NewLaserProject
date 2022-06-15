@@ -6,13 +6,14 @@ using MachineClassLibrary.Machine.Machines;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.ProgBlocks;
 using Stateless;
+using Stateless.Graph;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
-    public class LaserProcess2/*<T> where T : class, IShape*/
+    public class LaserProcess2:IProcess/*<T> where T : class, IShape*/
     {
         //TODO make it non generic class, LaserWafer<T> is just IEnumerable<IProcObject>
 
@@ -141,7 +142,7 @@ namespace NewLaserProject.Classes
         }
     }
 
-    public class LaserProcess3
+    public class LaserProcess3:IProcess
     {
         private readonly IEnumerable<IProcObject> _wafer;
         private readonly string _jsonPierce;
@@ -155,10 +156,10 @@ namespace NewLaserProject.Classes
         private readonly double _waferThickness;
         private readonly EntityPreparator _entityPreparator;
 
-        public LaserProcess3()
-        {
+        //public LaserProcess3()
+        //{
 
-        }
+        //}
 
         public LaserProcess3(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem<LMPlace> coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
@@ -207,9 +208,8 @@ namespace NewLaserProject.Classes
                 })
                 .OnEntryAsync(() => Task.WhenAll(
                     _laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
-                    _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing)
+                    _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness)
                     ))
-                //.OnEntryAsync(()=>Task.Delay(1000))
                 .OnEntryAsync(pierceFunction)
                 .OnEntry(() => { _inProcess = waferEnumerator.MoveNext(); })
                 .PermitReentryIf(Trigger.Next, () => _inProcess)
@@ -218,11 +218,11 @@ namespace NewLaserProject.Classes
 
             _stateMachine.Activate();
 
-
+            
 
             async Task Pierce(ExtendedParams markLaserParams, IProcObject procObject)
             {
-                using (var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(procObject, 100, markLaserParams.HatchWidth))
+                using (var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(procObject))
                 {
                     var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath);
                 }
@@ -243,7 +243,10 @@ namespace NewLaserProject.Classes
             }
         }
 
-
+        public override string ToString()
+        {
+            return UmlDotGraph.Format(_stateMachine.GetInfo());
+        }
 
         enum State
         {

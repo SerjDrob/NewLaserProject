@@ -79,7 +79,7 @@
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                     </Style>
                 </ToolBar.Resources>
-                <Button Style="{StaticResource PlayButton}" HorizontalAlignment="Stretch"/>
+                <Button Command="{Binding TestCommand}" Style="{StaticResource PlayButton}" HorizontalAlignment="Stretch"/>
                 <!--<Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
                 <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>-->
                 <Button hc:IconElement.Geometry="{StaticResource SpurGearGeometry}"
@@ -573,7 +573,7 @@
                         </ComboBox>
 
                         <Button 
-                                Command="{Binding AddDefaultTechnologyCommand}"
+                                Command="{Binding StartProcessCommand}"
                                 VerticalAlignment="Bottom"
                                 Style="{StaticResource PlayButton}"
                                              Grid.Column="4"

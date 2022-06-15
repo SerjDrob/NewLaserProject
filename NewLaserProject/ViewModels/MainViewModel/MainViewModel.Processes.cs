@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -49,35 +50,45 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task StartProcess()
         {
+
+
+            var topologySize = _dxfReader.GetSize();
+
+            var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
+            var waferPoints = new LaserWafer<Point>(_dxfReader.GetPoints(), topologySize);
+            wafer.Scale(1F / FileScale);
+            waferPoints.Scale(1F / FileScale);
+            if (WaferTurn90) wafer.Turn90();
+            if (WaferTurn90) waferPoints.Turn90();
+            if (MirrorX) wafer.MirrorX();
+            if (MirrorX) waferPoints.MirrorX();
+
+            _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
+            var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+
+            var points = waferPoints.Cast<PPoint>();
             
-            ProcessingObjects = new(_dxfReader.GetCircles());
-            ////is dxf valid?
-            ////using var wafer = new LaserWafer<Circle>(_dxfReader.GetCircles(), topologySize);
-            //var topologySize = _dxfReader.GetSize();
-            //using var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
-            //wafer.Scale(1F / FileScale);
-            //if (WaferTurn90) wafer.Turn90();
-            //if (MirrorX) wafer.MirrorX();
-            //_pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
-            //var coorSystem = ProcessUnderCamera ? _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera) : _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
-            ////var process = new LaserProcess2<Circle>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint);
-            //var process = new LaserProcess2<DxfCurve>(wafer, _pierceSequenceJson, _laserMachine, coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness);
+            var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
 
-            //try
-            //{
-            //    OnProcess = true;
-            //    await process.StartAsync();
-            //}
-            //catch (Exception ex)
-            //{
+            _threePointsProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator);
 
-            //    throw;
-            //}
-            //finally
-            //{
-            //    OnProcess = false;
-            //}
+            _threePointsProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
+            try
+            {
+                OnProcess = true;
+                await _threePointsProcess.StartAsync();
+            }
+            catch (Exception ex)
+            {
 
+                throw;
+            }
+            finally
+            {
+                OnProcess = false;
+            }
         }
 
         [ICommand]
@@ -100,6 +111,12 @@ namespace NewLaserProject.ViewModels
             var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
 
             var points = waferPoints.Cast<PPoint>();
+
+            //_threePointsProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+            //            coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+            //            Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
+
+            var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
 
             _threePointsProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
