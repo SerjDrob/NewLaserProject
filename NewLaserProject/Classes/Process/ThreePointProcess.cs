@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace NewLaserProject.Classes.Process
 {
     //TODO make it non generic class, LaserWafer<T> is just IEnumerable<IProcObject>
-    internal class ThreePointProcess//<T> where T : class, IShape
+    internal class ThreePointProcess:IProcess//<T> where T : class, IShape
     {
         //private readonly LaserWafer<T> _wafer;
         private readonly IEnumerable<IProcObject> _wafer;

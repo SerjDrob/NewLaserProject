@@ -600,6 +600,7 @@ namespace NewLaserProject.ViewModels
             {
                 return _currentTeacher?.Next();
             }
+            return _mainProcess?.Next();
             return null;
         }
         [ICommand]
