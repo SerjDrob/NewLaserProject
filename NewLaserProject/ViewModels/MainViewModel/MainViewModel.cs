@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
@@ -74,6 +75,8 @@ namespace NewLaserProject.ViewModels
         public MainViewModel(DbContext db)
         {
             _db = db;
+            _coorSystem = GetCoorSystem();
+
         }
         public MainViewModel(LaserMachine laserMachine, DbContext db)
         {
@@ -188,7 +191,28 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            
+            var topologySize = _dxfReader.GetSize();
+            var path = Path.Combine(ProjectPath.GetFolderPath("TempFiles"));
+            var objs = _dxfReader.GetAllDxfCurves2(path, "PAZ");
+            var wafer = new LaserWafer<DxfCurve>(objs, topologySize);
+            var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), topologySize);
+            wafer.Scale(1F / FileScale);
+            waferPoints.Scale(1F / FileScale);
+            if (WaferTurn90) wafer.Turn90();
+            if (WaferTurn90) waferPoints.Turn90();
+            if (MirrorX) wafer.MirrorX();
+            if (MirrorX) waferPoints.MirrorX();
+
+            _pierceSequenceJson = File.ReadAllText(Path.Combine(ProjectPath.GetFolderPath("TechnologyFiles"),"CircleListing.json"));
+            var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+
+            var points = waferPoints.Cast<PPoint>();
+
+            _threePointsProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
+            _threePointsProcess.CreateProcess();
+            string str = _threePointsProcess.ToString();
         }
 
 
@@ -505,7 +529,7 @@ namespace NewLaserProject.ViewModels
         }
         private CoorSystem<LMPlace> GetCoorSystem()
         {
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/PureDeformation.json") ?? throw new NullReferenceException("CoorSystem in the file is invalid");
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"),"PureDeformation.json")) ?? throw new NullReferenceException("CoorSystem in the file is invalid");
 
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             buider.SetWorkMatrix(new Matrix3x2(

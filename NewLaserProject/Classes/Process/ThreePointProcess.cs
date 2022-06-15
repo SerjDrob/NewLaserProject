@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
@@ -6,6 +7,7 @@ using Microsoft.Toolkit.Diagnostics;
 using NewLaserProject.Classes.Geometry;
 using NewLaserProject.ViewModels;
 using Stateless;
+using Stateless.Graph;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -34,6 +36,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _dX;
         private readonly double _dY;
         private readonly double _pazAngle;
+        private readonly EntityPreparator _entityPreparator;
         private double _matrixAngle;
 
         public ThreePointProcess(IEnumerable<IProcObject> wafer, IEnumerable<PPoint> refPoints,
@@ -54,7 +57,32 @@ namespace NewLaserProject.Classes.Process
             _dY = dY;
             _pazAngle = pazAngle;
             _waferThickness = waferThickness;
+
         }
+
+        public ThreePointProcess(IEnumerable<IProcObject> wafer, IEnumerable<PPoint> refPoints,
+            string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
+            double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
+            double dX, double dY, double pazAngle, EntityPreparator entityPreparator)
+        {
+            Guard.IsEqualTo(refPoints.Count(), 3, nameof(refPoints));
+            _wafer = wafer;
+            _jsonPierce = jsonPierce;
+            _laserMachine = laserMachine;
+            _coorSystem = coorSystem;
+            _zeroZPiercing = zeroZPiercing;
+            _refPoints = refPoints;
+            _zeroZCamera = zeroZCamera;
+            _infoMessager = infoMessager;
+            _dX = dX;
+            _dY = dY;
+            _pazAngle = pazAngle;
+            _entityPreparator = entityPreparator;
+            _waferThickness = waferThickness;
+
+        }
+
+
 
 
         public void CreateProcess()
@@ -73,7 +101,7 @@ namespace NewLaserProject.Classes.Process
             CoorSystem<LMPlace> workCoorSys = new();
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
-            LaserProcess2 process = new();
+            IProcess process;
             SwitchCamera?.Invoke(this, true);
 
             _stateMachine.Configure(State.Started)
@@ -102,14 +130,14 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.GetRefPoint)
                 .OnEntry(_infoMessager.EraseMessage)
                 .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
-                .OnEntry(()=>SwitchCamera?.Invoke(this,false))
+                .OnEntry(()=>SwitchCamera?.Invoke(this,false),"Switch Camera")
                 .OnEntry(() => workCoorSys = new CoorSystem<LMPlace>
                     .ThreePointCoorSystemBuilder<LMPlace>()
                     .SetFirstPointPair(originPoints[0], resultPoints[0])
                     .SetSecondPointPair(originPoints[1], resultPoints[1])
                     .SetThirdPointPair(originPoints[2], resultPoints[2])
                     .FormWorkMatrix(0.001, 0.001, false)
-                    .Build())
+                    .Build(),"Get working coordinate system")
                 .OnEntry(() => _matrixAngle = workCoorSys.GetMatrixAngle())
                 .OnEntry(() => _stateMachine.Fire(Trigger.Next))
                 .Permit(Trigger.Next, State.Working)
@@ -117,9 +145,17 @@ namespace NewLaserProject.Classes.Process
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Working)
-                .OnEntry(() => process = new LaserProcess2(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zeroZPiercing, _waferThickness, _pazAngle - _matrixAngle))
-                .OnEntry(() => process.CreateProcess())
-                .OnEntryAsync(() => process.StartAsync())
+                .OnEntryAsync(async () => {
+                    _entityPreparator.SetEntityAngle(_pazAngle - _matrixAngle);
+                    process = new LaserProcess3(_wafer, _jsonPierce, _laserMachine, workCoorSys,
+                    _zeroZPiercing, _waferThickness, _entityPreparator);
+                    process.CreateProcess();
+                    await process.StartAsync();
+                })
+
+                //.OnEntry(() => process = new LaserProcess2(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zeroZPiercing, _waferThickness, _pazAngle - _matrixAngle))
+                //.OnEntry(() => process.CreateProcess())
+                //.OnEntryAsync(() => process.StartAsync())
                 .Ignore(Trigger.Next)
                 .Ignore(Trigger.Deny)
                 .Ignore(Trigger.Pause);
@@ -151,6 +187,10 @@ namespace NewLaserProject.Classes.Process
             }
         }
 
+        public override string ToString()
+        {
+            return UmlDotGraph.Format(_stateMachine.GetInfo());
+        }
         public async Task StartAsync()
         {
             CreateProcess();
