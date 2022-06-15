@@ -69,7 +69,8 @@ namespace NewLaserProject.ViewModels
         private CoorSystem<LMPlace> _coorSystem;
         private ITeacher _currentTeacher;
         private bool _canTeach = false;
-        private ThreePointProcess _threePointsProcess;
+
+        private IProcess _mainProcess;
 
         //---------------------------------------------
         public MainViewModel(DbContext db)
@@ -208,11 +209,11 @@ namespace NewLaserProject.ViewModels
 
             var points = waferPoints.Cast<PPoint>();
 
-            _threePointsProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+            _mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
-            _threePointsProcess.CreateProcess();
-            string str = _threePointsProcess.ToString();
+            _mainProcess.CreateProcess();
+            string str = _mainProcess.ToString();
         }
 
 

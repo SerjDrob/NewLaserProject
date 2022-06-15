@@ -70,15 +70,15 @@ namespace NewLaserProject.ViewModels
             
             var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
 
-            _threePointsProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+            _mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator);
 
-            _threePointsProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
+            //_mainProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
             try
             {
                 OnProcess = true;
-                await _threePointsProcess.StartAsync();
+                await _mainProcess.StartAsync();
             }
             catch (Exception ex)
             {
@@ -118,15 +118,15 @@ namespace NewLaserProject.ViewModels
 
             var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
 
-            _threePointsProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+            _mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
 
-            _threePointsProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
+            //_mainProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
             try
             {
                 OnProcess = true;
-                await _threePointsProcess.StartAsync();
+                await _mainProcess.StartAsync();
             }
             catch (Exception ex)
             {
@@ -208,7 +208,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private Task TPProcessNext()
         {
-            return _threePointsProcess.Next();
+            return _mainProcess.Next();
         }
 
 

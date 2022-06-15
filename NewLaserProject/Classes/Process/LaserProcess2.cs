@@ -125,7 +125,15 @@ namespace NewLaserProject.Classes
             }
         }
 
+        public Task Deny()
+        {
+            throw new NotImplementedException();
+        }
 
+        public Task Next()
+        {
+            throw new NotImplementedException();
+        }
 
         enum State
         {
@@ -246,6 +254,16 @@ namespace NewLaserProject.Classes
         public override string ToString()
         {
             return UmlDotGraph.Format(_stateMachine.GetInfo());
+        }
+
+        public Task Deny()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Next()
+        {
+            throw new NotImplementedException();
         }
 
         enum State
