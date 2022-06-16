@@ -52,6 +52,7 @@ namespace NewLaserProject.Classes
             _func = _ => { action.Invoke(); return Task.CompletedTask; };
         }
 
+
         public FuncProxy2(Action<T> action)
         {
             _func = arg => { action.Invoke(arg); return Task.CompletedTask; };
@@ -63,7 +64,7 @@ namespace NewLaserProject.Classes
 
         public Func<Task> GetFuncWithArguments<T1>(T1 arg)
         {
-            return GetFuncWithArguments(arg);
+            throw new NotImplementedException();
         }
     }
 }

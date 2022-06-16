@@ -19,6 +19,6 @@ namespace NewLaserProject.Classes
     }
     public interface IFuncProxy2
     {
-        Func<Task> GetFuncWithArguments<T>(T arg);
+        //Func<Task> GetFuncWithArguments<T>(T arg);
     }
 }
