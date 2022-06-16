@@ -47,7 +47,7 @@ namespace NewLaserProject
             var viewModel = new MainViewModel(db);
 #endif   
             base.OnStartup(e);
-            new MainView()
+            new MainView2()
             {
                 DataContext = viewModel
             }.Show();
