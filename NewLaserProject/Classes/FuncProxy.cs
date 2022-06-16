@@ -1,6 +1,7 @@
 ﻿using MachineClassLibrary.Laser;
 using Microsoft.Toolkit.Diagnostics;
 using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
@@ -37,34 +38,35 @@ namespace NewLaserProject.Classes
             Guard.IsNotNull(act, $"{nameof(_action)} has incorrect signature");
             return () => act.Invoke(arg);
         }
+
+        public Action GetActionWithArguments(ExtendedParams arg)
+        {
+            var act = _action as Action<ExtendedParams>;
+            Guard.IsNotNull(act, $"{nameof(_action)} has incorrect signature");
+            return () => act.Invoke(arg);
+        }
     }
 
     public class FuncProxy2<T> : IFuncProxy2<T>
     {
         private readonly Func<T, Task> _func;
+        
         public FuncProxy2(Func<T, Task> func)
         {
             _func = func;
         }
-
         public FuncProxy2(Action action)
         {
             _func = _ => { action.Invoke(); return Task.CompletedTask; };
         }
-
-
         public FuncProxy2(Action<T> action)
         {
             _func = arg => { action.Invoke(arg); return Task.CompletedTask; };
         }
+
         public Func<Task> GetFuncWithArguments(T arg)
         {
             return async () => await _func.Invoke(arg);
-        }
-
-        public Func<Task> GetFuncWithArguments<T1>(T1 arg)
-        {
-            throw new NotImplementedException();
         }
     }
 }

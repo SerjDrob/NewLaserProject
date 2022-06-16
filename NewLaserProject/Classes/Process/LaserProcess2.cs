@@ -191,10 +191,10 @@ namespace NewLaserProject.Classes
                 : _wafer.GetEnumerator();
 
             _pierceActionBuilder
-                .SetModuleFunction<TapperBlock>(new FuncProxy2<double>(tapper => { _pierceParams = new PierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
-                .SetModuleFunction<AddZBlock>(new FuncProxy2<double>(async z => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); }))
-                .SetModuleFunction<PierceBlock>(new FuncProxy2<ExtendedParams>(async mlp => { await Pierce(mlp, waferEnumerator.Current); }))
-                .SetModuleFunction<DelayBlock>(new FuncProxy2<int>(Task.Delay));
+                .SetModuleFunction<TapperBlock, double>(new FuncProxy2<double>(tapper => { _pierceParams = new PierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
+                .SetModuleFunction<AddZBlock, double>(new FuncProxy2<double>(async z => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); }))
+                .SetModuleFunction<PierceBlock, ExtendedParams>(new FuncProxy2<ExtendedParams>(async mlp => { await Pierce(mlp, waferEnumerator.Current); }))
+                .SetModuleFunction<DelayBlock, int>(new FuncProxy2<int>(Task.Delay));
 
             var pierceFunction = _pierceActionBuilder
                 .GetTree()

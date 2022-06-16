@@ -11,7 +11,8 @@ namespace NewLaserProject.Classes.ProgBlocks
     {
         public bool CanAcceptChildren { get; set; }
         public MarkLaserParams MarkParams { get; set; }          
-        
+        //public ExtendedParams MarkParams { get; set; }          
+
     }
 
 }
