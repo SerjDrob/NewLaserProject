@@ -12,13 +12,17 @@ namespace NewLaserProject.Classes
         Action GetActionWithArguments(double arg);
         Action GetActionWithArguments(int arg);
         Action GetActionWithArguments(MarkLaserParams arg);
+        Action GetActionWithArguments(ExtendedParams arg);
+
     }
-    public interface IFuncProxy2<T> : IFuncProxy2
+    public interface IFuncProxy2<T> //: IFuncProxy2
     {
         Func<Task> GetFuncWithArguments(T arg);
     }
-    public interface IFuncProxy2
-    {
-        //Func<Task> GetFuncWithArguments<T>(T arg);
-    }
+    //public interface IFuncProxy2
+    //{
+    //    Func<Task> GetActionWithArguments(double arg);
+    //    Func<Task> GetActionWithArguments(int arg);
+    //    Func<Task> GetActionWithArguments(MarkLaserParams arg);
+    //}
 }

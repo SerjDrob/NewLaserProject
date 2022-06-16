@@ -255,7 +255,7 @@ namespace NewLaserProject.Classes
     public class BTBuilderZ
     {
         private readonly MainLoop _progModules;
-        private Dictionary<Type, IFuncProxy2> _functions = new();
+        private Dictionary<Type, object> _functions = new();
         public bool MainLoopShuffle { get => _progModules.Shuffle; }
         public int MainLoopCount { get => _progModules.LoopCount; }
 
@@ -284,7 +284,7 @@ namespace NewLaserProject.Classes
             }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
         }
 
-        public BTBuilderZ SetModuleFunction<TBlock>(IFuncProxy2 funcProxy) where TBlock : IProgBlock
+        public BTBuilderZ SetModuleFunction<TBlock,T>(IFuncProxy2<T> funcProxy) where TBlock : IProgBlock
         {
             _functions.TryAdd(typeof(TBlock), funcProxy);
             return this;
@@ -304,7 +304,7 @@ namespace NewLaserProject.Classes
             {
                 if (item.GetType() != typeof(LoopBlock))
                 {
-                    IFuncProxy2 fp;
+                    object fp;
                     if (_functions.TryGetValue(item.GetType(), out fp))
                     {
                         var function = item switch
