@@ -50,8 +50,6 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task StartProcess()
         {
-
-
             var topologySize = _dxfReader.GetSize();
 
             var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);

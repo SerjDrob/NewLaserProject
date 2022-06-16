@@ -309,10 +309,10 @@ namespace NewLaserProject.Classes
                     {
                         var function = item switch
                         {
-                            TapperBlock tapperBlock => fp.GetFuncWithArguments(tapperBlock.Tapper),
-                            AddZBlock addZBlock => fp.GetFuncWithArguments(addZBlock.DeltaZ),
-                            DelayBlock delayBlock => fp.GetFuncWithArguments(delayBlock.DelayTime),
-                            PierceBlock pierceBlock => fp.GetFuncWithArguments(pierceBlock.MarkParams),
+                            TapperBlock tapperBlock => ((IFuncProxy2<double>)fp).GetFuncWithArguments(tapperBlock.Tapper),
+                            AddZBlock addZBlock => ((IFuncProxy2<double>)fp).GetFuncWithArguments(addZBlock.DeltaZ),
+                            DelayBlock delayBlock => ((IFuncProxy2<int>)fp).GetFuncWithArguments(delayBlock.DelayTime),
+                            PierceBlock pierceBlock => ((IFuncProxy2<MarkLaserParams>)fp).GetFuncWithArguments(pierceBlock.MarkParams),
                             _ => throw new ArgumentException($"Unknown type {nameof(item)}")
                         };
                         mainLoop.AddChild(FuncTree.SetFunc(function));
@@ -322,9 +322,8 @@ namespace NewLaserProject.Classes
                         throw new KeyNotFoundException($"There is no value for {item.GetType()} key");
                     }
                 }
-                else if (item.GetType() == typeof(LoopBlock))
+                else if (item is LoopBlock loop)
                 {
-                    var loop = (LoopBlock)item;
                     mainLoop.AddChild(FuncTree.StartLoop(loop.LoopCount).AddChild(ParseModules(loop.Children)).EndLoop);
                 }
             }
