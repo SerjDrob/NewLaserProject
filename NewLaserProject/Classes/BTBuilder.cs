@@ -255,7 +255,7 @@ namespace NewLaserProject.Classes
     public class BTBuilderZ
     {
         private readonly MainLoop _progModules;
-        private Dictionary<Type, object> _functions = new();
+        private Dictionary<Type, dynamic> _functions = new();
         public bool MainLoopShuffle { get => _progModules.Shuffle; }
         public int MainLoopCount { get => _progModules.LoopCount; }
 
@@ -302,30 +302,22 @@ namespace NewLaserProject.Classes
             var mainLoop = FuncTree.StartLoop(1);
             foreach (var item in progModules)
             {
-                if (item.GetType() != typeof(LoopBlock))
-                {
-                    object fp;
-                    if (_functions.TryGetValue(item.GetType(), out fp))
-                    {
-                        var function = item switch
-                        {
-                            TapperBlock tapperBlock => ((IFuncProxy2<double>)fp).GetFuncWithArguments(tapperBlock.Tapper),
-                            AddZBlock addZBlock => ((IFuncProxy2<double>)fp).GetFuncWithArguments(addZBlock.DeltaZ),
-                            DelayBlock delayBlock => ((IFuncProxy2<int>)fp).GetFuncWithArguments(delayBlock.DelayTime),
-                            PierceBlock pierceBlock => ((IFuncProxy2<MarkLaserParams>)fp).GetFuncWithArguments(pierceBlock.MarkParams),
-                            _ => throw new ArgumentException($"Unknown type {nameof(item)}")
-                        };
-                        mainLoop.AddChild(FuncTree.SetFunc(function));
-                    }
-                    else
-                    {
-                        throw new KeyNotFoundException($"There is no value for {item.GetType()} key");
-                    }
-                }
-                else if (item is LoopBlock loop)
+                if (item is LoopBlock loop)
                 {
                     mainLoop.AddChild(FuncTree.StartLoop(loop.LoopCount).AddChild(ParseModules(loop.Children)).EndLoop);
+                    continue;
                 }
+
+                var fp = _functions[item.GetType()];
+                var function = item switch
+                {
+                    TapperBlock tapperBlock => fp.GetFuncWithArguments(tapperBlock.Tapper),
+                    AddZBlock addZBlock => fp.GetFuncWithArguments(addZBlock.DeltaZ),
+                    DelayBlock delayBlock => fp.GetFuncWithArguments(delayBlock.DelayTime),
+                    PierceBlock pierceBlock => fp.GetFuncWithArguments(pierceBlock.MarkParams),
+                    _ => throw new ArgumentException($"Unknown type {nameof(item)}")
+                };
+                mainLoop.AddChild(FuncTree.SetFunc(function));
             }
             return mainLoop.EndLoop;
         }
