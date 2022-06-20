@@ -1,7 +1,10 @@
-﻿namespace NewLaserProject.Classes.ProgBlocks
+﻿using System;
+using System.Threading.Tasks;
+
+namespace NewLaserProject.Classes.ProgBlocks
 {
     /*internal*/public class DelayBlock : IProgBlock
-    {
+    {     
         public bool CanAcceptChildren { get; set; }       
         public int DelayTime { get; set; }        
     }

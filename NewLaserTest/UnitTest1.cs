@@ -196,9 +196,7 @@ namespace NewLaserTest
 
         [TestCase(new[] { Transformation.Turn90 }, 1, 60, 48, 59, 1, 47, 59)]
         [TestCase(new[] { Transformation.MirrorX }, 1, 60, 48, 59, 1, 1, 1)]
-
         [TestCase(new[] { Transformation.MirrorX, Transformation.Scale }, 0.001F, 60000, 48000, 59000, 1000, 1, 1)]
-
         [TestCase(new[] { Transformation.MirrorY }, 1, 60, 48, 59, 1, 59, 47)]
         [TestCase(new[] { Transformation.Turn90, Transformation.Turn90 }, 1, 60, 48, 59, 1, 59, 1)]
         [TestCase(new[] { Transformation.Turn90, Transformation.MirrorX }, 1, 60, 48, 59, 1, 47, 1)]
@@ -212,8 +210,6 @@ namespace NewLaserTest
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90 }, 0.001F, 30000, 48000, 29075, 42425, 5.575, 29.075)]
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90 }, 0.001F, 30000, 48000, 925, 5575, 42.425, 0.925)]
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90 }, 0.001F, 30000, 48000, 29075, 5575, 42.425, 29.075)]
-
-
         public void TestLaserWaferTransformations(Transformation[] trSequence, float scale, double sizeX,
             double sizeY, double x1, double y1, double x2, double y2, float offsetX = 0, float offsetY = 0)
         {
@@ -291,6 +287,24 @@ namespace NewLaserTest
             Assert.That(sb.ToString() == expectedResult);
         }
 
+        [TestCase("CircleListing.json", "t1z2d3t4z5z5z5d6z7z7d6z7z7t4z5z5z5d6z7z7d6z7z7t8")]
+        public async Task TestTreeBuilderAsync(string filePath, string expectedResult)
+        {
+            var workingDirectory = Environment.CurrentDirectory;
+            var directory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+            var json = File.ReadAllText($"{directory}/Files/{filePath}");
+
+
+            var btb = new BTBuilderZ(json);
+            var sb = new StringBuilder();
+            var tree = btb.SetModuleFunction<TapperBlock,double>( new FuncProxy2<double>(tapper => { sb.Append($"t{tapper}"); }))
+                          .SetModuleFunction<AddZBlock,double>(new FuncProxy2<double>(z => { sb.Append($"z{z}"); }))
+                          .SetModuleFunction<PierceBlock,MarkLaserParams>(new FuncProxy2<MarkLaserParams>(mlp => { sb.Append("mpl"); }))
+                          .SetModuleFunction<DelayBlock,int>(new FuncProxy2<int>(delay => { sb.Append($"d{delay}"); }))
+                          .GetTree();
+            await tree.DoFuncAsync();
+            Assert.That(sb.ToString() == expectedResult);
+        }
         //[Test]
         public void StateMachineTest()
         {
