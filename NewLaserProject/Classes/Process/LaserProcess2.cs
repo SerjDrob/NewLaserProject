@@ -307,6 +307,7 @@ namespace NewLaserProject.Classes
             _zPiercing = zPiercing;
             _waferThickness = waferThickness;
             _entityPreparator = entityPreparator;
+
         }
 
 
@@ -361,6 +362,7 @@ namespace NewLaserProject.Classes
             {
                 using (var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(procObject))
                 {
+                    _laserMachine.SetExtMarkParams(new ExtParamsAdapter(markLaserParams));
                     var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath);
                 }
             }

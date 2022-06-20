@@ -6,86 +6,12 @@ using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.ViewModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
-
-    //public class BTBuilder
-    //{
-    //    private readonly List<ProgModuleItemVM> _progModules;
-    //    public BTBuilder(string jsonTree)
-    //    {
-    //        _progModules = JsonConvert.DeserializeObject<List<ProgModuleItemVM>>(jsonTree);
-    //    }
-    //    public BTBuilder SetModuleAction(ModuleType moduleType, IFuncProxy funcProxy)
-    //    {
-    //        _actions.TryAdd(moduleType, funcProxy);
-    //        return this;
-    //    }
-    //    private Dictionary<ModuleType, IFuncProxy> _actions = new();
-
-
-    //    public Sequence GetSequence()
-    //    {
-    //        var result = ParseModules(_progModules);
-    //        return result;
-    //    }
-    //    private Sequence ParseModules(IEnumerable<ProgModuleItemVM> progModules)
-    //    {
-    //        var sequence = new Sequence();
-    //        foreach (var item in progModules)
-    //        {
-    //            if (item.ModuleType != ModuleType.Loop)
-    //            {
-    //                IFuncProxy fp;
-    //                if (_actions.TryGetValue(item.ModuleType, out fp))
-    //                {
-    //                    var action = item.ModuleType switch
-    //                    {
-    //                        ModuleType.AddDiameter => fp.GetActionWithArguments(item.Tapper),
-    //                        ModuleType.AddZ => fp.GetActionWithArguments(item.DeltaZ),
-    //                        ModuleType.Delay => fp.GetActionWithArguments(item.DelayTime),
-    //                        ModuleType.Pierce => fp.GetActionWithArguments(item.MarkParams)
-    //                    };
-    //                    sequence.Hire(new Leaf(() => Task.Run(action)));
-    //                }
-    //                else
-    //                {
-    //                    throw new KeyNotFoundException($"There is no value for {item.ModuleType} key");
-    //                }
-    //            }
-    //            else if (item.ModuleType == ModuleType.Loop)
-    //            {
-    //                sequence.Hire(new Ticker(item.LoopCount).Hire(ParseModules(item.Children)));
-    //            }
-    //        }
-    //        return sequence;
-    //        //var f = new FuncProxy<Action<int>>(x => { });
-    //    }
-    //}
-
-
-
-    internal class TypesBinder : ISerializationBinder
-    {
-        public IList<Type> KnownTypes { get; set; }
-
-        public void BindToName(Type serializedType, out string? assemblyName, out string? typeName)
-        {
-            assemblyName = null;
-            typeName = serializedType.Name;
-        }
-
-        public Type BindToType(string? assemblyName, string typeName)
-        {
-            return KnownTypes.SingleOrDefault(t => t.Name == typeName);
-        }
-    }
 
     //public class BTBuilderX
     //{
@@ -175,7 +101,7 @@ namespace NewLaserProject.Classes
 
     //    public BTBuilderY(string jsonTree)
     //    {
-           
+
     //        _progModules = JsonConvert.DeserializeObject<MainLoop>(jsonTree, new JsonSerializerSettings
     //        {
     //            TypeNameHandling = TypeNameHandling.Objects,
@@ -203,20 +129,20 @@ namespace NewLaserProject.Classes
     //        _actions.TryAdd(type, funcProxy);
     //        return this;
     //    }
-          
+
     //    public BTBuilderY SetModuleAction<TBlock>(IFuncProxy funcProxy) where TBlock : IProgBlock
     //    {
     //        _actions.TryAdd(typeof(TBlock), funcProxy);
     //        return this;
     //    }
-        
+
     //    public ActionTree GetTree()
     //    {
     //        var result = ParseModules(_progModules.Children);
     //        return result;
     //    }
 
-        
+
     //    private ActionTree ParseModules(IEnumerable<IProgBlock> progModules)
     //    {
     //        var mainLoop = ActionTree.StartLoop(1);
@@ -340,27 +266,18 @@ namespace NewLaserProject.Classes
         }
         public ProgTreeParser(string jsonTree)
         {
-
-            _progModules = JsonConvert.DeserializeObject<MainLoop>(jsonTree, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Objects,
-                SerializationBinder = new TypesBinder
-                {
-                    KnownTypes = new List<Type>
-                    {
-                        typeof(AddZBlock),
-                        typeof(DelayBlock),
-                        typeof(LoopBlock),
-                        typeof(PierceBlock),
-                        typeof(TapperBlock),
-                        typeof(RepairZBlock),
-                        typeof(MarkLaserParams),
-                        typeof(PenParams),
-                        typeof(HatchParams),
-                        typeof(MainLoop)
-                    }
-                }
-            }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
+            _progModules = new JsonDeserializer<MainLoop>()
+                .SetKnownType<AddZBlock>()
+                .SetKnownType<DelayBlock>()
+                .SetKnownType<LoopBlock>()
+                .SetKnownType<PierceBlock>()
+                .SetKnownType<TapperBlock>()
+                .SetKnownType<RepairZBlock>()
+                .SetKnownType<MarkLaserParams>()
+                .SetKnownType<PenParams>()
+                .SetKnownType<HatchParams>()
+                .SetKnownType<MainLoop>()
+                .Deserialize(jsonTree);
         }
 
         public FuncTree GetTree()
@@ -389,7 +306,7 @@ namespace NewLaserProject.Classes
                     TapperBlock tapperBlock => ((IFuncProxy2<double>)fp).GetFuncWithArgument(tapperBlock.Tapper),
                     AddZBlock addZBlock => ((IFuncProxy2<double>)fp).GetFuncWithArgument(addZBlock.DeltaZ),
                     DelayBlock delayBlock => ((IFuncProxy2<int>)fp).GetFuncWithArgument(delayBlock.DelayTime),
-                    PierceBlock pierceBlock => ((IFuncProxy2<MarkLaserParams>)fp).GetFuncWithArgument(pierceBlock.MarkParams),
+                    PierceBlock pierceBlock => ((IFuncProxy2<ExtendedParams>)fp).GetFuncWithArgument(pierceBlock.MarkParams),
                     _ => throw new ArgumentException($"Unknown type {nameof(item)}")
                 };
                 mainLoop.AddChild(FuncTree.SetFunc(function));

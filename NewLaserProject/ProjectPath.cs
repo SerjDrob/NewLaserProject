@@ -15,5 +15,10 @@ namespace NewLaserProject
             var projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
             return Path.Combine(projectDirectory, folder);           
         }
+        
+        public static string GetFilePathInFolder(string folder, string filename)
+        {            
+            return Path.Combine(Path.Combine(GetFolderPath(folder),filename));
+        }
     }
 }
