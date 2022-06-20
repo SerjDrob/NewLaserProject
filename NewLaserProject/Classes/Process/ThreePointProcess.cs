@@ -147,7 +147,7 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.Working)
                 .OnEntryAsync(async () => {
                     _entityPreparator.SetEntityAngle(_pazAngle - _matrixAngle);
-                    process = new LaserProcess3(_wafer, _jsonPierce, _laserMachine, workCoorSys,
+                    process = new LaserProcess4(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
                     process.CreateProcess();
                     await process.StartAsync();
