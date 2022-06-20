@@ -50,9 +50,18 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task StartProcess()
         {
+            var laserSettingsjson = File.ReadAllText(ProjectPath.GetFilePathInFolder("AppSettings", "DefaultLaserParams.json"));
+
+            var laserParams = new JsonDeserializer<MarkLaserParams>()  
+                .SetKnownType<PenParams>()
+                .SetKnownType<HatchParams>()
+                .Deserialize(laserSettingsjson);
+
+            _laserMachine.SetMarkParams(laserParams);
+
             var topologySize = _dxfReader.GetSize();
 
-            var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
+            var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(ProjectPath.GetFolderPath("TempFiles"), "PAZ"), topologySize);
             var waferPoints = new LaserWafer<Point>(_dxfReader.GetPoints(), topologySize);
             wafer.Scale(1F / FileScale);
             waferPoints.Scale(1F / FileScale);
@@ -61,7 +70,7 @@ namespace NewLaserProject.ViewModels
             if (MirrorX) wafer.MirrorX();
             if (MirrorX) waferPoints.MirrorX();
 
-            _pierceSequenceJson = File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json");
+            _pierceSequenceJson = File.ReadAllText( ProjectPath.GetFilePathInFolder("TechnologyFiles","CircleListing2.json"));
             var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
 
             var points = waferPoints.Cast<PPoint>();
