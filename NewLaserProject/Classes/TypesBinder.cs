@@ -96,15 +96,23 @@ namespace NewLaserProject.Classes
         }
         public TObject Deserialize(string jsonTree)
         {
-
-            return JsonConvert.DeserializeObject<TObject>(jsonTree, new JsonSerializerSettings
+            TObject result;
+            try
             {
-                TypeNameHandling = TypeNameHandling.Objects,
-                SerializationBinder = new TypesBinder
+                result = JsonConvert.DeserializeObject<TObject>(jsonTree, new JsonSerializerSettings
                 {
-                    KnownTypes = _knownTypes
-                }
-            }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    SerializationBinder = new TypesBinder
+                    {
+                        KnownTypes = _knownTypes
+                    }
+                }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return result;
         }
     }
         

@@ -370,9 +370,10 @@ namespace NewLaserProject.Classes
 
         public async Task StartAsync()
         {
+            CreateProcess();
+
             for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
             {
-                CreateProcess();
                 _inProcess = true;
 
                 while (_inProcess)

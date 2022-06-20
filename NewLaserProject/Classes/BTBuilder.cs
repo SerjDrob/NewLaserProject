@@ -276,7 +276,7 @@ namespace NewLaserProject.Classes
                 .SetKnownType<MarkLaserParams>()
                 .SetKnownType<PenParams>()
                 .SetKnownType<HatchParams>()
-                .SetKnownType<MainLoop>()
+                .SetKnownType<ExtendedParams>()
                 .Deserialize(jsonTree);
         }
 
