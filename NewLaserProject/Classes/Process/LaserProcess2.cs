@@ -313,11 +313,11 @@ namespace NewLaserProject.Classes
         public void CreateProcess()
         {
             double[] position = { 0, 0 };
-            var waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
-                            : _wafer.GetEnumerator();
-
             
             _progTreeParser = new ProgTreeParser(_jsonPierce);
+
+            var waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
+                            : _wafer.GetEnumerator();
 
             _progTreeParser
                 .SetModuleFunction<TapperBlock, double>(new FuncProxy2<double>(tapper => { _pierceParams = new PierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
