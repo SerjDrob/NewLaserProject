@@ -33,6 +33,7 @@
         <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
         <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
         <Localconverters:TextToEntityConverter x:Key="TextToEntityConverter"/>
+        <Localconverters:GetLayerNameConverter x:Key="GetLayerNameConverter"/>
         <CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>
         <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
         <CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>
@@ -526,7 +527,7 @@
                         </Grid.RowDefinitions>
                         <ComboBox ItemsSource="{Binding Source={StaticResource FileStructure}}"
                                      SelectedIndex="{Binding DefLayerIndex}"
-                                     SelectedItem="{Binding CurrentLayerFilter}"
+                                     SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
                                      >
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>

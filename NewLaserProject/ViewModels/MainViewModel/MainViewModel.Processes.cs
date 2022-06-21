@@ -4,6 +4,7 @@ using MachineClassLibrary.Laser.Entities;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process;
+using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using System;
@@ -46,6 +47,10 @@ namespace NewLaserProject.ViewModels
             ProcessingObjects[index].IsBeingProcessed = true;
             ProcessingObjects=new(ProcessingObjects);
         }
+
+        public Technology CurrentTechnology { get; set; }
+        public object CurrentLayerFilter { get; set; }
+        public object CurrentEntityType { get; set; }
 
         [ICommand]
         private async Task StartProcess()
