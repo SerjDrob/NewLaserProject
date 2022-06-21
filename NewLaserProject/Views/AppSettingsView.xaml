@@ -235,7 +235,9 @@
                     </UniformGrid>
                     </StackPanel>
                 </GroupBox>
-                
+                <GroupBox Padding="4" Header="Настройки пера и штриховки" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">
+                    <hc:PropertyGrid SelectedObject="{Binding MarkSettingsViewModel}"/>
+                </GroupBox>
             </UniformGrid>
         </UniformGrid>
     </Grid>

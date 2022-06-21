@@ -297,10 +297,10 @@ namespace NewLaserTest
 
             var btb = new BTBuilderZ(json);
             var sb = new StringBuilder();
-            var tree = btb.SetModuleFunction<TapperBlock,double>( new FuncProxy2<double>(tapper => { sb.Append($"t{tapper}"); }))
-                          .SetModuleFunction<AddZBlock,double>(new FuncProxy2<double>(z => { sb.Append($"z{z}"); }))
-                          .SetModuleFunction<PierceBlock,MarkLaserParams>(new FuncProxy2<MarkLaserParams>(mlp => { sb.Append("mpl"); }))
-                          .SetModuleFunction<DelayBlock,int>(new FuncProxy2<int>(delay => { sb.Append($"d{delay}"); }))
+            var tree = btb.SetModuleFunction<TapperBlock,double>( new FuncProxy<double>(tapper => { sb.Append($"t{tapper}"); }))
+                          .SetModuleFunction<AddZBlock,double>(new FuncProxy<double>(z => { sb.Append($"z{z}"); }))
+                          .SetModuleFunction<PierceBlock,MarkLaserParams>(new FuncProxy<MarkLaserParams>(mlp => { sb.Append("mpl"); }))
+                          .SetModuleFunction<DelayBlock,int>(new FuncProxy<int>(delay => { sb.Append($"d{delay}"); }))
                           .GetTree();
             await tree.DoFuncAsync();
             Assert.That(sb.ToString() == expectedResult);

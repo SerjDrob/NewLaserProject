@@ -101,7 +101,7 @@ namespace NewLaserProject.ViewModels
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
             _db = db;
-            AppSngsVM = new(_db);
+            //AppSngsVM = new(_db);
         }
         [ICommand]
         private void DbLoad()
@@ -111,14 +111,17 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void AppSettingsOpen()
         {
-            if (AppSngsVM is null) AppSngsVM = new(_db);
+            var defLaserParams = ExtensionMethods
+                .DeserilizeObject<MarkLaserParams>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultLaserParams.json"));
+
+            if (AppSngsVM is null) AppSngsVM = new(_db, defLaserParams);
         }
         [ICommand]
         private void AppSettingsClose()
         {
             if (AppSngsVM is not null)
             {
-                var result = new DefaultProcessFilterDTO
+                var defProcFilter = new DefaultProcessFilterDTO
                 {
                     LayerFilterId = AppSngsVM.DefLayerEntTechnology.DefaultLayerFilter.Id,
                     MaterialId = AppSngsVM.DefaultMaterial.Id,
@@ -127,7 +130,10 @@ namespace NewLaserProject.ViewModels
                     DefaultHeight=AppSngsVM.DefaultHeight
                 };
 
-                result.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultProcessFilter.json"));
+                var defLaserParams = AppSngsVM.MarkSettingsViewModel.GetLaserParams();
+
+                defProcFilter.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultProcessFilter.json"));
+                defLaserParams.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultLaserParams.json"));
             }
         }
         [ICommand]

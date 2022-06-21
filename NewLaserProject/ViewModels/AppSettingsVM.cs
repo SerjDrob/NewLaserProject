@@ -12,6 +12,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using PropertyChanged;
+using AutoMapper;
+using LaserLib = MachineClassLibrary.Laser;
 
 namespace NewLaserProject.ViewModels
 {
@@ -45,7 +47,11 @@ namespace NewLaserProject.ViewModels
         public ObservableCollection<DefaultLayerFilter> LayerFilters { get; set; } = new();
 
         private readonly DbContext _db;
-        public AppSettingsVM(DbContext db)
+
+        public LaserLib.MarkLaserParams DefaultLaserParams { get; private set; }
+        public MarkSettingsViewModel MarkSettingsViewModel { get; set; }
+
+        public AppSettingsVM(DbContext db, LaserLib.MarkLaserParams defaultLaserParams)
         {
             _db = db;
 
@@ -78,10 +84,24 @@ namespace NewLaserProject.ViewModels
                 SetMaterials();
                 DefaultHeight = defLayerProcDTO.DefaultHeight;
                 DefaultWidth = defLayerProcDTO.DefaultWidth;
-                
+
                 DefEntTypeIndex = EntityTypes.IndexOf(defType);
                 DefaultMaterial = Materials?.FirstOrDefault(m => m.Id == defLayerProcDTO.MaterialId, null);
             }
+            DefaultLaserParams = defaultLaserParams;
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<LaserLib.MarkLaserParams, MarkSettingsViewModel>()
+                .IncludeMembers(s => s.PenParams, s => s.HatchParams);
+                cfg.CreateMap<LaserLib.PenParams, MarkSettingsViewModel>(MemberList.None);
+                cfg.CreateMap<LaserLib.HatchParams, MarkSettingsViewModel>(MemberList.None);
+
+            });
+            
+            var markParamsToMSVMMapper = config.CreateMapper();
+
+            MarkSettingsViewModel = markParamsToMSVMMapper.Map<MarkSettingsViewModel>(defaultLaserParams);
         }
 
         [ICommand]

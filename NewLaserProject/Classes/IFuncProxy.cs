@@ -16,7 +16,7 @@ namespace NewLaserProject.Classes
     //    Action GetActionWithArguments(ExtendedParams arg);
 
     //}
-    public interface IFuncProxy2<T> : IExecutable
+    public interface IFuncProxy<T> : IExecutable
     {
         //void SetArgument(T arg);
         Func<Task> GetFuncWithArgument(T arg);
