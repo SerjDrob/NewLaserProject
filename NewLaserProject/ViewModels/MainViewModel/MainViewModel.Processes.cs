@@ -66,7 +66,7 @@ namespace NewLaserProject.ViewModels
 
             var topologySize = _dxfReader.GetSize();
 
-            var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(ProjectPath.GetFolderPath("TempFiles"), "PAZ"), topologySize);
+            var wafer = new LaserWafer<Curve>(_dxfReader.GetAllCurves("PAZ"), topologySize);
             var waferPoints = new LaserWafer<Point>(_dxfReader.GetPoints(), topologySize);
             wafer.Scale(1F / FileScale);
             waferPoints.Scale(1F / FileScale);
