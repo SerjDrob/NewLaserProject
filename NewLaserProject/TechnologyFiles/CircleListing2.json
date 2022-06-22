@@ -22,7 +22,7 @@
             "PWMDutyCycle": 50,
             "EnableHatch": true,
             "HatchWidth": 150,
-            "HatchLineDistanc": 15
+            "HatchLineDistance": 15
           }
         }
       ],
@@ -31,12 +31,6 @@
   ],
   "LoopCount": 1
 }
-
-
-
-
-      
-    
 
 
 
