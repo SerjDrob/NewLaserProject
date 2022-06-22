@@ -56,7 +56,9 @@ namespace NewLaserProject.Classes
                 if (item is LoopBlock loop)
                 {
                     FuncTree child = ParseModules(loop.Children);
-                    FuncTree endLoop = FuncTree.StartLoop(loop.LoopCount).AddChild(child).EndLoop;
+                    FuncTree endLoop = FuncTree.StartLoop(loop.LoopCount)
+                        .AddChild(child)
+                        .EndLoop;
                     mainLoop.AddChild(endLoop);
                     continue;
                 }

@@ -18,7 +18,8 @@ namespace NewLaserProject.Views.Converters
         {
             var structure = value as IDictionary<string, IEnumerable<(string objType, int count)>>;
 
-            var result = structure?.Select(l => new LayerStructure { LayerName = l.Key, Entities = l.Value.Select(o => (object)LaserEntDxfTypeAdapter.GetLaserEntity(o.objType)) })
+            var result = structure?
+                .Select(l => new LayerStructure { LayerName = l.Key, Entities = l.Value.Select(o => (object)LaserEntDxfTypeAdapter.GetLaserEntity(o.objType)) })
                         .ToObservableCollection();
             return result;
         }
