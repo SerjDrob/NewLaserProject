@@ -31,7 +31,8 @@ namespace NewLaserProject.ViewModels
             typeof(MarkLaserParams),
             typeof(PenParams),
             typeof(HatchParams),
-            typeof(MainLoop)
+            typeof(MainLoop),
+            typeof(ExtendedParams)
         };
 
         public ObservableCollection<IProgBlock> ProgBlocks { get; set; }
@@ -151,10 +152,26 @@ namespace NewLaserProject.ViewModels
             //    item.MarkParams = markSettingsVM.GetLaserParams();
             //}
 
-            var extParamsView = new ExtMarkParamsView
+
+
+            var item = (PierceBlock)progModule;
+            if (item.MarkParams is null)
             {
-                DataContext = new ExtendedParams()
-            }.ShowDialog();
+                var markSettings = new ExtendedParams();
+                new ExtMarkParamsView { DataContext = markSettings }.ShowDialog();
+                item.MarkParams = markSettings;
+            }
+            else
+            {
+                var markSettings = item.MarkParams;
+                new ExtMarkParamsView { DataContext = markSettings }.ShowDialog();
+                item.MarkParams = markSettings;
+            }
+
+            //var extParamsView = new ExtMarkParamsView
+            //{
+            //    DataContext = new ExtendedParams()
+            //}.ShowDialog();
         }
 
         //[ICommand]
