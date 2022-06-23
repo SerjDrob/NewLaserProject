@@ -42,7 +42,7 @@ namespace NewLaserProject.ViewModels
         public IProgBlock TestBlock { get; set; } = new PierceBlock();
         public string ObjectsType { get; set; }
         public string ObjectsCount { get; set; }
-        public int MainLoopCount { get; set; }
+        public int MainLoopCount { get; set; } = 1;
         public bool MainLoopShuffle { get; set; }
         private IMapper _markParamsToMSVMMapper;
         public TechWizardViewModel()
@@ -54,7 +54,6 @@ namespace NewLaserProject.ViewModels
                 new AddZBlock(),
                 new LoopBlock(),
                 new DelayBlock(),
-                new RepairZBlock()
             };
             var config = new MapperConfiguration(cfg =>
             {

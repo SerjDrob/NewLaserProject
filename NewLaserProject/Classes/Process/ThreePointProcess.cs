@@ -111,17 +111,24 @@ namespace NewLaserProject.Classes.Process
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.GoRefPoint)
-                .OnEntry(() => _laserMachine.SetVelocity(Velocity.Fast))
-                .OnEntry(() => { refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y; })
-                .OnEntryAsync(() => 
+                //.OnEntry(() => _laserMachine.SetVelocity(Velocity.Fast))
+                //.OnEntry(() => { refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y; })
+                .OnEntryAsync(async () => 
                 {
+                    _laserMachine.SetVelocity(Velocity.Fast);
+                    refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y;
                     var points = _coorSystem.ToGlobal(refX, refY);
-                    return Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, points),
+                    await Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, points),
                                                _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
-                    })
-                .OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
-                .OnExit(() => resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY))))
-                .OnExit(() => refPointsEnumerator.MoveNext())
+                    _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info);
+                })
+                //.OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
+                .OnExit(() =>
+                {
+                    resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY)));
+                    refPointsEnumerator.MoveNext();
+                })
+                //.OnExit(() => refPointsEnumerator.MoveNext())
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
                 .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
                 .Permit(Trigger.Deny, State.Denied)
@@ -129,17 +136,30 @@ namespace NewLaserProject.Classes.Process
 
             _stateMachine.Configure(State.GetRefPoint)
                 .OnEntry(_infoMessager.EraseMessage)
-                .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
-                .OnEntry(()=>SwitchCamera?.Invoke(this,false),"Switch Camera")
-                .OnEntry(() => workCoorSys = new CoorSystem<LMPlace>
+                .OnEntry(() => 
+                {
+                    _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+                    SwitchCamera?.Invoke(this, false);
+                    workCoorSys = new CoorSystem<LMPlace>
                     .ThreePointCoorSystemBuilder<LMPlace>()
                     .SetFirstPointPair(originPoints[0], resultPoints[0])
                     .SetSecondPointPair(originPoints[1], resultPoints[1])
                     .SetThirdPointPair(originPoints[2], resultPoints[2])
                     .FormWorkMatrix(0.001, 0.001, false)
-                    .Build(),"Get working coordinate system")
-                .OnEntry(() => _matrixAngle = workCoorSys.GetMatrixAngle())
-                .OnEntry(() => _stateMachine.Fire(Trigger.Next))
+                    .Build();
+                    _matrixAngle = workCoorSys.GetMatrixAngle();
+                    _stateMachine.Fire(Trigger.Next);
+                })
+                //.OnEntry(()=>SwitchCamera?.Invoke(this,false),"Switch Camera")
+                //.OnEntry(() => workCoorSys = new CoorSystem<LMPlace>
+                //    .ThreePointCoorSystemBuilder<LMPlace>()
+                //    .SetFirstPointPair(originPoints[0], resultPoints[0])
+                //    .SetSecondPointPair(originPoints[1], resultPoints[1])
+                //    .SetThirdPointPair(originPoints[2], resultPoints[2])
+                //    .FormWorkMatrix(0.001, 0.001, false)
+                //    .Build(),"Get working coordinate system")
+                //.OnEntry(() => _matrixAngle = workCoorSys.GetMatrixAngle())
+                //.OnEntry(() => _stateMachine.Fire(Trigger.Next))
                 .Permit(Trigger.Next, State.Working)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);

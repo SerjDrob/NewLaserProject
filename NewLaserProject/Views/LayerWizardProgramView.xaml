@@ -36,7 +36,7 @@
                         <TextBlock Text="Программа" Style="{StaticResource TextBlockSubTitleBold}"/>
                         <DockPanel Margin="3">
                             <Label Content="Основной цикл" DockPanel.Dock="Left" Style="{StaticResource BlockLabel}"/>
-                            <hc:NumericUpDown Value="{Binding MainLoopCount, FallbackValue=2}" 
+                            <hc:NumericUpDown Value="{Binding MainLoopCount}" 
                                               DockPanel.Dock="Left"
                                               Minimum="1"
                                               Style="{StaticResource NumericUpDownExtend}"

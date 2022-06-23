@@ -22,6 +22,8 @@ namespace NewLaserProject.Classes
         private readonly ICoorSystem<LMPlace> _coorSystem;
         private StateMachine<State, Trigger> _stateMachine;
         private bool _inProcess = false;
+        private bool _inLoop = false;
+        private int _loopCount = 0; 
         private PierceParams _pierceParams;
         private ProgTreeParser _progTreeParser;
         private readonly double _zPiercing;
@@ -44,9 +46,7 @@ namespace NewLaserProject.Classes
 
 
         public void CreateProcess()
-        {
-            double[] position = { 0, 0 };
-            
+        {            
             _progTreeParser = new ProgTreeParser(_jsonPierce);
 
             var waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
@@ -65,30 +65,43 @@ namespace NewLaserProject.Classes
             _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
 
             _stateMachine.Configure(State.Started)
-                .OnActivate(() => { _inProcess = waferEnumerator.MoveNext(); })
+                .OnActivate(() => { _inLoop = waferEnumerator.MoveNext(); })
                 .Ignore(Trigger.Pause)
                 .Permit(Trigger.Deny, State.Denied)
                 .Permit(Trigger.Next, State.Working);
 
             _stateMachine.Configure(State.Working)
-                .OnEntry(() =>
-                {
+                .OnEntryAsync(async () => 
+                {                    
                     var procObject = waferEnumerator.Current;
-                    position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
-                })
-                .OnEntryAsync(() => Task.WhenAll(
+                    var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
+                    _laserMachine.SetVelocity(Velocity.Fast);
+                    await Task.WhenAll(
                     _laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
-                    _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness)
-                    ))
-                .OnEntryAsync(pierceFunction)
-                .OnEntry(() => { _inProcess = waferEnumerator.MoveNext(); })
-                .PermitReentryIf(Trigger.Next, () => _inProcess)
+                    _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
+                    await pierceFunction();
+                    _inLoop = waferEnumerator.MoveNext();
+                })
+                //.OnEntry(() => { _inLoop = waferEnumerator.MoveNext(); })
+                .PermitReentryIf(Trigger.Next, () => _inLoop)
+                .PermitIf(Trigger.Next, State.Loop,() => !_inLoop)
+                .OnExit(() => _loopCount++)
                 .Ignore(Trigger.Pause);
 
+            _stateMachine.Configure(State.Loop)
+                .OnEntry(() =>
+                {
+                    waferEnumerator.Reset();
+                    _inLoop = waferEnumerator.MoveNext();
+                })
+                .OnExit(() => _inProcess = false)
+                .PermitIf(Trigger.Next, State.Working, () => _loopCount < _progTreeParser.MainLoopCount)
+                .PermitIf(Trigger.Next, State.Exit, () => _loopCount == _progTreeParser.MainLoopCount);
+
+            _stateMachine.Configure(State.Exit)
+                .Ignore(Trigger.Next);
 
             _stateMachine.Activate();
-
-
 
             async Task Pierce(ExtendedParams markLaserParams, IProcObject procObject)
             {
@@ -102,7 +115,7 @@ namespace NewLaserProject.Classes
 
         public async Task StartAsync()
         {
-            CreateProcess();
+            if (_stateMachine is null) return;
 
             for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
             {
@@ -135,7 +148,9 @@ namespace NewLaserProject.Classes
             Started,
             Working,
             Paused,
-            Denied
+            Denied,
+            Loop,
+            Exit
         }
         enum Trigger
         {

@@ -79,7 +79,7 @@ namespace NewLaserProject.ViewModels
                 var newTechnology = new Technology();
                 newTechnology.Material = material;
 
-                var path = ProjectPath.GetFolderPath("TechnologyFiles");
+                var path = ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES);
                 newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(path);
 
                 newTechnology.ProgramName = writeTechVM.TechnologyName;
@@ -93,10 +93,7 @@ namespace NewLaserProject.ViewModels
         private void EditTechnology(Technology technology)
         {
             var techWizard = new TechWizardViewModel { EditEnable = true };
-            
-            var workingDirectory = Environment.CurrentDirectory;
-            var projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-            var path = Path.Combine(projectDirectory, "TechnologyFiles",$"{technology.ProcessingProgram}.json");
+            var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
             techWizard.LoadListing(path);
 
             var result = new AddToDbContainerView
@@ -105,7 +102,7 @@ namespace NewLaserProject.ViewModels
             }.ShowDialog();
             if (result ?? false)
             {
-                technology.ProcessingProgram = techWizard.SaveListingToFolder(Path.Combine(projectDirectory, "TechnologyFiles"));
+                technology.ProcessingProgram = techWizard.SaveListingToFolder(ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES));
                 _db.Set<Technology>().Update(technology);
                 _db.SaveChanges();
                 File.Delete(path);
@@ -115,12 +112,8 @@ namespace NewLaserProject.ViewModels
         private void ViewTechnology(Technology technology)
         {
             var techWizard = new TechWizardViewModel { EditEnable = false };
-
-            var workingDirectory = Environment.CurrentDirectory;
-            var projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-            var path = Path.Combine(projectDirectory, "TechnologyFiles", $"{technology.ProcessingProgram}.json");
+            var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
             techWizard.LoadListing(path);
-
             new AddToDbContainerView(false)
             {
                 DataContext = techWizard
@@ -136,7 +129,7 @@ namespace NewLaserProject.ViewModels
         }
         private void DeleteTechnologyFile(Technology technology)
         {
-            var path = Path.Combine(ProjectPath.GetFolderPath("TechnologyFiles"), $"{technology.ProcessingProgram}.json");
+            var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
             File.Delete(path);
         }
         [ICommand]
