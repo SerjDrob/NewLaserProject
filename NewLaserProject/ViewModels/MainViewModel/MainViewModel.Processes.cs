@@ -107,7 +107,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task StartProcess()
         {
-            var laserSettingsjson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
+            var laserSettingsjson = File.ReadAllText(ProjectPath.GetFilePathInFolder("AppSettings", "DefaultLaserParams.json"));
 
             var laserParams = new JsonDeserializer<MarkLaserParams>()
                 .SetKnownType<PenParams>()
@@ -129,7 +129,7 @@ namespace NewLaserProject.ViewModels
             if (MirrorX) wafer.MirrorX();
 
 
-            _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", "CircleListing2.json"));
+            _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
             var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
             var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
 

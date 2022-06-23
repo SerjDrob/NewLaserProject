@@ -117,15 +117,7 @@
                                   Minimum="1"
                                   DockPanel.Dock="Right"
                                   Style="{StaticResource NumericUpDownExtend}"/>
-                        </DockPanel>
-                        <DockPanel>
-                            <TextBlock DockPanel.Dock="Left" Text="Частота, Гц"/>
-                            <hc:NumericUpDown Value="{Binding PWMFrequency}"
-                                  Increment="1000"
-                                  Minimum="10000"
-                                  DockPanel.Dock="Right"
-                                  Style="{StaticResource NumericUpDownExtend}"/>
-                        </DockPanel>
+                        </DockPanel>                        
                     </StackPanel>
                 </Border>
             </Expander>
