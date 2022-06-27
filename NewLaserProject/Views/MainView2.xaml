@@ -49,8 +49,7 @@
 
         <Storyboard x:Key="DangerMessage">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
-                                           Storyboard.TargetProperty="Visibility"
-                                           
+                                           Storyboard.TargetProperty="Visibility"                                           
                                            Duration="0:0:1" RepeatBehavior="5x" FillBehavior="Stop"
                                            >
                 <ObjectAnimationUsingKeyFrames.KeyFrames>
@@ -163,7 +162,7 @@
                     <KeyBinding Command="{Binding StartProcessCommand}" Key="Divide"/>
 
                     <KeyBinding Command="{Binding MachineSettingsCommand}" Modifiers="Ctrl" Key="H"/>
-
+                    <KeyBinding Command="{Binding ChangeVelocityCommand}" Key="Add"/>
                     <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
                     <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
                     <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>

@@ -118,7 +118,7 @@ namespace NewLaserProject.Classes.Process
                     var points = _coorSystem.ToGlobal(refX, refY);
                     return Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, points),
                                                _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
-                    })
+                })
                 .OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
                 .OnExit(() => resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY))))
                 .OnExit(() => refPointsEnumerator.MoveNext())
@@ -146,7 +146,7 @@ namespace NewLaserProject.Classes.Process
 
             _stateMachine.Configure(State.Working)
                 .OnEntryAsync(async () => {
-                    _entityPreparator.SetEntityAngle(_pazAngle - _matrixAngle);
+                    _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle);
                     process = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
                     process.CreateProcess();
