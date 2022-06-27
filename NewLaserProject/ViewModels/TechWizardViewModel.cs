@@ -1,6 +1,5 @@
 ﻿using GongSolutions.Wpf.DragDrop;
 using GongSolutions.Wpf.DragDrop.Utilities;
-using MachineClassLibrary.Laser;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -15,6 +14,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using AutoMapper;
+using MachineClassLibrary.Laser.Parameters;
 
 namespace NewLaserProject.ViewModels
 {
@@ -27,7 +27,7 @@ namespace NewLaserProject.ViewModels
             typeof(DelayBlock),
             typeof(LoopBlock),
             typeof(PierceBlock),
-            typeof(TapperBlock),
+            typeof(TaperBlock),
             typeof(MarkLaserParams),
             typeof(PenParams),
             typeof(HatchParams),
@@ -49,7 +49,7 @@ namespace NewLaserProject.ViewModels
         {
             ProgBlocks = new()
             {
-                new TapperBlock(),
+                new TaperBlock(),
                 new PierceBlock(),
                 new AddZBlock(),
                 new LoopBlock(),

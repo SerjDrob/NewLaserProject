@@ -1,6 +1,7 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
+using MachineClassLibrary.Laser.Parameters;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process;
@@ -115,7 +116,7 @@ namespace NewLaserProject.ViewModels
                 .Deserialize(laserSettingsjson);
 
             _laserMachine.SetMarkParams(laserParams);
-
+            //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
 
             ITransformable wafer = CurrentEntityType switch
@@ -123,7 +124,8 @@ namespace NewLaserProject.ViewModels
                 LaserEntity.Curve => new LaserWafer<Curve>(_dxfReader.GetAllCurves(CurrentLayerFilter), topologySize),               
                 LaserEntity.Circle => new LaserWafer<Circle>(_dxfReader.GetCircles(CurrentLayerFilter), topologySize)
             };
-                        
+
+            wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
             wafer.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();
             if (MirrorX) wafer.MirrorX();
@@ -145,6 +147,14 @@ namespace NewLaserProject.ViewModels
                 case LaserEntity.Curve:
                     {
                         var waferPoints = new LaserWafer<Point>(_dxfReader.GetPoints(), topologySize);
+                        
+                        waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
+                        if (waferPoints.Count()<3)
+                        {
+                            techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", Icon.Exclamation);
+                            return;
+                        }
+                        
                         waferPoints.Scale(1F / FileScale);
                         if (WaferTurn90) waferPoints.Turn90();
                         if (MirrorX) waferPoints.MirrorX();
@@ -194,6 +204,7 @@ namespace NewLaserProject.ViewModels
 
             var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(Path.Combine(_projectDirectory, "TempFiles"), "PAZ"), topologySize);
             var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), topologySize);
+            
             wafer.Scale(1F / FileScale);
             waferPoints.Scale(1F / FileScale);
             if (WaferTurn90) wafer.Turn90();

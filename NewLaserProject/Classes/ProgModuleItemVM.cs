@@ -2,7 +2,7 @@
 using Microsoft.Toolkit.Mvvm.Input;
 using Newtonsoft.Json;
 using System.Windows.Input;
-using MachineClassLibrary.Laser;
+using MachineClassLibrary.Laser.Parameters;
 
 namespace NewLaserProject.Classes
 {

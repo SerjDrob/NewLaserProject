@@ -1,4 +1,4 @@
-﻿using MachineClassLibrary.Laser;
+﻿using MachineClassLibrary.Laser.Parameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.ProgBlocks
 {
-    /*internal*/public class PierceBlock : IProgBlock
+    /*internal*/
+    public class PierceBlock : IProgBlock
     {        
         public bool CanAcceptChildren { get; set; }
         //public MarkLaserParams MarkParams { get; set; }

@@ -178,7 +178,7 @@
                 </GroupBox>
             </DataTemplate>
             
-            <DataTemplate DataType="{x:Type pblocks:TapperBlock}">
+            <DataTemplate DataType="{x:Type pblocks:TaperBlock}">
                 <ItemsControl Style="{StaticResource SizeBlock}">
                     <Label Content="Изменить &#216;:" Style="{StaticResource BlockLabel}"/>                   
                     <hc:NumericUpDown Value="{Binding Tapper}"

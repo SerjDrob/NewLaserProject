@@ -1,6 +1,6 @@
 using MachineClassLibrary.BehaviourTree;
-using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
+using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using NewLaserProject.Classes;
@@ -278,7 +278,7 @@ namespace NewLaserTest
             var json = File.ReadAllText($"{directory}/Files/{filePath}");
             var btb = new BTBuilderY(json);
             var sb = new StringBuilder();
-            var tree = btb.SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(tapper => { sb.Append($"t{tapper}"); }))
+            var tree = btb.SetModuleAction(typeof(TaperBlock), new FuncProxy<Action<double>>(tapper => { sb.Append($"t{tapper}"); }))
                           .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => { sb.Append($"z{z}"); }))
                           .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => { sb.Append("mpl"); }))
                           .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => { sb.Append($"d{delay}"); }))
@@ -297,7 +297,7 @@ namespace NewLaserTest
 
             var btb = new BTBuilderZ(json);
             var sb = new StringBuilder();
-            var tree = btb.SetModuleFunction<TapperBlock,double>( new FuncProxy<double>(tapper => { sb.Append($"t{tapper}"); }))
+            var tree = btb.SetModuleFunction<TaperBlock,double>( new FuncProxy<double>(tapper => { sb.Append($"t{tapper}"); }))
                           .SetModuleFunction<AddZBlock,double>(new FuncProxy<double>(z => { sb.Append($"z{z}"); }))
                           .SetModuleFunction<PierceBlock,MarkLaserParams>(new FuncProxy<MarkLaserParams>(mlp => { sb.Append("mpl"); }))
                           .SetModuleFunction<DelayBlock,int>(new FuncProxy<int>(delay => { sb.Append($"d{delay}"); }))

@@ -1,6 +1,6 @@
 ﻿using MachineClassLibrary.Classes;
-using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
+using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
@@ -97,7 +97,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
            // _laserMachine.FreezeCameraImage();
             var directory = Directory.GetCurrentDirectory();
-            _laserMachine.InitMarkDevice(directory);
+            _laserMachine.InitMarkDevice(directory); //TODO this is async function. Make init indicators.
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
             _db = db;

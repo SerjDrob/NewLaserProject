@@ -14,6 +14,7 @@ using System.Linq;
 using PropertyChanged;
 using AutoMapper;
 using LaserLib = MachineClassLibrary.Laser;
+using MachineClassLibrary.Laser.Parameters;
 
 namespace NewLaserProject.ViewModels
 {
@@ -48,10 +49,10 @@ namespace NewLaserProject.ViewModels
 
         private readonly DbContext _db;
 
-        public LaserLib.MarkLaserParams DefaultLaserParams { get; private set; }
+        public MarkLaserParams DefaultLaserParams { get; private set; }
         public MarkSettingsViewModel MarkSettingsViewModel { get; set; }
 
-        public AppSettingsVM(DbContext db, LaserLib.MarkLaserParams defaultLaserParams)
+        public AppSettingsVM(DbContext db, MarkLaserParams defaultLaserParams)
         {
             _db = db;
 
@@ -92,10 +93,10 @@ namespace NewLaserProject.ViewModels
 
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<LaserLib.MarkLaserParams, MarkSettingsViewModel>()
+                cfg.CreateMap<MarkLaserParams, MarkSettingsViewModel>()
                 .IncludeMembers(s => s.PenParams, s => s.HatchParams);
-                cfg.CreateMap<LaserLib.PenParams, MarkSettingsViewModel>(MemberList.None);
-                cfg.CreateMap<LaserLib.HatchParams, MarkSettingsViewModel>(MemberList.None);
+                cfg.CreateMap<PenParams, MarkSettingsViewModel>(MemberList.None);
+                cfg.CreateMap<HatchParams, MarkSettingsViewModel>(MemberList.None);
 
             });
             
