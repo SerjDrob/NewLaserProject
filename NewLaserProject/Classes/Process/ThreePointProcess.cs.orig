@@ -120,6 +120,12 @@ namespace NewLaserProject.Classes.Process
                     var points = _coorSystem.ToGlobal(refX, refY);
                     await Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, points),
                                                _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
+<<<<<<< HEAD
+                })
+                .OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
+                .OnExit(() => resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY))))
+                .OnExit(() => refPointsEnumerator.MoveNext())
+=======
                     _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info);
                 })
                 //.OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
@@ -129,6 +135,7 @@ namespace NewLaserProject.Classes.Process
                     refPointsEnumerator.MoveNext();
                 })
                 //.OnExit(() => refPointsEnumerator.MoveNext())
+>>>>>>> 6955528684168c50a06fc481927357d6a4247156
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
                 .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
                 .Permit(Trigger.Deny, State.Denied)
