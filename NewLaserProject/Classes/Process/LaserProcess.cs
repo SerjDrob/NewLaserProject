@@ -1,6 +1,7 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
+using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using NewLaserProject.Classes.Geometry;
@@ -53,7 +54,8 @@ namespace NewLaserProject.Classes
                             : _wafer.GetEnumerator();
 
             _progTreeParser
-                .SetModuleFunction<TapperBlock, double>(new FuncProxy<double>(tapper => { _pierceParams = new PierceParams(tapper, 0.5, 0, 0, Material.Polycor); }))
+                //TODO don't pass the taper, it should be calculated value respective the taper and other tech params like specified tolerance
+                .SetModuleFunction<TaperBlock, double>(new FuncProxy<double>(taper => _entityPreparator.SetEntityContourOffset(taper)))
                 .SetModuleFunction<AddZBlock, double>(new FuncProxy<double>(async z => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); }))
                 .SetModuleFunction<PierceBlock, ExtendedParams>(new FuncProxy<ExtendedParams>(async mlp => { await Pierce(mlp, waferEnumerator.Current); }))
                 .SetModuleFunction<DelayBlock, int>(new FuncProxy<int>(Task.Delay));

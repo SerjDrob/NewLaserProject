@@ -1,5 +1,5 @@
 ﻿using MachineClassLibrary.BehaviourTree;
-using MachineClassLibrary.Laser;
+using MachineClassLibrary.Laser.Parameters;
 using NewLaserProject;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
@@ -32,7 +32,7 @@ namespace NewLaserProject.Classes
                 .SetKnownType<DelayBlock>()
                 .SetKnownType<LoopBlock>()
                 .SetKnownType<PierceBlock>()
-                .SetKnownType<TapperBlock>()
+                .SetKnownType<TaperBlock>()
                 .SetKnownType<RepairZBlock>()
                 .SetKnownType<MarkLaserParams>()
                 .SetKnownType<PenParams>()
@@ -66,7 +66,7 @@ namespace NewLaserProject.Classes
                 var fp = _functions[item.GetType()];
                 Func<Task> function = item switch
                 {
-                    TapperBlock tapperBlock => ((IFuncProxy<double>)fp).GetFuncWithArgument(tapperBlock.Tapper),
+                    TaperBlock tapperBlock => ((IFuncProxy<double>)fp).GetFuncWithArgument(tapperBlock.Tapper),
                     AddZBlock addZBlock => ((IFuncProxy<double>)fp).GetFuncWithArgument(addZBlock.DeltaZ),
                     DelayBlock delayBlock => ((IFuncProxy<int>)fp).GetFuncWithArgument(delayBlock.DelayTime),
                     PierceBlock pierceBlock => ((IFuncProxy<ExtendedParams>)fp).GetFuncWithArgument(pierceBlock.MarkParams),

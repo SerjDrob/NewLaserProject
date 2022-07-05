@@ -8,7 +8,7 @@
             LoopBlock loopBlock => loopBlock,
             DelayBlock delayBlock => delayBlock,
             AddZBlock addZBlock => addZBlock,
-            TapperBlock tapperBlock => tapperBlock ,
+            TaperBlock tapperBlock => tapperBlock ,
             RepairZBlock repairZBlock => repairZBlock,
         };
         public static IProgBlock BlockTypeSelector(object progBlock) => progBlock switch
@@ -17,7 +17,7 @@
             LoopBlock => new LoopBlock(),
             DelayBlock => new DelayBlock(),
             AddZBlock => new AddZBlock(),
-            TapperBlock => new TapperBlock(),
+            TaperBlock => new TaperBlock(),
             RepairZBlock => new RepairZBlock()
         };
     }

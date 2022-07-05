@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Laser;
+using MachineClassLibrary.Laser.Parameters;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 
@@ -29,6 +30,20 @@ namespace NewLaserProject.ViewModels
         [Category("Параметры пера")]
         [DisplayName("Ширина импульса")]
         public int QPulseWidth { get; set; } = 15;
+
+        [Category("Параметры пера")]
+        [DisplayName("Модулировать частоту")]
+        public bool IsModulated { get; set; } = false;        
+
+        [Category("Параметры пера")]
+        [DisplayName("Частота модуляции, Гц")]
+        public int ModFreq { get; set; } = 300;
+
+        [Category("Параметры пера")]
+        [DisplayName("Скважность модуляции, %")]
+        public int ModDutyCycle { get; set; } = 80;
+
+
         [Category("Параметры пера")]
         public int StartTC { get; set; } = 0;
         [Category("Параметры пера")]
@@ -112,9 +127,9 @@ namespace NewLaserProject.ViewModels
 
         public MarkLaserParams GetLaserParams()
         {
-            var pen = new PenParams(PenNo, MarkLoop, MarkSpeed, PowerRatio, Current, Freq, QPulseWidth, StartTC,
-                                    LaserOnTC, LaserOffTC, EndTC, PolyTC, JumpSpeed, JumpPosTC, JumpDistTC, EndComp,
-                                    AccDist, PointTime, PulsePointMode, PulseNum, FlySpeed);
+            var pen = new PenParams(PenNo, MarkLoop, MarkSpeed, PowerRatio, Current, Freq, QPulseWidth, IsModulated, ModFreq, 
+                                    ModDutyCycle,StartTC,LaserOnTC, LaserOffTC, EndTC, PolyTC, JumpSpeed, JumpPosTC, JumpDistTC, 
+                                    EndComp, AccDist, PointTime, PulsePointMode, PulseNum, FlySpeed);
 
             var hatch = new HatchParams(EnableContour, ParamIndex, EnableHatch, PenNo, HatchType, HatchAllCalc,
                                         HatchEdge, HatchAverageLine, HatchLineDist, HatchEdgeDist, HatchStartOffset, HatchEndOffset,

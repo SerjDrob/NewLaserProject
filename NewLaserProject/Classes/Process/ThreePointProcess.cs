@@ -91,8 +91,8 @@ namespace NewLaserProject.Classes.Process
             var resultPoints = new List<PointF>();
             var refPointsEnumerator = _refPoints.GetEnumerator();
             refPointsEnumerator.MoveNext();
-            var refX = 0d;// refPointsEnumerator.Current.X;
-            var refY = 0d;// refPointsEnumerator.Current.Y;            
+            //var refX = 0d;// refPointsEnumerator.Current.X;
+            //var refY = 0d;// refPointsEnumerator.Current.Y;            
 
 
 
@@ -116,7 +116,8 @@ namespace NewLaserProject.Classes.Process
                 .OnEntryAsync(async () => 
                 {
                     _laserMachine.SetVelocity(Velocity.Fast);
-                    refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y;
+                    var refX = refPointsEnumerator.Current.X; 
+                    var refY = refPointsEnumerator.Current.Y;
                     var points = _coorSystem.ToGlobal(refX, refY);
                     await Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, points),
                                                _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
