@@ -3,28 +3,87 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NewLaserProject.Views"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
-             xmlns:entities="clr-namespace:MachineClassLibrary.Laser.Entities;assembly=MachineClassLibrary"
              xmlns:uc="clr-namespace:NewLaserProject.UserControls"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:converters="clr-namespace:NewLaserProject.Views.Converters"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
-             
+             d:DesignHeight="450" d:DesignWidth="800"             
              >
+    <UserControl.Resources>
+        <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
+
+        <Style x:Key="TagCustomerStyle" BasedOn="{StaticResource TagBaseStyle}" TargetType="hc:Tag">
+            <Setter Property="Content" Value="{Binding Filter}"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="hc:TitleElement.Background" Value="{DynamicResource PrimaryBrush}"/>
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate DataType="{x:Type sys:Boolean}">
+                        <hc:ToggleBlock IsChecked="{Binding Mode=OneWay}">
+                            <hc:ToggleBlock.CheckedContent>
+                                <Path Data="{StaticResource EyeOpenGeometry}" 
+                                                          Stroke="{DynamicResource AccentBrush}" 
+                                                          Fill="{DynamicResource TextIconBrush}">
+                                    <Path.LayoutTransform>
+                                        <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
+                                    </Path.LayoutTransform>
+                                </Path>
+                            </hc:ToggleBlock.CheckedContent>
+                            <hc:ToggleBlock.UnCheckedContent>
+                                <Path Data="{StaticResource EyeCloseGeometry}" 
+                                                          Stroke="{DynamicResource AccentBrush}" 
+                                                          Fill="{DynamicResource TextIconBrush}">
+                                    <Path.LayoutTransform>
+                                        <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
+                                    </Path.LayoutTransform>
+                                </Path>
+                            </hc:ToggleBlock.UnCheckedContent>
+                        </hc:ToggleBlock>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Header" Value="{Binding IsVisible}"/>            
+        </Style>
+
+        <Style x:Key="TagTechStyle" BasedOn="{StaticResource TagBaseStyle}" TargetType="hc:Tag">
+            <Setter Property="Content" Value="{Binding}"/>
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <hc:ElementGroup Orientation="Horizontal">
+                            <TextBlock Text="{Binding Technology.Material.Thickness, StringFormat='{}{0}  '}"/>
+                            <hc:Divider Orientation="Vertical"/>
+                            <TextBlock Text="{Binding DefaultLayerFilter.Filter, StringFormat='   Для слоя с &quot;{0}&quot;  '}"/>
+                            <hc:Divider Orientation="Vertical"/>
+                            <TextBlock Text="{Binding Technology.ProgramName, StringFormat='   Программа: {0} '}"/>
+                            <hc:Divider Orientation="Vertical"/>
+                        </hc:ElementGroup>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="hc:TitleElement.Background" Value="{DynamicResource PrimaryBrush}"/>
+            <Setter Property="Header" Value="{Binding  EntityType}"/>
+            <Setter Property="HeaderTemplateSelector" Value="{StaticResource EntitySelector}"/>
+        </Style>
+        <converters:DefTechnologiesConverter x:Key="DefTechsConverter"/>
+        <converters:GetDictValueConverter x:Key="GetDictValueConverter"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.Resources>
-            <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
             <CollectionViewSource x:Key="MaterialSource" Source="{Binding Materials}"/>
             <CollectionViewSource x:Key="DefLayerTechnologies" Source="{Binding DefaultTechnologies}"/>
+            <CollectionViewSource x:Key="DefTechSels" Source="{Binding DefaultTechSelectors}"/>
         </Grid.Resources>
         <UniformGrid Rows="2">
             <UniformGrid Columns="2">
                 <GroupBox Header="Отображение файла" Margin="4" HorizontalAlignment="Stretch" Width="auto">
-                    <DockPanel>
+                    <DockPanel>                        
                         <hc:ElementGroup Orientation="Horizontal" HorizontalAlignment="Stretch" DockPanel.Dock="Bottom">
-
+                           
                             <hc:TextBox Text ="{Binding AddLayerName}"
                                         HorizontalAlignment="Stretch"
                                         Width="auto"
@@ -42,43 +101,12 @@
                                 hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
 
 
-                        </hc:ElementGroup>                        
-                        <ItemsControl DockPanel.Dock="Top"
-                            ItemsSource="{Binding LayerFilters}" Background="{StaticResource DefaultBrush}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <hc:Tag 
-                                            Margin="1"
-                                            HorizontalAlignment="Left"
-                                        hc:TitleElement.Background="{DynamicResource PrimaryBrush}"
-                                            >                                        
-                                        <hc:Tag.Header>
-                                            <hc:ToggleBlock IsChecked="{Binding IsVisible}">
-                                                <hc:ToggleBlock.CheckedContent>
-                                                    <Path Data="{StaticResource EyeOpenGeometry}" 
-                                                          Stroke="{DynamicResource AccentBrush}" 
-                                                          Fill="{DynamicResource TextIconBrush}">
-                                                        <Path.LayoutTransform>
-                                                            <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
-                                                        </Path.LayoutTransform>
-                                                    </Path>
-                                                </hc:ToggleBlock.CheckedContent>
-                                                <hc:ToggleBlock.UnCheckedContent>
-                                                    <Path Data="{StaticResource EyeCloseGeometry}" 
-                                                          Stroke="{DynamicResource AccentBrush}" 
-                                                          Fill="{DynamicResource TextIconBrush}">
-                                                        <Path.LayoutTransform>
-                                                            <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
-                                                        </Path.LayoutTransform>
-                                                    </Path>
-                                                </hc:ToggleBlock.UnCheckedContent>
-                                            </hc:ToggleBlock>
-                                        </hc:Tag.Header>
-                                        <TextBlock Text="{Binding Filter}"/>
-                                    </hc:Tag>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        </hc:ElementGroup>
+
+                        <hc:TagContainer DockPanel.Dock="Top"
+                                         ItemsSource="{Binding DefLayerFilters}"
+                                         ItemContainerStyle="{StaticResource TagCustomerStyle}"
+                                         Background="{StaticResource DefaultBrush}"/>
                     </DockPanel>
                 </GroupBox>
                 <GroupBox Header="Технологии по-умолчанию" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">
@@ -87,24 +115,20 @@
                                      DockPanel.Dock="Bottom"
                                      HorizontalAlignment="Stretch" 
                                      >
-                            <hc:ComboBox ItemsSource="{Binding LayerFilters}"
-                                     hc:TitleElement.Title="Фильтр слоя" 
-                                     SelectedIndex="0"
-                                     SelectedItem="{Binding CurrentLayerFilter}"
-                                     hc:TitleElement.TitlePlacement="Top" 
-                                     >
-                                <hc:ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Filter}"/>
-                                    </DataTemplate>
-                                </hc:ComboBox.ItemTemplate>
+                            <hc:ComboBox ItemsSource="{Binding DefLayerFilters}"
+                                         DisplayMemberPath="Filter"
+                                         hc:TitleElement.Title="Фильтр слоя" 
+                                         SelectedIndex="0"
+                                         SelectedItem="{Binding CurrentLayerFilter}"
+                                         hc:TitleElement.TitlePlacement="Top" 
+                                         >                                
                             </hc:ComboBox>
 
                             <uc:ItemsButton Items="{Binding EntityTypes}"
                                         ItemSelector="{StaticResource EntitySelector}"
                                         SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
-                                        VerticalAlignment="Bottom"
-                                        
+                                        SetIndex="0"
+                                        VerticalAlignment="Bottom"   
                                         />
 
                             <hc:ComboBox x:Name="Materials" ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
@@ -144,47 +168,61 @@
                                 Style="{StaticResource ButtonPrimary}" 
                                 />
                         </hc:ElementGroup>
-                        <ItemsControl ItemsSource="{Binding DefaultTechnologies}" Background="{DynamicResource DefaultBrush}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <hc:Tag Header="{Binding EntityType}"
-                                            HeaderTemplateSelector="{StaticResource EntitySelector}"
-                                            hc:TitleElement.Background="{DynamicResource DarkMaskBrush  }"
-                                            Margin="1"
-                                            HorizontalAlignment="Left">
-                                        <hc:ElementGroup Orientation="Horizontal">
-                                            <TextBlock Text="{Binding Technology.Material.Thickness, StringFormat='{}{0}  '}"/>
-                                            <hc:Divider Orientation="Vertical"/>
-                                            <TextBlock Text="{Binding DefaultLayerFilter.Filter, StringFormat='   Для слоя с &quot;{0}&quot;  '}"/>
-                                            <hc:Divider Orientation="Vertical"/>
-                                            <TextBlock Text="{Binding Technology.ProgramName, StringFormat='   Программа: {0} '}"/>
-                                            <hc:Divider Orientation="Vertical"/>
-                                        </hc:ElementGroup>
-                                    </hc:Tag>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <hc:TagContainer DockPanel.Dock="Top"
+                                         ItemsSource="{Binding DefaultTechnologies}"
+                                         ItemContainerStyle="{StaticResource TagTechStyle}"
+                                         Background="{StaticResource DefaultBrush}"
+                                         />
                     </DockPanel>
                 </GroupBox>
             </UniformGrid>
             <UniformGrid Columns="2">
                 <GroupBox Padding="4" Header="Объект для процесса по-умолчанию" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">
                     <StackPanel>
-                        <Grid>
+                        <Grid DataContext="{Binding Source={StaticResource DefTechSels}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <hc:ComboBox ItemsSource="{Binding Source={StaticResource DefLayerTechnologies}}"
+                            <hc:ComboBox ItemsSource="{Binding}" 
+                                         DisplayMemberPath="DefLayerFilter.Filter"
+                                         SelectedItem="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.DefaultTechSelector}"                                                                                  
+                                         IsSynchronizedWithCurrentItem="True"/>
+                            <hc:ComboBox ItemsSource="{Binding Path=Entities}"                                         
+                                         SelectedItem="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.DefaultEntityType}"                                         
+                                         x:Name="Ent"
+                                         Grid.Column="1"
+                                         ItemTemplateSelector="{StaticResource EntitySelector}"
+                                         IsSynchronizedWithCurrentItem="True"/>
+                            <hc:ComboBox Grid.Column="2"
+                                         SelectedItem="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.DefaultMaterial}"
+                                         IsSynchronizedWithCurrentItem="True"
+                                         >
+                                <hc:ComboBox.ItemsSource>
+                                    <MultiBinding Converter="{StaticResource GetDictValueConverter}">
+                                        <Binding Path="EntMaterials"/>
+                                        <Binding ElementName="Ent" Path="SelectedItem"/>
+                                    </MultiBinding>
+                                </hc:ComboBox.ItemsSource>
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}" Margin="0,0,10,0"/>
+                                            <TextBlock Text="{Binding Thickness}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                            </hc:ComboBox>
+                            <!--<hc:ComboBox ItemsSource="{Binding DefLayerFilters}"
                                      SelectedIndex="0"
-                                     SelectedItem="{Binding DefLayerEntTechnology}"
+                                     SelectedItem="{Binding DefaultLayerFilter}"
                                      hc:TitleElement.Title="Фильтр слоя" Height="58" VerticalAlignment="Top"
                                      >
                                 
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding DefaultLayerFilter.Filter}"/>
+                                        <TextBlock Text="{Binding Filter}"/>
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
@@ -213,7 +251,7 @@
                                         </StackPanel>
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
-                            </hc:ComboBox>
+                            </hc:ComboBox>-->
                         </Grid>
                         <hc:Divider Content="Габариты подложки" Orientation="Horizontal"/>
                     <UniformGrid Columns="2" VerticalAlignment="Top" HorizontalAlignment="Left">

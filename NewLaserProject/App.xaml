@@ -47,7 +47,7 @@
             </DataTemplate>
 
             <DataTemplate x:Key="LaserCircleDataTemplate" DataType="{x:Type entities:PCircle}">
-                <Path Data="{StaticResource CircleGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
+                <Path Data="{StaticResource CircleGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="0.7">
                     <Path.LayoutTransform>
                         <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
                     </Path.LayoutTransform>
@@ -71,9 +71,9 @@
             </DataTemplate>
 
             <DataTemplate x:Key="LaserPointDataTemplate" DataType="{x:Type entities:PPoint}">
-                <Path Data="{StaticResource PointGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
+                <Path Data="{StaticResource PointGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="3">
                     <Path.LayoutTransform>
-                        <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
+                        <ScaleTransform ScaleX="0.5" ScaleY="-0.5"/>
                     </Path.LayoutTransform>
                 </Path>
             </DataTemplate>

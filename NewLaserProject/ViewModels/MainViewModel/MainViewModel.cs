@@ -121,9 +121,10 @@ namespace NewLaserProject.ViewModels
         {
             if (AppSngsVM is not null)
             {
+                AppSngsVM.SaveDbChanges();
                 var defProcFilter = new DefaultProcessFilterDTO
                 {
-                    LayerFilterId = AppSngsVM.DefLayerEntTechnology.DefaultLayerFilter.Id,
+                    LayerFilterId = AppSngsVM.DefaultTechSelector.DefLayerFilter.Id,
                     MaterialId = AppSngsVM.DefaultMaterial.Id,
                     EntityType=(uint)AppSngsVM.DefaultEntityType,
                     DefaultWidth=AppSngsVM.DefaultWidth,

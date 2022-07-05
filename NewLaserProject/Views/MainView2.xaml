@@ -295,8 +295,7 @@
                             </Button.RenderTransform>
                         </Button>
                         <hc:CirclePanel x:Name="CirclePanel"
-                            Grid.Column="1"
-                            Diameter="180"
+                            Diameter="200"
                             VerticalAlignment="Bottom"
                             HorizontalAlignment="Right"
                             Margin="20"
@@ -379,9 +378,6 @@
                                     </MultiBinding>
                                 </Button.CommandParameter>
                             </Button>
-
-
-
                         </hc:CirclePanel>
                     </Grid>
                 </Grid>
