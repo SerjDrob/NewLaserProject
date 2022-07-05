@@ -145,7 +145,7 @@ namespace NewLaserProject.ViewModels
                 await _laserMachine.GoThereAsync(LMPlace.Loading);
                 techMessager.RealeaseMessage("Установите подложку и нажмите * чтобы продолжить", Icon.Info);
             }))
-                .SetOnGoUnderCameraAction(() => Task.Run(async () =>
+                .SetOnGoUnderCameraAction(async () =>
                 {
                     StepIndex++;
                     _laserMachine.SetVelocity(Velocity.Fast);
@@ -154,8 +154,8 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                         );
                     techMessager.RealeaseMessage("Выбирете место прожига и нажмите * чтобы продолжить", Icon.Info);
-                }))
-                .SetOnGoToShotAction(() => Task.Run(async () =>
+                })
+                .SetOnGoToShotAction(async () =>
                 {
                     techMessager.EraseMessage();
                     _laserMachine.SetVelocity(Velocity.Fast);
@@ -186,7 +186,7 @@ namespace NewLaserProject.ViewModels
                              _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                              );
                     await _currentTeacher.Accept();
-                }))
+                })
                 .SetOnSearchScorchAction(() =>
                 {
                     StepIndex++;

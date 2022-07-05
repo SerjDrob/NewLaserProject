@@ -537,7 +537,8 @@ namespace NewLaserProject.ViewModels
         }
         private CoorSystem<LMPlace> GetCoorSystem()
         {
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"),"PureDeformation.json")) ?? throw new NullReferenceException("CoorSystem in the file is invalid");
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS,"PureDeformation.json") 
+                ?? throw new NullReferenceException("CoorSystem in the file is invalid"));
 
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             buider.SetWorkMatrix(new Matrix3x2(
