@@ -91,7 +91,9 @@ namespace NewLaserProject.Classes
             _stateMachine.Configure(State.Loop)
                 .OnEntry(() =>
                 {
-                    waferEnumerator.Reset();
+                    //waferEnumerator.Reset();
+                    waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
+                            : _wafer.GetEnumerator();
                     _inLoop = waferEnumerator.MoveNext();
                 })
                 .OnExit(() => _inProcess = false)

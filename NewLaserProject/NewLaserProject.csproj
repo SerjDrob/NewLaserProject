@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <UseWPF>true</UseWPF>
-    <!--<DefineConstants>PCIInserted</DefineConstants>-->
+    <DefineConstants>PCIInserted</DefineConstants>
     <StartupObject>NewLaserProject.App</StartupObject>
    
   </PropertyGroup>
@@ -123,10 +123,10 @@
     <Folder Include="TempFiles\" />
   </ItemGroup>
   
-	<ItemGroup>
-		<ContentWithTargetPath Include="EZCAD\**">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
-		</ContentWithTargetPath>
-	</ItemGroup>
+    <ItemGroup>
+        <ContentWithTargetPath Include="EZCAD\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+        </ContentWithTargetPath>
+    </ItemGroup>
 </Project>
