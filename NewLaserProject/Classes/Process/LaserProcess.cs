@@ -87,20 +87,19 @@ namespace NewLaserProject.Classes
                 //.OnEntry(() => { _inLoop = waferEnumerator.MoveNext(); })
                 .PermitReentryIf(Trigger.Next, () => _inLoop)
                 .PermitIf(Trigger.Next, State.Loop,() => !_inLoop)
-                .OnExit(() => _loopCount++)
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Loop)
                 .OnEntry(() =>
                 {
-                    //waferEnumerator.Reset();
+                    _loopCount++;
                     waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
                             : _wafer.GetEnumerator();
                     _inLoop = waferEnumerator.MoveNext();
                 })
                 .OnExit(() => _inProcess = false)
                 .PermitIf(Trigger.Next, State.Working, () => _loopCount < _progTreeParser.MainLoopCount)
-                .PermitIf(Trigger.Next, State.Exit, () => _loopCount == _progTreeParser.MainLoopCount);
+                .PermitIf(Trigger.Next, State.Exit, () => _loopCount >= _progTreeParser.MainLoopCount);
 
             _stateMachine.Configure(State.Exit)
                 .Ignore(Trigger.Next);

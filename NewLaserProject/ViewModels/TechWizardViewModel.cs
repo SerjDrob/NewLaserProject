@@ -154,18 +154,10 @@ namespace NewLaserProject.ViewModels
 
 
             var item = (PierceBlock)progModule;
-            if (item.MarkParams is null)
-            {
-                var markSettings = new ExtendedParams();
-                new ExtMarkParamsView { DataContext = markSettings }.ShowDialog();
-                item.MarkParams = markSettings;
-            }
-            else
-            {
-                var markSettings = item.MarkParams;
-                new ExtMarkParamsView { DataContext = markSettings }.ShowDialog();
-                item.MarkParams = markSettings;
-            }
+
+            var markSettings = item.MarkParams ?? new ExtendedParams();
+            new ExtMarkParamsView { DataContext = markSettings }.ShowDialog();
+            item.MarkParams = markSettings;
 
             //var extParamsView = new ExtMarkParamsView
             //{

@@ -402,3 +402,9 @@ obj/
 /wwwroot/node_modules
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,dotnetcore
+/NewLaserProject/Data/laserDatabase.db
+/NewLaserProject/TechnologyFiles/be87fb9e-2d82-4445-9674-3b7daf4b9204.json
+/NewLaserProject/TechnologyFiles/cea65920-07b3-41fd-8fbd-d80ff75a09fd.json
+/NewLaserProject/TempFiles/Curve_9861acfb-673c-4d15-aea6-691affb59243.dxf
+/NewLaserProject/TempFiles/Curve_b18adfd6-97df-45fd-b474-6d901b89ee42.dxf
+/NewLaserProject/Data/laserDatabase.db

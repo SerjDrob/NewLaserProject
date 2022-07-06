@@ -146,18 +146,19 @@ namespace NewLaserProject.ViewModels
 
                 case LaserEntity.Curve:
                     {
-                        var waferPoints = new LaserWafer<Point>(_dxfReader.GetPoints(), topologySize);
-                        
+                        var pts = _dxfReader.GetPoints();
+                        var waferPoints = new LaserWafer<Point>(pts , topologySize);
+                        waferPoints.Scale(1F / FileScale);
+                        if (WaferTurn90) waferPoints.Turn90();
+                        if (MirrorX) waferPoints.MirrorX();
+
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
                         if (waferPoints.Count()<3)
                         {
                             techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", Icon.Exclamation);
                             return;
-                        }
+                        }                        
                         
-                        waferPoints.Scale(1F / FileScale);
-                        if (WaferTurn90) waferPoints.Turn90();
-                        if (MirrorX) waferPoints.MirrorX();
                         var points = waferPoints.Cast<PPoint>();
 
                         _mainProcess = new ThreePointProcess((IEnumerable<IProcObject>)wafer, points, _pierceSequenceJson, _laserMachine,
