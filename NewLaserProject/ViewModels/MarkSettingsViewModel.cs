@@ -83,7 +83,7 @@ namespace NewLaserProject.ViewModels
         [Category("Параметры штриховки")]
         public int ParamIndex { get; set; } = 1;
         [Category("Параметры штриховки")]
-        public int EnableHatch { get; set; } = 13;
+        public bool EnableHatch { get; set; } = true;
         [Category("Параметры штриховки")]
         [DisplayName("Перо штриховки")]
         public int HatchPenNo { get; set; } = 0;

@@ -16,10 +16,8 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Process
 {
-    //TODO make it non generic class, LaserWafer<T> is just IEnumerable<IProcObject>
-    internal class ThreePointProcess:IProcess//<T> where T : class, IShape
+    internal class ThreePointProcess:IProcess
     {
-        //private readonly LaserWafer<T> _wafer;
         private readonly IEnumerable<IProcObject> _wafer;
         private readonly string _jsonPierce;
         private readonly LaserMachine _laserMachine;
@@ -83,19 +81,13 @@ namespace NewLaserProject.Classes.Process
         }
 
 
-
-
         public void CreateProcess()
         {
             _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
             var resultPoints = new List<PointF>();
             var refPointsEnumerator = _refPoints.GetEnumerator();
             refPointsEnumerator.MoveNext();
-            //var refX = 0d;// refPointsEnumerator.Current.X;
-            //var refY = 0d;// refPointsEnumerator.Current.Y;            
-
-
-
+            
             var originPoints = _refPoints.Select(p => new PointF((float)p.X, (float)p.Y)).ToArray();
 
             CoorSystem<LMPlace> workCoorSys = new();
@@ -111,8 +103,6 @@ namespace NewLaserProject.Classes.Process
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.GoRefPoint)
-                //.OnEntry(() => _laserMachine.SetVelocity(Velocity.Fast))
-                //.OnEntry(() => { refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y; })
                 .OnEntryAsync(async () => 
                 {
                     _laserMachine.SetVelocity(Velocity.Fast);
@@ -123,13 +113,11 @@ namespace NewLaserProject.Classes.Process
                                                _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
                     _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info);
                 })
-                //.OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
                 .OnExit(() =>
                 {
                     resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY)));
                     refPointsEnumerator.MoveNext();
                 })
-                //.OnExit(() => refPointsEnumerator.MoveNext())
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
                 .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
                 .Permit(Trigger.Deny, State.Denied)
@@ -150,17 +138,7 @@ namespace NewLaserProject.Classes.Process
                     .Build();
                     _matrixAngle = workCoorSys.GetMatrixAngle();
                     _stateMachine.Fire(Trigger.Next);
-                })
-                //.OnEntry(()=>SwitchCamera?.Invoke(this,false),"Switch Camera")
-                //.OnEntry(() => workCoorSys = new CoorSystem<LMPlace>
-                //    .ThreePointCoorSystemBuilder<LMPlace>()
-                //    .SetFirstPointPair(originPoints[0], resultPoints[0])
-                //    .SetSecondPointPair(originPoints[1], resultPoints[1])
-                //    .SetThirdPointPair(originPoints[2], resultPoints[2])
-                //    .FormWorkMatrix(0.001, 0.001, false)
-                //    .Build(),"Get working coordinate system")
-                //.OnEntry(() => _matrixAngle = workCoorSys.GetMatrixAngle())
-                //.OnEntry(() => _stateMachine.Fire(Trigger.Next))
+                })                
                 .Permit(Trigger.Next, State.Working)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
@@ -173,10 +151,6 @@ namespace NewLaserProject.Classes.Process
                     process.CreateProcess();
                     await process.StartAsync();
                 })
-
-                //.OnEntry(() => process = new LaserProcess2(_wafer, _jsonPierce, _laserMachine, workCoorSys, _zeroZPiercing, _waferThickness, _pazAngle - _matrixAngle))
-                //.OnEntry(() => process.CreateProcess())
-                //.OnEntryAsync(() => process.StartAsync())
                 .Ignore(Trigger.Next)
                 .Ignore(Trigger.Deny)
                 .Ignore(Trigger.Pause);
@@ -184,11 +158,6 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.Denied)
                 .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
                 .OnEntry(() => _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation));
-
-            //void MoveNext()
-            //{
-            //    var res = refPointsEnumerator.MoveNext();
-            //}
         }
 
         public event EventHandler<bool> SwitchCamera;

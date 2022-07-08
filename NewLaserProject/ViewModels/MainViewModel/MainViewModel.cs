@@ -38,7 +38,6 @@ namespace NewLaserProject.ViewModels
 
         private InfoMessager techMessager;
         private readonly LaserMachine _laserMachine;
-        private readonly string _projectDirectory;
         public string VideoScreenMessage { get; set; } = "";
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
@@ -60,7 +59,10 @@ namespace NewLaserProject.ViewModels
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
         public AppSettingsVM AppSngsVM { get; set; }
-        
+        public object RightSideVM { get; set; }
+        public object CentralSideVM { get; set; }
+        private CameraVM _cameraVM;
+
         private readonly DbContext _db;
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
@@ -77,30 +79,28 @@ namespace NewLaserProject.ViewModels
         {
             _db = db;
             _coorSystem = GetCoorSystem();
-
+            InitViews();
         }
         public MainViewModel(LaserMachine laserMachine, DbContext db)
         {
+            _laserMachine = laserMachine;
+            _db = db;
+
+
             techMessager = new();
             techMessager.PublishMessage += TechMessager_PublishMessage;
             var workingDirectory = Environment.CurrentDirectory;
-            _projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-            _laserMachine = laserMachine;
-            _laserMachine.OnBitmapChanged += _laserMachine_OnVideoSourceBmpChanged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
-            Settings.Default.Save();//wtf?
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
             CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
             CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-           // _laserMachine.FreezeCameraImage();
-            var directory = Directory.GetCurrentDirectory();
-            _laserMachine.InitMarkDevice(directory); //TODO this is async function. Make init indicators.
+            _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory()); //TODO this is async function. Make init indicators.
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
-            _db = db;
+            InitViews();
             //AppSngsVM = new(_db);
         }
         [ICommand]
@@ -137,6 +137,24 @@ namespace NewLaserProject.ViewModels
                 defLaserParams.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultLaserParams.json"));
             }
         }
+
+        [ICommand]
+        private void ChangeViews()
+        {
+            (RightSideVM, CentralSideVM) = (CentralSideVM, RightSideVM);
+        }
+
+        private void InitViews()
+        {
+            _openedFileVM = new FileVM(48, 60);
+            CentralSideVM = _openedFileVM;
+            _cameraVM = new CameraVM();
+            RightSideVM = _cameraVM;
+#if PCIInserted
+            _laserMachine.OnBitmapChanged += _cameraVM.OnVideoSourceBmpChanged;
+#endif
+        }
+
         [ICommand]
         private void CameraCapabilitiesChanged()
         {
@@ -199,28 +217,29 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            var topologySize = _dxfReader.GetSize();
-            var path = Path.Combine(ProjectPath.GetFolderPath("TempFiles"));
-            var objs = _dxfReader.GetAllDxfCurves2(path, "PAZ");
-            var wafer = new LaserWafer<DxfCurve>(objs, topologySize);
-            var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), topologySize);
-            wafer.Scale(1F / FileScale);
-            waferPoints.Scale(1F / FileScale);
-            if (WaferTurn90) wafer.Turn90();
-            if (WaferTurn90) waferPoints.Turn90();
-            if (MirrorX) wafer.MirrorX();
-            if (MirrorX) waferPoints.MirrorX();
+            ChangeViews();
+            //var topologySize = _dxfReader.GetSize();
+            //var path = Path.Combine(ProjectPath.GetFolderPath("TempFiles"));
+            //var objs = _dxfReader.GetAllDxfCurves2(path, "PAZ");
+            //var wafer = new LaserWafer<DxfCurve>(objs, topologySize);
+            //var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), topologySize);
+            //wafer.Scale(1F / FileScale);
+            //waferPoints.Scale(1F / FileScale);
+            //if (WaferTurn90) wafer.Turn90();
+            //if (WaferTurn90) waferPoints.Turn90();
+            //if (MirrorX) wafer.MirrorX();
+            //if (MirrorX) waferPoints.MirrorX();
 
-            _pierceSequenceJson = File.ReadAllText(Path.Combine(ProjectPath.GetFolderPath("TechnologyFiles"),"CircleListing.json"));
-            var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+            //_pierceSequenceJson = File.ReadAllText(Path.Combine(ProjectPath.GetFolderPath("TechnologyFiles"),"CircleListing.json"));
+            //var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
 
-            var points = waferPoints.Cast<PPoint>();
+            //var points = waferPoints.Cast<PPoint>();
 
-            _mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
-                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
-                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
-            _mainProcess.CreateProcess();
-            string str = _mainProcess.ToString();
+            //_mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+            //            coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+            //            Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
+            //_mainProcess.CreateProcess();
+            //string str = _mainProcess.ToString();
         }
 
 

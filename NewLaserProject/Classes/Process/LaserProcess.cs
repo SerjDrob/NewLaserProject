@@ -84,7 +84,6 @@ namespace NewLaserProject.Classes
                     await pierceFunction();
                     _inLoop = waferEnumerator.MoveNext();
                 })
-                //.OnEntry(() => { _inLoop = waferEnumerator.MoveNext(); })
                 .PermitReentryIf(Trigger.Next, () => _inLoop)
                 .PermitIf(Trigger.Next, State.Loop,() => !_inLoop)
                 .Ignore(Trigger.Pause);
@@ -102,6 +101,7 @@ namespace NewLaserProject.Classes
                 .PermitIf(Trigger.Next, State.Exit, () => _loopCount >= _progTreeParser.MainLoopCount);
 
             _stateMachine.Configure(State.Exit)
+                .OnEntry(() => { })
                 .Ignore(Trigger.Next);
 
             _stateMachine.Activate();

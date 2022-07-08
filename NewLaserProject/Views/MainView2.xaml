@@ -14,12 +14,9 @@
         xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" x:Class="NewLaserProject.Views.MainView2"
         xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
-        xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
-    
-        mc:Ignorable="d"
-        
-        ActiveGlowColor="{DynamicResource PrimaryColor}"
-    
+        xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"    
+        mc:Ignorable="d"        
+        ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="Лазер" Height="450" Width="800" WindowState="Maximized">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
@@ -41,7 +38,7 @@
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
         <cnvrt:MulConvereter x:Key="MulConvereter"/>
         <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
-        
+
         <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
@@ -68,18 +65,16 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="90*"/>
-            <ColumnDefinition Width="43*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <ToolBarTray Margin="1" Orientation="Vertical" VerticalAlignment="Stretch">
-
             <ToolBar>
                 <ToolBar.Resources>
                     <Style TargetType="{x:Type Button}">
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                     </Style>
                 </ToolBar.Resources>
-                <Button Command="{Binding TestCommand}" Style="{StaticResource PlayButton}" HorizontalAlignment="Stretch"/>
+                <!--<Button Command="{Binding TestCommand}" Style="{StaticResource PlayButton}" HorizontalAlignment="Stretch"/>-->
                 <!--<Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
                 <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>-->
                 <Button hc:IconElement.Geometry="{StaticResource SpurGearGeometry}"
@@ -143,8 +138,8 @@
                 </Button>
             </ToolBar>
         </ToolBarTray>
-        <TabControl Margin="1" Grid.Column="1">            
-            <TabItem>                
+        <TabControl Margin="1" Grid.Column="1">
+            <TabItem>
                 <TabItem.Header>
                     <Border BorderBrush="CadetBlue" Margin="0,0,10,0" CornerRadius="4" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -180,7 +175,12 @@
                     <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
                 </TabItem.InputBindings>
                 <Grid>
-                    <uc:GraphWindow                         
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <ContentControl Content="{Binding CentralSideVM}"/>
+                    <!--<uc:GraphWindow                         
                            x:Name="GraphWin"
                            LayGeoms="{Binding DataContext.LayGeoms, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"                                            
                            SpecSizeX="{Binding DataContext.FileSizeX, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
@@ -203,11 +203,15 @@
                            PointerY="{Binding DataContext.TeacherPointerY, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
                            PointerVisibility="{Binding DataContext.TeacherPointerVisibility, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
                            >
-                        <!--PointerX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerX}"
+                        --><!--PointerX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerX}"
                            PointerY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerY}"
-                           PointerVisibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerVisibility}"-->
+                           PointerVisibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerVisibility}"--><!--
 
                         <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="48*"/>
+                                <ColumnDefinition Width="11*"/>
+                            </Grid.ColumnDefinitions>
                             <uc:SpecCross 
                                     X="{Binding DataContext.CameraViewfinderX, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}" 
                                     Y="{Binding DataContext.CameraViewfinderY, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}" 
@@ -216,7 +220,7 @@
                                     YScale="{Binding ScaleY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"
                                     OffsetX="{Binding MarginX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
                                     OffsetY="{Binding MarginY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"                                     
-                                    Thickness="1">
+                                    Thickness="1" Grid.ColumnSpan="2">
                                 <uc:SpecCross.RenderTransform>
                                     <ScaleTransform ScaleY="-1" 
                                                 CenterY="{Binding ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter}, RelativeSource={RelativeSource AncestorType={x:Type uc:SpecCross}, Mode=FindAncestor}}"/>
@@ -230,15 +234,15 @@
                                     YScale="{Binding ScaleY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"
                                     OffsetX="{Binding MarginX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
                                     OffsetY="{Binding MarginY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"                                     
-                                    Thickness="1">
+                                    Thickness="1" Grid.ColumnSpan="2">
                                 <uc:SpecCross.RenderTransform>
                                     <ScaleTransform ScaleY="-1" 
                                                 CenterY="{Binding ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter}, RelativeSource={RelativeSource AncestorType={x:Type uc:SpecCross}, Mode=FindAncestor}}"/>
                                 </uc:SpecCross.RenderTransform>
                             </uc:SpecCross>
                         </Grid>
-                    </uc:GraphWindow>
-                    <Grid x:Name="CircleGrid" Opacity="0.2" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                    </uc:GraphWindow>-->
+                    <!--<Grid x:Name="CircleGrid" Opacity="0.2" VerticalAlignment="Bottom" HorizontalAlignment="Right">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseEnter">
                                 <i:ControlStoryboardAction>
@@ -379,7 +383,292 @@
                                 </Button.CommandParameter>
                             </Button>
                         </hc:CirclePanel>
-                    </Grid>
+                    </Grid>-->
+                    <DockPanel Grid.Column="1" VerticalAlignment="Stretch" LastChildFill="False">
+                        <Border x:Name="ImportantMessage"
+                    DockPanel.Dock="Top"
+                    VerticalAlignment="Top"
+                    BorderThickness="2" 
+                    BorderBrush="Blue"
+                    Padding="2"
+                    CornerRadius="3"
+                    Height="30"
+                Margin="1"
+                    >
+                            <DockPanel>
+                                <Image x:Name="ImportantIcon" Source="{Binding IconPath}" DockPanel.Dock="Left" Margin="0,0,5,0"/>
+                                <TextBlock x:Name="ImportantText" Text="{Binding TechInfo}" FontWeight="Bold" FontSize="15" Foreground="Red">
+                        <i:Interaction.Triggers>
+                            <i:PropertyChangedTrigger Binding="{Binding Text, ElementName=ImportantText}">
+                                <i:ControlStoryboardAction Storyboard="{StaticResource DangerMessage}"/>                                
+                            </i:PropertyChangedTrigger>
+                        </i:Interaction.Triggers>
+                                </TextBlock>
+                            </DockPanel>
+                        </Border>
+                        <hc:SimplePanel DockPanel.Dock="Top">
+                            <!--<Border VerticalAlignment="Top" Background="{DynamicResource RegionBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
+                                <Grid Height="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth}">
+                                    <Image x:Name="VideoCamera" Panel.ZIndex="1" Source="{Binding CameraImage}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseDown" >
+                                                <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
+                                                       PassEventArgsToCommand="True"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Image>
+                                    <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1">
+                                        <Line Stroke="Red" Fill="Red" 
+                                              StrokeThickness="1" 
+                                              X1="-25" X2="25" Y1="0" Y2="0" 
+                                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                              />
+                                        <Line Stroke="Red" Fill="Red" 
+                                              StrokeThickness="1" 
+                                              X1="0" X2="0" Y1="-25" Y2="25" 
+                                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                              >
+                                        </Line>
+
+                                        <Ellipse Width="25" Height="25" StrokeThickness="1" Stroke="Red"
+                                
+                                  Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                  Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                 >
+                                            <Ellipse.RenderTransform>
+                                                <TranslateTransform
+                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                    
+                                    />
+                                            </Ellipse.RenderTransform>
+                                        </Ellipse>
+                                    </Canvas>
+                                    <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
+                                            Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, 
+                                            Path=TeachScaleMarkerEnable}">
+                                        <Line Stroke="Red" Fill="Red" 
+                                                StrokeThickness="1" 
+                                                X1="0" 
+                                                X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}" 
+                                                Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
+                                                >
+                                            <Line.Y1>
+                                                <MultiBinding Converter="{StaticResource MulConvereter}">
+                                                    <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
+                                                    <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioFirst"/>
+                                                </MultiBinding>
+                                            </Line.Y1>
+                                        </Line>
+                                        <Line Stroke="Red" Fill="Red" 
+                              StrokeThickness="1" 
+                              X1="0" 
+                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}"                               
+                              Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
+                              >
+                                            <Line.Y1>
+                                                <MultiBinding Converter="{StaticResource MulConvereter}">
+                                                    <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
+                                                    <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioSecond"/>
+                                                </MultiBinding>
+                                            </Line.Y1>
+                                        </Line>
+                                    </Canvas>
+                                </Grid>
+                            </Border>-->
+                            <ContentControl Content="{Binding RightSideVM}" MinHeight="300"/>
+
+                        </hc:SimplePanel>
+                        <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+                            <!--<ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>-->
+                            <GroupBox Header="Текущий процесс" DockPanel.Dock="Top">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <ComboBox ItemsSource="{Binding Source={StaticResource FileStructure}}"
+                                     SelectedIndex="{Binding DefLayerIndex}"
+                                     SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
+                                     >
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding LayerName}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <uclocal:ItemsButton x:Name="testname" Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
+                                        ItemSelector="{StaticResource EntitySelector}"
+                                        SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
+                                        SetIndex="{Binding DefEntityIndex}"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Stretch"
+                                        />
+
+                                    <ComboBox x:Name="Materials"
+                                     ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
+                                     SelectedIndex="{Binding DefMaterialIndex}"
+                                     Grid.Column="2"
+                                     >
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Name}" Margin="0,0,10,0"/>
+                                                    <TextBlock Text="{Binding Thickness}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <ComboBox ItemsSource="{Binding Source={StaticResource MaterialSource}, 
+                            Path=Technologies}"
+                                  SelectedIndex="{Binding DefTechnologyIndex}"
+                                     SelectedItem="{Binding CurrentTechnology}"  
+                                     Grid.Column="3"                                  
+                                     >
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <Button 
+                                Command="{Binding StartProcessCommand}"
+                                VerticalAlignment="Bottom"
+                                Style="{StaticResource PlayButton}"
+                                             Grid.Column="4"
+                                
+                                />
+                                    <TreeView Grid.Row="1" x:Name="LayersList" Height="150" 
+                                  ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
+                                        <TreeView.ItemContainerStyle>
+                                            <Style TargetType="{x:Type TreeViewItem}">
+                                                <Setter Property="IsExpanded" Value="True" />
+                                            </Style>
+                                        </TreeView.ItemContainerStyle>
+                                        <TreeView.Resources>
+                                            <HierarchicalDataTemplate DataType="{x:Type vm:Layer}" ItemsSource="{Binding Objects}">
+                                                <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
+                                            </HierarchicalDataTemplate>
+                                            <DataTemplate DataType="{x:Type vm:Text}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
+                                                    <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
+                                                        ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                                    <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
+                                                    <TextBlock Text="{Binding Count}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                                                    <TextBlock Text=" ]" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </TreeView.Resources>
+                                    </TreeView>
+                                </Grid>
+                            </GroupBox>
+                            <DataGrid DockPanel.Dock="Left" 
+                      AutoGenerateColumns="False" 
+                      ItemsSource="{Binding ProcessingObjects}"
+                      SelectionMode="Single"
+                      Height="100"
+                      Style="{StaticResource DataGrid.Small}"
+                      >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding ProcGridSelectionCommand}"
+                                           PassEventArgsToCommand="True"
+                                           />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+
+                                <DataGrid.ItemContainerStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="IsSelected" Value="{Binding IsBeingProcessed}"/>
+                                    </Style>
+                                </DataGrid.ItemContainerStyle>
+                                <!--<DataGrid.RowHeaderTemplate>
+                    <DataTemplate>
+                        <CheckBox IsChecked="False"/>
+                    </DataTemplate>
+                </DataGrid.RowHeaderTemplate>-->
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
+                                    <DataGridTemplateColumn Header="Тип">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ContentControl Content="{Binding}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Координаты">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock >
+                                        <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
+                                        <Run Text="&#215;"/>
+                                        <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Обработка">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="True"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Масштаб" Binding="{Binding Scale}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+
+                        <hc:StepBar DockPanel.Dock="Top" Dock="Left" ItemsSource="{Binding TeachingSteps}" StepIndex="{Binding StepIndex}"/>
+
+                        <WrapPanel DockPanel.Dock="Bottom">
+                            <uc:AxisState CoordinateName="X" 
+                                  Coordinate="{Binding XAxis.Position}"
+                                  LmtNeg="{Binding XAxis.NLmt}"
+                                  LmtPos="{Binding XAxis.PLmt}"
+                                  MotionDone="{Binding XAxis.MotionDone}" 
+                                  CmdCoordinate="{Binding XAxis.CmdPosition}"
+                                  />
+                            <uc:AxisState CoordinateName="Y"
+                                  Coordinate="{Binding YAxis.Position}"
+                                  LmtNeg="{Binding YAxis.NLmt}"
+                                  LmtPos="{Binding YAxis.PLmt}"
+                                  MotionDone="{Binding YAxis.MotionDone}"
+                                  CmdCoordinate="{Binding YAxis.CmdPosition}"
+                                  />
+                            <uc:AxisState CoordinateName="Z"
+                                  Coordinate="{Binding ZAxis.Position}"
+                                  LmtNeg="{Binding ZAxis.NLmt}"
+                                  LmtPos="{Binding ZAxis.PLmt}"
+                                  MotionDone="{Binding ZAxis.MotionDone}"
+                                  CmdCoordinate="{Binding ZAxis.CmdPosition}"
+                                  />
+                            <TextBlock x:Name="VelText" Text="Быстро">
+                        <i:Interaction.Triggers>
+                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
+                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Быстро"/>
+                            </i:DataTrigger>
+                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
+                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
+                            </i:DataTrigger>
+                        </i:Interaction.Triggers>
+                            </TextBlock>
+                        </WrapPanel>
+                    </DockPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="Мастер технологий" TabIndex="1">
@@ -387,8 +676,8 @@
                     <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
                                    Value="True">
                         <i:InvokeCommandAction Command="{Binding DbLoadCommand}"/>
-                    </i:DataTrigger>                    
-                </i:Interaction.Triggers>                
+                    </i:DataTrigger>
+                </i:Interaction.Triggers>
                 <DockPanel>
                     <ContentControl Content="{Binding LaserDbVM}"/>
                 </DockPanel>
@@ -407,291 +696,5 @@
                 <ContentControl Content="{Binding AppSngsVM}"/>
             </TabItem>
         </TabControl>
-        <DockPanel Grid.Column="2" VerticalAlignment="Stretch" LastChildFill="False">
-            <Border x:Name="ImportantMessage"
-                    DockPanel.Dock="Top"
-                    VerticalAlignment="Top"
-                    BorderThickness="2" 
-                    BorderBrush="Blue"
-                    Padding="2"
-                    CornerRadius="3"
-                    Height="30"
-                Margin="1"
-                    >
-                <DockPanel>
-                    <Image x:Name="ImportantIcon" Source="{Binding IconPath}" DockPanel.Dock="Left" Margin="0,0,5,0"/>
-                    <TextBlock x:Name="ImportantText" Text="{Binding TechInfo}" FontWeight="Bold" FontSize="15" Foreground="Red">
-                        <i:Interaction.Triggers>
-                            <i:PropertyChangedTrigger Binding="{Binding Text, ElementName=ImportantText}">
-                                <i:ControlStoryboardAction Storyboard="{StaticResource DangerMessage}"/>                                
-                            </i:PropertyChangedTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBlock>
-                </DockPanel>
-            </Border>
-            <hc:SimplePanel DockPanel.Dock="Top">
-                <Expander ExpandDirection="Down" IsExpanded="{Binding ShowVideo}">
-                    <Border VerticalAlignment="Top" Background="{DynamicResource RegionBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
-                        <Grid>
-                            <Image x:Name="VideoCamera" Panel.ZIndex="1" Source="{Binding CameraImage}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDown" >
-                                        <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
-                                                       PassEventArgsToCommand="True"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Image>
-                            <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1">
-                                <Line Stroke="Red" Fill="Red" 
-                              StrokeThickness="1" 
-                              X1="-25" X2="25" Y1="0" Y2="0" 
-                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              />
-                                <Line Stroke="Red" Fill="Red" 
-                              StrokeThickness="1" 
-                              X1="0" X2="0" Y1="-25" Y2="25" 
-                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                              >
-                                </Line>
-
-                                <Ellipse Width="25" Height="25" StrokeThickness="1" Stroke="Red"
-                                
-                                  Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                  Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                 >
-                                    <Ellipse.RenderTransform>
-                                        <TranslateTransform
-                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
-                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
-                                    
-                                    />
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                            </Canvas>
-                            <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
-                            Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, 
-                        Path=TeachScaleMarkerEnable}">
-                                <Line Stroke="Red" Fill="Red" 
-                              StrokeThickness="1" 
-                              X1="0" 
-                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}" 
-                              
-                              Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
-                              >
-                                    <Line.Y1>
-                                        <MultiBinding Converter="{StaticResource MulConvereter}">
-                                            <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
-                                            <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioFirst"/>
-                                        </MultiBinding>
-                                    </Line.Y1>
-                                </Line>
-                                <Line Stroke="Red" Fill="Red" 
-                              StrokeThickness="1" 
-                              X1="0" 
-                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}"                               
-                              Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
-                              >
-                                    <Line.Y1>
-                                        <MultiBinding Converter="{StaticResource MulConvereter}">
-                                            <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
-                                            <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioSecond"/>
-                                        </MultiBinding>
-                                    </Line.Y1>
-                                </Line>
-                            </Canvas>
-                        </Grid>
-                    </Border>
-                </Expander>
-            </hc:SimplePanel>
-            <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-                <!--<ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>-->
-                <GroupBox Header="Текущий процесс" DockPanel.Dock="Top">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="36"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <ComboBox ItemsSource="{Binding Source={StaticResource FileStructure}}"
-                                     SelectedIndex="{Binding DefLayerIndex}"
-                                     SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
-                                     >
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding LayerName}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-
-                        <uclocal:ItemsButton x:Name="testname" Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
-                                        ItemSelector="{StaticResource EntitySelector}"
-                                        SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
-                                        SetIndex="{Binding DefEntityIndex}"
-                                        Grid.Column="1"
-                                        HorizontalAlignment="Stretch"
-                                        />
-
-                        <ComboBox x:Name="Materials"
-                                     ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
-                                     SelectedIndex="{Binding DefMaterialIndex}"
-                                     Grid.Column="2"
-                                     >
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Name}" Margin="0,0,10,0"/>
-                                        <TextBlock Text="{Binding Thickness}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <ComboBox ItemsSource="{Binding Source={StaticResource MaterialSource}, 
-                            Path=Technologies}"
-                                  SelectedIndex="{Binding DefTechnologyIndex}"
-                                     SelectedItem="{Binding CurrentTechnology}"  
-                                     Grid.Column="3"                                  
-                                     >
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-
-                        <Button 
-                                Command="{Binding StartProcessCommand}"
-                                VerticalAlignment="Bottom"
-                                Style="{StaticResource PlayButton}"
-                                             Grid.Column="4"
-                                
-                                />
-                        <TreeView Grid.Row="1" x:Name="LayersList" Height="150" 
-                                  ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
-                            <TreeView.ItemContainerStyle>
-                                <Style TargetType="{x:Type TreeViewItem}">
-                                    <Setter Property="IsExpanded" Value="True" />
-                                </Style>
-                            </TreeView.ItemContainerStyle>
-                            <TreeView.Resources>
-                                <HierarchicalDataTemplate DataType="{x:Type vm:Layer}" ItemsSource="{Binding Objects}">
-                                    <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
-                                </HierarchicalDataTemplate>
-                                <DataTemplate DataType="{x:Type vm:Text}">
-                                    <StackPanel Orientation="Horizontal">  
-                                        <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
-                                        <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
-                                                        ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                        <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
-                                        <TextBlock Text="{Binding Count}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                                        <TextBlock Text=" ]" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </TreeView.Resources>
-                        </TreeView>
-                    </Grid>
-                </GroupBox>
-                <DataGrid DockPanel.Dock="Left" 
-                      AutoGenerateColumns="False" 
-                      ItemsSource="{Binding ProcessingObjects}"
-                      SelectionMode="Single"
-                      Height="100"
-                      Style="{StaticResource DataGrid.Small}"
-                      >
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <i:InvokeCommandAction Command="{Binding ProcGridSelectionCommand}"
-                                           PassEventArgsToCommand="True"
-                                           />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-
-                    <DataGrid.ItemContainerStyle>
-                        <Style TargetType="DataGridRow">
-                            <Setter Property="IsSelected" Value="{Binding IsBeingProcessed}"/>
-                        </Style>
-                    </DataGrid.ItemContainerStyle>
-                    <!--<DataGrid.RowHeaderTemplate>
-                    <DataTemplate>
-                        <CheckBox IsChecked="False"/>
-                    </DataTemplate>
-                </DataGrid.RowHeaderTemplate>-->
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
-                        <DataGridTemplateColumn Header="Тип">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <ContentControl Content="{Binding}"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Координаты">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock >
-                                        <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
-                                        <Run Text="&#215;"/>
-                                        <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Обработка">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <CheckBox IsChecked="True"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Масштаб" Binding="{Binding Scale}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
-
-            <hc:StepBar DockPanel.Dock="Top" Dock="Left" ItemsSource="{Binding TeachingSteps}" StepIndex="{Binding StepIndex}"/>
-
-            <WrapPanel DockPanel.Dock="Bottom">
-                <uc:AxisState CoordinateName="X" 
-                                  Coordinate="{Binding XAxis.Position}"
-                                  LmtNeg="{Binding XAxis.NLmt}"
-                                  LmtPos="{Binding XAxis.PLmt}"
-                                  MotionDone="{Binding XAxis.MotionDone}" 
-                                  CmdCoordinate="{Binding XAxis.CmdPosition}"
-                                  />
-                <uc:AxisState CoordinateName="Y"
-                                  Coordinate="{Binding YAxis.Position}"
-                                  LmtNeg="{Binding YAxis.NLmt}"
-                                  LmtPos="{Binding YAxis.PLmt}"
-                                  MotionDone="{Binding YAxis.MotionDone}"
-                                  CmdCoordinate="{Binding YAxis.CmdPosition}"
-                                  />
-                <uc:AxisState CoordinateName="Z"
-                                  Coordinate="{Binding ZAxis.Position}"
-                                  LmtNeg="{Binding ZAxis.NLmt}"
-                                  LmtPos="{Binding ZAxis.PLmt}"
-                                  MotionDone="{Binding ZAxis.MotionDone}"
-                                  CmdCoordinate="{Binding ZAxis.CmdPosition}"
-                                  />
-                <TextBlock x:Name="VelText" Text="Быстро">
-                        <i:Interaction.Triggers>
-                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
-                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Быстро"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
-                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
-                            </i:DataTrigger>
-                        </i:Interaction.Triggers>
-                </TextBlock>
-            </WrapPanel>
-        </DockPanel>
     </Grid>
 </hc:GlowWindow>

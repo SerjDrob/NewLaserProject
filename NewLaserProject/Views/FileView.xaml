@@ -1,0 +1,226 @@
+﻿<UserControl x:Class="NewLaserProject.Views.FileView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views"
+            xmlns:mcl="clr-namespace:MachineClassLibrary.Machine;assembly=MachineClassLibrary"    
+            xmlns:hc="https://handyorg.github.io/handycontrol" 
+            xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"         
+            xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+            xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
+            xmlns:clr="clr-namespace:System;assembly=mscorlib"
+            xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
+            xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
+            xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
+            xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
+            xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"    
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             MinHeight="300">
+    <UserControl.Resources>
+        <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
+    </UserControl.Resources>
+    <Grid>
+        <uc:GraphWindow                         
+                           x:Name="GraphWin"
+                           LayGeoms="{Binding DataContext.LayGeoms, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"                                            
+                           SpecSizeX="{Binding DataContext.FileSizeX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           SpecSizeY="{Binding DataContext.FileSizeY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           FieldSizeX="{Binding DataContext.FieldSizeX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           FieldSizeY="{Binding DataContext.FieldSizeY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           SpecMargin="0.2" 
+                           AutoProportion="True"
+                           StrokeThickness="0.1"  
+                           IgnoredLayers="{Binding DataContext.IgnoredLayers, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
+                           RenderTransformOrigin="0.5,0.5"
+                           SelectedColor="Black"           
+                           MirrorX="{Binding DataContext.MirrorX, Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           Angle90="{Binding DataContext.WaferTurn90, Mode=TwoWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           OffsetX="{Binding DataContext.WaferOffsetX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"                           
+                           OffsetY="{Binding DataContext.WaferOffsetY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
+                           PointerDiameter="2000"
+                           PointerThickness="2"
+                           PointerX="{Binding DataContext.TeacherPointerX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           PointerY="{Binding DataContext.TeacherPointerY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           PointerVisibility="{Binding DataContext.TeacherPointerVisibility, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
+                           >
+            <!--PointerX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerX}"
+                           PointerY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerY}"
+                           PointerVisibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerVisibility}"-->
+
+            <Grid>
+                <uc:SpecCross 
+                                    X="{Binding DataContext.CameraViewfinderX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
+                                    Y="{Binding DataContext.CameraViewfinderY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
+                                    Color="LightGreen"                                
+                                    XScale="{Binding ScaleX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
+                                    YScale="{Binding ScaleY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"
+                                    OffsetX="{Binding MarginX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
+                                    OffsetY="{Binding MarginY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"                                     
+                                    Thickness="1">
+                    <uc:SpecCross.RenderTransform>
+                        <ScaleTransform ScaleY="-1" 
+                                                CenterY="{Binding ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter}, RelativeSource={RelativeSource AncestorType={x:Type uc:SpecCross}, Mode=FindAncestor}}"/>
+                    </uc:SpecCross.RenderTransform>
+                </uc:SpecCross>
+                <uc:SpecCross 
+                                    X="{Binding DataContext.LaserViewfinderX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
+                                    Y="{Binding DataContext.LaserViewfinderY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
+                                    Color="OrangeRed"                               
+                                    XScale="{Binding ScaleX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
+                                    YScale="{Binding ScaleY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"
+                                    OffsetX="{Binding MarginX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
+                                    OffsetY="{Binding MarginY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"                                     
+                                    Thickness="1">
+                    <uc:SpecCross.RenderTransform>
+                        <ScaleTransform ScaleY="-1" 
+                                                CenterY="{Binding ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter}, RelativeSource={RelativeSource AncestorType={x:Type uc:SpecCross}, Mode=FindAncestor}}"/>
+                    </uc:SpecCross.RenderTransform>
+                </uc:SpecCross>
+            </Grid>
+        </uc:GraphWindow>
+        <Grid x:Name="CircleGrid" Opacity="0.2" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseEnter">
+                    <i:ControlStoryboardAction>
+                        <i:ControlStoryboardAction.Storyboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="CircleGrid" 
+                                                 Storyboard.TargetProperty="Opacity" 
+                                                 Duration="0:0:0.1"
+                                                 FillBehavior="HoldEnd"
+                                                 By="1"
+                                                 />
+                            </Storyboard>
+                        </i:ControlStoryboardAction.Storyboard>
+                    </i:ControlStoryboardAction>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseLeave">
+                    <i:ControlStoryboardAction>
+                        <i:ControlStoryboardAction.Storyboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="CircleGrid" 
+                                                 Storyboard.TargetProperty="Opacity" 
+                                                 BeginTime="0:0:1"
+                                                 Duration="0:0:1"                                                             
+                                                 FillBehavior="HoldEnd"
+                                                 To="0.2"
+                                                 />
+                            </Storyboard>
+                        </i:ControlStoryboardAction.Storyboard>
+                    </i:ControlStoryboardAction>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CircularButton}">
+                <Button.CommandParameter>
+                    <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                        <Binding ElementName="GraphWin" Path="ScaleX"/>
+                        <Binding ElementName="GraphWin" Path="ScaleY"/>
+                        <Binding Source="{x:Static vm:Aligning.Center}"/>
+                    </MultiBinding>
+                </Button.CommandParameter>
+            </Button>
+            <Button Command="{Binding ChangeMirrorXCommand}" Style="{StaticResource MirrorButton}" RenderTransformOrigin="0.5 0.5">
+                <Button.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="0.5" ScaleY="-0.5"/>
+                    </TransformGroup>
+                </Button.RenderTransform>
+            </Button>
+            <Button Command="{Binding ChangeTurn90Command}" Style="{StaticResource CircArrowButton}" RenderTransformOrigin="0.5 0.5">
+                <Button.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="1.7" ScaleY="-1.7"/>
+                        <TranslateTransform Y="-3"/>
+                    </TransformGroup>
+                </Button.RenderTransform>
+            </Button>
+            <hc:CirclePanel x:Name="CirclePanel"
+                            Diameter="200"
+                            VerticalAlignment="Bottom"
+                            HorizontalAlignment="Right"
+                            Margin="20"
+                            >
+
+                <hc:CirclePanel.LayoutTransform>
+                    <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+                </hc:CirclePanel.LayoutTransform>
+
+
+                <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CirclePanelButton}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Right}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CirclePanelButton}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.RBCorner}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CirclePanelButton}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Bottom}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CirclePanelButton}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.LBCorner}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CirclePanelButton}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Left}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CirclePanelButton}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.LTCorner}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CirclePanelButton}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.Top}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button Command="{Binding AlignWaferCommand}" Style="{StaticResource CirclePanelButton}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                            <Binding ElementName="GraphWin" Path="ScaleX"/>
+                            <Binding ElementName="GraphWin" Path="ScaleY"/>
+                            <Binding Source="{x:Static vm:Aligning.RTCorner}"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+            </hc:CirclePanel>
+        </Grid>
+    </Grid>
+</UserControl>

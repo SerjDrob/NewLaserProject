@@ -343,6 +343,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async void TeachOrthXY()
         {
+            //TODO not all transformations are set on default
             _tempWaferTurn90 = WaferTurn90;
             WaferTurn90 = false;
             var waferThickness = WaferThickness;
@@ -351,7 +352,7 @@ namespace NewLaserProject.ViewModels
             new AskThicknesView { DataContext = dc }.ShowDialog();
             waferThickness = dc.Thickness;
 
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>($"{_projectDirectory}/AppSettings/TeachingDeformation.json");
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS,"TeachingDeformation.json"));
 
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             buider.SetWorkMatrix(new Matrix3x2(
@@ -437,8 +438,8 @@ namespace NewLaserProject.ViewModels
                     var pureSystem = builder.FormWorkMatrix(0.001, -0.001, true).Build();
                     var teachSystem = builder.FormWorkMatrix(1, 1, false).Build();
 
-                    pureSystem.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/PureDeformation.json");
-                    teachSystem.GetMainMatrixElements().SerializeObject($"{_projectDirectory}/AppSettings/TeachingDeformation.json");
+                    pureSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS,"PureDeformation.json"));
+                    teachSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS,"TeachingDeformation.json"));
 
                     MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                     MirrorX = _tempMirrorX;
