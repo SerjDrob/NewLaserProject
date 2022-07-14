@@ -118,7 +118,7 @@ namespace NewLaserProject.Classes
 
         public async Task StartAsync()
         {
-            if (_stateMachine is null) return;
+            if (_stateMachine is null) CreateProcess();
             _inProcess = true;
 
             for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
