@@ -85,7 +85,7 @@ namespace NewLaserProject.ViewModels
         public double TeacherPointerX { get; set; }
         public double TeacherPointerY { get; set; }
         public bool TeacherPointerVisibility { get; set; } = false;
-        public double CameraViewfinderX { get; set; }
+        public double CameraViewfinderX { get; set; } 
         public double CameraViewfinderY { get; set; }
         public double LaserViewfinderX { get; set; }
         public double LaserViewfinderY { get; set; }

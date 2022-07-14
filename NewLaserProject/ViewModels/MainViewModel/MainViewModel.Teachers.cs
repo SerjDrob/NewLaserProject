@@ -219,8 +219,8 @@ namespace NewLaserProject.ViewModels
                 .SetOnBiasToughtAction(() => Task.Run(() =>
                 {
                     techMessager.RealeaseMessage("Обучение отменено", Icon.Exclamation);
-                    StopVideoCapture();
-                    TeachingSteps?.Clear();                    
+                   // StopVideoCapture();
+                    TeachingSteps = new();                    
                     _canTeach = false;
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
@@ -232,8 +232,8 @@ namespace NewLaserProject.ViewModels
 
                     //---Set new coordinate system
                     _coorSystem = GetCoorSystem();
-                    StopVideoCapture();
-                    TeachingSteps?.Clear();
+                    //StopVideoCapture();
+                    TeachingSteps = new();
                     _canTeach = false;
                 }));
             _currentTeacher = tcb.Build();

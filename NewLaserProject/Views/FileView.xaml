@@ -17,9 +17,11 @@
             xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"    
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="UCntrl"
              MinHeight="300">
     <UserControl.Resources>
         <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
+        <cnvrt:DivideConverter x:Key="DivideConverter"/>
     </UserControl.Resources>
     <Grid>
         <uc:GraphWindow                         
@@ -51,8 +53,8 @@
 
             <Grid>
                 <uc:SpecCross 
-                                    X="{Binding DataContext.CameraViewfinderX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
-                                    Y="{Binding DataContext.CameraViewfinderY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
+                                    X="{Binding DataContext.CameraViewfinderX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, AncestorLevel=2, Mode=FindAncestor}}" 
+                                    Y="{Binding DataContext.CameraViewfinderY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, AncestorLevel=2, Mode=FindAncestor}}" 
                                     Color="LightGreen"                                
                                     XScale="{Binding ScaleX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
                                     YScale="{Binding ScaleY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"
@@ -61,12 +63,13 @@
                                     Thickness="1">
                     <uc:SpecCross.RenderTransform>
                         <ScaleTransform ScaleY="-1" 
-                                                CenterY="{Binding ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter}, RelativeSource={RelativeSource AncestorType={x:Type uc:SpecCross}, Mode=FindAncestor}}"/>
+                                        CenterY="{Binding ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter}, 
+                            RelativeSource={RelativeSource AncestorType={x:Type uc:SpecCross}, Mode=FindAncestor}}"/>
                     </uc:SpecCross.RenderTransform>
                 </uc:SpecCross>
                 <uc:SpecCross 
-                                    X="{Binding DataContext.LaserViewfinderX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
-                                    Y="{Binding DataContext.LaserViewfinderY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}" 
+                                    X="{Binding DataContext.LaserViewfinderX,  RelativeSource={RelativeSource AncestorType={x:Type UserControl}, AncestorLevel=2, Mode=FindAncestor}}" 
+                                    Y="{Binding DataContext.LaserViewfinderY,  RelativeSource={RelativeSource AncestorType={x:Type UserControl}, AncestorLevel=2, Mode=FindAncestor}}" 
                                     Color="OrangeRed"                               
                                     XScale="{Binding ScaleX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
                                     YScale="{Binding ScaleY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"

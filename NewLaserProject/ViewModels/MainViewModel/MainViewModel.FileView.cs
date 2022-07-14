@@ -175,8 +175,7 @@ namespace NewLaserProject.ViewModels
         }
         private void ViewFinderChanged()
         {
-            var fileVM = _openedFileVM as FileVM;
-            fileVM?.SetViewFinders(CameraViewfinderX,CameraViewfinderY,LaserViewfinderX,LaserViewfinderY);
+            _openedFileVM?.SetViewFinders(CameraViewfinderX,CameraViewfinderY,LaserViewfinderX,LaserViewfinderY);
         }
         private void TuneMachineFileView()
         {

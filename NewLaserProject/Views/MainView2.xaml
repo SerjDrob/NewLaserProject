@@ -407,77 +407,7 @@
                             </DockPanel>
                         </Border>
                         <hc:SimplePanel DockPanel.Dock="Top">
-                            <!--<Border VerticalAlignment="Top" Background="{DynamicResource RegionBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
-                                <Grid Height="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth}">
-                                    <Image x:Name="VideoCamera" Panel.ZIndex="1" Source="{Binding CameraImage}">
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="MouseDown" >
-                                                <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
-                                                       PassEventArgsToCommand="True"/>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </Image>
-                                    <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1">
-                                        <Line Stroke="Red" Fill="Red" 
-                                              StrokeThickness="1" 
-                                              X1="-25" X2="25" Y1="0" Y2="0" 
-                                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                              />
-                                        <Line Stroke="Red" Fill="Red" 
-                                              StrokeThickness="1" 
-                                              X1="0" X2="0" Y1="-25" Y2="25" 
-                                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                              >
-                                        </Line>
-
-                                        <Ellipse Width="25" Height="25" StrokeThickness="1" Stroke="Red"
-                                
-                                  Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                  Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                 >
-                                            <Ellipse.RenderTransform>
-                                                <TranslateTransform
-                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
-                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
-                                    
-                                    />
-                                            </Ellipse.RenderTransform>
-                                        </Ellipse>
-                                    </Canvas>
-                                    <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
-                                            Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, 
-                                            Path=TeachScaleMarkerEnable}">
-                                        <Line Stroke="Red" Fill="Red" 
-                                                StrokeThickness="1" 
-                                                X1="0" 
-                                                X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}" 
-                                                Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
-                                                >
-                                            <Line.Y1>
-                                                <MultiBinding Converter="{StaticResource MulConvereter}">
-                                                    <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
-                                                    <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioFirst"/>
-                                                </MultiBinding>
-                                            </Line.Y1>
-                                        </Line>
-                                        <Line Stroke="Red" Fill="Red" 
-                              StrokeThickness="1" 
-                              X1="0" 
-                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}"                               
-                              Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
-                              >
-                                            <Line.Y1>
-                                                <MultiBinding Converter="{StaticResource MulConvereter}">
-                                                    <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
-                                                    <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioSecond"/>
-                                                </MultiBinding>
-                                            </Line.Y1>
-                                        </Line>
-                                    </Canvas>
-                                </Grid>
-                            </Border>-->
+                            
                             <ContentControl Content="{Binding RightSideVM}" MinHeight="300"/>
 
                         </hc:SimplePanel>
