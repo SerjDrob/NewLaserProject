@@ -81,7 +81,7 @@ namespace NewLaserProject.Classes
                     await Task.WhenAll(
                     _laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
                     _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
-                    await pierceFunction();
+                    if(_inProcess) await pierceFunction();
                     _inLoop = waferEnumerator.MoveNext();
                 })
                 .PermitReentryIf(Trigger.Next, () => _inLoop)
@@ -119,11 +119,10 @@ namespace NewLaserProject.Classes
         public async Task StartAsync()
         {
             if (_stateMachine is null) return;
+            _inProcess = true;
 
             for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
             {
-                _inProcess = true;
-
                 while (_inProcess)
                 {
                     await _stateMachine.FireAsync(Trigger.Next);
@@ -138,13 +137,19 @@ namespace NewLaserProject.Classes
 
         public Task Deny()
         {
-            throw new NotImplementedException();
+            if (_inProcess)
+            {
+                _inProcess = false;
+                _laserMachine.CancelMarking();                
+            }
+            return Task.CompletedTask;
         }
 
         public Task Next()
         {
             throw new NotImplementedException();
         }
+
 
         enum State
         {

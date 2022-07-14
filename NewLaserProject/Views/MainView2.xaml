@@ -218,6 +218,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
@@ -257,11 +258,11 @@
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
                                     <ComboBox ItemsSource="{Binding Source={StaticResource MaterialSource}, 
-                            Path=Technologies}"
-                                  SelectedIndex="{Binding DefTechnologyIndex}"
-                                     SelectedItem="{Binding CurrentTechnology}"  
-                                     Grid.Column="3"                                  
-                                     >
+                                              Path=Technologies}"
+                                              SelectedIndex="{Binding DefTechnologyIndex}"
+                                              SelectedItem="{Binding CurrentTechnology}"  
+                                              Grid.Column="3"                                  
+                                              >
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -270,14 +271,19 @@
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
+                                    
+                                    <Button Command="{Binding CancelProcessCommand}"
+                                            VerticalAlignment="Bottom"
+                                            Style="{StaticResource ButtonDanger}"
+                                            Grid.Column="4"                                
+                                    />
 
-                                    <Button 
-                                Command="{Binding StartProcessCommand}"
-                                VerticalAlignment="Bottom"
-                                Style="{StaticResource PlayButton}"
-                                             Grid.Column="4"
-                                
-                                />
+                                    <Button Command="{Binding StartProcessCommand}"
+                                            VerticalAlignment="Bottom"
+                                            Style="{StaticResource PlayButton}"
+                                            Grid.Column="5"                                
+                                    />
+                                    
                                     <TreeView Grid.Row="1" x:Name="LayersList" Height="150" 
                                   ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
                                         <TreeView.ItemContainerStyle>

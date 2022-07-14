@@ -110,12 +110,9 @@ namespace NewLaserProject.ViewModels
                                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator);
                     }
                     break;
-                case LaserEntity.Line:
-                    break;
-                case LaserEntity.Point:
-                    break;
-                case LaserEntity.None:
-                    break;
+                
+                case LaserEntity.Line or LaserEntity.Point or LaserEntity.None: goto default;
+                
                 default:
                     break;
             }
@@ -137,6 +134,11 @@ namespace NewLaserProject.ViewModels
             }
         }
 
+        [ICommand]
+        private void CancelProcess()
+        {
+            _mainProcess?.Deny();
+        }
 
         private TestThreePoints _testThreePointsProcess;
 
