@@ -152,7 +152,15 @@ namespace NewLaserProject.ViewModels
             RightSideVM = _cameraVM;
 #if PCIInserted
             _laserMachine.OnBitmapChanged += _cameraVM.OnVideoSourceBmpChanged;
+            _cameraVM.VideoClicked += _cameraVM_VideoClicked;
 #endif
+        }
+
+        private void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
+        {
+            var imgX = e.x * Settings.Default.CameraScale;
+            var imgY = e.y * Settings.Default.CameraScale;
+            _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { imgX, imgY });//TODO fix it. it smells
         }
 
         [ICommand]
@@ -372,19 +380,7 @@ namespace NewLaserProject.ViewModels
         }
 
         #endregion
-        [ICommand]
-        private async Task VideoClick(object obj)
-        {
-            var mouseEvent = obj as System.Windows.Input.MouseButtonEventArgs;
-            var device = mouseEvent?.Device as System.Windows.Input.MouseDevice;
-            var control = mouseEvent?.Source as System.Windows.Controls.Image;
-            var width = control?.ActualWidth;
-            var height = control?.ActualHeight;
-            var imgX = (device.GetPosition(control).X - (double)(width / 2)) * Settings.Default.CameraScale / width;
-            var imgY = (device.GetPosition(control).Y - (double)(height / 2)) * Settings.Default.CameraScale / height;
-            await _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { imgX ?? 1, imgY ?? 1 });
-
-        }
+        
 
         [ICommand]
         private void MachineSettings()

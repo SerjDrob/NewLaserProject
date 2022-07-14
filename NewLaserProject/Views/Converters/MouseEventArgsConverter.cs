@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NewLaserProject.Properties;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,16 +15,19 @@ namespace NewLaserProject.Views.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            try
+
+            var mouseEvent = value as MouseButtonEventArgs;
+            var device = mouseEvent?.Device as MouseDevice;
+            var control = mouseEvent?.Source as System.Windows.Controls.Image;
+            if (device is not null && control is not null)
             {
-                var sender = (MouseEventArgs)value;
-                var source = (IInputElement)parameter;
-                return sender.GetPosition(source);
+                var width = (double)control.ActualWidth;
+                var height = (double)control.ActualHeight;
+                var imgX = (device.GetPosition(control).X - (width / 2)) / width;
+                var imgY = (device.GetPosition(control).Y - (height / 2)) / height;
+                return (imgX,imgY); 
             }
-            catch (Exception)
-            {
-                return null;
-            }        
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
