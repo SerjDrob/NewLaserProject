@@ -74,7 +74,7 @@
                         <Line.Y1>
                             <MultiBinding Converter="{StaticResource MulConvereter}">
                                 <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
-                                <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioFirst"/>
+                                <Binding RelativeSource="{RelativeSource AncestorType=UserControl, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioFirst"/>
                             </MultiBinding>
                         </Line.Y1>
                     </Line>
@@ -87,7 +87,7 @@
                         <Line.Y1>
                             <MultiBinding Converter="{StaticResource MulConvereter}">
                                 <Binding RelativeSource="{RelativeSource AncestorType=Canvas, Mode=FindAncestor}" Path="ActualHeight"/>
-                                <Binding RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioSecond"/>
+                                <Binding RelativeSource="{RelativeSource AncestorType=UserControl, Mode=FindAncestor}" Path="DataContext.ScaleMarkersRatioSecond"/>
                             </MultiBinding>
                         </Line.Y1>
                     </Line>
