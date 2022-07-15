@@ -156,8 +156,12 @@ namespace NewLaserProject.Classes.Process
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Denied)
-                .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
-                .OnEntry(() => _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation));
+                .OnEntryAsync(async () =>
+                {
+                    _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+                    await process.Deny();
+                    _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
+                });
         }
 
         public event EventHandler<bool> SwitchCamera;
