@@ -135,14 +135,13 @@ namespace NewLaserProject.Classes
             return UmlDotGraph.Format(_stateMachine.GetInfo());
         }
 
-        public Task Deny()
+        public async Task Deny()
         {
             if (_inProcess)
             {
                 _inProcess = false;
-                _laserMachine.CancelMarking();                
+                var success = await _laserMachine.CancelMarkingAsync();                
             }
-            return Task.CompletedTask;
         }
 
         public Task Next()
