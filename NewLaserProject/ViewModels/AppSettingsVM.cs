@@ -26,7 +26,9 @@ namespace NewLaserProject.ViewModels
         public LaserEntity DefaultEntityType { get; set; }        
         public Material DefaultMaterial { get; set; }
         public int DefaultWidth { get; set; }
-        public int DefaultHeight { get; set; }        
+        public int DefaultHeight { get; set; }
+        public bool IsMirrored { get; set; }
+        public bool IsRotated { get; set; }
         public ObservableCollection<DefaultLayerEntityTechnology> DefaultTechnologies { get; set; } = new();
         public MarkLaserParams DefaultLaserParams { get; private set; }
         public ObservableCollection<DefaultLayerFilter> DefLayerFilters { get; set; } = new();

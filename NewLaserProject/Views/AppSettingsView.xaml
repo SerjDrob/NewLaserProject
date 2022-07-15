@@ -254,7 +254,7 @@
                             </hc:ComboBox>-->
                         </Grid>
                         <hc:Divider Content="Габариты подложки" Orientation="Horizontal"/>
-                    <UniformGrid Columns="2" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <UniformGrid Columns="2" VerticalAlignment="Top" HorizontalAlignment="Left">
                         <hc:NumericUpDown Minimum="20"
                                           Maximum="100"
                                           Increment="1"
@@ -271,6 +271,11 @@
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding DefaultHeight}"/>
                     </UniformGrid>
+                        <hc:Divider Content="Ориентация файла по-умолчанию" Orientation="Horizontal"/>
+                        <hc:ElementGroup Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding IsMirrored}" Content="Зеркально" Style="{StaticResource CheckBoxBaseStyle}" Margin="0,0,30,0"/>
+                            <CheckBox IsChecked="{Binding IsRotated}" Content="Повёрнут на 90&#186;" Style="{StaticResource CheckBoxBaseStyle}"/>
+                        </hc:ElementGroup>
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Padding="4" Header="Настройки пера и штриховки" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">

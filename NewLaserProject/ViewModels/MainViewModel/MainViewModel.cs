@@ -114,7 +114,11 @@ namespace NewLaserProject.ViewModels
             var defLaserParams = ExtensionMethods
                 .DeserilizeObject<MarkLaserParams>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultLaserParams.json"));
 
-            if (AppSngsVM is null) AppSngsVM = new(_db, defLaserParams);
+            if (AppSngsVM is null) AppSngsVM = new(_db, defLaserParams)
+            {
+                IsMirrored = Settings.Default.WaferMirrorX,
+                IsRotated = Settings.Default.WaferAngle90
+            };
         }
         [ICommand]
         private void AppSettingsClose()
@@ -135,6 +139,10 @@ namespace NewLaserProject.ViewModels
 
                 defProcFilter.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultProcessFilter.json"));
                 defLaserParams.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultLaserParams.json"));
+
+                Settings.Default.WaferMirrorX = AppSngsVM.IsMirrored;
+                Settings.Default.WaferAngle90 = AppSngsVM.IsRotated;
+                Settings.Default.Save();
             }
         }
 
@@ -314,15 +322,11 @@ namespace NewLaserProject.ViewModels
                     _laserMachine.GoWhile(Ax.Y, AxDir.Neg);
                     break;
                 case Key.Home:
-                    try
                     {
                         await _laserMachine.GoHomeAsync().ConfigureAwait(false);
+                        var corner = new double[] {Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
+                        await _laserMachine.MoveGpInPosAsync(Groups.XY,corner).ConfigureAwait(false);
                         techMessager.EraseMessage();
-                    }
-                    catch (Exception ex)
-                    {
-
-                        throw;
                     }
                     break;
             }
