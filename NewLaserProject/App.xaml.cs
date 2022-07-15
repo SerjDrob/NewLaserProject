@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NewLaserProject.Data;
 using NewLaserProject.ViewModels;
 using NewLaserProject.Views;
+using System;
 using System.Windows;
 
 namespace NewLaserProject

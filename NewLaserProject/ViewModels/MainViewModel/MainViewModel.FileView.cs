@@ -67,11 +67,10 @@ namespace NewLaserProject.ViewModels
         private void OpenFile()
         {
             var openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = "d:\\";
             openFileDialog.Filter = "dxf files (*.dxf)|*.dxf";
             openFileDialog.FilterIndex = 2;
-            openFileDialog.RestoreDirectory = true;
-
+            openFileDialog.RestoreDirectory = false;
+            
             if (openFileDialog.ShowDialog() ?? false)
             {
                 //techMessager.RealeaseMessage("Загрузка...", Icon.Loading);

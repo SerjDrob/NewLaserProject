@@ -124,6 +124,7 @@ namespace NewLaserProject.ViewModels
             {
                 OnProcess = true;
                 await _mainProcess.StartAsync();
+                techMessager.RealeaseMessage("Процесс завершён", Icon.Info);                
             }
             catch (Exception ex)
             {
