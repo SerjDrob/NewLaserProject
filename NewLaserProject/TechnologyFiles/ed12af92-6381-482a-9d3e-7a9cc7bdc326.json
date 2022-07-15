@@ -8,7 +8,7 @@
       "CanAcceptChildren": false,
       "MarkParams": {
         "$type": "ExtendedParams",
-        "MarkLoop": 20,
+        "MarkLoop": 10,
         "MarkSpeed": 9.0,
         "PowerRatio": 100,
         "Freq": 40000,
