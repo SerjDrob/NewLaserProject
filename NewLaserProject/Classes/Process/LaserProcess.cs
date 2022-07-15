@@ -11,6 +11,7 @@ using Stateless.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
@@ -129,7 +130,26 @@ namespace NewLaserProject.Classes
                 }
             }
         }
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested) return;
+            if (_stateMachine is null) CreateProcess();
+            _inProcess = true;
 
+            for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
+            {
+                while (_inProcess)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        _inProcess = false;
+                        var success = await _laserMachine.CancelMarkingAsync();
+                        continue;
+                    }
+                    await _stateMachine.FireAsync(Trigger.Next);
+                }
+            }
+        }
         public override string ToString()
         {
             return UmlDotGraph.Format(_stateMachine.GetInfo());

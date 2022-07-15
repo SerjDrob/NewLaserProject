@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Process
@@ -87,13 +88,12 @@ namespace NewLaserProject.Classes.Process
             var resultPoints = new List<PointF>();
             var refPointsEnumerator = _refPoints.GetEnumerator();
             refPointsEnumerator.MoveNext();
-            
+            var ctSource = new CancellationTokenSource();
             var originPoints = _refPoints.Select(p => new PointF((float)p.X, (float)p.Y)).ToArray();
 
             CoorSystem<LMPlace> workCoorSys = new();
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
-            IProcess process;
             SwitchCamera?.Invoke(this, true);
 
             _stateMachine.Configure(State.Started)
@@ -146,10 +146,10 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.Working)
                 .OnEntryAsync(async () => {
                     _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle);
-                    process = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
+                    var process = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
                     process.CreateProcess();
-                    await process.StartAsync();
+                    await process.StartAsync(ctSource.Token);
                 })
                 .Ignore(Trigger.Next)
                 .Ignore(Trigger.Deny)
@@ -159,7 +159,7 @@ namespace NewLaserProject.Classes.Process
                 .OnEntryAsync(async () =>
                 {
                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
-                    await process.Deny();
+                    ctSource.Cancel();
                     _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
                 });
         }
@@ -204,6 +204,11 @@ namespace NewLaserProject.Classes.Process
             }
         }
         public async Task Deny() => await _stateMachine.FireAsync(Trigger.Deny);
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
         enum State
         {
