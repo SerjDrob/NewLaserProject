@@ -143,7 +143,6 @@ namespace NewLaserProject.Classes
                     if (cancellationToken.IsCancellationRequested)
                     {
                         _inProcess = false;
-                        var success = await _laserMachine.CancelMarkingAsync();
                         continue;
                     }
                     await _stateMachine.FireAsync(Trigger.Next);

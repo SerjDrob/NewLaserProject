@@ -29,6 +29,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _zeroZPiercing;
         private readonly double _zeroZCamera;
         private readonly double _waferThickness;
+        private CancellationTokenSource _ctSource;
         private readonly InfoMessager _infoMessager;
         private double _xActual;
         private double _yActual;
@@ -78,7 +79,7 @@ namespace NewLaserProject.Classes.Process
             _pazAngle = pazAngle;
             _entityPreparator = entityPreparator;
             _waferThickness = waferThickness;
-
+            _ctSource = new CancellationTokenSource();
         }
 
 
@@ -88,7 +89,6 @@ namespace NewLaserProject.Classes.Process
             var resultPoints = new List<PointF>();
             var refPointsEnumerator = _refPoints.GetEnumerator();
             refPointsEnumerator.MoveNext();
-            var ctSource = new CancellationTokenSource();
             var originPoints = _refPoints.Select(p => new PointF((float)p.X, (float)p.Y)).ToArray();
 
             CoorSystem<LMPlace> workCoorSys = new();
@@ -149,7 +149,7 @@ namespace NewLaserProject.Classes.Process
                     var process = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
                     process.CreateProcess();
-                    await process.StartAsync(ctSource.Token);
+                    await process.StartAsync(_ctSource.Token);
                 })
                 .Ignore(Trigger.Next)
                 .Ignore(Trigger.Deny)
@@ -158,9 +158,9 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.Denied)
                 .OnEntryAsync(async () =>
                 {
-                    _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
-                    ctSource.Cancel();
-                    _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
+                    //_laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+                    //ctSource.Cancel();
+                    //_infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
                 });
         }
 
@@ -203,7 +203,13 @@ namespace NewLaserProject.Classes.Process
                 throw;
             }
         }
-        public async Task Deny() => await _stateMachine.FireAsync(Trigger.Deny);
+        public async Task Deny() //=> await _stateMachine.FireAsync(Trigger.Deny);
+        {
+            _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+            _ctSource.Cancel();
+            var success = await _laserMachine.CancelMarkingAsync();
+            _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
+        }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
