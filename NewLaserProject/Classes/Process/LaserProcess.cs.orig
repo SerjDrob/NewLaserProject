@@ -11,7 +11,6 @@ using Stateless.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
@@ -119,8 +118,12 @@ namespace NewLaserProject.Classes
 
         public async Task StartAsync()
         {
-            if (_stateMachine is null) CreateProcess();
+<<<<<<< HEAD
+            if (_stateMachine is null) return;
             _inProcess = true;
+=======
+            if (_stateMachine is null) CreateProcess();
+>>>>>>> 4df4431e58fb9076f932df064f7c68bb4c891899
 
             for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
             {
@@ -130,38 +133,20 @@ namespace NewLaserProject.Classes
                 }
             }
         }
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            if (cancellationToken.IsCancellationRequested) return;
-            if (_stateMachine is null) CreateProcess();
-            _inProcess = true;
 
-            for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
-            {
-                while (_inProcess)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        _inProcess = false;
-                        var success = await _laserMachine.CancelMarkingAsync();
-                        continue;
-                    }
-                    await _stateMachine.FireAsync(Trigger.Next);
-                }
-            }
-        }
         public override string ToString()
         {
             return UmlDotGraph.Format(_stateMachine.GetInfo());
         }
 
-        public async Task Deny()
+        public Task Deny()
         {
             if (_inProcess)
             {
                 _inProcess = false;
-                var success = await _laserMachine.CancelMarkingAsync();                
+                _laserMachine.CancelMarking();                
             }
+            return Task.CompletedTask;
         }
 
         public Task Next()
