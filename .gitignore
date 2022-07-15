@@ -408,3 +408,5 @@ obj/
 /NewLaserProject/TempFiles/Curve_9861acfb-673c-4d15-aea6-691affb59243.dxf
 /NewLaserProject/TempFiles/Curve_b18adfd6-97df-45fd-b474-6d901b89ee42.dxf
 /NewLaserProject/Data/laserDatabase.db
+/NewLaserProject/Data/laserDatabase.db-shm
+/NewLaserProject/Data/laserDatabase.db-wal
