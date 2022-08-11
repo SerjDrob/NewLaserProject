@@ -8,16 +8,16 @@
       "CanAcceptChildren": false,
       "MarkParams": {
         "$type": "ExtendedParams",
-        "MarkLoop": 10,
-        "MarkSpeed": 9.0,
-        "PowerRatio": 100,
+        "MarkLoop": 4,
+        "MarkSpeed": 10.0,
+        "PowerRatio": 75,
         "Freq": 40000,
         "QPulseWidth": 1,
         "EnablePWM": true,
         "PWMFrequency": 200,
-        "PWMDutyCycle": 20,
+        "PWMDutyCycle": 100,
         "EnableHatch": true,
-        "HatchWidth": 20,
+        "HatchWidth": 0,
         "HatchLineDistance": 8
       }
     }

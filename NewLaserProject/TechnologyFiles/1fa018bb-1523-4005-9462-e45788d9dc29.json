@@ -1,0 +1,44 @@
+{
+  "$type": "MainLoop",
+  "Shuffle": false,
+  "CanAcceptChildren": true,
+  "Children": [
+    {
+      "$type": "PierceBlock",
+      "CanAcceptChildren": false,
+      "MarkParams": {
+        "$type": "ExtendedParams",
+        "MarkLoop": 4,
+        "MarkSpeed": 10.0,
+        "PowerRatio": 75,
+        "Freq": 40000,
+        "QPulseWidth": 1,
+        "EnablePWM": true,
+        "PWMFrequency": 200,
+        "PWMDutyCycle": 75,
+        "EnableHatch": false,
+        "HatchWidth": 0,
+        "HatchLineDistance": 0
+      }
+    },
+    {
+      "$type": "PierceBlock",
+      "CanAcceptChildren": false,
+      "MarkParams": {
+        "$type": "ExtendedParams",
+        "MarkLoop": 1,
+        "MarkSpeed": 10.0,
+        "PowerRatio": 75,
+        "Freq": 40000,
+        "QPulseWidth": 1,
+        "EnablePWM": true,
+        "PWMFrequency": 200,
+        "PWMDutyCycle": 90,
+        "EnableHatch": false,
+        "HatchWidth": 0,
+        "HatchLineDistance": 0
+      }
+    }
+  ],
+  "LoopCount": 1
+}

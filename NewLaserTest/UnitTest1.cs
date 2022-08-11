@@ -210,6 +210,10 @@ namespace NewLaserTest
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90 }, 0.001F, 30000, 48000, 29075, 42425, 5.575, 29.075)]
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90 }, 0.001F, 30000, 48000, 925, 5575, 42.425, 0.925)]
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90 }, 0.001F, 30000, 48000, 29075, 5575, 42.425, 29.075)]
+
+        [TestCase(new[] { Transformation.Scale, Transformation.Turn90, Transformation.MirrorX, Transformation.Translte }, 0.001F, 60000, 48000, 1000, 1000, 29, 59, -18)]
+        [TestCase(new[] { Transformation.Scale, Transformation.Turn90, Transformation.MirrorX, Transformation.Translte }, 0.001F, 60000, 48000, 14500, 24000, 6, 45.5, -18)]
+        [TestCase(new[] { Transformation.Scale, Transformation.Turn90, Transformation.MirrorX, Transformation.Translte }, 0.001F, 60000, 48000, 45500, 24000, 6, 14.5, -18)]
         public void TestLaserWaferTransformations(Transformation[] trSequence, float scale, double sizeX,
             double sizeY, double x1, double y1, double x2, double y2, float offsetX = 0, float offsetY = 0)
         {
@@ -250,62 +254,62 @@ namespace NewLaserTest
             Translte
         }
 
-        [Test]
-        public void TestOfTree()
-        {
-            var expectedStr = "ch1ch2t1bbch1ch2t1bb";
-            var sb = new StringBuilder();
-            var tree1 = ActionTree.SetAction(() => { sb.Append("t1"); });
-            var mainTree = ActionTree.StartLoop(2)
-                         .AddChild(ActionTree.SetAction(() => { sb.Append("ch1"); }))
-                         .AddChild(ActionTree.SetAction(() => { sb.Append("ch2"); }))
-                         .AddChild(tree1)
-                         .AddChild(
-                                    ActionTree.StartLoop(2)
-                                        .AddChild(ActionTree.SetAction(() => { sb.Append("b"); }))
-                                        .EndLoop
-                                   )
-                         .EndLoop;
-            mainTree.DoAction();
-            Assert.That(sb.ToString() == expectedStr);
-        }
-        [TestCase("CircleListing.json", "t1z2d3t4z5z5z5d6z7z7d6z7z7t4z5z5z5d6z7z7d6z7z7t8")]
-        public void TestTreeBuilder(string filePath, string expectedResult)
-        {
-            var workingDirectory = Environment.CurrentDirectory;
-
-            var directory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-            var json = File.ReadAllText($"{directory}/Files/{filePath}");
-            var btb = new BTBuilderY(json);
-            var sb = new StringBuilder();
-            var tree = btb.SetModuleAction(typeof(TaperBlock), new FuncProxy<Action<double>>(tapper => { sb.Append($"t{tapper}"); }))
-                          .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => { sb.Append($"z{z}"); }))
-                          .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => { sb.Append("mpl"); }))
-                          .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => { sb.Append($"d{delay}"); }))
-                          .GetTree();
-            tree.DoAction();
-            Assert.That(sb.ToString() == expectedResult);
-        }
-
-        [TestCase("CircleListing.json", "t1z2d3t4z5z5z5d6z7z7d6z7z7t4z5z5z5d6z7z7d6z7z7t8")]
-        public async Task TestTreeBuilderAsync(string filePath, string expectedResult)
-        {
-            var workingDirectory = Environment.CurrentDirectory;
-            var directory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-            var json = File.ReadAllText($"{directory}/Files/{filePath}");
-
-
-            var btb = new BTBuilderZ(json);
-            var sb = new StringBuilder();
-            var tree = btb.SetModuleFunction<TaperBlock,double>( new FuncProxy<double>(tapper => { sb.Append($"t{tapper}"); }))
-                          .SetModuleFunction<AddZBlock,double>(new FuncProxy<double>(z => { sb.Append($"z{z}"); }))
-                          .SetModuleFunction<PierceBlock,MarkLaserParams>(new FuncProxy<MarkLaserParams>(mlp => { sb.Append("mpl"); }))
-                          .SetModuleFunction<DelayBlock,int>(new FuncProxy<int>(delay => { sb.Append($"d{delay}"); }))
-                          .GetTree();
-            await tree.DoFuncAsync();
-            Assert.That(sb.ToString() == expectedResult);
-        }
         //[Test]
+        //public void TestOfTree()
+        //{
+        //    var expectedStr = "ch1ch2t1bbch1ch2t1bb";
+        //    var sb = new StringBuilder();
+        //    var tree1 = ActionTree.SetAction(() => { sb.Append("t1"); });
+        //    var mainTree = ActionTree.StartLoop(2)
+        //                 .AddChild(ActionTree.SetAction(() => { sb.Append("ch1"); }))
+        //                 .AddChild(ActionTree.SetAction(() => { sb.Append("ch2"); }))
+        //                 .AddChild(tree1)
+        //                 .AddChild(
+        //                            ActionTree.StartLoop(2)
+        //                                .AddChild(ActionTree.SetAction(() => { sb.Append("b"); }))
+        //                                .EndLoop
+        //                           )
+        //                 .EndLoop;
+        //    mainTree.DoAction();
+        //    Assert.That(sb.ToString() == expectedStr);
+        //}
+        //[TestCase("CircleListing.json", "t1z2d3t4z5z5z5d6z7z7d6z7z7t4z5z5z5d6z7z7d6z7z7t8")]
+        //public void TestTreeBuilder(string filePath, string expectedResult)
+        //{
+        //    var workingDirectory = Environment.CurrentDirectory;
+
+        //    var directory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+        //    var json = File.ReadAllText($"{directory}/Files/{filePath}");
+        //    var btb = new BTBuilderY(json);
+        //    var sb = new StringBuilder();
+        //    var tree = btb.SetModuleAction(typeof(TaperBlock), new FuncProxy<Action<double>>(tapper => { sb.Append($"t{tapper}"); }))
+        //                  .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => { sb.Append($"z{z}"); }))
+        //                  .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(mlp => { sb.Append("mpl"); }))
+        //                  .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(delay => { sb.Append($"d{delay}"); }))
+        //                  .GetTree();
+        //    tree.DoAction();
+        //    Assert.That(sb.ToString() == expectedResult);
+        //}
+
+        //[TestCase("CircleListing.json", "t1z2d3t4z5z5z5d6z7z7d6z7z7t4z5z5z5d6z7z7d6z7z7t8")]
+        //public async Task TestTreeBuilderAsync(string filePath, string expectedResult)
+        //{
+        //    var workingDirectory = Environment.CurrentDirectory;
+        //    var directory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+        //    var json = File.ReadAllText($"{directory}/Files/{filePath}");
+
+
+        //    var btb = new BTBuilderZ(json);
+        //    var sb = new StringBuilder();
+        //    var tree = btb.SetModuleFunction<TaperBlock,double>( new FuncProxy<double>(tapper => { sb.Append($"t{tapper}"); }))
+        //                  .SetModuleFunction<AddZBlock,double>(new FuncProxy<double>(z => { sb.Append($"z{z}"); }))
+        //                  .SetModuleFunction<PierceBlock,MarkLaserParams>(new FuncProxy<MarkLaserParams>(mlp => { sb.Append("mpl"); }))
+        //                  .SetModuleFunction<DelayBlock,int>(new FuncProxy<int>(delay => { sb.Append($"d{delay}"); }))
+        //                  .GetTree();
+        //    await tree.DoFuncAsync();
+        //    Assert.That(sb.ToString() == expectedResult);
+        //}
+        ////[Test]
         public void StateMachineTest()
         {
             var stateMachine = new StateMachine<State, Trigger>(State.Started);
