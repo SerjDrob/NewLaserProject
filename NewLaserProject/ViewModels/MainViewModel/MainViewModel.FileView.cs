@@ -160,8 +160,8 @@ namespace NewLaserProject.ViewModels
             var fileVM = _openedFileVM as FileVM;
             if (fileVM is not null)
             {
-                WaferOffsetX = fileVM.WaferOffsetX;
-                WaferOffsetY = fileVM.WaferOffsetY;
+                WaferOffsetX = fileVM.FileOffsetX;
+                WaferOffsetY = fileVM.FileOffsetY;
                 WaferTurn90 = fileVM.WaferTurn90;
                 MirrorX = fileVM.MirrorX;
             }

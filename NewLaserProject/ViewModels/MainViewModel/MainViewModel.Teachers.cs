@@ -244,13 +244,14 @@ namespace NewLaserProject.ViewModels
         private async Task TeachScanatorHorizont()
         {
             var waferWidth = 48;
-            var delta = 5;
+            var delta = 0.5F;
             var xLeft = delta;
             var xRight = waferWidth - delta;
             var waferHeight = 60;
-            float tempX = 0;
-            var zCamera = Settings.Default.ZeroFocusPoint;
-            var zLaser = Settings.Default.ZeroPiercePoint;
+            var tempX = 0F;
+            var tempY = 0F;
+            var zCamera = Settings.Default.ZeroFocusPoint - WaferThickness;
+            var zLaser = Settings.Default.ZeroPiercePoint - WaferThickness;
 
             var tcb = LaserHorizontTeacher.GetBuilder();
 
@@ -259,38 +260,58 @@ namespace NewLaserProject.ViewModels
                  _laserMachine.SetVelocity(Velocity.Fast);
                  await Task.WhenAll(
                  _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, waferWidth / 2, waferHeight / 2)),
-                 _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - WaferThickness));
+                 _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
                  techMessager.RealeaseMessage("Выберете место на пластине для прожига горизонтальной линии", Icon.Info);
              }))
-                .SetGoAtFirstPointAction(() => Task.Run(async () =>
+                .SetGoAtFirstPointAction(async () =>
                 {
                     _laserMachine.SetVelocity(Velocity.Fast);
                     await Task.WhenAll(
                         _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { Settings.Default.XOffset, Settings.Default.YOffset }, true),
-                        _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - WaferThickness));
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser));
 
                     var matrix = new System.Drawing.Drawing2D.Matrix();
                     matrix.Rotate((float)Settings.Default.PazAngle * 180 / MathF.PI);
                     var points = new PointF[] { new PointF(xLeft - waferWidth / 2, 0), new PointF(xRight - waferWidth / 2, 0) };
                     matrix.TransformPoints(points);
                     tempX = points[0].X + waferWidth / 2;
+                    tempY = points[0].Y;
                     await _laserMachine.PierceLineAsync(-waferWidth / 2, 0, waferWidth / 2, 0);
 
-                    await Task.WhenAll( 
-                        _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)),
-                        _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - WaferThickness));
+                    //await Task.WhenAll( 
+                    //    _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)),
+                    //    _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - WaferThickness));
+
+
+
+                    await Task.WhenAll
+                    (
+                        _laserMachine.MoveAxInPosAsync(Ax.X, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)[0], true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.Y,-tempY - Settings.Default.YOffset,true),
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
+                        );
 
                     techMessager.RealeaseMessage("Установите перекрестие на первую точку линии и нажмите *", Icon.Info);
                     tempX = points[1].X + waferWidth / 2;
-                }))
+                    tempY = -tempY + points[1].Y;
+                })
                 .SetGoAtSecondPointAction(() => Task.Run(async () =>
                 {
                     _currentTeacher.SetParams(new double[] { XAxis.Position, YAxis.Position });
                     _laserMachine.SetVelocity(Velocity.Fast);
 
-                    await Task.WhenAll(
-                        _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)),
-                        _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - WaferThickness));
+                    //await Task.WhenAll(
+                    //    _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)),
+                    //    _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
+
+                    await Task.WhenAll
+                   (
+                       _laserMachine.MoveAxInPosAsync(Ax.X, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)[0], true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.Y, -tempY, true),
+                       _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
+                       );
+
+
                     techMessager.RealeaseMessage("Установите перекрестие на вторую точку линии и нажмите *", Icon.Info);
                 }))
                 .SetOnRequestPermissionToStartAction(() => Task.Run(() =>

@@ -1,22 +1,13 @@
-﻿using IxMilia.Dxf.Objects;
-using MachineClassLibrary.Classes;
-using MachineClassLibrary.Laser.Entities;
+﻿using MachineClassLibrary.Classes;
 using MachineControlsLibrary.Classes;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
-using NewLaserProject.Data.Models.DTOs;
-using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
-using NewLaserProject.Views.Converters;
+using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using PropertyChanged;
 
 namespace NewLaserProject.ViewModels
 {
@@ -27,17 +18,17 @@ namespace NewLaserProject.ViewModels
         public FileVM(double waferWidth, double waferHeight)
         {
             WaferWidth = waferWidth;
-            WaferHeight = waferHeight;            
+            WaferHeight = waferHeight;
         }
 
-        public void SetFileView(IDxfReader dxfReader,int fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
+        public void SetFileView(IDxfReader dxfReader, int fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
             double waferOffsetY)
         {
-            _dxfReader= dxfReader;
-            FileScale= fileScale;
-            MirrorX= mirrorX;
-            WaferOffsetX= waferOffsetX;
-            WaferOffsetY= waferOffsetY;
+            _dxfReader = dxfReader;
+            FileScale = fileScale;
+            MirrorX = mirrorX;
+            WaferOffsetX = waferOffsetX;
+            WaferOffsetY = waferOffsetY;
             WaferTurn90 = waferTurn90;
             OpenFile();
         }
@@ -82,15 +73,19 @@ namespace NewLaserProject.ViewModels
         public double WaferOffsetX { get; set; }
         [OnChangedMethod(nameof(TransChanged))]
         public double WaferOffsetY { get; set; }
+        [OnChangedMethod(nameof(TransChanged))]
+        public double FileOffsetX { get; private set; }
+        [OnChangedMethod(nameof(TransChanged))]
+        public double FileOffsetY { get; private set; }
         public double TeacherPointerX { get; set; }
         public double TeacherPointerY { get; set; }
         public bool TeacherPointerVisibility { get; set; } = false;
-        public double CameraViewfinderX { get; set; } 
+        public double CameraViewfinderX { get; set; }
         public double CameraViewfinderY { get; set; }
         public double LaserViewfinderX { get; set; }
         public double LaserViewfinderY { get; set; }
         public event EventHandler TransformationChanged;
-        
+
         public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
         public Dictionary<string, bool> IgnoredLayers { get; set; }
         [ICommand]
@@ -104,20 +99,25 @@ namespace NewLaserProject.ViewModels
             var dx = WaferWidth * FileScale;
             var dy = WaferHeight * FileScale;
 
-            WaferOffsetX = aligning switch
+            var ratioOffsetX = aligning switch
             {
-                Aligning.Right or Aligning.RTCorner or Aligning.RBCorner => -(WaferTurn90 ? (size.height - dx) : (size.width - dx)) * scaleX / 2,
-                Aligning.Left or Aligning.LTCorner or Aligning.LBCorner => (WaferTurn90 ? (size.height - dx) : (size.width - dx)) * scaleX / 2,
+                Aligning.Right or Aligning.RTCorner or Aligning.RBCorner => -(WaferTurn90 ? (size.height - dx) : (size.width - dx)),
+                Aligning.Left or Aligning.LTCorner or Aligning.LBCorner => (WaferTurn90 ? (size.height - dx) : (size.width - dx)),
                 Aligning.Top or Aligning.Bottom or Aligning.Center => 0,
             };
 
-            WaferOffsetY = aligning switch
+            var ratioOffsetY = aligning switch
             {
-                Aligning.Top or Aligning.RTCorner or Aligning.LTCorner => (WaferTurn90 ? (size.width - dy) : (size.height - dy)) * scaleY / 2,
-                Aligning.Bottom or Aligning.RBCorner or Aligning.LBCorner => -(WaferTurn90 ? (size.width - dy) : (size.height - dy)) * scaleY / 2,
+                Aligning.Top or Aligning.RTCorner or Aligning.LTCorner => (WaferTurn90 ? (size.width - dy) : (size.height - dy)),
+                Aligning.Bottom or Aligning.RBCorner or Aligning.LBCorner => -(WaferTurn90 ? (size.width - dy) : (size.height - dy)),
                 Aligning.Right or Aligning.Left or Aligning.Center => 0
             };
 
+            WaferOffsetX = ratioOffsetX * scaleX / 2;
+            WaferOffsetY = ratioOffsetY * scaleY / 2;
+
+            FileOffsetX = ratioOffsetX / FileScale;
+            FileOffsetY = ratioOffsetY / FileScale;
         }
 
         [ICommand]

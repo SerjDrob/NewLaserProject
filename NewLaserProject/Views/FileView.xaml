@@ -58,13 +58,16 @@
                                     Color="LightGreen"                                
                                     XScale="{Binding ScaleX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
                                     YScale="{Binding ScaleY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"
-                                    OffsetX="{Binding MarginX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
-                                    OffsetY="{Binding MarginY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"                                     
+                                    OffsetX="{Binding FieldMarginX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
+                                    OffsetY="{Binding FieldMarginY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"                                     
                                     Thickness="1">
                     <uc:SpecCross.RenderTransform>
-                        <ScaleTransform ScaleY="-1" 
+                        <TransformGroup>
+                            <ScaleTransform ScaleY="-1" 
                                         CenterY="{Binding ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter}, 
-                            RelativeSource={RelativeSource AncestorType={x:Type uc:SpecCross}, Mode=FindAncestor}}"/>
+                                        RelativeSource={RelativeSource AncestorType={x:Type uc:SpecCross}, Mode=FindAncestor}}"/>                            
+                        </TransformGroup>
+                        
                     </uc:SpecCross.RenderTransform>
                 </uc:SpecCross>
                 <uc:SpecCross 
@@ -73,8 +76,8 @@
                                     Color="OrangeRed"                               
                                     XScale="{Binding ScaleX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
                                     YScale="{Binding ScaleY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"
-                                    OffsetX="{Binding MarginX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
-                                    OffsetY="{Binding MarginY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"                                     
+                                    OffsetX="{Binding FieldMarginX, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}" 
+                                    OffsetY="{Binding FieldMarginY, RelativeSource={RelativeSource AncestorType={x:Type uc:GraphWindow}, Mode=FindAncestor}}"                                     
                                     Thickness="1">
                     <uc:SpecCross.RenderTransform>
                         <ScaleTransform ScaleY="-1" 

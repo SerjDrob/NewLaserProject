@@ -96,7 +96,6 @@ namespace NewLaserProject.ViewModels
                         waferPoints.Scale(1F / FileScale);
                         if (WaferTurn90) waferPoints.Turn90();
                         if (MirrorX) waferPoints.MirrorX();
-                        
                         waferPoints.OffsetX((float)WaferOffsetX);
                         waferPoints.OffsetY((float)WaferOffsetY);
 
@@ -127,7 +126,7 @@ namespace NewLaserProject.ViewModels
             {
                 OnProcess = true;
                 await _mainProcess.StartAsync();
-                techMessager.RealeaseMessage("Процесс завершён", Icon.Info);                
+               // techMessager.RealeaseMessage("Процесс завершён", Icon.Info);                
             }
             catch (Exception ex)
             {
