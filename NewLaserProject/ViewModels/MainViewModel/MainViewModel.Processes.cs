@@ -58,7 +58,7 @@ namespace NewLaserProject.ViewModels
                 .SetKnownType<HatchParams>()
                 .Deserialize(laserSettingsjson);
 
-            _laserMachine.SetMarkParams(laserParams);
+       //     _laserMachine.SetMarkParams(laserParams);
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
 
@@ -96,6 +96,9 @@ namespace NewLaserProject.ViewModels
                         waferPoints.Scale(1F / FileScale);
                         if (WaferTurn90) waferPoints.Turn90();
                         if (MirrorX) waferPoints.MirrorX();
+                        
+                        waferPoints.OffsetX((float)WaferOffsetX);
+                        waferPoints.OffsetY((float)WaferOffsetY);
 
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
                         if (waferPoints.Count()<3)
