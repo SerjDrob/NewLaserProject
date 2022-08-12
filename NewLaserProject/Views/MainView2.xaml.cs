@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Diagnostics;
 
 namespace NewLaserProject.Views
 {
@@ -27,6 +28,8 @@ namespace NewLaserProject.Views
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
+            Trace.TraceInformation("The application closed");
+            Trace.Flush();
             Environment.Exit(0);
         }
     }

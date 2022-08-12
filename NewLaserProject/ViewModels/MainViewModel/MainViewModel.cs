@@ -305,6 +305,7 @@ namespace NewLaserProject.ViewModels
                 case Key.E:
                     break;
                 case Key.G:
+                    await _laserMachine.GoThereAsync(LMPlace.Loading);
                     break;
                 case Key.J:
                     break;

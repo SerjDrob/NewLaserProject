@@ -11,6 +11,7 @@ using NewLaserProject.Data;
 using NewLaserProject.ViewModels;
 using NewLaserProject.Views;
 using System;
+using System.Diagnostics;
 using System.Windows;
 
 namespace NewLaserProject
@@ -35,6 +36,9 @@ namespace NewLaserProject
                    .AddSingleton<MainViewModel>()
                    .AddDbContext<DbContext, LaserDbContext>();
 
+            var listenerName = "myListener";
+            Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));
+            Trace.Listeners[listenerName].TraceOutputOptions |= TraceOptions.DateTime;
         }
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -48,6 +52,10 @@ namespace NewLaserProject
             var viewModel = new MainViewModel(db);
 #endif   
             base.OnStartup(e);
+            
+            Trace.TraceInformation("The application started");
+            Trace.Flush();
+
             new MainView2()
             {
                 DataContext = viewModel

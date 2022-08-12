@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <UseWPF>true</UseWPF>
-    <DefineConstants>PCIInserted</DefineConstants>
+    <!--<DefineConstants>PCIInserted</DefineConstants>-->
     <StartupObject></StartupObject>
     <ApplicationIcon />
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -132,4 +132,5 @@
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
     </ItemGroup>
+  
 </Project>

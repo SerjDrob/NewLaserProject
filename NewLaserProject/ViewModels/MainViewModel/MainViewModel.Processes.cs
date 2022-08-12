@@ -11,6 +11,7 @@ using NewLaserProject.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -126,17 +127,17 @@ namespace NewLaserProject.ViewModels
             {
                 OnProcess = true;
                 await _mainProcess.StartAsync();
-               // techMessager.RealeaseMessage("Процесс завершён", Icon.Info);                
+                Trace.TraceInformation($"The process started");
+                Trace.WriteLine($"File's name: {FileName}");
+                Trace.WriteLine($"Layer's name for processing: {CurrentLayerFilter}");
+                Trace.WriteLine($"Entity type for processing: {CurrentEntityType}");
+                Trace.Flush();
             }
             catch (Exception ex)
             {
 
                 throw;
-            }
-            finally
-            {
-                OnProcess = false;
-            }
+            }            
         }
 
         [ICommand]
