@@ -59,7 +59,7 @@ namespace NewLaserProject.ViewModels
                 .SetKnownType<HatchParams>()
                 .Deserialize(laserSettingsjson);
 
-       //     _laserMachine.SetMarkParams(laserParams);
+            _laserMachine.SetMarkParams(laserParams);
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
 
@@ -126,12 +126,13 @@ namespace NewLaserProject.ViewModels
             try
             {
                 OnProcess = true;
-                await _mainProcess.StartAsync();
                 Trace.TraceInformation($"The process started");
                 Trace.WriteLine($"File's name: {FileName}");
                 Trace.WriteLine($"Layer's name for processing: {CurrentLayerFilter}");
                 Trace.WriteLine($"Entity type for processing: {CurrentEntityType}");
                 Trace.Flush();
+                await _mainProcess.StartAsync();
+                
             }
             catch (Exception ex)
             {
