@@ -10,6 +10,7 @@ using Stateless;
 using Stateless.Graph;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -129,6 +130,8 @@ namespace NewLaserProject.Classes
                     await _stateMachine.FireAsync(Trigger.Next);
                 }
             }
+            Trace.TraceInformation("The process ended");
+            Trace.Flush();
         }
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -148,6 +151,11 @@ namespace NewLaserProject.Classes
                     await _stateMachine.FireAsync(Trigger.Next);
                 }
             }
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                Trace.TraceInformation("The process ended");
+                Trace.Flush();
+            }
         }
         public override string ToString()
         {
@@ -159,6 +167,8 @@ namespace NewLaserProject.Classes
             if (_inProcess)
             {
                 _inProcess = false;
+                Trace.TraceInformation("The process was cancelled by user");
+                Trace.Flush();
                 var success = await _laserMachine.CancelMarkingAsync();                
             }
         }

@@ -84,7 +84,7 @@ namespace NewLaserProject.ViewModels
                     WaferTurn90 = Settings.Default.WaferAngle90;
                     WaferOffsetX = 0;
                     WaferOffsetY = 0;
-                    ((FileVM)_openedFileVM).SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY);
+                    ((FileVM)_openedFileVM).SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName);
                     ((FileVM)_openedFileVM).TransformationChanged += MainViewModel_TransformationChanged;
                     
                     IgnoredLayers = new(_db.Set<DefaultLayerFilter>()

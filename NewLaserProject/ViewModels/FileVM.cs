@@ -22,7 +22,7 @@ namespace NewLaserProject.ViewModels
         }
 
         public void SetFileView(IDxfReader dxfReader, int fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
-            double waferOffsetY)
+            double waferOffsetY, string fileName)
         {
             _dxfReader = dxfReader;
             FileScale = fileScale;
@@ -30,6 +30,7 @@ namespace NewLaserProject.ViewModels
             WaferOffsetX = waferOffsetX;
             WaferOffsetY = waferOffsetY;
             WaferTurn90 = waferTurn90;
+            FileName = fileName;
             OpenFile();
         }
 
@@ -58,6 +59,7 @@ namespace NewLaserProject.ViewModels
             WaferOffsetY = 0;
         }
 
+        public string FileName { get; set; }
         public double FileSizeX { get; set; }
         public double FileSizeY { get; set; }
         public double FieldSizeX { get => FileScale * WaferWidth; }
