@@ -4,6 +4,11 @@
   "CanAcceptChildren": true,
   "Children": [
     {
+      "$type": "AddZBlock",
+      "CanAcceptChildren": false,
+      "DeltaZ": 1.15
+    },
+    {
       "$type": "PierceBlock",
       "CanAcceptChildren": false,
       "MarkParams": {
