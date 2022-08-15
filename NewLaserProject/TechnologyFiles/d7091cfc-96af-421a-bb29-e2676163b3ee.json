@@ -15,7 +15,7 @@
         "QPulseWidth": 1,
         "EnablePWM": true,
         "PWMFrequency": 200,
-        "PWMDutyCycle": 70,
+        "PWMDutyCycle": 75,
         "EnableHatch": true,
         "HatchWidth": 0,
         "HatchLineDistance": 8
