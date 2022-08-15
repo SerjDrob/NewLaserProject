@@ -5,6 +5,7 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NewLaserProject.Data;
@@ -34,7 +35,8 @@ namespace NewLaserProject
                    .AddScoped(typeof(IVideoCapture), typeof(USBCamera))                   
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
-                   .AddDbContext<DbContext, LaserDbContext>();
+                   .AddDbContext<DbContext, LaserDbContext>()
+                   .AddScoped(typeof(IMediator),typeof(Mediator));
 
             var listenerName = "myListener";
             Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));

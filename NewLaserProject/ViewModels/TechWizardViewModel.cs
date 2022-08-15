@@ -45,6 +45,8 @@ namespace NewLaserProject.ViewModels
         public int MainLoopCount { get; set; } = 1;
         public bool MainLoopShuffle { get; set; }
         private IMapper _markParamsToMSVMMapper;
+        private ExtendedParams _tempParams;
+
         public TechWizardViewModel()
         {
             ProgBlocks = new()
@@ -137,32 +139,12 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void SetPiercingParams(object progModule)
         {
-            //var item = (PierceBlock)progModule;
-            //if (item.MarkParams is null)
-            //{
-            //   var markSettings = new MarkSettingsViewModel();
-            //    new MarkSettingsView { DataContext = markSettings }.ShowDialog();
-            //    item.MarkParams = markSettings.GetLaserParams();
-            //}
-            //else
-            //{                
-            //    var markSettingsVM = _markParamsToMSVMMapper.Map<MarkSettingsViewModel>(item.MarkParams);
-            //    new MarkSettingsView { DataContext = markSettingsVM }.ShowDialog();
-            //    item.MarkParams = markSettingsVM.GetLaserParams();
-            //}
-
-
-
+            _tempParams ??= new ExtendedParams();
             var item = (PierceBlock)progModule;
-
-            var markSettings = item.MarkParams ?? new ExtendedParams();
+            var markSettings = item.MarkParams ?? _tempParams;
             new ExtMarkParamsView { DataContext = markSettings }.ShowDialog();
+            _tempParams = markSettings;
             item.MarkParams = markSettings;
-
-            //var extParamsView = new ExtMarkParamsView
-            //{
-            //    DataContext = new ExtendedParams()
-            //}.ShowDialog();
         }
 
         //[ICommand]

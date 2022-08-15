@@ -3,8 +3,10 @@ using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
+using MediatR;
 using Microsoft.Toolkit.Diagnostics;
 using NewLaserProject.Classes.Geometry;
+using NewLaserProject.Classes.Mediator;
 using NewLaserProject.ViewModels;
 using Stateless;
 using Stateless.Graph;
@@ -30,6 +32,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _zeroZCamera;
         private readonly double _waferThickness;
         private CancellationTokenSource _ctSource;
+        private readonly IMediator _mediator;
         private readonly InfoMessager _infoMessager;
         private double _xActual;
         private double _yActual;
@@ -63,7 +66,7 @@ namespace NewLaserProject.Classes.Process
         public ThreePointProcess(IEnumerable<IProcObject> wafer, IEnumerable<PPoint> refPoints,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
-            double dX, double dY, double pazAngle, EntityPreparator entityPreparator)
+            double dX, double dY, double pazAngle, EntityPreparator entityPreparator, IMediator mediator)
         {
             Guard.IsEqualTo(refPoints.Count(), 3, nameof(refPoints));
             _wafer = wafer;
@@ -80,6 +83,7 @@ namespace NewLaserProject.Classes.Process
             _entityPreparator = entityPreparator;
             _waferThickness = waferThickness;
             _ctSource = new CancellationTokenSource();
+            _mediator = mediator;
         }
 
 
@@ -97,7 +101,7 @@ namespace NewLaserProject.Classes.Process
             SwitchCamera?.Invoke(this, true);
 
             _stateMachine.Configure(State.Started)
-                .OnActivate(() => _infoMessager.RealeaseMessage("Next", ViewModels.Icon.Info))
+                .OnActivate(() => _infoMessager.RealeaseMessage("Next", ViewModels.MessageType.Info))
                 .Permit(Trigger.Next, State.GoRefPoint)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
@@ -111,7 +115,9 @@ namespace NewLaserProject.Classes.Process
                     var points = _coorSystem.ToGlobal(refX, refY);
                     await Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, points),
                                                _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
-                    _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info);
+                    _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.MessageType.Info);
+
+                    var unit = await _mediator.Send(new InfoMessageRequest { Message = "Test mediatr" });
                 })
                 .OnExit(() =>
                 {
@@ -208,7 +214,7 @@ namespace NewLaserProject.Classes.Process
             _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
             _ctSource.Cancel();
             var success = await _laserMachine.CancelMarkingAsync();
-            _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
+            _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.MessageType.Exclamation);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

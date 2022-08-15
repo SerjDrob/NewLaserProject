@@ -1,6 +1,6 @@
 ﻿namespace NewLaserProject.ViewModels
 {
-    public enum Icon
+    public enum MessageType
     {
         Info,
         Danger,

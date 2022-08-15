@@ -70,7 +70,7 @@ namespace NewLaserProject.Classes.Process
             SwitchCamera?.Invoke(this, true);
 
             _stateMachine.Configure(State.Started)
-                .OnActivate(() => _infoMessager.RealeaseMessage("Next", ViewModels.Icon.Info))
+                .OnActivate(() => _infoMessager.RealeaseMessage("Next", ViewModels.MessageType.Info))
                 .Permit(Trigger.Next, State.GoRefPoint)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
@@ -80,7 +80,7 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(() => { refX = refPointsEnumerator.Current.X; refY = refPointsEnumerator.Current.Y; })
                 .OnEntryAsync(() => Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToGlobal(refX, refY)),
                                               _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness)))
-                .OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.Icon.Info))
+                .OnEntry(() => _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.MessageType.Info))
                 .OnExit(() => resultPoints.Add(new((float)(_xActual), (float)(_yActual))))
                 .OnExit(() => refPointsEnumerator.MoveNext())
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
@@ -108,7 +108,7 @@ namespace NewLaserProject.Classes.Process
 
             _stateMachine.Configure(State.Denied)
                 .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
-                .OnEntry(() => _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation));          
+                .OnEntry(() => _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.MessageType.Exclamation));          
         }
 
         public event EventHandler<bool> SwitchCamera;
