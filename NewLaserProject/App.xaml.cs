@@ -13,6 +13,7 @@ using NewLaserProject.ViewModels;
 using NewLaserProject.Views;
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 
 namespace NewLaserProject
@@ -36,7 +37,7 @@ namespace NewLaserProject
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
                    .AddDbContext<DbContext, LaserDbContext>()
-                   .AddScoped(typeof(IMediator),typeof(Mediator));
+                   .AddMediatR(Assembly.GetExecutingAssembly());
 
             var listenerName = "myListener";
             Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));
@@ -51,7 +52,8 @@ namespace NewLaserProject
             var viewModel = provider.GetService<MainViewModel>();
 #else
             var db = provider.GetService<LaserDbContext>();
-            var viewModel = new MainViewModel(db);
+            var mediator = provider.GetService<IMediator>();
+            var viewModel = new MainViewModel(db,mediator);
 #endif   
             base.OnStartup(e);
             
