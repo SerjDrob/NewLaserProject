@@ -5,6 +5,7 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -43,7 +44,7 @@ namespace NewLaserProject.ViewModels
         public string IconPath { get; set; }
         public bool ProcessUnderCamera { get; set; } = false;
         public bool OnProcess { get; set; } = false;
-        public Icon CurrentMessageType { get; private set; } = Icon.Empty;
+        public MessageType CurrentMessageType { get; private set; } = MessageType.Empty;
         public BitmapImage CameraImage { get; set; }
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
@@ -64,6 +65,8 @@ namespace NewLaserProject.ViewModels
         private CameraVM _cameraVM;
 
         private readonly DbContext _db;
+        private readonly IMediator _mediator;
+
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
         public bool ShowVideo { get; set; }
@@ -75,17 +78,18 @@ namespace NewLaserProject.ViewModels
         private IProcess _mainProcess;
 
         //---------------------------------------------
-        public MainViewModel(DbContext db)
+        public MainViewModel(DbContext db, IMediator mediator)
         {
             _db = db;
+            _mediator = mediator;
             _coorSystem = GetCoorSystem();
             InitViews();
         }
-        public MainViewModel(LaserMachine laserMachine, DbContext db)
+        public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator)
         {
             _laserMachine = laserMachine;
             _db = db;
-
+            _mediator = mediator;
 
             techMessager = new();
             techMessager.PublishMessage += TechMessager_PublishMessage;
@@ -99,7 +103,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory()); //TODO this is async function. Make init indicators.
             TuneMachineFileView();
-            techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", Icon.Danger);
+            techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
             InitViews();
             //AppSngsVM = new(_db);
         }
@@ -179,7 +183,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
         }
 
-        private void TechMessager_PublishMessage(string message, string iconPath, Icon icon)
+        private void TechMessager_PublishMessage(string message, string iconPath, MessageType icon)
         {
             TechInfo = message;
             IconPath = iconPath;

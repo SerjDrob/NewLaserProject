@@ -103,7 +103,7 @@ namespace NewLaserProject.ViewModels
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
                         if (waferPoints.Count()<3)
                         {
-                            techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", Icon.Exclamation);
+                            techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", MessageType.Exclamation);
                             return;
                         }                        
                         
@@ -112,7 +112,7 @@ namespace NewLaserProject.ViewModels
 
                         _mainProcess = new ThreePointProcess((IEnumerable<IProcObject>)wafer, points, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
-                                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator);
+                                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _mediator);
                     }
                     break;
                 
