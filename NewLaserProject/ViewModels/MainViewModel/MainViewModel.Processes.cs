@@ -50,7 +50,20 @@ namespace NewLaserProject.ViewModels
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
 
+        
         [ICommand]
+        private async Task StartStopProcess(object arg)
+        {
+            if ((bool)arg)
+            {
+                await StartProcess();
+            }
+            else
+            {
+                CancelProcess();
+            }
+        }        
+        
         private async Task StartProcess()
         {
             var laserSettingsjson = File.ReadAllText(ProjectPath.GetFilePathInFolder("AppSettings", "DefaultLaserParams.json"));
@@ -66,7 +79,7 @@ namespace NewLaserProject.ViewModels
 
             ITransformable wafer = CurrentEntityType switch
             {
-                LaserEntity.Curve => new LaserWafer<Curve>(_dxfReader.GetAllCurves(CurrentLayerFilter), topologySize),               
+                LaserEntity.Curve => new LaserWafer<Curve>(_dxfReader.GetAllCurves(CurrentLayerFilter), topologySize),
                 LaserEntity.Circle => new LaserWafer<Circle>(_dxfReader.GetCircles(CurrentLayerFilter), topologySize)
             };
 
@@ -93,7 +106,7 @@ namespace NewLaserProject.ViewModels
                 case FileAlignment.AlignByThreePoint:
                     {
                         var pts = _dxfReader.GetPoints();
-                        var waferPoints = new LaserWafer<Point>(pts , topologySize);
+                        var waferPoints = new LaserWafer<Point>(pts, topologySize);
                         waferPoints.Scale(1F / FileScale);
                         if (WaferTurn90) waferPoints.Turn90();
                         if (MirrorX) waferPoints.MirrorX();
@@ -101,12 +114,12 @@ namespace NewLaserProject.ViewModels
                         waferPoints.OffsetY((float)WaferOffsetY);
 
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
-                        if (waferPoints.Count()<3)
+                        if (waferPoints.Count() < 3)
                         {
                             techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", MessageType.Exclamation);
                             return;
-                        }                        
-                        
+                        }
+
                         var points = waferPoints.Cast<PPoint>();
 
                         _mainProcess = new ThreePointProcess((IEnumerable<IProcObject>)wafer, points, _pierceSequenceJson, _laserMachine,
@@ -114,7 +127,7 @@ namespace NewLaserProject.ViewModels
                                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _mediator);
                     }
                     break;
-                
+
                 default:
                     break;
             }
@@ -129,16 +142,15 @@ namespace NewLaserProject.ViewModels
                 Trace.WriteLine($"Entity type for processing: {CurrentEntityType}");
                 Trace.Flush();
                 await _mainProcess.StartAsync();
-                
+
             }
             catch (Exception ex)
             {
 
                 throw;
-            }            
+            }
         }
 
-        [ICommand]
         private void CancelProcess()
         {
             _mainProcess?.Deny();
@@ -154,7 +166,7 @@ namespace NewLaserProject.ViewModels
             var topologySize = _dxfReader.GetSize();
 
             var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(ProjectPath.GetFolderPath(ProjectFolders.TEMP_FILES), "PAZ"), topologySize);
-            var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), topologySize);
+            var waferPoints = new LaserWafer<Point>(_dxfReader.GetPoints(), topologySize);
             
             wafer.Scale(1F / FileScale);
             waferPoints.Scale(1F / FileScale);
