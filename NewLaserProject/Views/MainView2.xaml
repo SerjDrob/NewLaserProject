@@ -31,6 +31,7 @@
         <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
         <Localconverters:TextToEntityConverter x:Key="TextToEntityConverter"/>
         <Localconverters:GetLayerNameConverter x:Key="GetLayerNameConverter"/>
+        <Localconverters:FileAlignmentConverter x:Key="FileAlignmentConverter"/>
         <CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>
         <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
         <CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>
@@ -223,11 +224,31 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
                                         <RowDefinition/>
+                                        <RowDefinition/>
                                     </Grid.RowDefinitions>
-                                    <ComboBox ItemsSource="{Binding Source={StaticResource FileStructure}}"
-                                     SelectedIndex="{Binding DefLayerIndex}"
-                                     SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
-                                     >
+
+                                    <DockPanel LastChildFill="True" Grid.ColumnSpan="3" HorizontalAlignment="Left">
+                                        <ToggleButton DockPanel.Dock="Right"
+                                          IsChecked="{Binding FileAlignment, Mode=OneWayToSource, Converter={StaticResource FileAlignmentConverter}}"
+                                          hc:IconSwitchElement.Geometry="{StaticResource AlignByAngle}"
+                                          hc:IconSwitchElement.GeometrySelected="{StaticResource AlignByThreePoint}"
+                                          RenderTransformOrigin="0,0.5"
+                                          Style="{StaticResource ToggleButtonIcon}"
+                                        >
+                                            <ToggleButton.RenderTransform>
+                                                <ScaleTransform ScaleY="-1"/>
+                                            </ToggleButton.RenderTransform>
+                                        </ToggleButton>
+                                        <Label Content="Тип совмещения"/>
+                                        
+                                    </DockPanel>
+
+                                    <ComboBox 
+                                        Grid.Row="1"
+                                        ItemsSource="{Binding Source={StaticResource FileStructure}}"
+                                        SelectedIndex="{Binding DefLayerIndex}"
+                                        SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
+                                        >
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding LayerName}"/>
@@ -235,7 +256,9 @@
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
 
-                                    <uclocal:ItemsButton x:Name="testname" Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
+                                    <uclocal:ItemsButton x:Name="testname" 
+                                        Grid.Row="1"
+                                        Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
                                         ItemSelector="{StaticResource EntitySelector}"
                                         SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
                                         SetIndex="{Binding DefEntityIndex}"
@@ -244,10 +267,11 @@
                                         />
 
                                     <ComboBox x:Name="Materials"
-                                     ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
-                                     SelectedIndex="{Binding DefMaterialIndex}"
-                                     Grid.Column="2"
-                                     >
+                                        Grid.Row="1"
+                                        ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
+                                        SelectedIndex="{Binding DefMaterialIndex}"
+                                        Grid.Column="2"
+                                        >
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -257,7 +281,8 @@
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
-                                    <ComboBox ItemsSource="{Binding Source={StaticResource MaterialSource}, 
+                                    <ComboBox Grid.Row="1"
+                                              ItemsSource="{Binding Source={StaticResource MaterialSource}, 
                                               Path=Technologies}"
                                               SelectedIndex="{Binding DefTechnologyIndex}"
                                               SelectedItem="{Binding CurrentTechnology}"  
@@ -272,20 +297,24 @@
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
                                     
-                                    <Button Command="{Binding CancelProcessCommand}"
+                                    <Button Grid.Row="1"
+                                            Command="{Binding CancelProcessCommand}"
                                             VerticalAlignment="Bottom"
                                             Style="{StaticResource ButtonDanger}"
                                             Grid.Column="4"                                
                                     />
 
-                                    <Button Command="{Binding StartProcessCommand}"
+                                    <Button Grid.Row="1"
+                                            Command="{Binding StartProcessCommand}"
                                             VerticalAlignment="Bottom"
                                             Style="{StaticResource PlayButton}"
                                             Grid.Column="5"                                
                                     />
                                     
-                                    <TreeView Grid.Row="1" x:Name="LayersList" Height="150" 
-                                  ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
+                                    <TreeView Grid.Row="2" 
+                                              x:Name="LayersList" 
+                                              Height="150" 
+                                              ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
                                         <TreeView.ItemContainerStyle>
                                             <Style TargetType="{x:Type TreeViewItem}">
                                                 <Setter Property="IsExpanded" Value="True" />

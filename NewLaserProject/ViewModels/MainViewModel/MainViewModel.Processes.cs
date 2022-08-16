@@ -24,6 +24,7 @@ namespace NewLaserProject.ViewModels
     {
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
         public int ProcessingObjectIndex { get; set; } = -1;
+        public FileAlignment FileAlignment { get; set; }
 
         [ICommand]
         private void ProcGridSelection(SelectionChangedEventArgs e)
@@ -78,19 +79,18 @@ namespace NewLaserProject.ViewModels
 
             _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
             var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
+            var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
 
-            switch (CurrentEntityType)
+            switch (FileAlignment)
             {
-                case LaserEntity.Circle:
+                case FileAlignment.AlignByCorner:
                     {
-                        var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
-
                         _mainProcess = new LaserProcess((IEnumerable<IProcObject>)wafer, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness, entityPreparator);
                     }
                     break;
 
-                case LaserEntity.Curve:
+                case FileAlignment.AlignByThreePoint:
                     {
                         var pts = _dxfReader.GetPoints();
                         var waferPoints = new LaserWafer<Point>(pts , topologySize);
@@ -108,15 +108,12 @@ namespace NewLaserProject.ViewModels
                         }                        
                         
                         var points = waferPoints.Cast<PPoint>();
-                        var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
 
                         _mainProcess = new ThreePointProcess((IEnumerable<IProcObject>)wafer, points, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _mediator);
                     }
                     break;
-                
-                case LaserEntity.Line or LaserEntity.Point or LaserEntity.None: goto default;
                 
                 default:
                     break;
