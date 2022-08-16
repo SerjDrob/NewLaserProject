@@ -18,7 +18,8 @@ namespace NewLaserProject.Classes.Mediator
     {
         public Task<Unit> Handle(InfoMessageRequest request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new Unit());
+            //throw new NotImplementedException();
         }
     }
 }

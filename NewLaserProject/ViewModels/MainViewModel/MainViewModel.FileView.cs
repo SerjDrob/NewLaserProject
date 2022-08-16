@@ -112,7 +112,8 @@ namespace NewLaserProject.ViewModels
                         {
                             var layer = LayersStructure.Keys
                                 .ToList()
-                                .SingleOrDefault(k => k.Contains(defLayerName, StringComparison.InvariantCultureIgnoreCase));
+                                .FirstOrDefault(k => k.Contains(defLayerName, StringComparison.InvariantCultureIgnoreCase));
+
                             if (layer is not null)
                             {
                                 DefLayerIndex = LayersStructure.Keys.ToList()
