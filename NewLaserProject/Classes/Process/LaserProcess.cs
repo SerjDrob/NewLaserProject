@@ -80,13 +80,18 @@ namespace NewLaserProject.Classes
                 .OnEntryAsync(async () => 
                 {                    
                     var procObject = waferEnumerator.Current;
-                    ProcessingObjectChanged?.Invoke(this, procObject);
                     var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
                     _laserMachine.SetVelocity(Velocity.Fast);
                     await Task.WhenAll(
                     _laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
                     _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
-                    if(_inProcess) await pierceFunction();
+                    procObject.IsBeingProcessed = true;
+                    
+                    ProcessingObjectChanged?.Invoke(this, procObject);
+                    if (_inProcess) await pierceFunction();
+                    procObject.IsProcessed = true;
+                    ProcessingObjectChanged?.Invoke(this, procObject);
+
                     _inLoop = waferEnumerator.MoveNext();
                 })
                 .PermitReentryIf(Trigger.Next, () => _inLoop)

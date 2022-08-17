@@ -348,7 +348,7 @@
                                               AutoGenerateColumns="False" 
                                               ItemsSource="{Binding ProcessingObjects}"
                                               Style="{StaticResource DataGrid.Small}"
-                                              SelectionMode="Single"
+                                              SelectionMode="Single"                                              
                                               >
                                             <i:Interaction.Triggers>
                                                 <i:EventTrigger EventName="SelectionChanged">
@@ -358,13 +358,20 @@
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
 
-                                            <DataGrid.ItemContainerStyle>
-                                                <Style TargetType="DataGridRow">
-                                                    <Setter Property="IsSelected" Value="{Binding IsBeingProcessed}"/>
+                                            <DataGrid.RowStyle>
+                                                <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle.Small}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsBeingProcessed}" Value="True">
+                                                            <Setter Property="IsSelected" Value="True"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
                                                 </Style>
-                                            </DataGrid.ItemContainerStyle>
+                                            </DataGrid.RowStyle>
 
                                             <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Row#" 
+                                                                    Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGridRow}, 
+                                                    Path=(ItemsControl.AlternationIndex)}"></DataGridTextColumn>
                                                 <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
                                                 <DataGridTemplateColumn Header="Тип">
                                                     <DataGridTemplateColumn.CellTemplate>
