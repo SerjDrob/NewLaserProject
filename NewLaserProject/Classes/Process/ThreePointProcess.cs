@@ -154,6 +154,8 @@ namespace NewLaserProject.Classes.Process
                     _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle);
                     var process = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
+                    process.CurrentWaferChanged += Process_CurrentWaferChanged;
+                    process.ProcessingObjectChanged += Process_ProcessingObjectChanged;
                     process.CreateProcess();
                     await process.StartAsync(_ctSource.Token);
                 })
@@ -170,7 +172,19 @@ namespace NewLaserProject.Classes.Process
                 });
         }
 
+        private void Process_ProcessingObjectChanged(object? sender, IProcObject e)
+        {
+            ProcessingObjectChanged?.Invoke(sender, e);
+        }
+
+        private void Process_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
+        {
+            CurrentWaferChanged?.Invoke(sender, e);
+        }
+
         public event EventHandler<bool> SwitchCamera;
+        public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
+        public event EventHandler<IProcObject> ProcessingObjectChanged;
 
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
