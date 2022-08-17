@@ -123,7 +123,9 @@ namespace NewLaserProject.ViewModels
                 default:
                     break;
             }
-            ProcessingObjects = new((IEnumerable<IProcObject>)wafer);
+            var objects = ((IEnumerable<IProcObject>)wafer);//.ToList();
+            //objects[3].IsBeingProcessed = true;
+            ProcessingObjects = new(objects);
             _mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
             _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
             //_mainProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
@@ -160,7 +162,7 @@ namespace NewLaserProject.ViewModels
 
         private void _mainProcess_ProcessingObjectChanged(object? sender, IProcObject e)
         {
-            //throw new NotImplementedException();
+            var index = ProcessingObjects.IndexOf(e);
         }
 
         private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
