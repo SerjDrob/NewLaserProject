@@ -33,7 +33,9 @@ namespace NewLaserProject.Classes
         private readonly double _waferThickness;
         private readonly EntityPreparator _entityPreparator;
 
-        
+        public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
+        public event EventHandler<IProcObject> ProcessingObjectChanged;
+
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem<LMPlace> coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
         {
@@ -78,6 +80,7 @@ namespace NewLaserProject.Classes
                 .OnEntryAsync(async () => 
                 {                    
                     var procObject = waferEnumerator.Current;
+                    ProcessingObjectChanged?.Invoke(this, procObject);
                     var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
                     _laserMachine.SetVelocity(Velocity.Fast);
                     await Task.WhenAll(
@@ -94,8 +97,9 @@ namespace NewLaserProject.Classes
                 .OnEntry(() =>
                 {
                     _loopCount++;
-                    waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
-                            : _wafer.GetEnumerator();
+                    var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
+                    CurrentWaferChanged?.Invoke(this,currentWafer);
+                    waferEnumerator = currentWafer.GetEnumerator();
                     _inLoop = waferEnumerator.MoveNext();
                 })
                 .OnExit(() => _inProcess = false)

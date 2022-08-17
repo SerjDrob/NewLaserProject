@@ -65,15 +65,7 @@ namespace NewLaserProject.ViewModels
         }        
         
         private async Task StartProcess()
-        {
-            var laserSettingsjson = File.ReadAllText(ProjectPath.GetFilePathInFolder("AppSettings", "DefaultLaserParams.json"));
-
-            var laserParams = new JsonDeserializer<MarkLaserParams>()
-                .SetKnownType<PenParams>()
-                .SetKnownType<HatchParams>()
-                .Deserialize(laserSettingsjson);
-
-            _laserMachine.SetMarkParams(laserParams);
+        {           
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
 
@@ -131,10 +123,23 @@ namespace NewLaserProject.ViewModels
                 default:
                     break;
             }
-
+            ProcessingObjects = new((IEnumerable<IProcObject>)wafer);
+            _mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
+            _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
             //_mainProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
+#if PCIInserted
+
             try
             {
+                var laserSettingsjson = File.ReadAllText(ProjectPath.GetFilePathInFolder("AppSettings", "DefaultLaserParams.json"));
+
+                var laserParams = new JsonDeserializer<MarkLaserParams>()
+                    .SetKnownType<PenParams>()
+                    .SetKnownType<HatchParams>()
+                    .Deserialize(laserSettingsjson);
+
+                _laserMachine.SetMarkParams(laserParams);
+
                 OnProcess = true;
                 Trace.TraceInformation($"The process started");
                 Trace.WriteLine($"File's name: {FileName}");
@@ -149,6 +154,18 @@ namespace NewLaserProject.ViewModels
 
                 throw;
             }
+#endif
+
+        }
+
+        private void _mainProcess_ProcessingObjectChanged(object? sender, IProcObject e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
+        {
+            ProcessingObjects = new(e);
         }
 
         private void CancelProcess()
