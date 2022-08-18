@@ -9,7 +9,7 @@ namespace NewLaserProject.Classes
     public interface IProcess
     {
         event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
-        event EventHandler<IProcObject> ProcessingObjectChanged;
+        event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
 
         void CreateProcess();
         Task Deny();

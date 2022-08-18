@@ -11,6 +11,7 @@ using Stateless.Graph;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace NewLaserProject.Classes
         private readonly EntityPreparator _entityPreparator;
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
-        public event EventHandler<IProcObject> ProcessingObjectChanged;
+        public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
 
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem<LMPlace> coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
@@ -54,6 +55,7 @@ namespace NewLaserProject.Classes
         {            
             _progTreeParser = new ProgTreeParser(_jsonPierce);
 
+            var currentIndex = -1;
             var waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
                             : _wafer.GetEnumerator();
 
@@ -71,7 +73,7 @@ namespace NewLaserProject.Classes
             _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
 
             _stateMachine.Configure(State.Started)
-                .OnActivate(() => { _inLoop = waferEnumerator.MoveNext(); })
+                .OnActivate(() => { _inLoop = waferEnumerator.MoveNext(); currentIndex++; })
                 .Ignore(Trigger.Pause)
                 .Permit(Trigger.Deny, State.Denied)
                 .Permit(Trigger.Next, State.Working);
@@ -86,13 +88,14 @@ namespace NewLaserProject.Classes
                     _laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
                     _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
                     procObject.IsBeingProcessed = true;
-                    
-                    ProcessingObjectChanged?.Invoke(this, procObject);
+
+                    ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
                     if (_inProcess) await pierceFunction();
                     procObject.IsProcessed = true;
-                    ProcessingObjectChanged?.Invoke(this, procObject);
+                    ProcessingObjectChanged?.Invoke(this, (procObject,currentIndex));
 
                     _inLoop = waferEnumerator.MoveNext();
+                    currentIndex++;
                 })
                 .PermitReentryIf(Trigger.Next, () => _inLoop)
                 .PermitIf(Trigger.Next, State.Loop,() => !_inLoop)
@@ -105,7 +108,9 @@ namespace NewLaserProject.Classes
                     var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
                     CurrentWaferChanged?.Invoke(this,currentWafer);
                     waferEnumerator = currentWafer.GetEnumerator();
+                    currentIndex = -1;
                     _inLoop = waferEnumerator.MoveNext();
+                    currentIndex++;
                 })
                 .OnExit(() => _inProcess = false)
                 .PermitIf(Trigger.Next, State.Working, () => _loopCount < _progTreeParser.MainLoopCount)

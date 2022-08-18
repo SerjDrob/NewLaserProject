@@ -14,11 +14,11 @@
         "Freq": 40000,
         "QPulseWidth": 1,
         "EnablePWM": true,
-        "PWMFrequency": 200,
+        "PWMFrequency": 1000,
         "PWMDutyCycle": 95,
         "EnableHatch": true,
         "HatchWidth": 0,
-        "HatchLineDistance": 15
+        "HatchLineDistance": 18
       }
     },
     {
@@ -37,11 +37,11 @@
         "Freq": 40000,
         "QPulseWidth": 1,
         "EnablePWM": true,
-        "PWMFrequency": 200,
+        "PWMFrequency": 1000,
         "PWMDutyCycle": 95,
         "EnableHatch": true,
         "HatchWidth": 0,
-        "HatchLineDistance": 15
+        "HatchLineDistance": 18
       }
     },
     {
@@ -60,7 +60,7 @@
         "Freq": 40000,
         "QPulseWidth": 1,
         "EnablePWM": true,
-        "PWMFrequency": 200,
+        "PWMFrequency": 1000,
         "PWMDutyCycle": 98,
         "EnableHatch": true,
         "HatchWidth": 0,

@@ -14,6 +14,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.dxf
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -410,3 +411,4 @@ obj/
 /NewLaserProject/Data/laserDatabase.db
 /NewLaserProject/Data/laserDatabase.db-shm
 /NewLaserProject/Data/laserDatabase.db-wal
+/NewLaserProject/TempFiles/Curve_6b18e6d6-903b-444f-89cd-e39c895ce480.dxf

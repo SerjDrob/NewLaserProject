@@ -151,7 +151,7 @@ namespace NewLaserProject.Classes.Process
 
             _stateMachine.Configure(State.Working)
                 .OnEntryAsync(async () => {
-                    _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle);
+                    _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle + Math.PI);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
                     var process = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
                     process.CurrentWaferChanged += Process_CurrentWaferChanged;
@@ -172,7 +172,7 @@ namespace NewLaserProject.Classes.Process
                 });
         }
 
-        private void Process_ProcessingObjectChanged(object? sender, IProcObject e)
+        private void Process_ProcessingObjectChanged(object? sender, (IProcObject,int) e)
         {
             ProcessingObjectChanged?.Invoke(sender, e);
         }
@@ -184,7 +184,7 @@ namespace NewLaserProject.Classes.Process
 
         public event EventHandler<bool> SwitchCamera;
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
-        public event EventHandler<IProcObject> ProcessingObjectChanged;
+        public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
 
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {

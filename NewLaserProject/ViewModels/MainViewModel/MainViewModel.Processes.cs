@@ -84,12 +84,12 @@ namespace NewLaserProject.ViewModels
 
             _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
             var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
-            var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
 
             switch (FileAlignment)
             {
                 case FileAlignment.AlignByCorner:
                     {
+                        var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
                         _mainProcess = new LaserProcess((IEnumerable<IProcObject>)wafer, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness, entityPreparator);
                     }
@@ -113,7 +113,7 @@ namespace NewLaserProject.ViewModels
                         }
 
                         var points = waferPoints.Cast<PPoint>();
-
+                        var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
                         _mainProcess = new ThreePointProcess((IEnumerable<IProcObject>)wafer, points, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _mediator);
@@ -160,9 +160,13 @@ namespace NewLaserProject.ViewModels
 
         }
 
-        private void _mainProcess_ProcessingObjectChanged(object? sender, IProcObject e)
+        private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj,int index) e)
         {
-            var index = ProcessingObjects.IndexOf(e);
+            if (e.index > -1)
+            {
+                ProcessingObjects[e.index] = e.procObj;
+              //  ProcessingObjects = new(ProcessingObjects);
+            }
         }
 
         private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
