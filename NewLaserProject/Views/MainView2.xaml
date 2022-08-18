@@ -76,9 +76,65 @@
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                     </Style>
                 </ToolBar.Resources>
-                <!--<Button Command="{Binding TestCommand}" Style="{StaticResource PlayButton}" HorizontalAlignment="Stretch"/>-->
-                <!--<Button Content="PAZ" Command="{Binding StartThreePointProcessCommand}"/>
-                <Button Content="Next" Command="{Binding TPProcessNextCommand}"/>-->
+                <DockPanel>
+                    <DockPanel.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="CornerRadius" Value="4"/>
+                            <Setter Property="Padding" Value="5"/>
+                            <Setter Property="Background" Value="{DynamicResource DarkMaskBrush}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                        </Style>
+                    </DockPanel.Resources>
+                    <Border DockPanel.Dock="Left">
+                        <Path Data="{StaticResource MotorGeometry}"
+                              RenderTransformOrigin="0.5,0.5"
+                              Stretch="UniformToFill"                              
+                              >
+                            <Path.RenderTransform>
+                                <ScaleTransform ScaleY="-1"/>
+                            </Path.RenderTransform>
+                            <Path.Style>
+                                <Style TargetType="Path">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMotionInitialized}" Value="False">
+                                            <Setter Property="Fill" Value="{StaticResource DangerBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsMotionInitialized}" Value="True">
+                                            <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </Border>
+                    <hc:Divider Orientation="Vertical"/>
+                    <Border DockPanel.Dock="Right">
+                        <Path x:Name="InitLaserIcon"
+                              Data="{StaticResource LaserGeometry}"                              
+                              RenderTransformOrigin="0.5,0.5"
+                              Stretch="Uniform"
+                              Height="20"
+                              >
+                            <Path.RenderTransform>
+                                <ScaleTransform ScaleY="-1"/>
+                            </Path.RenderTransform>
+
+                            <Path.Style>
+                                <Style TargetType="Path">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLaserInitialized}" Value="False">
+                                            <Setter Property="Fill" Value="{StaticResource DangerBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsLaserInitialized}" Value="True">
+                                            <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </Border>
+                </DockPanel>
                 <Button hc:IconElement.Geometry="{StaticResource SpurGearGeometry}"
                         hc:IconElement.Width="15"
                         Command="{Binding MachineSettingsCommand}" 
@@ -135,9 +191,7 @@
                             <TextBlock Text="{Binding WaferThickness}" Style="{StaticResource TextBlockDefaultPrimary}"/>
                         </StackPanel>
                     </StackPanel>
-
-
-                </Button>
+                </Button>                
             </ToolBar>
         </ToolBarTray>
         <TabControl Margin="1" Grid.Column="1">

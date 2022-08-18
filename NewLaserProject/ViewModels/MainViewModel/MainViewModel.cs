@@ -39,6 +39,8 @@ namespace NewLaserProject.ViewModels
 
         private InfoMessager techMessager;
         private readonly LaserMachine _laserMachine;
+        public bool IsLaserInitialized { get; set; } = false;
+        public bool IsMotionInitialized { get; set; } = false;
         public string VideoScreenMessage { get; set; } = "";
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
@@ -88,6 +90,7 @@ namespace NewLaserProject.ViewModels
         public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator)
         {
             _laserMachine = laserMachine;
+            IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _db = db;
             _mediator = mediator;
 
@@ -101,7 +104,19 @@ namespace NewLaserProject.ViewModels
             CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
             CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-            _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory()); //TODO this is async function. Make init indicators.
+            _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
+                .ContinueWith(t => 
+                {
+                    if (t.Status==TaskStatus.RanToCompletion)
+                    {
+                        IsLaserInitialized = t.Result;
+                    }
+                    else if (t.Status==TaskStatus.Faulted)
+                    {
+                        IsLaserInitialized = false;
+                        MessageBox.Show(t.Exception?.InnerException?.Message,"Ошибка инициализации", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }); 
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
             InitViews();
@@ -238,7 +253,8 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            ChangeViews();
+            IsLaserInitialized ^= true;
+            //ChangeViews();
             //var topologySize = _dxfReader.GetSize();
             //var path = Path.Combine(ProjectPath.GetFolderPath("TempFiles"));
             //var objs = _dxfReader.GetAllDxfCurves2(path, "PAZ");
