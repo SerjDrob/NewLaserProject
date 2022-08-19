@@ -253,8 +253,8 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            IsLaserInitialized ^= true;
-            //ChangeViews();
+            //IsLaserInitialized ^= true;
+            ChangeViews();
             //var topologySize = _dxfReader.GetSize();
             //var path = Path.Combine(ProjectPath.GetFolderPath("TempFiles"));
             //var objs = _dxfReader.GetAllDxfCurves2(path, "PAZ");
