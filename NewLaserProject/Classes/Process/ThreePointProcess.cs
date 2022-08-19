@@ -41,7 +41,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _pazAngle;
         private readonly EntityPreparator _entityPreparator;
         private double _matrixAngle;
-
+        private IProcess _subProcess;
         public ThreePointProcess(IEnumerable<IProcObject> wafer, IEnumerable<PPoint> refPoints,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager, 
@@ -152,12 +152,12 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.Working)
                 .OnEntryAsync(async () => {
                     _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle + Math.PI);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
-                    var process = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
+                    _subProcess = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
-                    process.CurrentWaferChanged += Process_CurrentWaferChanged;
-                    process.ProcessingObjectChanged += Process_ProcessingObjectChanged;
-                    process.CreateProcess();
-                    await process.StartAsync(_ctSource.Token);
+                    _subProcess.CurrentWaferChanged += Process_CurrentWaferChanged;
+                    _subProcess.ProcessingObjectChanged += Process_ProcessingObjectChanged;
+                    _subProcess.CreateProcess();
+                    await _subProcess.StartAsync(_ctSource.Token);
                 })
                 .Ignore(Trigger.Next)
                 .Ignore(Trigger.Deny)
@@ -234,6 +234,16 @@ namespace NewLaserProject.Classes.Process
         public Task StartAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        public void ExcludeObject(IProcObject procObject)
+        {
+            _subProcess?.ExcludeObject(procObject);
+        }
+
+        public void IncludeObject(IProcObject procObject)
+        {
+            _subProcess?.IncludeObject(procObject);
         }
 
         enum State

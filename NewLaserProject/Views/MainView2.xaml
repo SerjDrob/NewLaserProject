@@ -251,11 +251,11 @@
                             <DockPanel>
                                 <Image x:Name="ImportantIcon" Source="{Binding IconPath}" DockPanel.Dock="Left" Margin="0,0,5,0"/>
                                 <TextBlock x:Name="ImportantText" Text="{Binding TechInfo}" FontWeight="Bold" FontSize="15" Foreground="Red">
-                        <i:Interaction.Triggers>
-                            <i:PropertyChangedTrigger Binding="{Binding Text, ElementName=ImportantText}">
-                                <i:ControlStoryboardAction Storyboard="{StaticResource DangerMessage}"/>                                
-                            </i:PropertyChangedTrigger>
-                        </i:Interaction.Triggers>
+                                    <i:Interaction.Triggers>
+                                        <i:PropertyChangedTrigger Binding="{Binding Text, ElementName=ImportantText}">
+                                            <i:ControlStoryboardAction Storyboard="{StaticResource DangerMessage}"/>                                
+                                        </i:PropertyChangedTrigger>
+                                    </i:Interaction.Triggers>
                                 </TextBlock>
                             </DockPanel>
                         </Border>
@@ -402,30 +402,24 @@
                                               AutoGenerateColumns="False" 
                                               ItemsSource="{Binding ProcessingObjects}"
                                               Style="{StaticResource DataGrid.Small}"
-                                              SelectionMode="Single"                                              
+                                              SelectionMode="Single"     
+                                              SelectedItem="{Binding IsBeingProcessedObject}"
+                                              SelectionChanged="DataGrid_SelectionChanged"
+                                              LoadingRow="DataGrid_LoadingRow"
                                               >
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="SelectionChanged">
-                                                    <i:InvokeCommandAction Command="{Binding ProcGridSelectionCommand}"
-                                           PassEventArgsToCommand="True"
-                                           />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-
+                                           
                                             <DataGrid.RowStyle>
                                                 <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle.Small}">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsBeingProcessed}" Value="True">
-                                                            <Setter Property="IsSelected" Value="True"/>
+                                                    <Style.Triggers>                                                        
+                                                        <DataTrigger Binding="{Binding IsProcessed}" Value="True">
+                                                            <Setter Property="IsEnabled"  Value="False"/>
+                                                            <Setter Property="Opacity" Value="0.5"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </DataGrid.RowStyle>
 
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Row#" 
-                                                                    Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGridRow}, 
-                                                    Path=(ItemsControl.AlternationIndex)}"></DataGridTextColumn>
                                                 <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
                                                 <DataGridTemplateColumn Header="Тип">
                                                     <DataGridTemplateColumn.CellTemplate>
@@ -439,9 +433,9 @@
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <TextBlock >
-                                                    <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
-                                                    <Run Text="&#215;"/>
-                                                    <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
+                                                                <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
+                                                                <Run Text="&#215;"/>
+                                                                <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
                                                             </TextBlock>
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
@@ -449,7 +443,22 @@
                                                 <DataGridTemplateColumn Header="Обработка">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
-                                                            <CheckBox IsChecked="True"/>
+                                                            <CheckBox IsChecked="{Binding ToProcess}">
+                                                                <i:Interaction.Triggers>                                                                    
+                                                                    <i:EventTrigger EventName="Checked">
+                                                                        <i:InvokeCommandAction Command="{Binding Path=DataContext.ToProcCheckedCommand,
+                                                                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" 
+                                                                                               CommandParameter="{Binding}"
+                                                                                               />
+                                                                    </i:EventTrigger>
+                                                                    <i:EventTrigger EventName="Unchecked">
+                                                                        <i:InvokeCommandAction Command="{Binding Path=DataContext.ToProcUncheckedCommand,
+                                                                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" 
+                                                                                               CommandParameter="{Binding}"
+                                                                                               />
+                                                                    </i:EventTrigger>
+                                                                </i:Interaction.Triggers>
+                                                            </CheckBox>
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
                                                 </DataGridTemplateColumn>

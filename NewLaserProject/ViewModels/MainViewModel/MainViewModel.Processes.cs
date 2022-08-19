@@ -23,29 +23,9 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
-        public int ProcessingObjectIndex { get; set; } = -1;
+        public IProcObject IsBeingProcessedObject { get; set; }       
         public FileAlignment FileAlignment { get; set; }
-
-        [ICommand]
-        private void ProcGridSelection(SelectionChangedEventArgs e)
-        {
-            var dataGrid = e.Source as DataGrid;
-            if (dataGrid != null && e.AddedItems != null && e.AddedItems.Count > 0)
-            {               
-                dataGrid.ScrollIntoView(e.AddedItems[0]);
-            }
-        }
-
-        private void ProcessGridChangeSelection(int index)
-        {
-            foreach (var item in ProcessingObjects)
-            {
-                item.IsBeingProcessed = false;
-            }
-            ProcessingObjects[index].IsBeingProcessed = true;
-            ProcessingObjects=new(ProcessingObjects);
-        }
-
+                
         public Technology CurrentTechnology { get; set; }
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
@@ -123,9 +103,13 @@ namespace NewLaserProject.ViewModels
                 default:
                     break;
             }
-            var objects = ((IEnumerable<IProcObject>)wafer);//.ToList();
-            //objects[3].IsBeingProcessed = true;
-            ProcessingObjects = new(objects);
+
+            ProcessingObjects = new((IEnumerable<IProcObject>)wafer);
+            ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
+            //ProcessingObjects[13].IsBeingProcessed = true;
+            //IsBeingProcessedObject = ProcessingObjects[13];
+            //ProcessingObjects[4].IsProcessed = true;
+
             _mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
             _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
             //_mainProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
@@ -160,6 +144,36 @@ namespace NewLaserProject.ViewModels
 
         }
 
+        private void ProcessingObjects_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            var oldItem = e?.OldItems?[0] as IProcObject;
+            var newItem = e?.NewItems?[0] as IProcObject;
+            if (oldItem is not null && newItem is not null)
+            {
+                if (newItem.IsBeingProcessed & !oldItem.IsBeingProcessed)
+                {
+                    IsBeingProcessedObject = newItem;
+                }
+            }
+        }
+
+        [ICommand]
+        private void ToProcChecked(IProcObject procObject)
+        {
+            if (procObject is not null)
+            {
+                _mainProcess?.IncludeObject(procObject);
+            }
+        }
+
+        [ICommand]
+        private void ToProcUnchecked(IProcObject procObject)
+        {
+            if (procObject is not null)
+            {
+                _mainProcess?.ExcludeObject(procObject);
+            }
+        }
         private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj,int index) e)
         {
             if (e.index > -1)

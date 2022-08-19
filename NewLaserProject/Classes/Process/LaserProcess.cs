@@ -30,6 +30,7 @@ namespace NewLaserProject.Classes
         private int _loopCount = 0; 
         private PierceParams _pierceParams;
         private ProgTreeParser _progTreeParser;
+        private List<IProcObject> _excludedObjects;
         private readonly double _zPiercing;
         private readonly double _waferThickness;
         private readonly EntityPreparator _entityPreparator;
@@ -82,18 +83,20 @@ namespace NewLaserProject.Classes
                 .OnEntryAsync(async () => 
                 {                    
                     var procObject = waferEnumerator.Current;
-                    var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
-                    _laserMachine.SetVelocity(Velocity.Fast);
-                    await Task.WhenAll(
-                    _laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
-                    _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
-                    procObject.IsBeingProcessed = true;
-
                     ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
-                    if (_inProcess) await pierceFunction();
-                    procObject.IsProcessed = true;
-                    ProcessingObjectChanged?.Invoke(this, (procObject,currentIndex));
+                    if (!_excludedObjects.Any(o=>o.Id==procObject.Id))
+                    {
+                        var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
+                        _laserMachine.SetVelocity(Velocity.Fast);
+                        await Task.WhenAll(
+                        _laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
+                        procObject.IsBeingProcessed = true;
 
+                        if (_inProcess) await pierceFunction();
+                        procObject.IsProcessed = true;
+                    }
+                    ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
                     _inLoop = waferEnumerator.MoveNext();
                     currentIndex++;
                 })
@@ -192,6 +195,20 @@ namespace NewLaserProject.Classes
             throw new NotImplementedException();
         }
 
+        public void ExcludeObject(IProcObject procObject)
+        {
+            _excludedObjects ??= new();
+            _excludedObjects.Add(procObject);
+        }
+
+        public void IncludeObject(IProcObject procObject)
+        {
+            var obj = _excludedObjects.Single(o=>o.Id==procObject.Id);
+            if (obj is not null)
+            {
+                _excludedObjects.Remove(obj);
+            }
+        }
 
         enum State
         {
