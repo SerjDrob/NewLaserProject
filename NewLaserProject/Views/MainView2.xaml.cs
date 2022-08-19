@@ -32,5 +32,21 @@ namespace NewLaserProject.Views
             Trace.Flush();
             Environment.Exit(0);
         }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var grid = e.Source as DataGrid;
+
+            if (grid?.SelectedItem is not null)
+            {
+                grid.UpdateLayout();
+                grid.ScrollIntoView(grid.SelectedItem, null);
+            }
+        }
+
+        private void DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.Header = (e.Row.GetIndex() + 1).ToString();
+        }
     }
 }

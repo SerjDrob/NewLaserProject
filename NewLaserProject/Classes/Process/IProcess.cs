@@ -10,7 +10,8 @@ namespace NewLaserProject.Classes
     {
         event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
-
+        void ExcludeObject(IProcObject procObject);
+        void IncludeObject(IProcObject procObject);
         void CreateProcess();
         Task Deny();
         Task Next();
