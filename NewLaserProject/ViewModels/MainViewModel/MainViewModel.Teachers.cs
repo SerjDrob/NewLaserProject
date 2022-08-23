@@ -31,6 +31,14 @@ namespace NewLaserProject.ViewModels
         public bool TeacherPointerVisibility { get; set; } = false;
         public List<string> TeachingSteps { get; set; }
         public int StepIndex { get; set; }
+
+        [ICommand]
+        private async Task StartTeaching(Teacher teacher)
+        {
+            var assignTrigger = _appStateMachine.SetTriggerParameters<Teacher>(AppTrigger.StartLearning);
+            await _appStateMachine.FireAsync(assignTrigger,teacher);
+        }
+
         [ICommand]
         private async Task WaferCornersTeach(bool leftCorner)
         {
@@ -614,7 +622,7 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
 
-
+        
         [ICommand]
         private Task TeachNext()
         {
@@ -659,5 +667,13 @@ namespace NewLaserProject.ViewModels
             await _laserMachine.PierceLineAsync(5, -5, 5, 5);
 
         }
+    }
+    public enum Teacher
+    {
+        Corners,
+        CameraOffset,
+        ScanatorHorizont,
+        OrthXY,
+        CameraScale
     }
 }

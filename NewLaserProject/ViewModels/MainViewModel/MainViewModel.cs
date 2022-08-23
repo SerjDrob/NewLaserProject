@@ -86,6 +86,7 @@ namespace NewLaserProject.ViewModels
             _mediator = mediator;
             _coorSystem = GetCoorSystem();
             InitViews();
+            InitAppState();
         }
         public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator)
         {
