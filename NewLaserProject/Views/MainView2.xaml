@@ -45,6 +45,7 @@
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
         <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
+        
 
         <Storyboard x:Key="DangerMessage">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
@@ -150,7 +151,9 @@
                 <hc:SplitButton hc:IconElement.Geometry="{StaticResource AcademicHatGeometry}" HorizontalAlignment="Stretch">
                     <hc:SplitButton.DropDownContent>
                         <StackPanel>
-                            <MenuItem Command="{Binding TeachCameraOffsetCommand}" Header="Смещение камеры" InputGestureText="F2">
+                            <MenuItem Command="{Binding StartTeachingCommand}"
+                                      CommandParameter="{x:Static vm:Teacher.CameraOffset}"
+                                      Header="Смещение камеры" InputGestureText="F2">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
                                 </MenuItem.Icon>
@@ -260,13 +263,31 @@
                             </DockPanel>
                         </Border>
                         <hc:SimplePanel DockPanel.Dock="Top">
-                            
-                            <ContentControl Content="{Binding RightSideVM}" MinHeight="300"/>
+
+                            <ContentControl Content="{Binding RightSideVM}" MinHeight="300">
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding OnProcess}" Value="True">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding OnProcess}" Value="False">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
+                            </ContentControl>
 
                         </hc:SimplePanel>
                         <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
                             <!--<ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>-->
                             <GroupBox Header="Текущий процесс" DockPanel.Dock="Top">
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="True">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
+                                
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -297,6 +318,33 @@
                                         <Label Content="Тип совмещения"/>
                                         
                                     </DockPanel>
+                                    <hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
+                                        <TreeView
+                                              x:Name="LayersList" 
+                                              Height="150" 
+                                              ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
+                                            <TreeView.ItemContainerStyle>
+                                                <Style TargetType="{x:Type TreeViewItem}">
+                                                    <Setter Property="IsExpanded" Value="True" />
+                                                </Style>
+                                            </TreeView.ItemContainerStyle>
+                                            <TreeView.Resources>
+                                                <HierarchicalDataTemplate DataType="{x:Type vm:Layer}" ItemsSource="{Binding Objects}">
+                                                    <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
+                                                </HierarchicalDataTemplate>
+                                                <DataTemplate DataType="{x:Type vm:Text}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
+                                                        <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
+                                                        ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                                        <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
+                                                        <TextBlock Text="{Binding Count}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                                                        <TextBlock Text=" ]" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </TreeView.Resources>
+                                        </TreeView>
+                                    </hc:ComboBox>
 
                                     <ComboBox 
                                         Grid.Row="1"
@@ -365,36 +413,9 @@
                                             <ScaleTransform ScaleY="-1"/>
                                         </ToggleButton.RenderTransform>
                                     </ToggleButton>
-
-
-                                    <TreeView Grid.Row="2" 
-                                              x:Name="LayersList" 
-                                              Height="150" 
-                                              ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
-                                        <TreeView.ItemContainerStyle>
-                                            <Style TargetType="{x:Type TreeViewItem}">
-                                                <Setter Property="IsExpanded" Value="True" />
-                                            </Style>
-                                        </TreeView.ItemContainerStyle>
-                                        <TreeView.Resources>
-                                            <HierarchicalDataTemplate DataType="{x:Type vm:Layer}" ItemsSource="{Binding Objects}">
-                                                <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
-                                            </HierarchicalDataTemplate>
-                                            <DataTemplate DataType="{x:Type vm:Text}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
-                                                    <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
-                                                        ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                                    <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
-                                                    <TextBlock Text="{Binding Count}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                                                    <TextBlock Text=" ]" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </TreeView.Resources>
-                                    </TreeView>
+                                   
                                     <Border  Grid.Row="2" 
-                                             Grid.Column="1" 
-                                             Grid.ColumnSpan="5" 
+                                             Grid.ColumnSpan="6" 
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
                                              >

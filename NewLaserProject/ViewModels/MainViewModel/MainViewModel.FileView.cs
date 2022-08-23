@@ -20,6 +20,7 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         public int FileScale { get; set; } = 1000;
+        public bool IsFileLoaded { get; set; } = false;
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
         public double WaferOffsetX { get; set; }
@@ -44,7 +45,6 @@ namespace NewLaserProject.ViewModels
         public double LaserViewfinderX { get; set; }
         public double LaserViewfinderY { get; set; }
         
-        public bool IsFileSettingsEnable { get; set; } = false;
         public string FileName { get; set; } = "Open the file";
 
         public Dictionary<string, bool> IgnoredLayers { get; set; }
@@ -145,12 +145,12 @@ namespace NewLaserProject.ViewModels
                             .FindIndex(t => t.Id == defLayerEntTechnology.Id) ?? -1;
                     }
 
-                    IsFileSettingsEnable = true;                   
+                    IsFileLoaded = true;                   
                     
                 }
                 else
                 {
-                    IsFileSettingsEnable = false;
+                    IsFileLoaded = false;
                 }
             }
 
