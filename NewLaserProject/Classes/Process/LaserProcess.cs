@@ -84,7 +84,7 @@ namespace NewLaserProject.Classes
                 {                    
                     var procObject = waferEnumerator.Current;
                     ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
-                    if (!_excludedObjects.Any(o=>o.Id==procObject.Id))
+                    if (!_excludedObjects?.Any(o=>o.Id==procObject.Id) ?? true)
                     {
                         var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
                         _laserMachine.SetVelocity(Velocity.Fast);
@@ -203,10 +203,18 @@ namespace NewLaserProject.Classes
 
         public void IncludeObject(IProcObject procObject)
         {
-            var obj = _excludedObjects.Single(o=>o.Id==procObject.Id);
-            if (obj is not null)
+            try
             {
-                _excludedObjects.Remove(obj);
+                var obj = _excludedObjects.Single(o => o.Id == procObject.Id);
+                if (obj is not null)
+                {
+                    _excludedObjects.Remove(obj);
+                }
+            }
+            catch (Exception)
+            {
+
+                //throw;
             }
         }
 

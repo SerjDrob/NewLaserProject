@@ -52,7 +52,7 @@ namespace NewLaserProject.ViewModels
             ITransformable wafer = CurrentEntityType switch
             {
                 LaserEntity.Curve => new LaserWafer<Curve>(_dxfReader.GetAllCurves(CurrentLayerFilter), topologySize),
-                LaserEntity.Circle => new LaserWafer<Circle>(_dxfReader.GetCircles(CurrentLayerFilter), topologySize)
+                LaserEntity.Circle => new LaserWafer<Circle>(_dxfReader.GetCircles(CurrentLayerFilter).ToList(), topologySize)
             };
 
             wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
@@ -162,6 +162,7 @@ namespace NewLaserProject.ViewModels
         {
             if (procObject is not null)
             {
+                procObject.ToProcess = true;
                 _mainProcess?.IncludeObject(procObject);
             }
         }
@@ -171,6 +172,9 @@ namespace NewLaserProject.ViewModels
         {
             if (procObject is not null)
             {
+                procObject.ToProcess = false;
+                var index = ProcessingObjects.IndexOf(ProcessingObjects.SingleOrDefault(o => o.Id == procObject.Id));
+                ProcessingObjects[index] = procObject;
                 _mainProcess?.ExcludeObject(procObject);
             }
         }

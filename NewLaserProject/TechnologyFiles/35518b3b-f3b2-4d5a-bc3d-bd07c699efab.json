@@ -48,24 +48,6 @@
       "$type": "AddZBlock",
       "CanAcceptChildren": false,
       "DeltaZ": 0.25
-    },
-    {
-      "$type": "PierceBlock",
-      "CanAcceptChildren": false,
-      "MarkParams": {
-        "$type": "ExtendedParams",
-        "MarkLoop": 2,
-        "MarkSpeed": 4.0,
-        "PowerRatio": 100,
-        "Freq": 40000,
-        "QPulseWidth": 1,
-        "EnablePWM": true,
-        "PWMFrequency": 1000,
-        "PWMDutyCycle": 98,
-        "EnableHatch": true,
-        "HatchWidth": 0,
-        "HatchLineDistance": 8
-      }
     }
   ],
   "LoopCount": 1

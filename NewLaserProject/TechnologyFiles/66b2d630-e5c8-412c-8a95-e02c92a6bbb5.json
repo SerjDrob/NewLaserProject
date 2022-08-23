@@ -1,0 +1,67 @@
+{
+  "$type": "MainLoop",
+  "Shuffle": false,
+  "CanAcceptChildren": true,
+  "Children": [
+    {
+      "$type": "PierceBlock",
+      "CanAcceptChildren": false,
+      "MarkParams": {
+        "$type": "ExtendedParams",
+        "MarkLoop": 10,
+        "MarkSpeed": 150.0,
+        "PowerRatio": 75,
+        "Freq": 40000,
+        "QPulseWidth": 1,
+        "EnablePWM": true,
+        "PWMFrequency": 1000,
+        "PWMDutyCycle": 95,
+        "EnableHatch": true,
+        "HatchWidth": 0,
+        "HatchLineDistance": 15
+      }
+    },
+    {
+      "$type": "AddZBlock",
+      "CanAcceptChildren": false,
+      "DeltaZ": 0.22
+    },
+    {
+      "$type": "PierceBlock",
+      "CanAcceptChildren": false,
+      "MarkParams": {
+        "$type": "ExtendedParams",
+        "MarkLoop": 10,
+        "MarkSpeed": 150.0,
+        "PowerRatio": 75,
+        "Freq": 40000,
+        "QPulseWidth": 1,
+        "EnablePWM": true,
+        "PWMFrequency": 1000,
+        "PWMDutyCycle": 98,
+        "EnableHatch": true,
+        "HatchWidth": 0,
+        "HatchLineDistance": 15
+      }
+    },
+    {
+      "$type": "PierceBlock",
+      "CanAcceptChildren": false,
+      "MarkParams": {
+        "$type": "ExtendedParams",
+        "MarkLoop": 1,
+        "MarkSpeed": 20.0,
+        "PowerRatio": 75,
+        "Freq": 40000,
+        "QPulseWidth": 1,
+        "EnablePWM": true,
+        "PWMFrequency": 1000,
+        "PWMDutyCycle": 98,
+        "EnableHatch": true,
+        "HatchWidth": 0,
+        "HatchLineDistance": 50
+      }
+    }
+  ],
+  "LoopCount": 1
+}

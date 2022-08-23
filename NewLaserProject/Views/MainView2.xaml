@@ -415,6 +415,9 @@
                                                             <Setter Property="IsEnabled"  Value="False"/>
                                                             <Setter Property="Opacity" Value="0.5"/>
                                                         </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsBeingProcessed}" Value="True">
+                                                            <Setter Property="IsSelected"  Value="True"/>
+                                                        </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </DataGrid.RowStyle>
