@@ -55,7 +55,6 @@ namespace NewLaserProject.ViewModels
         //public TechWizardViewModel TWModel { get; set; }
         public bool LeftCornerBtnVisibility { get; set; } = false;
         public bool RightCornerBtnVisibility { get; set; } = false;
-        public bool TeachScaleMarkerEnable { get; private set; } = false;
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
         public double ScaleMarkersRatioSecond { get => 1 - ScaleMarkersRatioFirst; }
 
@@ -405,10 +404,12 @@ namespace NewLaserProject.ViewModels
                 Velocity.Slow => Velocity.Fast,
                 Velocity.Fast => Velocity.Slow
             };
+#if PCIInserted
             _laserMachine.SetVelocity(VelocityRegime);
+#endif
         }
 
-        #endregion
+#endregion
         
 
         [ICommand]

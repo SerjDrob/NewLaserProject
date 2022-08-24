@@ -154,8 +154,9 @@ namespace NewLaserProject.Classes.Process
                     _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle + Math.PI);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
                     _subProcess = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
-                    _subProcess.CurrentWaferChanged += Process_CurrentWaferChanged;
-                    _subProcess.ProcessingObjectChanged += Process_ProcessingObjectChanged;
+                    _subProcess.CurrentWaferChanged += _process_CurrentWaferChanged;
+                    _subProcess.ProcessingObjectChanged += _process_ProcessingObjectChanged;
+                    _subProcess.ProcessingCompleted += _subProcess_ProcessingCompleted;
                     _subProcess.CreateProcess();
                     await _subProcess.StartAsync(_ctSource.Token);
                 })
@@ -166,18 +167,24 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.Denied)
                 .OnEntryAsync(async () =>
                 {
-                    //_laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+                    _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+                    ProcessingCompleted?.Invoke(this, EventArgs.Empty);
                     //ctSource.Cancel();
                     //_infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
                 });
         }
 
-        private void Process_ProcessingObjectChanged(object? sender, (IProcObject,int) e)
+        private void _subProcess_ProcessingCompleted(object? sender, EventArgs e)
+        {
+            ProcessingCompleted?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void _process_ProcessingObjectChanged(object? sender, (IProcObject,int) e)
         {
             ProcessingObjectChanged?.Invoke(sender, e);
         }
 
-        private void Process_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
+        private void _process_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
         {
             CurrentWaferChanged?.Invoke(sender, e);
         }
@@ -185,6 +192,7 @@ namespace NewLaserProject.Classes.Process
         public event EventHandler<bool> SwitchCamera;
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
+        public event EventHandler ProcessingCompleted;
 
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {

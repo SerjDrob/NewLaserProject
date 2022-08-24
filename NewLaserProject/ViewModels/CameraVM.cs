@@ -15,6 +15,8 @@ namespace NewLaserProject.ViewModels
     {
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;//TODO should it come from out there?
         public double ScaleMarkersRatioSecond { get => 1 - ScaleMarkersRatioFirst; }
+        public bool TeachScaleMarkerEnable { get; set; } = false;
+
         public BitmapImage? CameraImage { get; set; }
         public event EventHandler<(double x, double y)>? VideoClicked;
         public void OnVideoSourceBmpChanged(object? sender, VideoCaptureEventArgs e)

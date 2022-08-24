@@ -118,6 +118,7 @@ namespace NewLaserProject.ViewModels
 
             _mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
             _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
+            _mainProcess.ProcessingCompleted += _mainProcess_ProcessingCompleted;
             //_mainProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
 #if PCIInserted
 
@@ -148,6 +149,11 @@ namespace NewLaserProject.ViewModels
             }
 #endif
 
+        }
+
+        private void _mainProcess_ProcessingCompleted(object? sender, EventArgs e)
+        {
+            techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
         }
 
         private void ProcessingObjects_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
