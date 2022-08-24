@@ -121,6 +121,8 @@ namespace NewLaserProject.ViewModels
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
             InitViews();
+            InitAppState();
+
             //AppSngsVM = new(_db);
         }
         [ICommand]

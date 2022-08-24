@@ -39,7 +39,7 @@ namespace NewLaserProject.ViewModels
                 //OnProcess = true;
                 await _appStateMachine.FireAsync(AppTrigger.StartProcess);
 #if PCIInserted
-                await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+               // await _appStateMachine.FireAsync(AppTrigger.EndProcess);
 #endif
             }
             else

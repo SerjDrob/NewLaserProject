@@ -265,14 +265,14 @@
                         <hc:SimplePanel DockPanel.Dock="Top">
 
                             <ContentControl Content="{Binding RightSideVM}" MinHeight="300">
-                                <i:Interaction.Triggers>
+                                <!--<i:Interaction.Triggers>
                                     <i:DataTrigger Binding="{Binding OnProcess}" Value="True">
                                         <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
                                     </i:DataTrigger>
                                     <i:DataTrigger Binding="{Binding OnProcess}" Value="False">
                                         <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
                                     </i:DataTrigger>
-                                </i:Interaction.Triggers>
+                                </i:Interaction.Triggers>-->
                             </ContentControl>
 
                         </hc:SimplePanel>
