@@ -9,10 +9,11 @@
     <Nullable>enable</Nullable>
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <UseWPF>true</UseWPF>
-    <DefineConstants>TRACE;PCIInserted</DefineConstants>
+    <!--<DefineConstants>TRACE;PCIInserted</DefineConstants>-->
     <StartupObject></StartupObject>
-    <ApplicationIcon />
+    <ApplicationIcon>Views\Sources\Laser.ico</ApplicationIcon>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Product>УФЛ-1</Product>
    
   </PropertyGroup>
   
@@ -48,6 +49,7 @@
     <Content Include="Views\Sources\flipvert.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Views\Sources\Laser.ico" />
     <Content Include="Views\Sources\laserbeam_laser_13620.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -37,6 +37,7 @@ namespace NewLaserProject.Classes
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
+        public event EventHandler ProcessingCompleted;
 
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem<LMPlace> coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
@@ -120,7 +121,10 @@ namespace NewLaserProject.Classes
                 .PermitIf(Trigger.Next, State.Exit, () => _loopCount >= _progTreeParser.MainLoopCount);
 
             _stateMachine.Configure(State.Exit)
-                .OnEntry(() => { })
+                .OnEntry(() => 
+                {
+                    ProcessingCompleted?.Invoke(this, EventArgs.Empty);
+                })
                 .Ignore(Trigger.Next);
 
             _stateMachine.Activate();

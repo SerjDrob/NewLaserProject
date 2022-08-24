@@ -118,8 +118,7 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
 
-        [ICommand]
-        private async Task TeachCameraOffset()
+        private async Task TeachCameraOffsetAsync()
         {
             //if(_canTeach) return;
 
@@ -248,8 +247,7 @@ namespace NewLaserProject.ViewModels
             await _currentTeacher.StartTeach();
             _canTeach = true;
         }
-        [ICommand]
-        private async Task TeachScanatorHorizont()
+        private async Task TeachScanatorHorizontAsync()
         {
             var waferWidth = 48;
             var delta = 0.5F;
@@ -369,8 +367,7 @@ namespace NewLaserProject.ViewModels
             await _currentTeacher.StartTeach();
             _canTeach = true;
         }
-        [ICommand]
-        private async void TeachOrthXY()
+        private async Task TeachOrthXYAsync()
         {
             //TODO not all transformations are set on default
             _tempWaferTurn90 = WaferTurn90;
@@ -483,8 +480,7 @@ namespace NewLaserProject.ViewModels
             await _currentTeacher.StartTeach();
             _canTeach = true;
         }
-        [ICommand]
-        private async Task TeachCameraScale()
+        private async Task TeachCameraScaleAsync()
         {
             var teachPosition = new double[] { 1, 1 };
 
@@ -508,7 +504,7 @@ namespace NewLaserProject.ViewModels
                 .SetOnGoNAskFirstMarkerAction(() => Task.Run(async () =>
                 {
                     await _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition);
-                    TeachScaleMarkerEnable = true;
+                    _cameraVM.TeachScaleMarkerEnable = true;
                     techMessager.RealeaseMessage("Подведите один из маркеров к ориентиру и нажмите * чтобы продолжить", MessageType.Info);
                 }))
                 .SetOnAskSecondMarkerAction(() => Task.Run(async () =>
@@ -518,7 +514,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(async () =>
                 {
-                    TeachScaleMarkerEnable = false;
+                    _cameraVM.TeachScaleMarkerEnable = false;
                     var diff = Math.Abs(YAxis.Position - _currentTeacher.GetParams()[0]);
                     var scale = diff / (ScaleMarkersRatioSecond - ScaleMarkersRatioFirst);
                     if (MessageBox.Show($"Принять новый масштаб видео  {scale}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)

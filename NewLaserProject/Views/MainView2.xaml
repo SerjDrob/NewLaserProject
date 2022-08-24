@@ -63,6 +63,14 @@
             </ObjectAnimationUsingKeyFrames>
             <DoubleAnimation Storyboard.TargetName="ImportantMessage" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
         </Storyboard>
+
+        <Style x:Key="ToolBorder" TargetType="Border">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Background" Value="{DynamicResource DarkMaskBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -77,18 +85,15 @@
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                     </Style>
                 </ToolBar.Resources>
-                <DockPanel>
-                    <DockPanel.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="CornerRadius" Value="4"/>
-                            <Setter Property="Padding" Value="5"/>
-                            <Setter Property="Background" Value="{DynamicResource DarkMaskBrush}"/>
-                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                        </Style>
-                    </DockPanel.Resources>
-                    <Border DockPanel.Dock="Left">
-                        <Path Data="{StaticResource MotorGeometry}"
+                <Grid MinHeight="45">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Style="{StaticResource ToolBorder}">
+                        <Path Data="{StaticResource MotionDeviceGeometry}"
                               RenderTransformOrigin="0.5,0.5"
                               Stretch="UniformToFill"                              
                               >
@@ -109,13 +114,12 @@
                             </Path.Style>
                         </Path>
                     </Border>
-                    <hc:Divider Orientation="Vertical"/>
-                    <Border DockPanel.Dock="Right">
+                    <hc:Divider Orientation="Vertical" Grid.Column="1"/>
+                    <Border Style="{StaticResource ToolBorder}" Grid.Column="2">
                         <Path x:Name="InitLaserIcon"
                               Data="{StaticResource LaserGeometry}"                              
                               RenderTransformOrigin="0.5,0.5"
-                              Stretch="Uniform"
-                              Height="20"
+                              Stretch="UniformToFill"
                               >
                             <Path.RenderTransform>
                                 <ScaleTransform ScaleY="-1"/>
@@ -135,7 +139,7 @@
                             </Path.Style>
                         </Path>
                     </Border>
-                </DockPanel>
+                </Grid>
                 <Button hc:IconElement.Geometry="{StaticResource SpurGearGeometry}"
                         hc:IconElement.Width="15"
                         Command="{Binding MachineSettingsCommand}" 
@@ -158,17 +162,23 @@
                                     <Image Source="Sources/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Command="{Binding TeachScanatorHorizontCommand}" Header="Горизонт сканатора" InputGestureText="F3">
+                            <MenuItem Command="{Binding StartTeachingCommand}" 
+                                      CommandParameter="{x:Static vm:Teacher.ScanatorHorizont}"
+                                      Header="Горизонт сканатора" InputGestureText="F3">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/angle.png" Height="20" />
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Command="{Binding TeachOrthXYCommand}" Header="Ортогональность XY" InputGestureText="F4">
+                            <MenuItem Command="{Binding StartTeachingCommand}" 
+                                      CommandParameter="{x:Static vm:Teacher.OrthXY}"
+                                      Header="Ортогональность XY" InputGestureText="F4">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/orth.png" Height="20"/>
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Command="{Binding TeachCameraScaleCommand}" Header="Масштаб видео" InputGestureText="F5">
+                            <MenuItem Command="{Binding StartTeachingCommand}" 
+                                      CommandParameter="{x:Static vm:Teacher.CameraScale}"
+                                      Header="Масштаб видео" InputGestureText="F5">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/scale.png" Height="20"/>
                                 </MenuItem.Icon>
@@ -179,7 +189,7 @@
                 </hc:SplitButton>
             </ToolBar>
             <ToolBar>
-                <Button Command="{Binding ChooseMaterialCommand}" MinHeight="50">
+                <Button Command="{Binding ChooseMaterialCommand}" HorizontalAlignment="Stretch" MinHeight="50">
                     <hc:AdornerElement.Instance>
                         <hc:Poptip Content="Введите параметры подложки" PlacementType="TopLeft"/>
                     </hc:AdornerElement.Instance>
@@ -194,7 +204,117 @@
                             <TextBlock Text="{Binding WaferThickness}" Style="{StaticResource TextBlockDefaultPrimary}"/>
                         </StackPanel>
                     </StackPanel>
-                </Button>                
+                </Button>
+                <StackPanel DockPanel.Dock="Bottom">
+                    <StackPanel.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="CornerRadius" Value="4"/>
+                            <Setter Property="Padding" Value="5"/>
+                            <Setter Property="Background" Value="{DynamicResource DarkMaskBrush}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <uc:AxisState CoordinateName="X" 
+                                  Coordinate="{Binding XAxis.Position}"
+                                  LmtNeg="{Binding XAxis.NLmt}"
+                                  LmtPos="{Binding XAxis.PLmt}"
+                                  MotionDone="{Binding XAxis.MotionDone}" 
+                                  CmdCoordinate="{Binding XAxis.CmdPosition}"
+                                  />
+                    <uc:AxisState CoordinateName="Y"
+                                  Coordinate="{Binding YAxis.Position}"
+                                  LmtNeg="{Binding YAxis.NLmt}"
+                                  LmtPos="{Binding YAxis.PLmt}"
+                                  MotionDone="{Binding YAxis.MotionDone}"
+                                  CmdCoordinate="{Binding YAxis.CmdPosition}"
+                                  />
+                    <uc:AxisState CoordinateName="Z"
+                                  Coordinate="{Binding ZAxis.Position}"
+                                  LmtNeg="{Binding ZAxis.NLmt}"
+                                  LmtPos="{Binding ZAxis.PLmt}"
+                                  MotionDone="{Binding ZAxis.MotionDone}"
+                                  CmdCoordinate="{Binding ZAxis.CmdPosition}"
+                                  />
+                    
+                    <!--<TextBlock x:Name="VelText" Text="Быстро">
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
+                                        <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Быстро"/>
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
+                                        <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
+                    </TextBlock>-->                    
+                </StackPanel>
+                <DockPanel>
+                    <Border
+                        DockPanel.Dock="Top"
+                        Height="60"
+                        Style="{StaticResource ToolBorder}"
+                        >
+
+                        <Grid>
+                            <Grid>
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Hidden"/>
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
+                                <Path Data="{StaticResource HighSpeedGeometry}" 
+                              Fill="Red"
+                              Stretch="Uniform"
+                              RenderTransformOrigin="0.5, 0.5"
+                              >
+                                    <Path.RenderTransform>
+                                        <ScaleTransform ScaleY="-1"/>
+                                    </Path.RenderTransform>
+                                </Path>
+                                <Path Data="{StaticResource HighSpeedArrowGeometry}" 
+                              Fill="{StaticResource InfoBrush}"
+                                  Stretch="UniformToFill"
+                              RenderTransformOrigin="0.5, 0.5"
+                              >
+                                    <Path.RenderTransform>
+                                        <ScaleTransform ScaleY="-1"/>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Grid>
+                            <Grid>
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Hidden"/>
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
+                                <Path Data="{StaticResource LowSpeedGeometry}" 
+                              Fill="Green"
+                              Stretch="Uniform"
+                              RenderTransformOrigin="0.5, 0.5"
+                              >
+                                    <Path.RenderTransform>
+                                        <ScaleTransform ScaleY="-1"/>
+                                    </Path.RenderTransform>
+                                </Path>
+                                <Path Data="{StaticResource LowSpeedArrowGeometry}" 
+                              Fill="{StaticResource InfoBrush}"
+                                  Stretch="UniformToFill"
+                              RenderTransformOrigin="0.5, 0.5"
+                              >
+                                    <Path.RenderTransform>
+                                        <ScaleTransform ScaleY="-1"/>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DockPanel>
             </ToolBar>
         </ToolBarTray>
         <TabControl Margin="1" Grid.Column="1">
@@ -495,39 +615,7 @@
 
                         <hc:StepBar DockPanel.Dock="Top" Dock="Left" ItemsSource="{Binding TeachingSteps}" StepIndex="{Binding StepIndex}"/>
 
-                        <WrapPanel DockPanel.Dock="Bottom">
-                            <uc:AxisState CoordinateName="X" 
-                                  Coordinate="{Binding XAxis.Position}"
-                                  LmtNeg="{Binding XAxis.NLmt}"
-                                  LmtPos="{Binding XAxis.PLmt}"
-                                  MotionDone="{Binding XAxis.MotionDone}" 
-                                  CmdCoordinate="{Binding XAxis.CmdPosition}"
-                                  />
-                            <uc:AxisState CoordinateName="Y"
-                                  Coordinate="{Binding YAxis.Position}"
-                                  LmtNeg="{Binding YAxis.NLmt}"
-                                  LmtPos="{Binding YAxis.PLmt}"
-                                  MotionDone="{Binding YAxis.MotionDone}"
-                                  CmdCoordinate="{Binding YAxis.CmdPosition}"
-                                  />
-                            <uc:AxisState CoordinateName="Z"
-                                  Coordinate="{Binding ZAxis.Position}"
-                                  LmtNeg="{Binding ZAxis.NLmt}"
-                                  LmtPos="{Binding ZAxis.PLmt}"
-                                  MotionDone="{Binding ZAxis.MotionDone}"
-                                  CmdCoordinate="{Binding ZAxis.CmdPosition}"
-                                  />
-                            <TextBlock x:Name="VelText" Text="Быстро">
-                        <i:Interaction.Triggers>
-                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
-                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Быстро"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
-                                <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
-                            </i:DataTrigger>
-                        </i:Interaction.Triggers>
-                            </TextBlock>
-                        </WrapPanel>
+                        
                     </DockPanel>
                 </Grid>
             </TabItem>

@@ -46,17 +46,29 @@ namespace NewLaserProject.ViewModels
 					switch (teacher)
 					{
 						case Teacher.Corners:
+							{
+							}
 							break;
 						case Teacher.CameraOffset:
 							{
-								await TeachCameraOffset();
+								await TeachCameraOffsetAsync();
 							}
 							break;
 						case Teacher.ScanatorHorizont:
+							{
+								await TeachScanatorHorizontAsync();
+							}
 							break;
 						case Teacher.OrthXY:
+							{
+								await TeachOrthXYAsync();
+							}
 							break;
 						case Teacher.CameraScale:
+							{
+
+								await TeachCameraScaleAsync();
+							}
 							break;
 						default:
 							break;
