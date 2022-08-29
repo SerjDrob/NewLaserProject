@@ -382,9 +382,10 @@
                                 </TextBlock>
                             </DockPanel>
                         </Border>
-                        <hc:SimplePanel DockPanel.Dock="Top">
 
-                            <ContentControl Content="{Binding RightSideVM}" MinHeight="300">
+                        <ContentControl Content="{Binding RightSideVM}" 
+                                        DockPanel.Dock="Top"
+                                        MinHeight="300">
                                 <!--<i:Interaction.Triggers>
                                     <i:DataTrigger Binding="{Binding OnProcess}" Value="True">
                                         <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
@@ -393,12 +394,13 @@
                                         <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
                                     </i:DataTrigger>
                                 </i:Interaction.Triggers>-->
-                            </ContentControl>
+                        </ContentControl>
 
-                        </hc:SimplePanel>
                         <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
                             <!--<ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>-->
-                            <GroupBox Header="Текущий процесс" DockPanel.Dock="Top">
+                            <GroupBox x:Name="ProcessPanel"
+                                      Header="Текущий процесс" 
+                                      DockPanel.Dock="Top">
                                 <i:Interaction.Triggers>
                                     <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
                                         <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
@@ -418,6 +420,7 @@
                                         <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
+                                        <RowDefinition/>
                                         <RowDefinition/>
                                         <RowDefinition/>
                                         <RowDefinition/>
@@ -538,6 +541,7 @@
                                              Grid.ColumnSpan="6" 
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
+                                             Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                              >
                                         <DataGrid
                                               AutoGenerateColumns="False" 
@@ -562,7 +566,6 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </DataGrid.RowStyle>
-
                                             <DataGrid.Columns>
                                                 <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
                                                 <DataGridTemplateColumn Header="Тип">
@@ -609,13 +612,38 @@
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </Border>
+                                    <GroupBox Grid.Row="3" 
+                                             Grid.ColumnSpan="6"
+                                             MinHeight="300" 
+                                              >
+                                        <GroupBox.Header>
+                                            <TextBlock Text="Current element"/>
+                                        </GroupBox.Header>
+                                        <Border 
+                                             BorderBrush="{DynamicResource BorderBrush}"
+                                             BorderThickness="2"
+                                             Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}" 
+                                             Background="AliceBlue"
+                                             Padding="50">
+                                            <Path Data="{Binding TestGeometry}" 
+                                              Stretch="Uniform"
+                                              Fill="red"
+                                              Stroke="Black"
+                                              StrokeThickness="2">
+                                            </Path>
+                                        </Border>
+                                    </GroupBox>
                                 </Grid>
-                            </GroupBox>                            
+                            </GroupBox>
                         </DockPanel>
 
-                        <hc:StepBar DockPanel.Dock="Top" Dock="Left" ItemsSource="{Binding TeachingSteps}" StepIndex="{Binding StepIndex}"/>
+                        <hc:StepBar x:Name="LearningPanel"
+                                    DockPanel.Dock="Top" 
+                                    Dock="Left" 
+                                    Visibility="{Binding IsLearningPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                    ItemsSource="{Binding TeachingSteps}" 
+                                    StepIndex="{Binding StepIndex}"/>
 
-                        
                     </DockPanel>
                 </Grid>
             </TabItem>

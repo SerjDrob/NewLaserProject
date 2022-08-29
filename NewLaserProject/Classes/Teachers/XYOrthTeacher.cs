@@ -13,6 +13,8 @@ namespace NewLaserProject.Classes
         private StateMachine<MyState, MyTrigger> _stateMachine;
         private List<(double x, double y)> _points = new();
 
+        public event EventHandler TeachingCompleted;
+
         public static XYOrthTeacherBuilder GetBuilder()
         {
             return new XYOrthTeacherBuilder();
@@ -47,13 +49,13 @@ namespace NewLaserProject.Classes
                .Ignore(MyTrigger.Next);
 
             _stateMachine.Configure(MyState.End)
-               .OnEntryAsync(OnXYOrthTought)
+               .OnEntryAsync(async()=> { await OnXYOrthTought.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                .Ignore(MyTrigger.Next)
                .Ignore(MyTrigger.Accept)
                .Ignore(MyTrigger.Deny);
 
             _stateMachine.Configure(MyState.HasResult)
-                .OnEntryAsync(GiveResult)
+                .OnEntryAsync(async()=> { await GiveResult.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                 .Ignore(MyTrigger.Next)
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);

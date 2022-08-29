@@ -12,6 +12,7 @@ namespace NewLaserProject.Classes.Teachers
 
         private (double neg, double pos, bool negTought) _newEdges;
 
+        public event EventHandler TeachingCompleted;
 
         public static CameraBiasTeacherBuilder GetBuilder()
         {
@@ -53,13 +54,13 @@ namespace NewLaserProject.Classes.Teachers
                .Ignore(MyTrigger.Next);
 
             _stateMachine.Configure(MyState.End)
-               .OnEntryAsync(OnDimensionTought)
+               .OnEntryAsync(async () => { await OnDimensionTought.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                .Ignore(MyTrigger.Next)
                .Ignore(MyTrigger.Accept)
                .Ignore(MyTrigger.Deny);
 
             _stateMachine.Configure(MyState.HasResult)
-                .OnEntryAsync(GiveResult)
+                .OnEntryAsync(async()=> { await GiveResult.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                 .Ignore(MyTrigger.Next)
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);

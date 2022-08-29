@@ -27,6 +27,11 @@ namespace NewLaserProject.ViewModels
 			_appStateMachine.Configure(AppState.Processing)
 				.OnEntryAsync(async () => {
 					OnProcess = true;
+					HideFilePanel(false);
+					HideLearningPanel(true);
+					HideProcessPanel(false);
+					HideVideoPanel(false);
+					ChangeViews(IsVideOnCenter: false);
 					await StartProcess();
 				})
 				.OnExit(() =>
@@ -43,6 +48,12 @@ namespace NewLaserProject.ViewModels
 				.OnEntryAsync(async tr => 
 				{
 					var teacher = (Teacher)tr.Parameters[0];
+					HideFilePanel(false);
+					HideLearningPanel(false);
+					HideProcessPanel(true);
+					HideVideoPanel(false);
+					ChangeViews(IsVideOnCenter: true);
+
 					switch (teacher)
 					{
 						case Teacher.Corners:
@@ -51,28 +62,45 @@ namespace NewLaserProject.ViewModels
 							break;
 						case Teacher.CameraOffset:
 							{
-								await TeachCameraOffsetAsync();
+								_currentTeacher = await TeachCameraOffsetAsync();
+								/*
+								 VideoScreen on the center
+								right panel is stepping diagram
+								 */
 							}
 							break;
 						case Teacher.ScanatorHorizont:
 							{
-								await TeachScanatorHorizontAsync();
+								_currentTeacher = await TeachScanatorHorizontAsync();
 							}
 							break;
 						case Teacher.OrthXY:
 							{
-								await TeachOrthXYAsync();
+								_currentTeacher = await TeachOrthXYAsync();
 							}
 							break;
 						case Teacher.CameraScale:
 							{
-
-								await TeachCameraScaleAsync();
+								_currentTeacher = await TeachCameraScaleAsync();
 							}
 							break;
 						default:
+							{
+								//_currentTeacher = null;
+							}
 							break;
 					}
+					_currentTeacher.TeachingCompleted += _currentTeacher_TeachingCompleted;
+					await _currentTeacher.StartTeach();
+					_canTeach = true;
+				})
+				.OnExit(() =>
+				{
+					HideFilePanel(false);
+					HideLearningPanel(true);
+					HideProcessPanel(true);
+					HideVideoPanel(false);
+					ChangeViews();
 				})
 				.Permit(AppTrigger.EndLearning, AppState.Default)
 				.Ignore(AppTrigger.EndProcess)
@@ -81,6 +109,12 @@ namespace NewLaserProject.ViewModels
 			
 			_appStateMachine.Activate();
 		}
+
+		private void _currentTeacher_TeachingCompleted(object? sender, EventArgs e)
+		{
+			_appStateMachine.Fire(AppTrigger.EndLearning);
+		}
+
 		enum AppState
 		{
 			Default,

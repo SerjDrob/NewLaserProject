@@ -13,6 +13,8 @@ namespace NewLaserProject.Classes
         private StateMachine<MyState, MyTrigger> _stateMachine;
         private List<double> _points = new();
 
+        public event EventHandler TeachingCompleted;
+
         private LaserHorizontTeacher()
         {
 
@@ -54,13 +56,13 @@ namespace NewLaserProject.Classes
                .Ignore(MyTrigger.Next);
 
             _stateMachine.Configure(MyState.End)
-               .OnEntryAsync(OnLaserHorizontTought)
+               .OnEntryAsync(async ()=> { await OnLaserHorizontTought.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                .Ignore(MyTrigger.Next)
                .Ignore(MyTrigger.Accept)
                .Ignore(MyTrigger.Deny);
 
             _stateMachine.Configure(MyState.HasResult)
-                .OnEntryAsync(GiveResult)
+                .OnEntryAsync(async ()=> { await GiveResult.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                 .Ignore(MyTrigger.Next)
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);

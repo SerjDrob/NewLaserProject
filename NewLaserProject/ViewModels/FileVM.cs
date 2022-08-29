@@ -51,8 +51,8 @@ namespace NewLaserProject.ViewModels
             var fileSize = _dxfReader.GetSize();
             FileSizeX = Math.Round(fileSize.width);
             FileSizeY = Math.Round(fileSize.height);
-            LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
-
+            //LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
+            LayGeoms=new LayGeomAdapter(new IMGeometryAdapter(FileName)).LayerGeometryCollections;
             MirrorX = Settings.Default.WaferMirrorX;
             WaferTurn90 = Settings.Default.WaferAngle90;
             WaferOffsetX = 0;

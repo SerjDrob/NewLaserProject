@@ -8,25 +8,37 @@ using System.Windows.Media;
 
 namespace NewLaserProject.Classes
 {
-    public class LayGeomAdapter
+    public interface ILayGeomAdapter
     {
-        private readonly GeometryAdapter _geomAdapter;
+        ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get; }
+
+        IEnumerable<LayerGeometryCollection> CalcGeometry();
+    }
+
+    public class LayGeomAdapter : ILayGeomAdapter
+    {
+        private readonly IGeometryAdapter _geomAdapter;
         private readonly IDxfReader _reader;
         public LayGeomAdapter(IDxfReader dxfReader)
         {
             Guard.IsNotNull(dxfReader, nameof(dxfReader));
             _reader = dxfReader;
-            _geomAdapter = new(_reader);
+            _geomAdapter = new GeometryAdapter(_reader);
+        }
+        public LayGeomAdapter(IGeometryAdapter geometryAdapter)
+        {
+            _geomAdapter = geometryAdapter;
         }
         public ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get => new(CalcGeometry()); }
         public IEnumerable<LayerGeometryCollection> CalcGeometry()
         {
             return _geomAdapter.GetGeometries()
                 .GroupBy(ag => ag.LayerName)
-                .Select(x => 
+                .Select(x =>
                 new LayerGeometryCollection(
                     new GeometryCollection(x.Select(y => y.geometry)), x.Key, true, x.First().LayerColor, x.First().GeometryColor));
-                
+
         }
     }
+
 }
