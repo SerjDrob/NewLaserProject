@@ -194,6 +194,7 @@ namespace NewLaserProject.ViewModels
         {
             if (e.index > -1)
             {
+                TestGeometry = e.procObj.ToGeometry();   
                 ProcessingObjects[e.index] = e.procObj;
               //  ProcessingObjects = new(ProcessingObjects);
             }
@@ -209,71 +210,7 @@ namespace NewLaserProject.ViewModels
             _mainProcess?.Deny();
         }
 
-        private TestThreePoints _testThreePointsProcess;
-
-        [ICommand]
-        private async Task StartTestThreePoints()
-        {
-
-
-            var topologySize = _dxfReader.GetSize();
-
-            var wafer = new LaserWafer<DxfCurve>(_dxfReader.GetAllDxfCurves2(ProjectPath.GetFolderPath(ProjectFolders.TEMP_FILES), "PAZ"), topologySize);
-            var waferPoints = new LaserWafer<Point>(_dxfReader.GetPoints(), topologySize);
-            
-            wafer.Scale(1F / FileScale);
-            waferPoints.Scale(1F / FileScale);
-            if (WaferTurn90) wafer.Turn90();
-            if (WaferTurn90) waferPoints.Turn90();
-            if (MirrorX) wafer.MirrorX();
-            if (MirrorX) waferPoints.MirrorX();
-
-            _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, "CircleListing.json"));
-            var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
-
-            var points = waferPoints.Cast<PPoint>();
-
-            _testThreePointsProcess = new TestThreePoints(points, _laserMachine,
-                        coorSystem, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
-                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, Settings.Default.ZeroPiercePoint);
-
-            _testThreePointsProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
-            try
-            {
-                OnProcess = true;
-                await _testThreePointsProcess.StartAsync();
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-            finally
-            {
-                OnProcess = false;
-            }
-
-        }
-
-        [ICommand]
-        private Task TTPNext()
-        {
-            return _testThreePointsProcess.Next();
-        }
-
-
-        private void _threePointsProcess_SwitchCamera(object? sender, bool e)
-        {
-            if (e)
-            {
-                StartVideoCapture();
-            }
-            else
-            {
-                StopVideoCapture();
-            }
-        }
-
+        
         [ICommand]
         private Task TPProcessNext()
         {

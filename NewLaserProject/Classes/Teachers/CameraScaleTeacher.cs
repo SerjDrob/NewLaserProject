@@ -58,13 +58,13 @@ namespace NewLaserProject.Classes
                .Ignore(MyTrigger.Next);
 
             _stateMachine.Configure(MyState.End)
-               .OnEntryAsync(OnScaleTought)
+               .OnEntryAsync(async () => { await OnScaleTought.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                .Ignore(MyTrigger.Next)
                .Ignore(MyTrigger.Accept)
                .Ignore(MyTrigger.Deny);
 
             _stateMachine.Configure(MyState.HasResult)
-                .OnEntryAsync(GiveResult)
+                .OnEntryAsync(async ()=> { await GiveResult.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                 .Ignore(MyTrigger.Next)
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);
@@ -77,6 +77,9 @@ namespace NewLaserProject.Classes
         public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);
         public async Task Deny() => await _stateMachine.FireAsync(MyTrigger.Deny);
         private double _firstMarkerYNScale;
+
+        public event EventHandler TeachingCompleted;
+
         public void SetParams(params double[] ps)
         {
             Guard.HasSizeEqualTo(ps, 1, nameof(ps));

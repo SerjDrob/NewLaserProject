@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
@@ -8,6 +9,7 @@ namespace NewLaserProject.Classes
         Task Deny();
         Task Next();
         Task StartTeach();
+        event EventHandler TeachingCompleted;
         void SetParams(params double[] ps);
         double[] GetParams();
     }

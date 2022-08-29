@@ -11,6 +11,8 @@ namespace NewLaserProject.Classes
         private StateMachine<MyState, MyTrigger> _stateMachine;
         private (bool init, double dx, double dy) _newOffset = (false, 0, 0);
 
+        public event EventHandler TeachingCompleted;
+
         public static CameraBiasTeacherBuilder GetBuilder()
         {
             return new CameraBiasTeacherBuilder();
@@ -33,7 +35,6 @@ namespace NewLaserProject.Classes
 
             _stateMachine.Configure(MyState.AtLoadPoint)
                 .OnEntryAsync(GoLoadPoint)
-                //.OnEntry(TestTask)
                 .Permit(MyTrigger.Next, MyState.UnderCamera)
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);
@@ -63,13 +64,13 @@ namespace NewLaserProject.Classes
                .Ignore(MyTrigger.Next);
 
             _stateMachine.Configure(MyState.End)
-               .OnEntryAsync(OnBiasTought)
+               .OnEntryAsync(async () => { await OnBiasTought.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                .Ignore(MyTrigger.Next)
                .Ignore(MyTrigger.Accept)
                .Ignore(MyTrigger.Deny);
 
             _stateMachine.Configure(MyState.HasResult)
-                .OnEntryAsync(GiveResult)
+                .OnEntryAsync(async () => { await GiveResult.Invoke(); TeachingCompleted?.Invoke(this,EventArgs.Empty); })
                 .Ignore(MyTrigger.Next)
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);

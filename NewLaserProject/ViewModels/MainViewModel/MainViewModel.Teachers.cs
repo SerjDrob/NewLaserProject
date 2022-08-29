@@ -118,7 +118,7 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
 
-        private async Task TeachCameraOffsetAsync()
+        private async Task<ITeacher> TeachCameraOffsetAsync()
         {
             //if(_canTeach) return;
 
@@ -243,11 +243,12 @@ namespace NewLaserProject.ViewModels
                     TeachingSteps = new();
                     _canTeach = false;
                 }));
-            _currentTeacher = tcb.Build();
-            await _currentTeacher.StartTeach();
-            _canTeach = true;
+            return tcb.Build();
+            //_currentTeacher = tcb.Build();
+            //await _currentTeacher.StartTeach();
+            //_canTeach = true;
         }
-        private async Task TeachScanatorHorizontAsync()
+        private async Task<ITeacher> TeachScanatorHorizontAsync()
         {
             var waferWidth = 48;
             var delta = 0.5F;
@@ -363,11 +364,12 @@ namespace NewLaserProject.ViewModels
                     MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                     _canTeach = false;
                 }));
-            _currentTeacher = tcb.Build();
-            await _currentTeacher.StartTeach();
-            _canTeach = true;
+            return tcb.Build();
+            //_currentTeacher = tcb.Build();
+            //await _currentTeacher.StartTeach();
+            //_canTeach = true;
         }
-        private async Task TeachOrthXYAsync()
+        private async Task<ITeacher> TeachOrthXYAsync()
         {
             //TODO not all transformations are set on default
             _tempWaferTurn90 = WaferTurn90;
@@ -399,7 +401,7 @@ namespace NewLaserProject.ViewModels
             Guard.IsEqualTo(points.Count, 3, nameof(points));
             using var pointsEnumerator = points.GetEnumerator();
 
-            _currentTeacher = XYOrthTeacher.GetBuilder()
+            var builder = XYOrthTeacher.GetBuilder()
                 .SetOnGoNextPointAction(() => Task.Run(async () =>
                 {
                     pointsEnumerator.MoveNext();
@@ -464,8 +466,8 @@ namespace NewLaserProject.ViewModels
                     var pureSystem = builder.FormWorkMatrix(0.001, -0.001, true).Build();
                     var teachSystem = builder.FormWorkMatrix(1, 1, false).Build();
 
-                    pureSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS,"PureDeformation.json"));
-                    teachSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS,"TeachingDeformation.json"));
+                    pureSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "PureDeformation.json"));
+                    teachSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "TeachingDeformation.json"));
 
                     MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
                     MirrorX = _tempMirrorX;
@@ -475,17 +477,17 @@ namespace NewLaserProject.ViewModels
                     _coorSystem = GetCoorSystem();
 
                     _canTeach = false;
-                }))
-                .Build();
-            await _currentTeacher.StartTeach();
-            _canTeach = true;
+                }));
+                return builder.Build();
+            //await _currentTeacher.StartTeach();
+            //_canTeach = true;
         }
-        private async Task TeachCameraScaleAsync()
+        private async Task<ITeacher> TeachCameraScaleAsync()
         {
             var teachPosition = new double[] { 1, 1 };
 
             var tcs = CameraScaleTeacher.GetBuilder()
-                .SetOnRequestPermissionToStartAction(() => Task.Run(async () =>
+                .SetOnRequestPermissionToStartAction(() => Task.Run(async () => //TODO looks like pornogrphy
                 {
                     if (MessageBox.Show("Обучить масштаб видео?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
@@ -540,9 +542,9 @@ namespace NewLaserProject.ViewModels
                     techMessager.RealeaseMessage("Новое значение установленно", MessageType.Exclamation);
                     _canTeach = false;
                 }));
-            _currentTeacher = tcs.Build();
-            await _currentTeacher.StartTeach();
-            _canTeach = true;
+            return tcs.Build();
+            //await _currentTeacher.StartTeach();
+            //_canTeach = true;
 
         }
 
@@ -643,17 +645,7 @@ namespace NewLaserProject.ViewModels
         public double TestPointX { get; set; } = 58;
         public double TestPointY { get; set; } = 46;
 
-        [ICommand]
-        private async Task TestPoint1()
-        {
-            //var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[] { new PPoint(TestPointX, TestPointY, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (60, 48));
-
-            //var point = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, wafer[0].X, wafer[0].Y);
-
-            //await _laserMachine.MoveGpInPosAsync(Groups.XY, point, true);
-            await _testThreePointsProcess.TestPoint(TestPointX, TestPointY);
-        }
-
+        
         [ICommand]
         private async Task TestPierce()
         {

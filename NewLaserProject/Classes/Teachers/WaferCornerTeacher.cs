@@ -11,6 +11,8 @@ namespace NewLaserProject.Classes
         private StateMachine<MyState, MyTrigger> _stateMachine;
         private (bool init, double x, double y) _newCorner = (false, 0, 0);
 
+        public event EventHandler TeachingCompleted;
+
         public static WaferCornerTeacherBuilder GetBuilder()
         {
             return new WaferCornerTeacherBuilder();
@@ -44,13 +46,13 @@ namespace NewLaserProject.Classes
                .Ignore(MyTrigger.Next);
 
             _stateMachine.Configure(MyState.End)
-               .OnEntryAsync(OnCornerTought)
+               .OnEntryAsync(async ()=> { await OnCornerTought.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                .Ignore(MyTrigger.Next)
                .Ignore(MyTrigger.Accept)
                .Ignore(MyTrigger.Deny);
 
             _stateMachine.Configure(MyState.HasResult)
-                .OnEntryAsync(GiveResult)
+                .OnEntryAsync(async()=> { await GiveResult.Invoke(); TeachingCompleted?.Invoke(this, EventArgs.Empty); })
                 .Ignore(MyTrigger.Next)
                 .Ignore(MyTrigger.Accept)
                 .Ignore(MyTrigger.Deny);

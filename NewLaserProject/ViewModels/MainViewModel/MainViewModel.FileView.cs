@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Windows.Media;
 
 namespace NewLaserProject.ViewModels
 {
@@ -86,15 +87,15 @@ namespace NewLaserProject.ViewModels
                     WaferOffsetY = 0;
                     ((FileVM)_openedFileVM).SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName);
                     ((FileVM)_openedFileVM).TransformationChanged += MainViewModel_TransformationChanged;
-                    
+
                     IgnoredLayers = new(_db.Set<DefaultLayerFilter>()
                                             .AsNoTracking()
                                             .Select(d => KeyValuePair.Create(d.Filter, d.IsVisible)));
-                    
+
                     _db.Set<Material>()
                       .Include(m => m.Technologies)
                       .Load();
-                   
+
                     AvailableMaterials = _db.Set<Material>()
                                             .Local
                                             .ToObservableCollection();
@@ -118,7 +119,7 @@ namespace NewLaserProject.ViewModels
                             {
                                 DefLayerIndex = LayersStructure.Keys.ToList()
                                     .IndexOf(layer);
-                                
+
                                 DefEntityIndex = LayersStructure[layer]
                                     .Select(e => LaserEntDxfTypeAdapter.GetLaserEntity(e.objType))
                                     .ToList()
@@ -145,8 +146,10 @@ namespace NewLaserProject.ViewModels
                             .FindIndex(t => t.Id == defLayerEntTechnology.Id) ?? -1;
                     }
 
-                    IsFileLoaded = true;                   
-                    
+                    IsFileLoaded = true;
+
+                    var reader = new TestDxfReader(FileName);
+                    TestGeomCollection = reader.GetTestGeomCollection();
                 }
                 else
                 {
@@ -155,7 +158,8 @@ namespace NewLaserProject.ViewModels
             }
 
         }
-
+        public Geometry TestGeometry { get; set; }
+        public GeometryCollection TestGeomCollection { get; set; }
         private void MainViewModel_TransformationChanged(object? sender, EventArgs e)
         {
             var fileVM = _openedFileVM as FileVM;

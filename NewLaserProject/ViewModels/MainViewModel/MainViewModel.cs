@@ -42,6 +42,10 @@ namespace NewLaserProject.ViewModels
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
         public string VideoScreenMessage { get; set; } = "";
+        public bool IsVideoPanelVisible { get; set; } = true;
+        public bool IsFilePanelVisible { get; set; } = false;
+        public bool IsLearningPanelVisible { get; set; } = false;
+        public bool IsProcessPanelVisible { get; set; } = false;
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
         public bool ProcessUnderCamera { get; set; } = false;
@@ -51,8 +55,6 @@ namespace NewLaserProject.ViewModels
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
-        //public LayersProcessingModel LPModel { get; set; }
-        //public TechWizardViewModel TWModel { get; set; }
         public bool LeftCornerBtnVisibility { get; set; } = false;
         public bool RightCornerBtnVisibility { get; set; } = false;
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
@@ -170,7 +172,37 @@ namespace NewLaserProject.ViewModels
         {
             (RightSideVM, CentralSideVM) = (CentralSideVM, RightSideVM);
         }
+        private void ChangeViews(bool IsVideOnCenter)
+        {
+            if (IsVideOnCenter & RightSideVM is CameraVM)
+            {
+                ChangeViews();
+            }
+            else if(!IsVideOnCenter & CentralSideVM is CameraVM)
+            {
+                ChangeViews();
+            }            
+        }
+        private void HideVideoPanel(bool hide)
+        {
+            IsVideoPanelVisible = !hide;
 
+        }
+        private void HideFilePanel(bool hide)
+        {
+            IsFilePanelVisible = !hide;
+
+        }
+        private void HideLearningPanel(bool hide)
+        {
+            IsLearningPanelVisible = !hide;
+
+        }
+        private void HideProcessPanel(bool hide)
+        {
+            IsProcessPanelVisible = !hide;
+
+        }
         private void InitViews()
         {
             _openedFileVM = new FileVM(48, 60);
