@@ -22,6 +22,7 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
+        public ObservableCollection<object> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
         public FileAlignment FileAlignment { get; set; }
 
@@ -49,7 +50,12 @@ namespace NewLaserProject.ViewModels
                 //OnProcess = false;
             }
         }
-
+        
+        [ICommand]
+        private void AddObjectToProcess()
+        {
+            ObjectsForProcessing.Add("object");
+        }
         private async Task StartProcess()
         {
             //TODO determine size by specified layer
