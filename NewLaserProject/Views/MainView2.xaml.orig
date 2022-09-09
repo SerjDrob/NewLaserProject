@@ -205,7 +205,7 @@
                         </StackPanel>
                     </StackPanel>
                 </Button>
-                <StackPanel DockPanel.Dock="Bottom" >
+                <StackPanel DockPanel.Dock="Bottom">
                     <StackPanel.Resources>
                         <Style TargetType="Border">
                             <Setter Property="BorderThickness" Value="1"/>
@@ -215,26 +215,26 @@
                             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                         </Style>
                     </StackPanel.Resources>
-                    <uc:AxisState CoordinateName="X"                                  
-                                  Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.Position}"  
-                                  LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.NLmt}"
-                                  LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.PLmt}"
-                                  MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.MotionDone}" 
-                                  CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.CmdPosition}"
+                    <uc:AxisState CoordinateName="X" 
+                                  Coordinate="{Binding XAxis.Position}"
+                                  LmtNeg="{Binding XAxis.NLmt}"
+                                  LmtPos="{Binding XAxis.PLmt}"
+                                  MotionDone="{Binding XAxis.MotionDone}" 
+                                  CmdCoordinate="{Binding XAxis.CmdPosition}"
                                   />
                     <uc:AxisState CoordinateName="Y"
-                                  Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.Position}"
-                                  LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.NLmt}"
-                                  LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.PLmt}"
-                                  MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.MotionDone}"
-                                  CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.CmdPosition}"
+                                  Coordinate="{Binding YAxis.Position}"
+                                  LmtNeg="{Binding YAxis.NLmt}"
+                                  LmtPos="{Binding YAxis.PLmt}"
+                                  MotionDone="{Binding YAxis.MotionDone}"
+                                  CmdCoordinate="{Binding YAxis.CmdPosition}"
                                   />
                     <uc:AxisState CoordinateName="Z"
-                                  Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.Position}"
-                                  LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.NLmt}"
-                                  LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.PLmt}"
-                                  MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.MotionDone}"
-                                  CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.CmdPosition}"
+                                  Coordinate="{Binding ZAxis.Position}"
+                                  LmtNeg="{Binding ZAxis.NLmt}"
+                                  LmtPos="{Binding ZAxis.PLmt}"
+                                  MotionDone="{Binding ZAxis.MotionDone}"
+                                  CmdCoordinate="{Binding ZAxis.CmdPosition}"
                                   />
                     
                     <!--<TextBlock x:Name="VelText" Text="Быстро">
@@ -383,11 +383,14 @@
                             </DockPanel>
                         </Border>
 
+<<<<<<< HEAD
+                            <ContentControl Content="{Binding RightSideVM}" MinHeight="300">
+=======
                         <ContentControl Content="{Binding RightSideVM}" 
                                         DockPanel.Dock="Top"
-                                        MinHeight="300"
-                                        Visibility="{Binding IsRightPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
-                            <!--<i:Interaction.Triggers>
+                                        MinHeight="300">
+>>>>>>> ef1aec85e37913689dc413c7c943b8b7adf12547
+                                <!--<i:Interaction.Triggers>
                                     <i:DataTrigger Binding="{Binding OnProcess}" Value="True">
                                         <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
                                     </i:DataTrigger>
@@ -395,95 +398,99 @@
                                         <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
                                     </i:DataTrigger>
                                 </i:Interaction.Triggers>-->
+<<<<<<< HEAD
+                            </ContentControl>
+=======
                         </ContentControl>
+>>>>>>> ef1aec85e37913689dc413c7c943b8b7adf12547
 
-                        <GroupBox x:Name="ProcessPanel"
+                        <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+                            <!--<ContentControl DockPanel.Dock="Left" Content="{Binding LPModel}"/>-->
+                            <GroupBox x:Name="ProcessPanel"
                                       Header="Текущий процесс" 
-                                      DockPanel.Dock="Top"
-                                      VerticalAlignment="Stretch"
-                                  >
-                            <i:Interaction.Triggers>
-                                <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
-                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
-                                </i:DataTrigger>
-                                <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="True">
-                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
-                                </i:DataTrigger>
-                            </i:Interaction.Triggers>
+                                      DockPanel.Dock="Top">
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="True">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
 
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-
-                                <DockPanel LastChildFill="True" Grid.ColumnSpan="3" HorizontalAlignment="Left">
-                                    <ToggleButton DockPanel.Dock="Right"
+                                    <DockPanel LastChildFill="True" Grid.ColumnSpan="3" HorizontalAlignment="Left">
+                                        <ToggleButton DockPanel.Dock="Right"
                                                       IsChecked="{Binding FileAlignment, Mode=OneWayToSource, Converter={StaticResource FileAlignmentConverter}}"
                                                       hc:IconSwitchElement.Geometry="{StaticResource AlignByAngleGeometry}"
                                                       hc:IconSwitchElement.GeometrySelected="{StaticResource AlignByThreePointGeometry}"
                                                       RenderTransformOrigin="0,0.5"
                                                       Style="{StaticResource ToggleButtonIcon}"
                                                       >
-                                        <ToggleButton.RenderTransform>
-                                            <ScaleTransform ScaleY="-1"/>
-                                        </ToggleButton.RenderTransform>
-                                    </ToggleButton>
-                                    <Label Content="Тип совмещения"/>
-
-                                </DockPanel>
-                                <hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
-                                    <TreeView
+                                            <ToggleButton.RenderTransform>
+                                                <ScaleTransform ScaleY="-1"/>
+                                            </ToggleButton.RenderTransform>
+                                        </ToggleButton>
+                                        <Label Content="Тип совмещения"/>
+                                        
+                                    </DockPanel>
+                                    <hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
+                                        <TreeView
                                               x:Name="LayersList" 
                                               Height="150" 
                                               ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
-                                        <TreeView.ItemContainerStyle>
-                                            <Style TargetType="{x:Type TreeViewItem}">
-                                                <Setter Property="IsExpanded" Value="True" />
-                                            </Style>
-                                        </TreeView.ItemContainerStyle>
-                                        <TreeView.Resources>
-                                            <HierarchicalDataTemplate DataType="{x:Type vm:Layer}" ItemsSource="{Binding Objects}">
-                                                <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
-                                            </HierarchicalDataTemplate>
-                                            <DataTemplate DataType="{x:Type vm:Text}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
-                                                    <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
+                                            <TreeView.ItemContainerStyle>
+                                                <Style TargetType="{x:Type TreeViewItem}">
+                                                    <Setter Property="IsExpanded" Value="True" />
+                                                </Style>
+                                            </TreeView.ItemContainerStyle>
+                                            <TreeView.Resources>
+                                                <HierarchicalDataTemplate DataType="{x:Type vm:Layer}" ItemsSource="{Binding Objects}">
+                                                    <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
+                                                </HierarchicalDataTemplate>
+                                                <DataTemplate DataType="{x:Type vm:Text}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
+                                                        <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
                                                         ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                                    <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
-                                                    <TextBlock Text="{Binding Count}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                                                    <TextBlock Text=" ]" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </TreeView.Resources>
-                                    </TreeView>
-                                </hc:ComboBox>
+                                                        <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
+                                                        <TextBlock Text="{Binding Count}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                                                        <TextBlock Text=" ]" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </TreeView.Resources>
+                                        </TreeView>
+                                    </hc:ComboBox>
 
-                                <ComboBox 
+                                    <ComboBox 
                                         Grid.Row="1"
                                         ItemsSource="{Binding Source={StaticResource FileStructure}}"
                                         SelectedIndex="{Binding DefLayerIndex}"
                                         SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
                                         >
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding LayerName}"/>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding LayerName}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
 
-                                <uclocal:ItemsButton x:Name="testname" 
+                                    <uclocal:ItemsButton x:Name="testname" 
                                         Grid.Row="1"
                                         Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
                                         ItemSelector="{StaticResource EntitySelector}"
@@ -493,38 +500,38 @@
                                         HorizontalAlignment="Stretch"
                                         />
 
-                                <ComboBox x:Name="Materials"
+                                    <ComboBox x:Name="Materials"
                                         Grid.Row="1"
                                         ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
                                         SelectedIndex="{Binding DefMaterialIndex}"
                                         Grid.Column="2"
                                         >
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding Thickness}"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                                <ComboBox Grid.Row="1"
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Name}" Margin="0,0,10,0"/>
+                                                    <TextBlock Text="{Binding Thickness}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <ComboBox Grid.Row="1"
                                               ItemsSource="{Binding Source={StaticResource MaterialSource}, 
                                               Path=Technologies}"
                                               SelectedIndex="{Binding DefTechnologyIndex}"
                                               SelectedItem="{Binding CurrentTechnology}"  
                                               Grid.Column="3"                                  
                                               >
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-
-                                <ToggleButton Grid.Row="1" Grid.Column="5"
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    
+                                    <ToggleButton Grid.Row="1" Grid.Column="5"
                                                   Command="{Binding StartStopProcessCommand}"
                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
                                                   IsChecked="False"
@@ -533,18 +540,18 @@
                                                   RenderTransformOrigin="0,0.5"
                                                   Style="{StaticResource ToggleButtonIcon}"
                                                   >
-                                    <ToggleButton.RenderTransform>
-                                        <ScaleTransform ScaleY="-1"/>
-                                    </ToggleButton.RenderTransform>
-                                </ToggleButton>
-
-                                <Border  Grid.Row="2" 
+                                        <ToggleButton.RenderTransform>
+                                            <ScaleTransform ScaleY="-1"/>
+                                        </ToggleButton.RenderTransform>
+                                    </ToggleButton>
+                                   
+                                    <Border  Grid.Row="2" 
                                              Grid.ColumnSpan="6" 
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
                                              Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                              >
-                                    <DataGrid
+                                        <DataGrid
                                               AutoGenerateColumns="False" 
                                               ItemsSource="{Binding ProcessingObjects}"
                                               Style="{StaticResource DataGrid.Small}"
@@ -553,92 +560,90 @@
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               LoadingRow="DataGrid_LoadingRow"
                                               >
-
-                                        <DataGrid.RowStyle>
-                                            <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle.Small}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsProcessed}" Value="True">
-                                                        <Setter Property="IsEnabled"  Value="False"/>
-                                                        <Setter Property="Opacity" Value="0.5"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding IsBeingProcessed}" Value="True">
-                                                        <Setter Property="IsSelected"  Value="True"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </DataGrid.RowStyle>
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
-                                            <DataGridTemplateColumn Header="Тип">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <ContentControl Content="{Binding Converter={StaticResource IProcTypeToEntityConverter}}" 
+                                           
+                                            <DataGrid.RowStyle>
+                                                <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle.Small}">
+                                                    <Style.Triggers>                                                        
+                                                        <DataTrigger Binding="{Binding IsProcessed}" Value="True">
+                                                            <Setter Property="IsEnabled"  Value="False"/>
+                                                            <Setter Property="Opacity" Value="0.5"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsBeingProcessed}" Value="True">
+                                                            <Setter Property="IsSelected"  Value="True"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </DataGrid.RowStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
+                                                <DataGridTemplateColumn Header="Тип">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <ContentControl Content="{Binding Converter={StaticResource IProcTypeToEntityConverter}}" 
                                                                             ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-                                            <DataGridTemplateColumn Header="Координаты">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock >
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTemplateColumn Header="Координаты">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock >
                                                                 <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
                                                                 <Run Text="&#215;"/>
                                                                 <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
-                                                        </TextBlock>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-                                            <DataGridTemplateColumn Header="Обработка">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <CheckBox IsChecked="{Binding ToProcess}">
-                                                            <i:Interaction.Triggers>
-                                                                <i:EventTrigger EventName="Checked">
-                                                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.ToProcCheckedCommand,
+                                                            </TextBlock>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTemplateColumn Header="Обработка">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsChecked="{Binding ToProcess}">
+                                                                <i:Interaction.Triggers>                                                                    
+                                                                    <i:EventTrigger EventName="Checked">
+                                                                        <i:InvokeCommandAction Command="{Binding Path=DataContext.ToProcCheckedCommand,
                                                                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" 
                                                                                                CommandParameter="{Binding}"
                                                                                                />
-                                                                </i:EventTrigger>
-                                                                <i:EventTrigger EventName="Unchecked">
-                                                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.ToProcUncheckedCommand,
+                                                                    </i:EventTrigger>
+                                                                    <i:EventTrigger EventName="Unchecked">
+                                                                        <i:InvokeCommandAction Command="{Binding Path=DataContext.ToProcUncheckedCommand,
                                                                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" 
                                                                                                CommandParameter="{Binding}"
                                                                                                />
-                                                                </i:EventTrigger>
-                                                            </i:Interaction.Triggers>
-                                                        </CheckBox>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </Border>
-                                <GroupBox Grid.Row="3" 
+                                                                    </i:EventTrigger>
+                                                                </i:Interaction.Triggers>
+                                                            </CheckBox>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Border>
+                                    <GroupBox Grid.Row="3" 
                                              Grid.ColumnSpan="6"
+                                             MinHeight="300" 
                                               >
-                                    <GroupBox.Header>
-                                        <TextBlock Text="Current element"/>
-                                    </GroupBox.Header>
-                                    <Border 
+                                        <GroupBox.Header>
+                                            <TextBlock Text="Current element"/>
+                                        </GroupBox.Header>
+                                        <Border 
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
                                              Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}" 
+                                             Background="AliceBlue"
                                              Padding="50">
-                                        <Path Data="{Binding TestGeometry}" 
+                                            <Path Data="{Binding TestGeometry}" 
                                               Stretch="Uniform"
                                               Fill="red"
-                                              Stroke="White"
-                                              StrokeThickness="1"
-                                              RenderTransformOrigin="0.5 0.5"
-                                              >
-                                            <Path.RenderTransform>
-                                                <ScaleTransform ScaleY="-1"/>
-                                            </Path.RenderTransform>
-                                        </Path>
-                                    </Border>
-                                </GroupBox>
-                            </Grid>
-                        </GroupBox>
+                                              Stroke="Black"
+                                              StrokeThickness="2">
+                                            </Path>
+                                        </Border>
+                                    </GroupBox>
+                                </Grid>
+                            </GroupBox>
+                        </DockPanel>
 
                         <hc:StepBar x:Name="LearningPanel"
                                     DockPanel.Dock="Top" 

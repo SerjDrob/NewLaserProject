@@ -44,6 +44,7 @@ namespace NewLaserProject.ViewModels
             }
             else
             {
+                CancelProcess();
                 await _appStateMachine.FireAsync(AppTrigger.EndProcess);
 
                 //OnProcess = false;

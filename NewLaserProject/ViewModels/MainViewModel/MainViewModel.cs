@@ -42,8 +42,8 @@ namespace NewLaserProject.ViewModels
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
         public string VideoScreenMessage { get; set; } = "";
-        public bool IsVideoPanelVisible { get; set; } = true;
-        public bool IsFilePanelVisible { get; set; } = false;
+        public bool IsRightPanelVisible { get; set; } = true;
+        public bool IsCentralPanelVisible { get; set; } = false;
         public bool IsLearningPanelVisible { get; set; } = false;
         public bool IsProcessPanelVisible { get; set; } = false;
         public string TechInfo { get; set; }
@@ -185,14 +185,14 @@ namespace NewLaserProject.ViewModels
                 ChangeViews();
             }            
         }
-        private void HideVideoPanel(bool hide)
+        private void HideRightPanel(bool hide)
         {
-            IsVideoPanelVisible = !hide;
+            IsRightPanelVisible = !hide;
 
         }
-        private void HideFilePanel(bool hide)
+        private void HideCentralPanel(bool hide)
         {
-            IsFilePanelVisible = !hide;
+            IsCentralPanelVisible = !hide;
 
         }
         private void HideLearningPanel(bool hide)

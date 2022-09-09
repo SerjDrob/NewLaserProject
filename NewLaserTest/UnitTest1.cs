@@ -214,6 +214,8 @@ namespace NewLaserTest
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90, Transformation.MirrorX, Transformation.Translte }, 0.001F, 60000, 48000, 1000, 1000, 29, 59, -18)]
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90, Transformation.MirrorX, Transformation.Translte }, 0.001F, 60000, 48000, 14500, 24000, 6, 45.5, -18)]
         [TestCase(new[] { Transformation.Scale, Transformation.Turn90, Transformation.MirrorX, Transformation.Translte }, 0.001F, 60000, 48000, 45500, 24000, 6, 14.5, -18)]
+        [TestCase(new[] { Transformation.Scale, Transformation.Turn90, Transformation.Translte }, 0.001F, 60000, 48000, 3250, 4100, 34.9, -11.75, -9, -15)]
+
         public void TestLaserWaferTransformations(Transformation[] trSequence, float scale, double sizeX,
             double sizeY, double x1, double y1, double x2, double y2, float offsetX = 0, float offsetY = 0)
         {
