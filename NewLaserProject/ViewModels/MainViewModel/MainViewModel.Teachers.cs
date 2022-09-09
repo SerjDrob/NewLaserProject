@@ -394,7 +394,7 @@ namespace NewLaserProject.ViewModels
             var sys = buider.Build();
 
 
-            using var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), (60, 48));
+            using var wafer = new LaserWafer/*<MachineClassLibrary.Laser.Entities.Point>*/(_dxfReader.GetPoints(), (60, 48));
 
             var points = wafer.ToList() ?? throw new NullReferenceException();
 

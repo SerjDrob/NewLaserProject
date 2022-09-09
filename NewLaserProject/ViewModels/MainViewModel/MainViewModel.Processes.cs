@@ -15,7 +15,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace NewLaserProject.ViewModels
@@ -23,14 +22,14 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
-        public IProcObject IsBeingProcessedObject { get; set; }       
+        public IProcObject IsBeingProcessedObject { get; set; }
         public FileAlignment FileAlignment { get; set; }
-                
+
         public Technology CurrentTechnology { get; set; }
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
 
-        
+
         [ICommand]
         private async Task StartStopProcess(object arg)
         {
@@ -39,7 +38,7 @@ namespace NewLaserProject.ViewModels
                 //OnProcess = true;
                 await _appStateMachine.FireAsync(AppTrigger.StartProcess);
 #if PCIInserted
-               // await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                // await _appStateMachine.FireAsync(AppTrigger.EndProcess);
 #endif
             }
             else
@@ -49,17 +48,17 @@ namespace NewLaserProject.ViewModels
 
                 //OnProcess = false;
             }
-        }        
-        
+        }
+
         private async Task StartProcess()
-        {           
+        {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
 
             ITransformable wafer = CurrentEntityType switch
             {
-                LaserEntity.Curve => new LaserWafer<Curve>(_dxfReader.GetAllCurves(CurrentLayerFilter), topologySize),
-                LaserEntity.Circle => new LaserWafer<Circle>(_dxfReader.GetCircles(CurrentLayerFilter).ToList(), topologySize)
+                LaserEntity.Curve => new LaserWafer(_dxfReader.GetAllCurves(CurrentLayerFilter), topologySize),
+                LaserEntity.Circle => new LaserWafer(_dxfReader.GetCircles(CurrentLayerFilter), topologySize)
             };
 
             wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
@@ -85,7 +84,7 @@ namespace NewLaserProject.ViewModels
                 case FileAlignment.AlignByThreePoint:
                     {
                         var pts = _dxfReader.GetPoints();
-                        var waferPoints = new LaserWafer<Point>(pts, topologySize);
+                        var waferPoints = new LaserWafer(pts, topologySize);
                         waferPoints.Scale(1F / FileScale);
                         if (WaferTurn90) waferPoints.Turn90();
                         if (MirrorX) waferPoints.MirrorX();
@@ -191,13 +190,13 @@ namespace NewLaserProject.ViewModels
                 _mainProcess?.ExcludeObject(procObject);
             }
         }
-        private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj,int index) e)
+        private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj, int index) e)
         {
             if (e.index > -1)
             {
-                TestGeometry = e.procObj.ToGeometry();   
+                TestGeometry = e.procObj.ToGeometry();
                 ProcessingObjects[e.index] = e.procObj;
-              //  ProcessingObjects = new(ProcessingObjects);
+                //  ProcessingObjects = new(ProcessingObjects);
             }
         }
 
@@ -211,7 +210,7 @@ namespace NewLaserProject.ViewModels
             _mainProcess?.Deny();
         }
 
-        
+
         [ICommand]
         private Task TPProcessNext()
         {

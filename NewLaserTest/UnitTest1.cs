@@ -219,7 +219,7 @@ namespace NewLaserTest
         public void TestLaserWaferTransformations(Transformation[] trSequence, float scale, double sizeX,
             double sizeY, double x1, double y1, double x2, double y2, float offsetX = 0, float offsetY = 0)
         {
-            var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[] { new PPoint(x1, y1, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (sizeX, sizeY));
+            var wafer = new LaserWafer/*<MachineClassLibrary.Laser.Entities.Point>*/(new[] { new PPoint(x1, y1, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (sizeX, sizeY));
             foreach (var tr in trSequence)
             {
                 switch (tr)

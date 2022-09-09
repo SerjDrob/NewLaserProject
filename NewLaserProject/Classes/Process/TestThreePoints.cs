@@ -130,7 +130,7 @@ namespace NewLaserProject.Classes.Process
 
         public async Task TestPoint(double x, double y)
         {
-            var wafer = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(new[] { new PPoint(x, y, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (60, 48));
+            var wafer = new LaserWafer(new[] { new PPoint(x, y, 0, new MachineClassLibrary.Laser.Entities.Point(), "", 0) }, (60, 48));
 
             var point = workCoorSys.ToGlobal(wafer[0].X, wafer[0].Y);
 

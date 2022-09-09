@@ -413,6 +413,7 @@
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="36"/>
                                     <ColumnDefinition Width="*"/>
@@ -442,6 +443,9 @@
                                     <Label Content="Тип совмещения"/>
 
                                 </DockPanel>
+                                <Button Grid.Row="1" Style="{StaticResource ButtonWarning.Small}">
+                                    <Path Data="{StaticResource AddGeometry}"/>
+                                </Button>
                                 <hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
                                     <TreeView
                                               x:Name="LayersList" 
@@ -472,6 +476,7 @@
 
                                 <ComboBox 
                                         Grid.Row="1"
+                                        Grid.Column="1"
                                         ItemsSource="{Binding Source={StaticResource FileStructure}}"
                                         SelectedIndex="{Binding DefLayerIndex}"
                                         SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
@@ -485,19 +490,20 @@
 
                                 <uclocal:ItemsButton x:Name="testname" 
                                         Grid.Row="1"
+                                        Grid.Column="2"
                                         Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
                                         ItemSelector="{StaticResource EntitySelector}"
                                         SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
                                         SetIndex="{Binding DefEntityIndex}"
-                                        Grid.Column="1"
                                         HorizontalAlignment="Stretch"
                                         />
 
                                 <ComboBox x:Name="Materials"
                                         Grid.Row="1"
+                                        Grid.Column="3"
                                         ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
                                         SelectedIndex="{Binding DefMaterialIndex}"
-                                        Grid.Column="2"
+                                        
                                         >
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
@@ -509,12 +515,12 @@
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
                                 <ComboBox Grid.Row="1"
-                                              ItemsSource="{Binding Source={StaticResource MaterialSource}, 
-                                              Path=Technologies}"
-                                              SelectedIndex="{Binding DefTechnologyIndex}"
-                                              SelectedItem="{Binding CurrentTechnology}"  
-                                              Grid.Column="3"                                  
-                                              >
+                                          Grid.Column="4"
+                                          ItemsSource="{Binding Source={StaticResource MaterialSource}, 
+                                          Path=Technologies}"
+                                          SelectedIndex="{Binding DefTechnologyIndex}"
+                                          SelectedItem="{Binding CurrentTechnology}"  
+                                          >
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
