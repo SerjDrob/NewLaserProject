@@ -50,7 +50,6 @@ namespace NewLaserProject.ViewModels
 
         public Dictionary<string, bool> IgnoredLayers { get; set; }
         public LaserDbViewModel LaserDbVM { get; set; }
-
         public ObservableCollection<Material> AvailableMaterials { get; set; } = new();
         public IDictionary<string, IEnumerable<(string objType, int count)>> LayersStructure { get; private set; }
 

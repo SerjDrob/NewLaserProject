@@ -1,14 +1,10 @@
-﻿using System;
+﻿using MachineClassLibrary.Laser.Entities;
+using NewLaserProject.Classes;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
-using MachineClassLibrary.Laser.Entities;
-using MachineControlsLibrary.Converters;
-using NewLaserProject.Classes;
 
 namespace NewLaserProject.Views.Converters
 {

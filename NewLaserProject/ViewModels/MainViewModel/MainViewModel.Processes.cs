@@ -19,10 +19,23 @@ using System.Windows.Input;
 
 namespace NewLaserProject.ViewModels
 {
+    internal class ObjsToProcess
+    {
+        public IDictionary<string, IEnumerable<(string objType, int count)>> Structure { get; init; }
+        public ObjsToProcess(IDictionary<string, IEnumerable<(string objType, int count)>> layersStructure)
+        {
+            Structure = layersStructure;
+            LaserEntity = LaserEntity.None;
+        }
+
+        public string Layer { get; set; }
+        public LaserEntity LaserEntity { get; set; }
+    }
+
     internal partial class MainViewModel
     {
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
-        public ObservableCollection<object> ObjectsForProcessing { get; set; } = new();
+        public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
         public FileAlignment FileAlignment { get; set; }
 
@@ -54,18 +67,33 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void AddObjectToProcess()
         {
-            ObjectsForProcessing.Add("object");
+            ObjectsForProcessing.Add(new ObjsToProcess(LayersStructure));
+        }
+        
+        [ICommand]
+        private void RemoveObjectFromProcess(ObjsToProcess @object)
+        {
+            ObjectsForProcessing.Remove(@object);
         }
         private async Task StartProcess()
         {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
 
-            ITransformable wafer = CurrentEntityType switch
+            var procObjects = (CurrentEntityType switch
             {
-                LaserEntity.Curve => new LaserWafer(_dxfReader.GetAllCurves(CurrentLayerFilter), topologySize),
-                LaserEntity.Circle => new LaserWafer(_dxfReader.GetCircles(CurrentLayerFilter), topologySize)
-            };
+                LaserEntity.Curve => _dxfReader.GetAllCurves(CurrentLayerFilter).Cast<IProcObject>(),
+                LaserEntity.Circle => _dxfReader.GetCircles(CurrentLayerFilter).Cast<IProcObject>()
+            }).Concat(
+                        ObjectsForProcessing
+                        .Where(o => o.LaserEntity == LaserEntity.Circle | o.LaserEntity == LaserEntity.Curve)
+                        .SelectMany(o => o.LaserEntity switch
+                        {
+                            LaserEntity.Curve => _dxfReader.GetAllCurves(o.Layer).Cast<IProcObject>(),
+                            LaserEntity.Circle => _dxfReader.GetCircles(o.Layer).Cast<IProcObject>()
+                        }));
+            
+            var wafer = new LaserWafer(procObjects, topologySize);
 
             wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
             wafer.Scale(1F / FileScale);

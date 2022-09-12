@@ -487,30 +487,25 @@
                                         ItemsSource="{Binding Source={StaticResource FileStructure}}"
                                         SelectedIndex="{Binding DefLayerIndex}"
                                         SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
+                                        DisplayMemberPath="LayerName"
                                         >
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding LayerName}"/>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
                                 </ComboBox>
 
                                 <uclocal:ItemsButton x:Name="testname" 
-                                        Grid.Row="1"
-                                        Grid.Column="2"
-                                        Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
-                                        ItemSelector="{StaticResource EntitySelector}"
-                                        SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
-                                        SetIndex="{Binding DefEntityIndex}"
-                                        HorizontalAlignment="Stretch"
-                                        />
+                                                        Grid.Row="1"
+                                                        Grid.Column="2"
+                                                        Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
+                                                        ItemSelector="{StaticResource EntitySelector}"
+                                                        SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
+                                                        SetIndex="{Binding DefEntityIndex}"
+                                                        HorizontalAlignment="Stretch"
+                                                        />
 
                                 <ComboBox x:Name="Materials"
                                         Grid.Row="1"
                                         Grid.Column="3"
                                         ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
-                                        SelectedIndex="{Binding DefMaterialIndex}"
-                                        
+                                        SelectedIndex="{Binding DefMaterialIndex}"                                        
                                         >
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
@@ -550,46 +545,47 @@
                                         <ScaleTransform ScaleY="-1"/>
                                     </ToggleButton.RenderTransform>
                                 </ToggleButton>
-    
-                                <ItemsControl ItemsSource="{Binding ObjectsForProcessing}" Grid.Row="2" Grid.ColumnSpan="3">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="36"/>                                                    
-                                                </Grid.ColumnDefinitions>
-                                                <Button 
+
+                                <hc:ScrollViewer Grid.Row="2" Grid.ColumnSpan="3" Padding="5">
+                                    <ItemsControl ItemsSource="{Binding ObjectsForProcessing}" >
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="36"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button 
                                                     hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                    Command="{Binding AddObjectToProcessCommand}"
+                                                    Command="{Binding RelativeSource={RelativeSource AncestorType=Window},Path=DataContext.RemoveObjectFromProcessCommand}"
+                                                    CommandParameter="{Binding}"
                                                     Style="{StaticResource ButtonDanger.Small}"
                                                     />
-                                                <ComboBox 
-                                                    Grid.Column="1"
-                                                    ItemsSource="{Binding Source={StaticResource FileStructure}}"
-                                                    SelectedIndex="{Binding DefLayerIndex}"
-                                                    SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
-                                                    >
-                                                    <ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding LayerName}"/>
-                                                        </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
-                                                </ComboBox>
 
-                                                <uclocal:ItemsButton 
-                                                    Grid.Column="2"
-                                                    Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
-                                                    ItemSelector="{StaticResource EntitySelector}"
-                                                    SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
-                                                    SetIndex="{Binding DefEntityIndex}"
-                                                    HorizontalAlignment="Stretch"
-                                                />
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                                    <ComboBox 
+                                                    x:Name="LayComb"
+                                                    Grid.Column="1"
+                                                    ItemsSource="{Binding Structure, Converter={StaticResource LStructureConvereter}}"            
+                                                    SelectedValuePath="LayerName"
+                                                    SelectedValue="{Binding Layer, Mode=OneWayToSource}"
+                                                    DisplayMemberPath="LayerName"
+                                                    >
+                                                    </ComboBox>
+
+                                                    <uclocal:ItemsButton 
+                                                                Grid.Column="2"
+                                                                Items="{Binding ElementName=LayComb, Path=SelectedItem.Entities}"
+                                                                ItemSelector="{StaticResource EntitySelector}"
+                                                                SelectedItem="{Binding LaserEntity, Mode=OneWayToSource}"
+                                                                SetIndex="1"
+                                                                HorizontalAlignment="Stretch"                                                    
+                                                                />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </hc:ScrollViewer>
                                 <Border  Grid.Row="3" 
                                              Grid.ColumnSpan="6" 
                                              BorderBrush="{DynamicResource BorderBrush}"
