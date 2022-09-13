@@ -15,21 +15,35 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace NewLaserProject.ViewModels
 {
+    internal class ObjsToProcess
+    {
+        public IDictionary<string, IEnumerable<(string objType, int count)>> Structure { get; init; }
+        public ObjsToProcess(IDictionary<string, IEnumerable<(string objType, int count)>> layersStructure)
+        {
+            Structure = layersStructure;
+            LaserEntity = LaserEntity.None;
+        }
+
+        public string Layer { get; set; }
+        public LaserEntity LaserEntity { get; set; }
+    }
+
     internal partial class MainViewModel
     {
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
-        public IProcObject IsBeingProcessedObject { get; set; }       
+        public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
+        public IProcObject IsBeingProcessedObject { get; set; }
         public FileAlignment FileAlignment { get; set; }                
+
         public Technology CurrentTechnology { get; set; }
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
 
-        
+
         [ICommand]
         private async Task StartStopProcess(object arg)
         {
@@ -38,27 +52,48 @@ namespace NewLaserProject.ViewModels
                 //OnProcess = true;
                 await _appStateMachine.FireAsync(AppTrigger.StartProcess);
 #if PCIInserted
-                await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                // await _appStateMachine.FireAsync(AppTrigger.EndProcess);
 #endif
             }
             else
             {
+                CancelProcess();
                 await _appStateMachine.FireAsync(AppTrigger.EndProcess);
 
                 //OnProcess = false;
             }
-        }        
+        }
         
+        [ICommand]
+        private void AddObjectToProcess()
+        {
+            ObjectsForProcessing.Add(new ObjsToProcess(LayersStructure));
+        }
+        
+        [ICommand]
+        private void RemoveObjectFromProcess(ObjsToProcess @object)
+        {
+            ObjectsForProcessing.Remove(@object);
+        }
         private async Task StartProcess()
-        {           
+        {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
 
-            ITransformable wafer = CurrentEntityType switch
+            var procObjects = (CurrentEntityType switch
             {
-                LaserEntity.Curve => new LaserWafer<Curve>(_dxfReader.GetAllCurves(CurrentLayerFilter), topologySize),
-                LaserEntity.Circle => new LaserWafer<Circle>(_dxfReader.GetCircles(CurrentLayerFilter).ToList(), topologySize)
-            };
+                LaserEntity.Curve => _dxfReader.GetAllCurves(CurrentLayerFilter).Cast<IProcObject>(),
+                LaserEntity.Circle => _dxfReader.GetCircles(CurrentLayerFilter).Cast<IProcObject>()
+            }).Concat(
+                        ObjectsForProcessing
+                        .Where(o => o.LaserEntity == LaserEntity.Circle | o.LaserEntity == LaserEntity.Curve)
+                        .SelectMany(o => o.LaserEntity switch
+                        {
+                            LaserEntity.Curve => _dxfReader.GetAllCurves(o.Layer).Cast<IProcObject>(),
+                            LaserEntity.Circle => _dxfReader.GetCircles(o.Layer).Cast<IProcObject>()
+                        }));
+            
+            var wafer = new LaserWafer(procObjects, topologySize);
 
             wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
             wafer.Scale(1F / FileScale);
@@ -83,7 +118,7 @@ namespace NewLaserProject.ViewModels
                 case FileAlignment.AlignByThreePoint:
                     {
                         var pts = _dxfReader.GetPoints();
-                        var waferPoints = new LaserWafer<Point>(pts, topologySize);
+                        var waferPoints = new LaserWafer(pts, topologySize);
                         waferPoints.Scale(1F / FileScale);
                         if (WaferTurn90) waferPoints.Turn90();
                         if (MirrorX) waferPoints.MirrorX();
@@ -163,7 +198,7 @@ namespace NewLaserProject.ViewModels
             {
                 if (newItem.IsBeingProcessed & !oldItem.IsBeingProcessed)
                 {
-                    //IsBeingProcessedObject = newItem;
+                    IsBeingProcessedObject = newItem;
                 }
             }
         }
@@ -189,13 +224,13 @@ namespace NewLaserProject.ViewModels
                 _mainProcess?.ExcludeObject(procObject);
             }
         }
-        private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj,int index) e)
+        private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj, int index) e)
         {
             //if (e.index > -1)
             //{
-            //    ProcessingObjects[e.index] = e.procObj;
+                TestGeometry = e.procObj.ToGeometry();
             //}
-
+                //  ProcessingObjects = new(ProcessingObjects);
             IsBeingProcessedObject = e.procObj;
 
         }
@@ -210,7 +245,7 @@ namespace NewLaserProject.ViewModels
             _mainProcess?.Deny();
         }
 
-        
+
         [ICommand]
         private Task TPProcessNext()
         {

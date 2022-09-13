@@ -27,16 +27,17 @@ namespace NewLaserProject.ViewModels
 			_appStateMachine.Configure(AppState.Processing)
 				.OnEntryAsync(async () => {
 					OnProcess = true;
-					HideFilePanel(false);
+					HideCentralPanel(false);
 					HideLearningPanel(true);
 					HideProcessPanel(false);
-					HideVideoPanel(false);
+					//HideVideoPanel(false);
+					HideRightPanel(true);
 					ChangeViews(IsVideOnCenter: false);
 					await StartProcess();
 				})
 				.OnExit(() =>
 				{
-					CancelProcess();
+					//CancelProcess();
 					OnProcess = false;
 				})
 				.Permit(AppTrigger.EndProcess, AppState.Default)
@@ -48,10 +49,10 @@ namespace NewLaserProject.ViewModels
 				.OnEntryAsync(async tr => 
 				{
 					var teacher = (Teacher)tr.Parameters[0];
-					HideFilePanel(false);
+					HideCentralPanel(false);
 					HideLearningPanel(false);
 					HideProcessPanel(true);
-					HideVideoPanel(false);
+					HideRightPanel(false);
 					ChangeViews(IsVideOnCenter: true);
 
 					switch (teacher)
@@ -96,10 +97,10 @@ namespace NewLaserProject.ViewModels
 				})
 				.OnExit(() =>
 				{
-					HideFilePanel(false);
+					HideCentralPanel(false);
 					HideLearningPanel(true);
 					HideProcessPanel(true);
-					HideVideoPanel(false);
+					HideRightPanel(false);
 					ChangeViews();
 				})
 				.Permit(AppTrigger.EndLearning, AppState.Default)

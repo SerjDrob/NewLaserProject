@@ -101,25 +101,34 @@ namespace NewLaserProject.ViewModels
             var dx = WaferWidth * FileScale;
             var dy = WaferHeight * FileScale;
 
-            var ratioOffsetX = aligning switch
+
+            WaferOffsetX = (aligning switch
             {
                 Aligning.Right or Aligning.RTCorner or Aligning.RBCorner => -(WaferTurn90 ? (size.height - dx) : (size.width - dx)),
-                Aligning.Left or Aligning.LTCorner or Aligning.LBCorner => (WaferTurn90 ? (size.height - dx) : (size.width - dx)),
+                Aligning.Left or Aligning.LTCorner or Aligning.LBCorner => WaferTurn90 ? (size.height - dx) : (size.width - dx),
                 Aligning.Top or Aligning.Bottom or Aligning.Center => 0,
-            };
+            }) * scaleX / 2;
 
-            var ratioOffsetY = aligning switch
+            WaferOffsetY = (aligning switch
             {
-                Aligning.Top or Aligning.RTCorner or Aligning.LTCorner => (WaferTurn90 ? (size.width - dy) : (size.height - dy)),
+                Aligning.Top or Aligning.RTCorner or Aligning.LTCorner => WaferTurn90 ? (size.width - dy) : (size.height - dy),
                 Aligning.Bottom or Aligning.RBCorner or Aligning.LBCorner => -(WaferTurn90 ? (size.width - dy) : (size.height - dy)),
                 Aligning.Right or Aligning.Left or Aligning.Center => 0
-            };
+            }) * scaleY / 2;
 
-            WaferOffsetX = ratioOffsetX * scaleX / 2;
-            WaferOffsetY = ratioOffsetY * scaleY / 2;
+            FileOffsetX = (aligning switch
+            {
+                Aligning.Right or Aligning.RTCorner or Aligning.RBCorner => -(WaferTurn90 ? (size.height - dx) : (size.width - dx)),
+                Aligning.Left or Aligning.LTCorner or Aligning.LBCorner => 0,
+                Aligning.Top or Aligning.Bottom or Aligning.Center => -(WaferTurn90 ? (size.height - dx) : (size.width - dx)) / 2,
+            }) / FileScale;
 
-            FileOffsetX = ratioOffsetX / FileScale;
-            FileOffsetY = ratioOffsetY / FileScale;
+            FileOffsetY = (aligning switch
+            {
+                Aligning.Top or Aligning.RTCorner or Aligning.LTCorner => -(WaferTurn90 ? (size.width - dy) : (size.height - dy)),
+                Aligning.Bottom or Aligning.RBCorner or Aligning.LBCorner => 0,
+                Aligning.Right or Aligning.Left or Aligning.Center => -(WaferTurn90 ? (size.width - dy) : (size.height - dy)) / 2
+            }) / FileScale;
         }
 
         [ICommand]
