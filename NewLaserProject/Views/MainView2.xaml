@@ -42,6 +42,8 @@
         <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
 
         <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
+        <Localconverters:IProcToGeometryConverter x:Key="IProcToGeometryConverter"/>
+
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
         <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
@@ -548,7 +550,6 @@
                                               ItemsSource="{Binding ProcessingObjects}"
                                               Style="{StaticResource DataGrid.Small}"
                                               SelectionMode="Single"     
-                                              SelectedItem="{Binding IsBeingProcessedObject}"
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               LoadingRow="DataGrid_LoadingRow"
                                               >
@@ -625,7 +626,8 @@
                                              Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}" 
                                              Background="AliceBlue"
                                              Padding="50">
-                                            <Path Data="{Binding TestGeometry}" 
+                                            <Path Data="{Binding IsBeingProcessedObject, 
+                                                Converter={StaticResource IProcToGeometryConverter}}" 
                                               Stretch="Uniform"
                                               Fill="red"
                                               Stroke="Black"

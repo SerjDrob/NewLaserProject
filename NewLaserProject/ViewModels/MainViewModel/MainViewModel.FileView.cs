@@ -158,7 +158,6 @@ namespace NewLaserProject.ViewModels
             }
 
         }
-        public Geometry TestGeometry { get; set; }
         public GeometryCollection TestGeomCollection { get; set; }
         private void MainViewModel_TransformationChanged(object? sender, EventArgs e)
         {
