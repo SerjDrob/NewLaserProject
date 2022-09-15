@@ -11,7 +11,8 @@ namespace NewLaserProject.Views.Converters
         public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var obj = value as IProcObject;
-            return obj?.ToGeometry();
+            var geom = obj?.ToGeometry();
+            return geom;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

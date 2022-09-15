@@ -16,7 +16,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace NewLaserProject.ViewModels
 {
@@ -36,13 +35,19 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
+<<<<<<< HEAD
+        public IProcObject IsBeingProcessedObject { get; set; }       
+        public FileAlignment FileAlignment { get; set; }                
+=======
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
-        public FileAlignment FileAlignment { get; set; }                
+        public FileAlignment FileAlignment { get; set; }
 
+>>>>>>> 5948e79af366ed028a501ca2ccc416a2bf5fc7b5
         public Technology CurrentTechnology { get; set; }
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
+
 
         [ICommand]
         private async Task StartStopProcess(object arg)
@@ -192,15 +197,15 @@ namespace NewLaserProject.ViewModels
 
         private void ProcessingObjects_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            //var oldItem = e?.OldItems?[0] as IProcObject;
-            //var newItem = e?.NewItems?[0] as IProcObject;
-            //if (oldItem is not null && newItem is not null)
-            //{
-            //    if (newItem.IsBeingProcessed & !oldItem.IsBeingProcessed)
-            //    {
-            //        IsBeingProcessedObject = newItem;
-            //    }
-            //}
+            var oldItem = e?.OldItems?[0] as IProcObject;
+            var newItem = e?.NewItems?[0] as IProcObject;
+            if (oldItem is not null && newItem is not null)
+            {
+                if (newItem.IsBeingProcessed & !oldItem.IsBeingProcessed)
+                {
+                    //IsBeingProcessedObject = newItem;
+                }
+            }
         }
 
         [ICommand]
@@ -226,13 +231,22 @@ namespace NewLaserProject.ViewModels
         }
         private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj, int index) e)
         {
+<<<<<<< HEAD
             //if (e.index > -1)
             //{
-            //    IsBeingProcessedObject = e.procObj;
             //    ProcessingObjects[e.index] = e.procObj;
             //}
 
-            IsBeingProcessedObject = ProcessingObjects.Single(o => o.Id == e.procObj.Id);
+            IsBeingProcessedObject = e.procObj;
+
+=======
+            if (e.index > -1)
+            {
+                TestGeometry = e.procObj.ToGeometry();
+                ProcessingObjects[e.index] = e.procObj;
+                //  ProcessingObjects = new(ProcessingObjects);
+            }
+>>>>>>> 5948e79af366ed028a501ca2ccc416a2bf5fc7b5
         }
 
         private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)

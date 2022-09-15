@@ -287,30 +287,11 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            //IsLaserInitialized ^= true;
-            ChangeViews();
-            //var topologySize = _dxfReader.GetSize();
-            //var path = Path.Combine(ProjectPath.GetFolderPath("TempFiles"));
-            //var objs = _dxfReader.GetAllDxfCurves2(path, "PAZ");
-            //var wafer = new LaserWafer<DxfCurve>(objs, topologySize);
-            //var waferPoints = new LaserWafer<MachineClassLibrary.Laser.Entities.Point>(_dxfReader.GetPoints(), topologySize);
-            //wafer.Scale(1F / FileScale);
-            //waferPoints.Scale(1F / FileScale);
-            //if (WaferTurn90) wafer.Turn90();
-            //if (WaferTurn90) waferPoints.Turn90();
-            //if (MirrorX) wafer.MirrorX();
-            //if (MirrorX) waferPoints.MirrorX();
+            //   ChangeViews();
 
-            //_pierceSequenceJson = File.ReadAllText(Path.Combine(ProjectPath.GetFolderPath("TechnologyFiles"),"CircleListing.json"));
-            //var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
-
-            //var points = waferPoints.Cast<PPoint>();
-
-            //_mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
-            //            coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
-            //            Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle);
-            //_mainProcess.CreateProcess();
-            //string str = _mainProcess.ToString();
+            var element = ProcessingObjects.ElementAt(15);
+            element.IsBeingProcessed = true;
+            IsBeingProcessedObject = element;
         }
 
 

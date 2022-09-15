@@ -36,9 +36,12 @@
         <Localconverters:IProcTypeToEntityConverter x:Key="IProcTypeToEntityConverter"/>
         <Localconverters:GetLayerNameConverter x:Key="GetLayerNameConverter"/>
         <Localconverters:FileAlignmentConverter x:Key="FileAlignmentConverter"/>
+        
         <CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>
         <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
         <CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>
+        <CollectionViewSource x:Key="ProcObjects" Source="{Binding ProcessingObjects}"/>
+
 
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
         <cnvrt:MulConvereter x:Key="MulConvereter"/>
@@ -50,7 +53,7 @@
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
         <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
-        
+
 
         <Storyboard x:Key="DangerMessage">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
@@ -96,7 +99,7 @@
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <Border Style="{StaticResource ToolBorder}">
                         <Path Data="{StaticResource MotionDeviceGeometry}"
                               RenderTransformOrigin="0.5,0.5"
@@ -241,7 +244,7 @@
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.CmdPosition}"
                                   />
-                    
+
                     <!--<TextBlock x:Name="VelText" Text="Быстро">
                                 <i:Interaction.Triggers>
                                     <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
@@ -251,7 +254,7 @@
                                         <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
                                     </i:DataTrigger>
                                 </i:Interaction.Triggers>
-                    </TextBlock>-->                    
+                    </TextBlock>-->
                 </StackPanel>
                 <DockPanel>
                     <Border
@@ -364,8 +367,8 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <ContentControl Content="{Binding CentralSideVM}"/>
-                   
-                    <DockPanel Grid.Column="1" VerticalAlignment="Stretch" LastChildFill="False">
+
+                    <DockPanel Grid.Column="1" VerticalAlignment="Stretch" LastChildFill="True">
                         <Border x:Name="ImportantMessage"
                                 DockPanel.Dock="Top"
                                 VerticalAlignment="Top"
@@ -427,11 +430,11 @@
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition />
+                                    <RowDefinition />
                                 </Grid.RowDefinitions>
 
                                 <DockPanel LastChildFill="True" Grid.ColumnSpan="3" HorizontalAlignment="Left">
@@ -449,7 +452,7 @@
                                     <Label Content="Тип совмещения"/>
 
                                 </DockPanel>
-                                
+
                                 <hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
                                     <TreeView
                                               x:Name="LayersList" 
@@ -477,21 +480,20 @@
                                         </TreeView.Resources>
                                     </TreeView>
                                 </hc:ComboBox>
-                                
+
                                 <Button Grid.Row="1"
                                         hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                         Command="{Binding AddObjectToProcessCommand}"
                                         Style="{StaticResource ButtonSuccess.Small}"
                                         />
+
                                 <ComboBox 
                                         Grid.Row="1"
-                                        Grid.Column="1"
                                         ItemsSource="{Binding Source={StaticResource FileStructure}}"
                                         SelectedIndex="{Binding DefLayerIndex}"
                                         SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
-                                        DisplayMemberPath="LayerName"
-                                        >
-                                </ComboBox>
+                                        DisplayMemberPath="LayerName" Grid.Column="1"
+                                        />
 
                                 <uclocal:ItemsButton x:Name="testname" 
                                                         Grid.Row="1"
@@ -594,16 +596,17 @@
                                              BorderThickness="2"
                                              Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                              >
-                                    <DataGrid
+                                    <DataGrid x:Name="ProcObjGrid"
                                               AutoGenerateColumns="False" 
                                               ItemsSource="{Binding ProcessingObjects}"
                                               Style="{StaticResource DataGrid.Small}"
                                               SelectionMode="Single"     
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               LoadingRow="DataGrid_LoadingRow"
+                                              SelectedItem="{Binding IsBeingProcessedObject}"
                                               >
 
-                                        <DataGrid.RowStyle>
+                                        <!--<DataGrid.RowStyle>
                                             <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle.Small}">
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsProcessed}" Value="True">
@@ -615,7 +618,7 @@
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </DataGrid.RowStyle>
+                                        </DataGrid.RowStyle>-->
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
                                             <DataGridTemplateColumn Header="Тип">
@@ -666,15 +669,42 @@
                                              Grid.ColumnSpan="6"
                                               >
                                     <GroupBox.Header>
-                                        <TextBlock Text="Current element"/>
+                                        <StackPanel Orientation="Horizontal" DataContext="{Binding ElementName=ProcObjGrid, Path=SelectedItem}">
+                                            <TextBlock Text="{Binding StringFormat='{}#{0}  '}" DataContext="{Binding ElementName=ProcObjGrid, Path=SelectedIndex}"/>
+                                            <TextBlock Text="{Binding LayerName, StringFormat='{}{0}  '}"/>
+                                            <ContentControl Content="{Binding Converter={StaticResource IProcTypeToEntityConverter}}" 
+                                                                            ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                            <TextBlock>
+                                                <Run Text="{Binding X, StringFormat='{}  {0:#.}'}"/>
+                                                <Run Text="&#215;"/>
+                                                <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
+                                            </TextBlock>
+                                        </StackPanel>
                                     </GroupBox.Header>
-                                    <Border 
+                                    <!--<Border 
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
                                              Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}" 
-                                             Padding="50">
-                                        <Path Data="{Binding TestGeometry}" 
-                                                Converter={StaticResource IProcToGeometryConverter}}" 
+                                             Padding="50">-->
+                                    <Border 
+                                             BorderBrush="{DynamicResource BorderBrush}"
+                                             BorderThickness="2"
+                                             Padding="5">
+                                        <!--<Path Data="{Binding IsBeingProcessedObject, Converter={StaticResource IProcToGeometryConverter}}" 
+                                              Stretch="Uniform"
+                                              Fill="red"
+                                              Stroke="White"
+                                              StrokeThickness="1"
+                                              RenderTransformOrigin="0.5 0.5"
+                                              >
+                                            <Path.RenderTransform>
+                                                <ScaleTransform ScaleY="-1"/>
+                                            </Path.RenderTransform>
+                                        </Path>-->
+                                        <Path Data="{Binding ElementName=ProcObjGrid, 
+                                            Path=SelectedItem, 
+                                            Converter={StaticResource IProcToGeometryConverter}}"
+                                              
                                               Stretch="Uniform"
                                               Fill="red"
                                               Stroke="White"
@@ -690,12 +720,12 @@
                             </Grid>
                         </GroupBox>
 
-                        <hc:StepBar x:Name="LearningPanel"
+                        <!--<hc:StepBar x:Name="LearningPanel"
                                     DockPanel.Dock="Top" 
                                     Dock="Left" 
                                     Visibility="{Binding IsLearningPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                     ItemsSource="{Binding TeachingSteps}" 
-                                    StepIndex="{Binding StepIndex}"/>
+                                    StepIndex="{Binding StepIndex}"/>-->
 
                     </DockPanel>
                 </Grid>
