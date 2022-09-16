@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <UseWPF>true</UseWPF>
-    <!--<DefineConstants>TRACE;PCIInserted</DefineConstants>-->
+    <DefineConstants>TRACE;PCIInserted</DefineConstants>
     <StartupObject></StartupObject>
     <ApplicationIcon>Views\Sources\Laser.ico</ApplicationIcon>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

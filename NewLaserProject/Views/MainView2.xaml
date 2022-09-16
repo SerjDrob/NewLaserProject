@@ -603,7 +603,7 @@
                                               SelectionMode="Single"     
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               LoadingRow="DataGrid_LoadingRow"
-                                              SelectedItem="{Binding IsBeingProcessedObject}"
+                                              
                                               >
 
                                         <!--<DataGrid.RowStyle>
@@ -670,7 +670,8 @@
                                               >
                                     <GroupBox.Header>
                                         <StackPanel Orientation="Horizontal" DataContext="{Binding ElementName=ProcObjGrid, Path=SelectedItem}">
-                                            <TextBlock Text="{Binding StringFormat='{}#{0}  '}" DataContext="{Binding ElementName=ProcObjGrid, Path=SelectedIndex}"/>
+                                            <!--<TextBlock Text="{Binding StringFormat='{}#{0}  '}" DataContext="{Binding ElementName=ProcObjGrid, Path=SelectedIndex}"/>-->
+                                            <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=GroupBox}, Path=DataContext.IsBeingProcessedIndex, StringFormat='{}#{0}  '}"/>
                                             <TextBlock Text="{Binding LayerName, StringFormat='{}{0}  '}"/>
                                             <ContentControl Content="{Binding Converter={StaticResource IProcTypeToEntityConverter}}" 
                                                                             ContentTemplateSelector="{StaticResource EntitySelector}"/>
@@ -690,7 +691,7 @@
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
                                              Padding="5">
-                                        <!--<Path Data="{Binding IsBeingProcessedObject, Converter={StaticResource IProcToGeometryConverter}}" 
+                                        <Path Data="{Binding IsBeingProcessedObject, Converter={StaticResource IProcToGeometryConverter}}" 
                                               Stretch="Uniform"
                                               Fill="red"
                                               Stroke="White"
@@ -700,8 +701,8 @@
                                             <Path.RenderTransform>
                                                 <ScaleTransform ScaleY="-1"/>
                                             </Path.RenderTransform>
-                                        </Path>-->
-                                        <Path Data="{Binding ElementName=ProcObjGrid, 
+                                        </Path>
+                                        <!--<Path Data="{Binding ElementName=ProcObjGrid, 
                                             Path=SelectedItem, 
                                             Converter={StaticResource IProcToGeometryConverter}}"
                                               
@@ -714,7 +715,7 @@
                                             <Path.RenderTransform>
                                                 <ScaleTransform ScaleY="-1"/>
                                             </Path.RenderTransform>
-                                        </Path>
+                                        </Path>-->
                                     </Border>
                                 </GroupBox>
                             </Grid>

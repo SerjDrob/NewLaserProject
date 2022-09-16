@@ -26,7 +26,11 @@
     <Grid>
         <Border Background="{DynamicResource RegionBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
             <Grid>
-                <Image x:Name="VideoCamera" Panel.ZIndex="1" Source="{Binding CameraImage}">
+                <Image x:Name="VideoCamera" 
+                       Panel.ZIndex="1" 
+                       Source="{Binding CameraImage}"
+                       RenderTransformOrigin="0.5 0.5"
+                       >
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseDown" >
                             <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
@@ -35,6 +39,9 @@
                                                    />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
+                    <Image.RenderTransform>
+                        <ScaleTransform ScaleX="-1"/>
+                    </Image.RenderTransform>
                 </Image>
                 <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1">
                     <Line Stroke="Red" Fill="Red" 
@@ -51,6 +58,17 @@
                                               >
                     </Line>
                     <Ellipse Width="25" Height="25" StrokeThickness="1" Stroke="Red"
+                                  Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                  Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                 >
+                        <Ellipse.RenderTransform>
+                            <TranslateTransform
+                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                    />
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                    <Ellipse Width="400" Height="400" StrokeThickness="1" Stroke="Yellow"
                                   Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                   Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                  >

@@ -287,11 +287,11 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            //   ChangeViews();
+            ChangeViews();
 
-            var element = ProcessingObjects.ElementAt(15);
-            element.IsBeingProcessed = true;
-            IsBeingProcessedObject = element;
+            //var element = ProcessingObjects.ElementAt(15);
+            //element.IsBeingProcessed = true;
+            //IsBeingProcessedObject = element;
         }
 
 

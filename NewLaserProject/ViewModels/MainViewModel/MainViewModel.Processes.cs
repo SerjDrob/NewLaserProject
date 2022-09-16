@@ -38,6 +38,7 @@ namespace NewLaserProject.ViewModels
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
+        public int IsBeingProcessedIndex { get; private set; }
         public FileAlignment FileAlignment { get; set; }                
 
         public Technology CurrentTechnology { get; set; }
@@ -232,7 +233,8 @@ namespace NewLaserProject.ViewModels
             //    ProcessingObjects[e.index] = e.procObj;
             //}
 
-            IsBeingProcessedObject = ProcessingObjects.Single(o => o.Id == e.procObj.Id);
+            IsBeingProcessedObject = ProcessingObjects[e.index];//= ProcessingObjects.SingleOrDefault(o => o.Id == e.procObj.Id);
+            IsBeingProcessedIndex = e.index + 1;
         }
 
         private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
