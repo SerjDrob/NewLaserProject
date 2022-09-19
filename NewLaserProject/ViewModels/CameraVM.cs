@@ -1,12 +1,10 @@
-﻿using MachineClassLibrary.VideoCapture;
+﻿using GongSolutions.Wpf.DragDrop;
+using MachineClassLibrary.VideoCapture;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+
 
 namespace NewLaserProject.ViewModels
 {
@@ -23,9 +21,9 @@ namespace NewLaserProject.ViewModels
         {
             CameraImage = e.Image;
         }
-        
+
         [ICommand]
         private void VideoClick((double x, double y) coordinates) => VideoClicked?.Invoke(this, coordinates);
-
+                
     }
 }
