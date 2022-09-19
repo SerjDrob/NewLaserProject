@@ -322,29 +322,12 @@ namespace NewLaserProject.ViewModels
             var key = (KeyEventArgs)args;
             if (key.OriginalSource is TextBoxBase) return;
 
-            var res = key.Key switch
-            {
-               Key.A => (Ax.Y,AxDir.Pos),
-               Key.Z => (Ax.Y, AxDir.Neg),
-               Key.X => (Ax.X, AxDir.Neg),
-               Key.C => (Ax.X, AxDir.Pos),
-               Key.V => (Ax.Z, AxDir.Pos),
-               Key.B => (Ax.Z, AxDir.Neg)
-            };
-
-            if (!key.IsRepeat)
-            {
-                if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(res.Item1, res.Item2);
-                if (VelocityRegime == Velocity.Step)
-                    await _laserMachine.MoveAxRelativeAsync(res.Item1,(res.Item2 == AxDir.Pos?1:-1) * 0.005,false) ;
-                key.Handled = true;
-                return;
-            } 
-
-
-
+            
             switch (key.Key)
             {
+                case Key.A or Key.Z or Key.X or Key.C or Key.V or Key.B:
+                    await moveAsync(key);
+                    break;
                 case Key.Tab when !key.IsRepeat:
                     await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { 1, 1 });
                     break;
@@ -369,6 +352,32 @@ namespace NewLaserProject.ViewModels
                     break;
             }
             key.Handled = true;
+
+            async Task moveAsync(KeyEventArgs key)
+            {
+                var res = key.Key switch
+                {
+                    Key.A => (Ax.Y, AxDir.Pos),
+                    Key.Z => (Ax.Y, AxDir.Neg),
+                    Key.X => (Ax.X, AxDir.Neg),
+                    Key.C => (Ax.X, AxDir.Pos),
+                    Key.V => (Ax.Z, AxDir.Pos),
+                    Key.B => (Ax.Z, AxDir.Neg),
+                };
+
+                if (!key.IsRepeat)
+                {
+                    if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(res.Item1, res.Item2);
+                    if (VelocityRegime == Velocity.Step)
+                    {
+                        var step = (res.Item2 == AxDir.Pos ? 1 : -1) * 0.005;
+                        await _laserMachine.MoveAxRelativeAsync(res.Item1, step, false);
+
+                    }
+                }
+                key.Handled = true;
+                return;
+            }
         }
 
         [ICommand]
@@ -432,7 +441,7 @@ namespace NewLaserProject.ViewModels
         {
             VelocityRegime = Velocity.Step;
 #if PCIInserted
-            _laserMachine.SetVelocity(Velocity.Fast);
+            _laserMachine.SetVelocity(Velocity.Slow);
 #endif
         }
 
