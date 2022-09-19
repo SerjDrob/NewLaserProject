@@ -244,7 +244,6 @@
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.CmdPosition}"
                                   />
-
                     <!--<TextBlock x:Name="VelText" Text="Быстро">
                                 <i:Interaction.Triggers>
                                     <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
@@ -320,6 +319,24 @@
                                     </Path.RenderTransform>
                                 </Path>
                             </Grid>
+                            <Grid>
+                                <i:Interaction.Triggers>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Hidden"/>
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Hidden"/>
+                                    </i:DataTrigger>
+                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Step}">
+                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                    </i:DataTrigger>
+                                </i:Interaction.Triggers>
+                                <Label Content="ШАГ"
+                                       Foreground="red"
+                                       HorizontalAlignment="Stretch"
+                                       VerticalAlignment="Stretch"
+                                       />
+                            </Grid>
                         </Grid>
                     </Border>
                 </DockPanel>
@@ -345,6 +362,7 @@
 
                     <KeyBinding Command="{Binding MachineSettingsCommand}" Modifiers="Ctrl" Key="H"/>
                     <KeyBinding Command="{Binding ChangeVelocityCommand}" Key="Add"/>
+                    <KeyBinding Command="{Binding SetStepVelocityCommand}" Key="Subtract"/>
                     <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
                     <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
                     <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>

@@ -15,6 +15,8 @@
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
              xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
              xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"  
+             xmlns:dd="urn:gong-wpf-dragdrop"             
+             xmlns:s="clr-namespace:NewLaserProject.Views.Misc"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -22,15 +24,39 @@
         <cnvrt:MulConvereter x:Key="MulConvereter"/>
         <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
         <Localconverters:MouseEventArgsConverter x:Key="MouseEventArgsConverter"/>
+
+        <ControlTemplate x:Key="ResizeDecoratorTemplate" TargetType="{x:Type Control}">
+            <Grid>
+                <s:ResizeThumb Height="3" Width="7" Cursor="SizeNS" Opacity="0"
+                       VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                <s:ResizeThumb Width="3" Height="7" Cursor="SizeWE" Opacity="0"
+                       VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <s:ResizeThumb Width="3" Height="7" Cursor="SizeWE" Opacity="0"
+                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <s:ResizeThumb Height="3" Width="7" Cursor="SizeNS" Opacity="0"
+                       VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+            </Grid>
+        </ControlTemplate>
+
+        <!-- Designer Item Template-->
+        <ControlTemplate x:Key="DesignerItemTemplate" TargetType="ContentControl">
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Control Template="{StaticResource ResizeDecoratorTemplate}"/>
+                <ContentPresenter Content="{TemplateBinding ContentControl.Content}"/>
+            </Grid>
+        </ControlTemplate>
+        
     </UserControl.Resources>
     <Grid>
         <Border Background="{DynamicResource RegionBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
             <Grid>
+               
                 <Image x:Name="VideoCamera" 
                        Panel.ZIndex="1" 
                        Source="{Binding CameraImage}"
                        RenderTransformOrigin="0.5 0.5"
                        >
+                    
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseDown" >
                             <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
@@ -57,28 +83,29 @@
                                               Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                               >
                     </Line>
-                    <Ellipse Width="25" Height="25" StrokeThickness="1" Stroke="Red"
-                                  Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                  Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                 >
-                        <Ellipse.RenderTransform>
+                </Canvas>
+                <Canvas Panel.ZIndex="1">
+                    <ContentControl 
+                        Width="25"
+                        MinWidth="20"
+                        Height="25"
+                        MinHeight="20"
+                        Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                        Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                        Template="{StaticResource DesignerItemTemplate}">
+
+                        <Grid>
+                            <Ellipse Stroke="Red" StrokeThickness="1" IsHitTestVisible="False"/>
+                            <Rectangle Width="1" Stroke="Yellow" Fill="Yellow" VerticalAlignment="Stretch"/>
+                            <Rectangle Height="1" Stroke="Yellow" Fill="Yellow" HorizontalAlignment="Stretch"/>
+                        </Grid>
+                        <ContentControl.RenderTransform>
                             <TranslateTransform
-                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
-                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
                                     />
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
-                    <Ellipse Width="400" Height="400" StrokeThickness="1" Stroke="Yellow"
-                                  Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                  Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
-                                 >
-                        <Ellipse.RenderTransform>
-                            <TranslateTransform
-                                    X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
-                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
-                                    />
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                        </ContentControl.RenderTransform>
+                    </ContentControl>
                 </Canvas>
                 <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
                                             Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, 
