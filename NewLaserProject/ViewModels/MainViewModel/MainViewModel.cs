@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace NewLaserProject.ViewModels
@@ -55,8 +56,6 @@ namespace NewLaserProject.ViewModels
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
-        public bool LeftCornerBtnVisibility { get; set; } = false;
-        public bool RightCornerBtnVisibility { get; set; } = false;
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
         public double ScaleMarkersRatioSecond { get => 1 - ScaleMarkersRatioFirst; }
 
@@ -315,31 +314,43 @@ namespace NewLaserProject.ViewModels
         }
 
 
-        #region Driving the machine        
+        #region Driving the machine     
 
         [ICommand]
         private async Task KeyDown(object args)
         {
             var key = (KeyEventArgs)args;
             if (key.OriginalSource is TextBoxBase) return;
-                     
+
+            var res = key.Key switch
+            {
+               Key.A => (Ax.Y,AxDir.Pos),
+               Key.Z => (Ax.Y, AxDir.Neg),
+               Key.X => (Ax.X, AxDir.Neg),
+               Key.C => (Ax.X, AxDir.Pos),
+               Key.V => (Ax.Z, AxDir.Pos),
+               Key.B => (Ax.Z, AxDir.Neg)
+            };
+
+            if (!key.IsRepeat)
+            {
+                if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(res.Item1, res.Item2);
+                if (VelocityRegime == Velocity.Step)
+                    await _laserMachine.MoveAxRelativeAsync(res.Item1,(res.Item2 == AxDir.Pos?1:-1) * 0.005,false) ;
+                key.Handled = true;
+                return;
+            } 
+
+
+
             switch (key.Key)
             {
-                case Key.Tab:
+                case Key.Tab when !key.IsRepeat:
                     await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { 1, 1 });
-                    break;
-                case Key.A:
-                    _laserMachine.GoWhile(Ax.Y, AxDir.Pos);
-                    break;
-                case Key.B:
-                    _laserMachine.GoWhile(Ax.Z, AxDir.Neg);
-                    break;
-                case Key.C:
-                    _laserMachine.GoWhile(Ax.X, AxDir.Pos);
                     break;
                 case Key.E:
                     break;
-                case Key.G:
+                case Key.G when !key.IsRepeat:
                     await _laserMachine.GoThereAsync(LMPlace.Loading);
                     break;
                 case Key.J:
@@ -348,16 +359,7 @@ namespace NewLaserProject.ViewModels
                     break;
                 case Key.L:
                     break;
-                case Key.V:
-                    _laserMachine.GoWhile(Ax.Z, AxDir.Pos);
-                    break;
-                case Key.X:
-                    _laserMachine.GoWhile(Ax.X, AxDir.Neg);
-                    break;
-                case Key.Z:
-                    _laserMachine.GoWhile(Ax.Y, AxDir.Neg);
-                    break;
-                case Key.Home:
+                case Key.Home when !key.IsRepeat:
                     {
                         await _laserMachine.GoHomeAsync().ConfigureAwait(false);
                         var corner = new double[] {Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
@@ -366,6 +368,7 @@ namespace NewLaserProject.ViewModels
                     }
                     break;
             }
+            key.Handled = true;
         }
 
         [ICommand]
@@ -407,6 +410,7 @@ namespace NewLaserProject.ViewModels
                     _laserMachine.Stop(Ax.Y);
                     break;
             }
+            key.Handled = true;
         }
 
         [ICommand]
@@ -415,15 +419,25 @@ namespace NewLaserProject.ViewModels
             VelocityRegime = VelocityRegime switch
             {
                 Velocity.Slow => Velocity.Fast,
-                Velocity.Fast => Velocity.Slow
+                Velocity.Fast => Velocity.Slow,
+                _ => Velocity.Fast
             };
 #if PCIInserted
             _laserMachine.SetVelocity(VelocityRegime);
 #endif
         }
 
+        [ICommand]
+        private void SetStepVelocity()
+        {
+            VelocityRegime = Velocity.Step;
+#if PCIInserted
+            _laserMachine.SetVelocity(Velocity.Fast);
+#endif
+        }
+
 #endregion
-        
+
 
         [ICommand]
         private void MachineSettings()
