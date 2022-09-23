@@ -1,0 +1,26 @@
+{
+  "$type": "MainLoop",
+  "Shuffle": false,
+  "CanAcceptChildren": true,
+  "Children": [
+    {
+      "$type": "PierceBlock",
+      "CanAcceptChildren": false,
+      "MarkParams": {
+        "$type": "ExtendedParams",
+        "MarkLoop": 15,
+        "MarkSpeed": 80.0,
+        "PowerRatio": 75,
+        "Freq": 40000,
+        "QPulseWidth": 1,
+        "EnablePWM": true,
+        "PWMFrequency": 1000,
+        "PWMDutyCycle": 50,
+        "EnableHatch": true,
+        "HatchWidth": 0,
+        "HatchLineDistance": 15
+      }
+    }
+  ],
+  "LoopCount": 1
+}
