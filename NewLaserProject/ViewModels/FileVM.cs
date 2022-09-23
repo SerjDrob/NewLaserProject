@@ -1,5 +1,6 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineControlsLibrary.Classes;
+using MachineControlsLibrary.Controls.GraphWin;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -8,6 +9,8 @@ using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Windows.Shapes;
 
 namespace NewLaserProject.ViewModels
 {
@@ -22,7 +25,7 @@ namespace NewLaserProject.ViewModels
         }
 
         public void SetFileView(IDxfReader dxfReader, int fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
-            double waferOffsetY, string fileName)
+            double waferOffsetY, string filePath)
         {
             _dxfReader = dxfReader;
             FileScale = fileScale;
@@ -30,7 +33,8 @@ namespace NewLaserProject.ViewModels
             WaferOffsetX = waferOffsetX;
             WaferOffsetY = waferOffsetY;
             WaferTurn90 = waferTurn90;
-            FileName = fileName;
+            _filePath = filePath;
+            FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
         }
 
@@ -52,13 +56,14 @@ namespace NewLaserProject.ViewModels
             FileSizeX = Math.Round(fileSize.width);
             FileSizeY = Math.Round(fileSize.height);
             //LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
-            LayGeoms=new LayGeomAdapter(new IMGeometryAdapter(FileName)).LayerGeometryCollections;
+            LayGeoms=new LayGeomAdapter(new IMGeometryAdapter(_filePath)).LayerGeometryCollections;
             MirrorX = Settings.Default.WaferMirrorX;
             WaferTurn90 = Settings.Default.WaferAngle90;
             WaferOffsetX = 0;
             WaferOffsetY = 0;
         }
 
+        private string _filePath;
         public string FileName { get; set; }
         public double FileSizeX { get; set; }
         public double FileSizeY { get; set; }
@@ -86,8 +91,14 @@ namespace NewLaserProject.ViewModels
         public double CameraViewfinderY { get; set; }
         public double LaserViewfinderX { get; set; }
         public double LaserViewfinderY { get; set; }
+        public TextPosition TextPosition { get; set; } = TextPosition.W;
+
         public event EventHandler TransformationChanged;
 
+        public void SetTextPosition(Enum position)
+        {
+            TextPosition = (TextPosition)position;
+        }
         public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
         public Dictionary<string, bool> IgnoredLayers { get; set; }
         [ICommand]

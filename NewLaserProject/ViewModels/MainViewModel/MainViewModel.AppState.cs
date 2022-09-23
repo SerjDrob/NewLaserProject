@@ -29,7 +29,6 @@ namespace NewLaserProject.ViewModels
 					OnProcess = true;
 					HideCentralPanel(false);
 					HideLearningPanel(true);
-					HideProcessPanel(false);
 					//HideVideoPanel(false);
 					HideRightPanel(true);
 					ChangeViews(IsVideOnCenter: false);
