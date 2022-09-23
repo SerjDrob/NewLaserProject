@@ -455,23 +455,48 @@
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
 
-                                <DockPanel LastChildFill="True" Grid.ColumnSpan="3" HorizontalAlignment="Left">
-                                    <ToggleButton DockPanel.Dock="Right"
+                                <StackPanel Orientation="Horizontal" Grid.ColumnSpan="7">
+                                    <DockPanel LastChildFill="True" HorizontalAlignment="Left">
+                                        <ToggleButton DockPanel.Dock="Right"
                                                       IsChecked="{Binding FileAlignment, Mode=OneWayToSource, Converter={StaticResource FileAlignmentConverter}}"
                                                       hc:IconSwitchElement.Geometry="{StaticResource AlignByAngleGeometry}"
                                                       hc:IconSwitchElement.GeometrySelected="{StaticResource AlignByThreePointGeometry}"
                                                       RenderTransformOrigin="0,0.5"
                                                       Style="{StaticResource ToggleButtonIcon}"
                                                       >
-                                        <ToggleButton.RenderTransform>
-                                            <ScaleTransform ScaleY="-1"/>
-                                        </ToggleButton.RenderTransform>
-                                    </ToggleButton>
-                                    <Label Content="Тип совмещения"/>
+                                            <ToggleButton.RenderTransform>
+                                                <ScaleTransform ScaleY="-1"/>
+                                            </ToggleButton.RenderTransform>
+                                        </ToggleButton>
+                                        <Label Content="Тип совмещения"/>
 
-                                </DockPanel>
-
-                                <hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
+                                    </DockPanel>
+                                    <DockPanel>
+                                        <Border CornerRadius="3" Background="{DynamicResource DarkMaskBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                Padding="10,0,10,0"
+                                                >
+                                            <CheckBox Content="Маркировать"/>
+                                        </Border>
+                                        <Button Command="{Binding SetMarkPositionCommand}" Width="36">
+                                            <i:Interaction.Triggers>
+                                                <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.W}">
+                                                    <i:ChangePropertyAction PropertyName="Content" Value="| "/>
+                                                </i:DataTrigger>
+                                                <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.N}">
+                                                    <i:ChangePropertyAction PropertyName="Content" Value="&#175;"/>
+                                                </i:DataTrigger>
+                                                <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.E}">
+                                                    <i:ChangePropertyAction PropertyName="Content" Value=" |"/>
+                                                </i:DataTrigger>
+                                                <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.S}">
+                                                    <i:ChangePropertyAction PropertyName="Content" Value="&#95;"/>
+                                                </i:DataTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </DockPanel>
+                                    <!--<hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
                                     <TreeView
                                               x:Name="LayersList" 
                                               Height="150" 
@@ -487,7 +512,9 @@
                                             </HierarchicalDataTemplate>
                                             <DataTemplate DataType="{x:Type vm:Text}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
+                                                    -->
+                                    <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
+                                    <!--
                                                     <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
                                                         ContentTemplateSelector="{StaticResource EntitySelector}"/>
                                                     <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
@@ -497,7 +524,8 @@
                                             </DataTemplate>
                                         </TreeView.Resources>
                                     </TreeView>
-                                </hc:ComboBox>
+                                </hc:ComboBox>-->
+                                </StackPanel>
 
                                 <Button Grid.Row="1"
                                         hc:IconElement.Geometry="{StaticResource AddGeometry}"
@@ -554,7 +582,18 @@
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
 
-                                <ToggleButton Grid.Row="1" Grid.Column="5"
+                                <Grid Grid.Row="1" Grid.Column="5">
+                                    <Button hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                            Command="{Binding DownloadProcessCommand}"
+                                            Panel.ZIndex="2">
+                                        <i:Interaction.Triggers>
+                                            <i:DataTrigger Binding="{Binding IsProcessPanelVisible}" Value="True">
+                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Hidden"/>
+                                            </i:DataTrigger>
+                                        </i:Interaction.Triggers>
+
+                                    </Button>
+                                    <ToggleButton 
                                                   Command="{Binding StartStopProcessCommand}"
                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
                                                   IsChecked="False"
@@ -563,10 +602,11 @@
                                                   RenderTransformOrigin="0,0.5"
                                                   Style="{StaticResource ToggleButtonIcon}"
                                                   >
-                                    <ToggleButton.RenderTransform>
-                                        <ScaleTransform ScaleY="-1"/>
-                                    </ToggleButton.RenderTransform>
-                                </ToggleButton>
+                                        <ToggleButton.RenderTransform>
+                                            <ScaleTransform ScaleY="-1"/>
+                                        </ToggleButton.RenderTransform>
+                                    </ToggleButton>
+                                </Grid>
 
                                 <hc:ScrollViewer Grid.Row="2" Grid.ColumnSpan="3" Padding="5">
                                     <ItemsControl ItemsSource="{Binding ObjectsForProcessing}" >

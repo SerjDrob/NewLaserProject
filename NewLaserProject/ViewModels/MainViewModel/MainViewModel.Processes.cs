@@ -76,7 +76,9 @@ namespace NewLaserProject.ViewModels
         {
             ObjectsForProcessing.Remove(@object);
         }
-        private async Task StartProcess()
+
+        [ICommand]
+        private void DownloadProcess()
         {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
@@ -93,7 +95,7 @@ namespace NewLaserProject.ViewModels
                             LaserEntity.Curve => _dxfReader.GetAllCurves(o.Layer).Cast<IProcObject>(),
                             LaserEntity.Circle => _dxfReader.GetCircles(o.Layer).Cast<IProcObject>()
                         }));
-            
+
             var wafer = new LaserWafer(procObjects, topologySize);
 
             wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
@@ -111,7 +113,7 @@ namespace NewLaserProject.ViewModels
                 case FileAlignment.AlignByCorner:
                     {
                         var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
-                        _mainProcess = new LaserProcess((IEnumerable<IProcObject>)wafer, _pierceSequenceJson, _laserMachine,
+                        _mainProcess = new LaserProcess(wafer, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness, entityPreparator);
                     }
                     break;
@@ -135,7 +137,7 @@ namespace NewLaserProject.ViewModels
 
                         var points = waferPoints.Cast<PPoint>();
                         var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
-                        _mainProcess = new ThreePointProcess((IEnumerable<IProcObject>)wafer, points, _pierceSequenceJson, _laserMachine,
+                        _mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _mediator);
                     }
@@ -145,7 +147,7 @@ namespace NewLaserProject.ViewModels
                     break;
             }
 
-            ProcessingObjects = new((IEnumerable<IProcObject>)wafer);
+            ProcessingObjects = new(wafer);
             ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
             //ProcessingObjects[13].IsBeingProcessed = true;
             //IsBeingProcessedObject = ProcessingObjects[13];
@@ -155,6 +157,13 @@ namespace NewLaserProject.ViewModels
             _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
             _mainProcess.ProcessingCompleted += _mainProcess_ProcessingCompleted;
             //_mainProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
+
+            HideProcessPanel(false);
+        }
+
+        private async Task StartProcess()
+        {
+            
 #if PCIInserted
 
             try
@@ -225,6 +234,20 @@ namespace NewLaserProject.ViewModels
                 _mainProcess?.ExcludeObject(procObject);
             }
         }
+
+        [ICommand]
+        private void SetMarkPosition()
+        {
+            if (MarkPosition == MarkPosition.S)
+            {
+                MarkPosition = MarkPosition.W;
+                _openedFileVM?.SetTextPosition(MarkPosition);
+                return;
+            }
+            MarkPosition++;
+            _openedFileVM?.SetTextPosition(MarkPosition);
+        }
+        public MarkPosition MarkPosition { get; set; }
         private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj, int index) e)
         {
             //if (e.index > -1)
@@ -267,5 +290,12 @@ namespace NewLaserProject.ViewModels
             WaferHeight = material.Height;
             WaferThickness = material.Thickness;
         }
+    }
+    public enum MarkPosition
+    {
+        W,
+        N,
+        E,
+        S
     }
 }

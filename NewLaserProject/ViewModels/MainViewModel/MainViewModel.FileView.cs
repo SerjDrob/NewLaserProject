@@ -1,4 +1,5 @@
-﻿using MachineClassLibrary.Classes;
+﻿using HandyControl.Tools.Extension;
+using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
 using MachineControlsLibrary.Classes;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace NewLaserProject.ViewModels
@@ -84,19 +86,18 @@ namespace NewLaserProject.ViewModels
                     WaferTurn90 = Settings.Default.WaferAngle90;
                     WaferOffsetX = 0;
                     WaferOffsetY = 0;
-                    ((FileVM)_openedFileVM).SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName);
-                    ((FileVM)_openedFileVM).TransformationChanged += MainViewModel_TransformationChanged;
+                    _openedFileVM.SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName);
+                    _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
 
-                    IgnoredLayers = new(_db.Set<DefaultLayerFilter>()
-                                            .AsNoTracking()
-                                            .Select(d => KeyValuePair.Create(d.Filter, d.IsVisible)));
-
-                    _db.Set<Material>()
-                      .Include(m => m.Technologies)
-                      .Load();
+                    _db.Set<DefaultLayerFilter>()
+                        .AsNoTracking()
+                        .ToDictionaryAsync(key => key.Filter, val => val.IsVisible)
+                        .ContinueWith(res=>IgnoredLayers=res.Result, TaskScheduler.Default)
+                        .ConfigureAwait(false);
 
                     AvailableMaterials = _db.Set<Material>()
-                                            .Local
+                                            .Include(m=>m.Technologies)
+                                            .AsNoTracking()
                                             .ToObservableCollection();
 
                     LayersStructure = _dxfReader.GetLayersStructure();
@@ -130,9 +131,11 @@ namespace NewLaserProject.ViewModels
                             DefLayerIndex = 0;
                         }
 
-                        DefMaterialIndex = AvailableMaterials.ToList().FindIndex(m => m.Id == defLayerProcDTO.MaterialId);
+                        DefMaterialIndex = AvailableMaterials
+                            .ToList()
+                            .FindIndex(m => m.Id == defLayerProcDTO.MaterialId);
 
-                        var defLayerEntTechnology = _db.Set<DefaultLayerEntityTechnology>().ToList()
+                        var defLayerEntTechnology = _db.Set<DefaultLayerEntityTechnology>()
                             .Where(d => d.DefaultLayerFilterId == defLayerProcDTO.LayerFilterId
                             && d.EntityType == (LaserEntity)defLayerProcDTO.EntityType
                             && d.Technology.MaterialId == defLayerProcDTO.MaterialId)
@@ -146,9 +149,6 @@ namespace NewLaserProject.ViewModels
                     }
 
                     IsFileLoaded = true;
-
-                    var reader = new TestDxfReader(FileName);
-                    TestGeomCollection = reader.GetTestGeomCollection();
                 }
                 else
                 {
@@ -157,7 +157,6 @@ namespace NewLaserProject.ViewModels
             }
 
         }
-        public GeometryCollection TestGeomCollection { get; set; }
         private void MainViewModel_TransformationChanged(object? sender, EventArgs e)
         {
             var fileVM = _openedFileVM as FileVM;
