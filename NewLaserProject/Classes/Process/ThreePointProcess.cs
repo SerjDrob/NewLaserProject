@@ -168,15 +168,15 @@ namespace NewLaserProject.Classes.Process
                 .OnEntryAsync(async () =>
                 {
                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
-                    ProcessingCompleted?.Invoke(this, EventArgs.Empty);
+                    ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Cancelled, _coorSystem));
                     //ctSource.Cancel();
                     //_infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
                 });
         }
 
-        private void _subProcess_ProcessingCompleted(object? sender, EventArgs e)
+        private void _subProcess_ProcessingCompleted(object? sender, ProcessCompletedEventArgs args)
         {
-            ProcessingCompleted?.Invoke(this, EventArgs.Empty);
+            ProcessingCompleted?.Invoke(this, args);
         }
 
         private void _process_ProcessingObjectChanged(object? sender, (IProcObject,int) e)
@@ -192,7 +192,7 @@ namespace NewLaserProject.Classes.Process
         public event EventHandler<bool> SwitchCamera;
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
-        public event EventHandler ProcessingCompleted;
+        public event EventHandler<ProcessCompletedEventArgs> ProcessingCompleted;
 
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
@@ -236,7 +236,6 @@ namespace NewLaserProject.Classes.Process
             _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
             _ctSource.Cancel();
             var success = await _laserMachine.CancelMarkingAsync();
-            _infoMessager.RealeaseMessage("Процесс отменён", ViewModels.MessageType.Exclamation);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

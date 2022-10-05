@@ -37,7 +37,7 @@ namespace NewLaserProject.Classes
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
-        public event EventHandler ProcessingCompleted;
+        public event EventHandler<ProcessCompletedEventArgs> ProcessingCompleted;
 
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem<LMPlace> coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
@@ -123,7 +123,7 @@ namespace NewLaserProject.Classes
             _stateMachine.Configure(State.Exit)
                 .OnEntry(() => 
                 {
-                    ProcessingCompleted?.Invoke(this, EventArgs.Empty);
+                    ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Success, _coorSystem));
                 })
                 .Ignore(Trigger.Next);
 
@@ -176,6 +176,12 @@ namespace NewLaserProject.Classes
             {
                 Trace.TraceInformation("The process ended");
                 Trace.Flush();
+            }
+            else
+            {
+                Trace.TraceInformation("The process was interupted by user");
+                Trace.Flush();
+                ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Cancelled,_coorSystem));
             }
         }
         public override string ToString()

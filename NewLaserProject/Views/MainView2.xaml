@@ -477,7 +477,7 @@
                                                 BorderThickness="1"
                                                 Padding="10,0,10,0"
                                                 >
-                                            <CheckBox Content="Маркировать"/>
+                                            <CheckBox IsChecked="{Binding IsWaferMark}" Content="Маркировать"/>
                                         </Border>
                                         <Button Command="{Binding SetMarkPositionCommand}" Width="36">
                                             <i:Interaction.Triggers>
