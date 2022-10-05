@@ -1,4 +1,6 @@
-﻿using MachineClassLibrary.Laser.Entities;
+﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser.Entities;
+using NewLaserProject.Classes.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -10,7 +12,7 @@ namespace NewLaserProject.Classes
     {
         event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
-        event EventHandler ProcessingCompleted;
+        event EventHandler<ProcessCompletedEventArgs> ProcessingCompleted;
         void ExcludeObject(IProcObject procObject);
         void IncludeObject(IProcObject procObject);
         void CreateProcess();
@@ -18,5 +20,23 @@ namespace NewLaserProject.Classes
         Task Next();
         Task StartAsync();
         Task StartAsync(CancellationToken cancellationToken);
+    }
+    [Flags]
+    public enum CompletionStatus
+    {
+        Success = 1,
+        Cancelled = 2
+    }
+
+    public class ProcessCompletedEventArgs : EventArgs
+    {
+        public ProcessCompletedEventArgs(CompletionStatus status, ICoorSystem<LMPlace> coorSystem)
+        {
+            Status = status;
+            CoorSystem = coorSystem;
+        }
+
+        public CompletionStatus Status { get; init; }
+        public ICoorSystem<LMPlace> CoorSystem { get; init; }
     }
 }

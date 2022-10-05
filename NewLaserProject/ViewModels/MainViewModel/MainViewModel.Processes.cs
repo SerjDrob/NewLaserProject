@@ -4,6 +4,7 @@ using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.Process;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
@@ -44,6 +45,7 @@ namespace NewLaserProject.ViewModels
         public Technology CurrentTechnology { get; set; }
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
+        public bool IsWaferMark { get; set; }
 
         [ICommand]
         private async Task StartStopProcess(object arg)
@@ -149,14 +151,10 @@ namespace NewLaserProject.ViewModels
 
             ProcessingObjects = new(wafer);
             ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
-            //ProcessingObjects[13].IsBeingProcessed = true;
-            //IsBeingProcessedObject = ProcessingObjects[13];
-            //ProcessingObjects[4].IsProcessed = true;
 
             _mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
             _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
             _mainProcess.ProcessingCompleted += _mainProcess_ProcessingCompleted;
-            //_mainProcess.SwitchCamera += _threePointsProcess_SwitchCamera;
 
             HideProcessPanel(false);
         }
@@ -195,9 +193,42 @@ namespace NewLaserProject.ViewModels
 
         }
 
-        private void _mainProcess_ProcessingCompleted(object? sender, EventArgs e)
+        private void _mainProcess_ProcessingCompleted(object? sender, ProcessCompletedEventArgs args)
         {
-            techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
+            var status = args.Status;
+            switch (status)
+            {
+                case CompletionStatus.Success:
+                    if (IsWaferMark)
+                    {
+                        MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem)
+                            .ContinueWith(t => techMessager.RealeaseMessage("Процесс завершён", MessageType.Info),TaskScheduler.Default);
+                    }
+                    else
+                    {
+                        techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
+                    }
+                    break;
+                case CompletionStatus.Cancelled:
+                    techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private async Task MarkWaferAsync(MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem<LMPlace> coorSystem)
+        {
+            var (x,y,angle) = markPosition switch
+            {
+                MarkPosition.N => (WaferWidth/2, WaferHeight - edgeGap - fontHeight/2,0d),
+                MarkPosition.E => (WaferWidth - edgeGap - fontHeight / 2, WaferHeight/2, 90d),
+                MarkPosition.S => (WaferWidth / 2, edgeGap + fontHeight / 2, 0d),
+                MarkPosition.W => (edgeGap + fontHeight / 2, WaferHeight / 2, 90d),
+            };
+            var position = coorSystem.ToGlobal(x,y);
+            await Task.WhenAll(_laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, position,true),
+                _laserMachine.MarkTextAsync(FileName,1,angle));
         }
 
         private void ProcessingObjects_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
