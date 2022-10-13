@@ -28,10 +28,11 @@ namespace NewLaserProject
         {
             //var machine = new MotionDevicePCI1240U();
             MainIoC = new ServiceCollection();
-            MainIoC.AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotionDevicePCI1245E))
-                   //.AddSingleton<MotionDevicePCI1240U>()
+            MainIoC//.AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotionDevicePCI1245E))
                    //.AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotDevMock))
+                   .AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotionDevicePCI1240U))
                    .AddSingleton<ExceptionsAgregator>()
+                   .AddScoped(typeof(IPWM), typeof(PWM2))
                    .AddScoped(typeof(IMarkLaser), typeof(JCZLaser))
                    //.AddScoped(typeof(IMarkLaser), typeof(MockLaser))
                    .AddScoped(typeof(IVideoCapture), typeof(USBCamera))                   

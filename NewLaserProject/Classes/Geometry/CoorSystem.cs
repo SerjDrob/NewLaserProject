@@ -160,7 +160,8 @@ namespace NewLaserProject.Classes.Geometry
                 {
                     var pairs = new[] { first, second, third };
 
-                    var zeroPointPairs = pairs.Where(pair => pair.originPoint == new PointF(0, 0));
+                    var zeroPointPairs = 
+                        pairs.Where(pair => pair.originPoint == new PointF(0, 0));
 
                     Guard.IsTrue(zeroPointPairs.Count() == 1, nameof(zeroPointPairs), "Origin points must have one (0,0) point");
 

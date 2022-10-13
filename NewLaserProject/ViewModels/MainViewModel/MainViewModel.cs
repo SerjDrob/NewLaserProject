@@ -332,6 +332,7 @@ namespace NewLaserProject.ViewModels
                     await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { 1, 1 });
                     break;
                 case Key.E:
+                    _laserMachine.SwitchOnValve(Valves.Light);
                     break;
                 case Key.G when !key.IsRepeat:
                     await _laserMachine.GoThereAsync(LMPlace.Loading);
@@ -344,9 +345,17 @@ namespace NewLaserProject.ViewModels
                     break;
                 case Key.Home when !key.IsRepeat:
                     {
-                        await _laserMachine.GoHomeAsync().ConfigureAwait(false);
-                        var corner = new double[] {Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
-                        await _laserMachine.MoveGpInPosAsync(Groups.XY,corner).ConfigureAwait(false);
+                        try
+                        {
+                            await _laserMachine.GoHomeAsync().ConfigureAwait(false);
+                            var corner = new double[] { Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
+                            await _laserMachine.MoveGpInPosAsync(Groups.XY, corner).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+
+                            throw;
+                        }
                         techMessager.EraseMessage();
                     }
                     break;
@@ -466,39 +475,13 @@ namespace NewLaserProject.ViewModels
 #if PCIInserted
             _laserMachine.ConfigureAxes(new (Ax, double)[]
                     {
-                    (Ax.X, 6.4),
-                    (Ax.Y, 6.4),
+                    (Ax.X, - 6.4),//TODO sign depends on relations between driver and encoder. Put it to JSON
+                    (Ax.Y, - 6.4),
                     (Ax.Z, 0)
                     });
 
-            //_laserMachine.ConfigureAxesGroups(new Dictionary<Groups, Ax[]>
-            //    {
-            //        {Groups.XY, new[] {Ax.X, Ax.Y}}
-            //    });
 
-
-            _laserMachine.AddGroup(Groups.XY, new[] { Ax.X, Ax.Y });
-
-            //_laserMachine.ConfigureValves(new Dictionary<Valves, (Ax, Do)>
-            //    {
-            //        {Valves.Blowing, (Ax.Z, Do.Out6)},
-            //        {Valves.ChuckVacuum, (Ax.Z, Do.Out4)},
-            //        {Valves.Coolant, (Ax.U, Do.Out4)},
-            //        {Valves.SpindleContact, (Ax.U, Do.Out5)}
-            //    });
-
-            //_laserMachine.SwitchOffValve(Valves.Blowing);
-            //_laserMachine.SwitchOffValve(Valves.ChuckVacuum);
-            //_laserMachine.SwitchOffValve(Valves.Coolant);
-            //_laserMachine.SwitchOffValve(Valves.SpindleContact);
-
-            //_laserMachine.ConfigureSensors(new Dictionary<Sensors, (Ax, Di, Boolean, string)>
-            //    {
-            //        {Sensors.Air, (Ax.Z, Di.In1, false, "Воздух")},
-            //        {Sensors.ChuckVacuum, (Ax.X, Di.In2, false, "Вакуум")},
-            //        {Sensors.Coolant, (Ax.U, Di.In2, false, "СОЖ")},
-            //        {Sensors.SpindleCoolant, (Ax.Y, Di.In2, false, "Охлаждение шпинделя")}
-            //    });
+            
             var xpar = new MotionDeviceConfigs
             {
                 maxAcc = 180,
@@ -535,7 +518,7 @@ namespace NewLaserProject.ViewModels
                 maxDec = 180,
                 maxVel = 8,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
-                plsOutMde = (int)PlsOutMode.OUT_DIR,
+                plsOutMde = (int)PlsOutMode.OUT_DIR_DIR_NEG,//.OUT_DIR,
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.ZAcc,
                 dec = Settings.Default.ZDec,
@@ -543,6 +526,10 @@ namespace NewLaserProject.ViewModels
                 homeVelLow = Settings.Default.ZVelLow,
                 homeVelHigh = Settings.Default.ZVelService
             };
+
+
+            var gpXYpar = xpar;
+
 
             var XVelRegimes = new Dictionary<Velocity, double>
             {
@@ -583,6 +570,9 @@ namespace NewLaserProject.ViewModels
                         (Ax.Y, ypar),
                         (Ax.Z, zpar),
                     });
+
+                _laserMachine.AddGroup(Groups.XY, new[] { Ax.X, Ax.Y });
+                //_laserMachine.SetGroupConfig(0, gpXYpar);
             }
             catch (Exception ex)
             {
@@ -598,21 +588,31 @@ namespace NewLaserProject.ViewModels
                 [LMPlace.Loading] = new[] { (Ax.X, Settings.Default.XLoad), (Ax.Y, Settings.Default.YLoad) } //,
             });
 
-
+            //TODO put it to JSON
             _laserMachine.ConfigureHomingForAxis(Ax.X)
+                .SetHomingDirection(AxDir.Neg)
                 .SetHomingMode(HmMode.MODE6_Lmt_Ref)
                 .SetHomingVelocity(Settings.Default.XVelService)
                 .Configure();
 
             _laserMachine.ConfigureHomingForAxis(Ax.Y)
+                .SetHomingDirection(AxDir.Neg)
                 .SetHomingMode(HmMode.MODE6_Lmt_Ref)
                 .SetHomingVelocity(Settings.Default.YVelService)
                 .Configure();
 
             _laserMachine.ConfigureHomingForAxis(Ax.Z)
+                .SetHomingDirection(AxDir.Neg)
                 .SetHomingVelocity(/*Settings.Default.ZVelService*/1)
                 .SetPositionAfterHoming(1)
                 .Configure();
+
+            _laserMachine.ConfigureValves(
+                    new()
+                    {
+                        [Valves.Light] = (Ax.Y, Do.Out4)
+                    }                
+                );
 
 #endif
         }

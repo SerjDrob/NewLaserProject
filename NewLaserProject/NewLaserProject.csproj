@@ -127,7 +127,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="TempFiles\" />
   </ItemGroup>
   
     <ItemGroup>
