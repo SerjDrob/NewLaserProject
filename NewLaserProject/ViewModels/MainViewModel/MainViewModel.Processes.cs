@@ -222,13 +222,15 @@ namespace NewLaserProject.ViewModels
             var (x,y,angle) = markPosition switch
             {
                 MarkPosition.N => (WaferWidth/2, WaferHeight - edgeGap - fontHeight/2,0d),
-                MarkPosition.E => (WaferWidth - edgeGap - fontHeight / 2, WaferHeight/2, 90d),
+                MarkPosition.E => (WaferWidth - edgeGap - fontHeight / 2, WaferHeight/2, Math.PI / 2),
                 MarkPosition.S => (WaferWidth / 2, edgeGap + fontHeight / 2, 0d),
-                MarkPosition.W => (edgeGap + fontHeight / 2, WaferHeight / 2, 90d),
+                MarkPosition.W => (edgeGap + fontHeight / 2, WaferHeight / 2, Math.PI / 2),
             };
             var position = coorSystem.ToGlobal(x,y);
+            var theta = coorSystem.GetMatrixAngle();
+            var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Today.Date;
             await Task.WhenAll(_laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, position,true),
-                _laserMachine.MarkTextAsync(FileName,1,angle));
+                _laserMachine.MarkTextAsync(markingText,0.8, angle + theta));
         }
 
         private void ProcessingObjects_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
