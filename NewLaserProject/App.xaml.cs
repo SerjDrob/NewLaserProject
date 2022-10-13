@@ -38,16 +38,22 @@ namespace NewLaserProject
                    .AddScoped<MotionDevicePCI1240U>()
                    .AddScoped<MotionDevicePCI1245E>()
                    .AddSingleton(sp =>
-                    {
+                   {
                         return new MotionBoardFactory(sp, machineconfigs).GetMotionBoard();
-                    })
+                   })
                    .AddSingleton<ExceptionsAgregator>()
                    .AddScoped<JCZLaser>()
                    .AddScoped<MockLaser>()
+                   .AddScoped<PWM>()
+                   .AddScoped<PWM2>()
                    .AddSingleton(sp =>
-                    {
+                   {
+                       return new LaserBoardFactory(sp, machineconfigs).GetPWM();
+                   })
+                   .AddSingleton(sp =>
+                   {
                        return new LaserBoardFactory(sp, machineconfigs).GetLaserBoard();
-                    })
+                   })
                    .AddScoped<IVideoCapture,USBCamera>()                   
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()

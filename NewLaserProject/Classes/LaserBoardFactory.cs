@@ -22,5 +22,12 @@ namespace NewLaserProject.Classes
             if (_machineConfiguration.IsLaserMock) return _serviceProvider.GetService<MockLaser>();
             return null;
         }
+
+        public IPWM? GetPWM()
+        {
+            if (_machineConfiguration.IsUF) return _serviceProvider.GetService<PWM>();
+            if (_machineConfiguration.IsIR) return _serviceProvider.GetService<PWM2>();
+            return null;
+        }
     }
 }
