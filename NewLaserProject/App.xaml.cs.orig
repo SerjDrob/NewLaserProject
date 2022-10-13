@@ -28,32 +28,46 @@ namespace NewLaserProject
         public ServiceCollection MainIoC { get; private set; }
         public App()
         {
+
+
+            var conf = new LaserAxesConfiguration
+            {
+                XLine = 6.4,
+                YLine = 6.4,
+                XRightDirection = true,
+                YRightDirection = true,
+                ZRightDirection = true,
+                ZToObjectiveAproximation = true
+            };
+
+            conf.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "AxesConfigs.json"));
+
             var machineconfigs = ExtensionMethods
                 .DeserilizeObject<MachineConfiguration>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "MachineConfigs.json"));
 
 
             MainIoC = new ServiceCollection();
+<<<<<<< HEAD
 
             MainIoC.AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
                    .AddScoped<MotionDevicePCI1245E>()
                    .AddSingleton(sp =>
-                   {
+                    {
                         return new MotionBoardFactory(sp, machineconfigs).GetMotionBoard();
-                   })
+                    })
+=======
+            MainIoC.AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotionDevicePCI1245E))
+                   //.AddSingleton<MotionDevicePCI1240U>()
+                   //.AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotDevMock))
+>>>>>>> 05cac09ea34463ae2bf1b658413810858bee9b48
                    .AddSingleton<ExceptionsAgregator>()
                    .AddScoped<JCZLaser>()
                    .AddScoped<MockLaser>()
-                   .AddScoped<PWM>()
-                   .AddScoped<PWM2>()
                    .AddSingleton(sp =>
-                   {
-                       return new LaserBoardFactory(sp, machineconfigs).GetPWM();
-                   })
-                   .AddSingleton(sp =>
-                   {
+                    {
                        return new LaserBoardFactory(sp, machineconfigs).GetLaserBoard();
-                   })
+                    })
                    .AddScoped<IVideoCapture,USBCamera>()                   
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
