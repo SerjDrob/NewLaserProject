@@ -8,11 +8,13 @@ using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NewLaserProject.Classes;
 using NewLaserProject.Data;
 using NewLaserProject.ViewModels;
 using NewLaserProject.Views;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Windows;
 
@@ -26,15 +28,41 @@ namespace NewLaserProject
         public ServiceCollection MainIoC { get; private set; }
         public App()
         {
-            //var machine = new MotionDevicePCI1240U();
+
+
+            var conf = new LaserAxesConfiguration
+            {
+                XLine = 6.4,
+                YLine = 6.4,
+                XRightDirection = true,
+                YRightDirection = true,
+                ZRightDirection = true,
+                ZToObjectiveAproximation = true
+            };
+
+            conf.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "AxesConfigs.json"));
+
+            var machineconfigs = ExtensionMethods
+                .DeserilizeObject<MachineConfiguration>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "MachineConfigs.json"));
+
+
             MainIoC = new ServiceCollection();
-            MainIoC//.AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotionDevicePCI1245E))
-                   //.AddSingleton<MotionDevicePCI1240U>()
-                   .AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotDevMock))
+
+            MainIoC.AddScoped<MotDevMock>()
+                   .AddScoped<MotionDevicePCI1240U>()
+                   .AddScoped<MotionDevicePCI1245E>()
+                   .AddSingleton(sp =>
+                    {
+                        return new MotionBoardFactory(sp, machineconfigs).GetMotionBoard();
+                    })
                    .AddSingleton<ExceptionsAgregator>()
-                   .AddScoped(typeof(IMarkLaser), typeof(JCZLaser))
-                   //.AddScoped(typeof(IMarkLaser), typeof(MockLaser))
-                   .AddScoped(typeof(IVideoCapture), typeof(USBCamera))                   
+                   .AddScoped<JCZLaser>()
+                   .AddScoped<MockLaser>()
+                   .AddSingleton(sp =>
+                    {
+                       return new LaserBoardFactory(sp, machineconfigs).GetLaserBoard();
+                    })
+                   .AddScoped<IVideoCapture,USBCamera>()                   
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
                    .AddDbContext<DbContext, LaserDbContext>()
