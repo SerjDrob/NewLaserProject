@@ -1,6 +1,6 @@
 {
   "MotionBoardNote": "Choose from following boards: PCI1240U, PCI1245E, MOCKBOARD",
-  "MotionBoard": "PCI1240U",
+  "MotionBoard": "MOCKBOARD",
   "MarkDevTypeNote": "Choose from following types: UF, IR",
   "MarkDevType": "IR"
 }
