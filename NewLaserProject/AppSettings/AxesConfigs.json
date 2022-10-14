@@ -1,12 +1,12 @@
 {
   "LineComment": "Line coefficient for coordinates equiped with encoder. Can be negative. Set 0 if no encoder",
-  "XLine": 6.4,
-  "YLine": 6.4,
+  "XLine": -6.4,
+  "YLine": -6.4,
   "ZLine": 0.0,
   "RightDirectionComment": "Set true if moving right is the positive direction",
   "XRightDirection": true,
   "YRightDirection": true,
-  "ZRightDirection": true,
+  "ZRightDirection": false,
   "ZToObjAproxComment": "Set true if z move toward the objective in the positive direction",
   "ZToObjectiveAproximation": true
 }

@@ -7,6 +7,7 @@ using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
@@ -473,11 +474,17 @@ namespace NewLaserProject.ViewModels
         private void ImplementMachineSettings()
         {
 #if PCIInserted
+
+            var axesConfigs = ExtensionMethods
+                .DeserilizeObject<LaserAxesConfiguration>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "AxesConfigs.json"));
+            
+            Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
+
             _laserMachine.ConfigureAxes(new (Ax, double)[]
                     {
-                    (Ax.X, - 6.4),//TODO sign depends on relations between driver and encoder. Put it to JSON
-                    (Ax.Y, - 6.4),
-                    (Ax.Z, 0)
+                    (Ax.X, axesConfigs.XLine),
+                    (Ax.Y, axesConfigs.YLine),
+                    (Ax.Z, axesConfigs.ZLine)
                     });
 
 
@@ -488,7 +495,7 @@ namespace NewLaserProject.ViewModels
                 maxDec = 180,
                 maxVel = 30,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
-                plsOutMde = (int)PlsOutMode.OUT_DIR,
+                plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.XAcc,
                 dec = Settings.Default.XDec,
@@ -503,7 +510,7 @@ namespace NewLaserProject.ViewModels
                 maxDec = 180,
                 maxVel = 30,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
-                plsOutMde = (int)PlsOutMode.OUT_DIR,
+                plsOutMde = (int)(axesConfigs.YRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.YAcc,
                 dec = Settings.Default.YDec,
@@ -518,7 +525,7 @@ namespace NewLaserProject.ViewModels
                 maxDec = 180,
                 maxVel = 8,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
-                plsOutMde = (int)PlsOutMode.OUT_DIR_DIR_NEG,//.OUT_DIR,
+                plsOutMde = (int)(axesConfigs.ZRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.ZAcc,
                 dec = Settings.Default.ZDec,
