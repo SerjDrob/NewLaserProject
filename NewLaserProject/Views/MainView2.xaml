@@ -728,6 +728,7 @@
                                 </Border>
                                 <GroupBox Grid.Row="4" 
                                              Grid.ColumnSpan="6"
+                                             Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                               >
                                     <GroupBox.Header>
                                         <StackPanel Orientation="Horizontal">

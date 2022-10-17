@@ -96,7 +96,7 @@ namespace NewLaserProject.ViewModels
                         {
                             LaserEntity.Curve => _dxfReader.GetAllCurves(o.Layer).Cast<IProcObject>(),
                             LaserEntity.Circle => _dxfReader.GetCircles(o.Layer).Cast<IProcObject>()
-                        }));
+                        })).ToList();
 
             var wafer = new LaserWafer(procObjects, topologySize);
 
@@ -284,14 +284,16 @@ namespace NewLaserProject.ViewModels
         public MarkPosition MarkPosition { get; set; }
         private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj, int index) e)
         {
-            //if (e.index > -1)
-            //{
-            //    IsBeingProcessedObject = e.procObj;
-            //    ProcessingObjects[e.index] = e.procObj;
-            //}
-            var i = ProcessingObjects.SingleOrDefault(o => o.Id == e.procObj.Id);
-            IsBeingProcessedObject = ProcessingObjects[e.index];//
-            IsBeingProcessedIndex = e.index + 1;
+            if (e.procObj.IsProcessed)
+            {
+                var o = ProcessingObjects.Single(po => po.Id == e.procObj.Id);
+                ProcessingObjects.Remove(o);
+            }
+            else
+            {
+                IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == e.procObj.Id);
+                IsBeingProcessedIndex = e.index + 1;
+            }
         }
 
         private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
