@@ -219,10 +219,16 @@ namespace NewLaserProject.ViewModels
 
         private void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
         {
-            var k = 1280d / 1024;//TODO It must depend on current camera capabilities
-            var imgX = e.x * Settings.Default.CameraScale * k;
-            var imgY = e.y * Settings.Default.CameraScale;
-            _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -imgX, imgY },true);//TODO fix it. it smells
+            var caps = CameraCapabilities[CameraCapabilitiesIndex].Split(" ");
+            var xRatio = 0d;
+            var yRatio = 0d;
+
+            if (double.TryParse(caps[0],out xRatio) && double.TryParse(caps[2], out yRatio))
+            {
+                var k = xRatio / yRatio;
+                var offset = new[] { e.x * Settings.Default.CameraScale * k, e.y * Settings.Default.CameraScale };
+                _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);//TODO fix it. it smells
+            }            
         }
 
         [ICommand]
