@@ -229,8 +229,8 @@ namespace NewLaserProject.ViewModels
             var position = coorSystem.ToGlobal(x,y);
             var theta = coorSystem.GetMatrixAngle();
             var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Today.Date;
-            await Task.WhenAll(_laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, position,true),
-                _laserMachine.MarkTextAsync(markingText,0.8, angle + theta));
+            await _laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, position, true);
+            await _laserMachine.MarkTextAsync(markingText,0.8, angle + theta);
         }
 
         private void ProcessingObjects_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
