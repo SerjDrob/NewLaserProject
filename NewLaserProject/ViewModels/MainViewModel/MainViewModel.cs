@@ -7,6 +7,7 @@ using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Geometry;
@@ -134,7 +135,7 @@ namespace NewLaserProject.ViewModels
         private void AppSettingsOpen()
         {
             var defLaserParams = ExtensionMethods
-                .DeserilizeObject<MarkLaserParams>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultLaserParams.json"));
+                .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
 
             if (AppSngsVM is null) AppSngsVM = new(_db, defLaserParams)
             {
@@ -159,8 +160,8 @@ namespace NewLaserProject.ViewModels
 
                 var defLaserParams = AppSngsVM.MarkSettingsViewModel.GetLaserParams();
 
-                defProcFilter.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultProcessFilter.json"));
-                defLaserParams.SerializeObject(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "DefaultLaserParams.json"));
+                defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultProcessFilter.json"));
+                defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
 
                 Settings.Default.WaferMirrorX = AppSngsVM.IsMirrored;
                 Settings.Default.WaferAngle90 = AppSngsVM.IsRotated;
@@ -218,10 +219,16 @@ namespace NewLaserProject.ViewModels
 
         private void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
         {
-            var k = 1280d / 1024;//TODO It must depend on current camera capabilities
-            var imgX = e.x * Settings.Default.CameraScale * k;
-            var imgY = e.y * Settings.Default.CameraScale;
-            _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -imgX, imgY },true);//TODO fix it. it smells
+            var caps = CameraCapabilities[CameraCapabilitiesIndex].Split(" ");
+            var xRatio = 0d;
+            var yRatio = 0d;
+
+            if (double.TryParse(caps[0],out xRatio) && double.TryParse(caps[2], out yRatio))
+            {
+                var k = xRatio / yRatio;
+                var offset = new[] { e.x * Settings.Default.CameraScale * k, e.y * Settings.Default.CameraScale };
+                _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);//TODO fix it. it smells
+            }            
         }
 
         [ICommand]
@@ -332,6 +339,7 @@ namespace NewLaserProject.ViewModels
                     await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { 1, 1 });
                     break;
                 case Key.E:
+                    _laserMachine.SwitchOnValve(Valves.Light);
                     break;
                 case Key.G when !key.IsRepeat:
                     await _laserMachine.GoThereAsync(LMPlace.Loading);
@@ -344,9 +352,17 @@ namespace NewLaserProject.ViewModels
                     break;
                 case Key.Home when !key.IsRepeat:
                     {
-                        await _laserMachine.GoHomeAsync().ConfigureAwait(false);
-                        var corner = new double[] {Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
-                        await _laserMachine.MoveGpInPosAsync(Groups.XY,corner).ConfigureAwait(false);
+                        try
+                        {
+                            await _laserMachine.GoHomeAsync().ConfigureAwait(false);
+                            var corner = new double[] { Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
+                            await _laserMachine.MoveGpInPosAsync(Groups.XY, corner).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+
+                            throw;
+                        }
                         techMessager.EraseMessage();
                     }
                     break;
@@ -464,48 +480,19 @@ namespace NewLaserProject.ViewModels
         private void ImplementMachineSettings()
         {
 #if PCIInserted
-            _laserMachine.ConfigureAxes(new (Ax, double)[]
-                    {
-                    (Ax.X, 6.4),
-                    (Ax.Y, 6.4),
-                    (Ax.Z, 0)
-                    });
 
-            //_laserMachine.ConfigureAxesGroups(new Dictionary<Groups, Ax[]>
-            //    {
-            //        {Groups.XY, new[] {Ax.X, Ax.Y}}
-            //    });
+            var axesConfigs = ExtensionMethods
+                .DeserilizeObject<LaserAxesConfiguration>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "AxesConfigs.json"));
+            
+            Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
 
-
-            _laserMachine.AddGroup(Groups.XY, new[] { Ax.X, Ax.Y });
-
-            //_laserMachine.ConfigureValves(new Dictionary<Valves, (Ax, Do)>
-            //    {
-            //        {Valves.Blowing, (Ax.Z, Do.Out6)},
-            //        {Valves.ChuckVacuum, (Ax.Z, Do.Out4)},
-            //        {Valves.Coolant, (Ax.U, Do.Out4)},
-            //        {Valves.SpindleContact, (Ax.U, Do.Out5)}
-            //    });
-
-            //_laserMachine.SwitchOffValve(Valves.Blowing);
-            //_laserMachine.SwitchOffValve(Valves.ChuckVacuum);
-            //_laserMachine.SwitchOffValve(Valves.Coolant);
-            //_laserMachine.SwitchOffValve(Valves.SpindleContact);
-
-            //_laserMachine.ConfigureSensors(new Dictionary<Sensors, (Ax, Di, Boolean, string)>
-            //    {
-            //        {Sensors.Air, (Ax.Z, Di.In1, false, "Воздух")},
-            //        {Sensors.ChuckVacuum, (Ax.X, Di.In2, false, "Вакуум")},
-            //        {Sensors.Coolant, (Ax.U, Di.In2, false, "СОЖ")},
-            //        {Sensors.SpindleCoolant, (Ax.Y, Di.In2, false, "Охлаждение шпинделя")}
-            //    });
             var xpar = new MotionDeviceConfigs
             {
                 maxAcc = 180,
                 maxDec = 180,
                 maxVel = 30,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
-                plsOutMde = (int)PlsOutMode.OUT_DIR,
+                plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.XAcc,
                 dec = Settings.Default.XDec,
@@ -520,7 +507,7 @@ namespace NewLaserProject.ViewModels
                 maxDec = 180,
                 maxVel = 30,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
-                plsOutMde = (int)PlsOutMode.OUT_DIR,
+                plsOutMde = (int)(axesConfigs.YRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.YAcc,
                 dec = Settings.Default.YDec,
@@ -535,7 +522,7 @@ namespace NewLaserProject.ViewModels
                 maxDec = 180,
                 maxVel = 8,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
-                plsOutMde = (int)PlsOutMode.OUT_DIR,
+                plsOutMde = (int)(axesConfigs.ZRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.ZAcc,
                 dec = Settings.Default.ZDec,
@@ -543,77 +530,72 @@ namespace NewLaserProject.ViewModels
                 homeVelLow = Settings.Default.ZVelLow,
                 homeVelHigh = Settings.Default.ZVelService
             };
-
-            var XVelRegimes = new Dictionary<Velocity, double>
-            {
-                {Velocity.Fast, Settings.Default.XVelHigh},
-                {Velocity.Slow, Settings.Default.XVelLow},
-                {Velocity.Service, Settings.Default.XVelService}
-            };
-
-            var YVelRegimes = new Dictionary<Velocity, double>
-            {
-                {Velocity.Fast, Settings.Default.YVelHigh},
-                {Velocity.Slow, Settings.Default.YVelLow},
-                {Velocity.Service, Settings.Default.YVelService}
-            };
-
-            var ZVelRegimes = new Dictionary<Velocity, double>
-            {
-                {Velocity.Fast, Settings.Default.ZVelHigh},
-                {Velocity.Slow, Settings.Default.ZVelLow},
-                {Velocity.Service, Settings.Default.ZVelService}
-            };
-
-
-            _laserMachine.ConfigureVelRegimes(new Dictionary<Ax, Dictionary<Velocity, double>>
-            {
-                {Ax.X, XVelRegimes},
-                {Ax.Y, YVelRegimes},
-                {Ax.Z, ZVelRegimes},
-            });
-
-
+            var gpXYpar = xpar;
 
             try
             {
-                _laserMachine.SetConfigs(new (Ax axis, MotionDeviceConfigs configs)[]
-                    {
-                        (Ax.X, xpar),
-                        (Ax.Y, ypar),
-                        (Ax.Z, zpar),
-                    });
+                _laserMachine.AddAxis(Ax.X, axesConfigs.XLine)
+                    .WithConfigs(xpar)
+                    .WithVelRegime(Velocity.Fast, Settings.Default.XVelHigh)
+                    .WithVelRegime(Velocity.Slow, Settings.Default.XVelLow)
+                    .WithVelRegime(Velocity.Service, Settings.Default.XVelService)
+                    .Build();
+
+                _laserMachine.AddAxis(Ax.Y, axesConfigs.YLine)
+                    .WithConfigs(ypar)
+                    .WithVelRegime(Velocity.Fast, Settings.Default.YVelHigh)
+                    .WithVelRegime(Velocity.Slow, Settings.Default.YVelLow)
+                    .WithVelRegime(Velocity.Service, Settings.Default.YVelService)
+                    .Build();
+
+                _laserMachine.AddAxis(Ax.Z, axesConfigs.ZLine)
+                    .WithConfigs(zpar)
+                    .WithVelRegime(Velocity.Fast, Settings.Default.ZVelHigh)
+                    .WithVelRegime(Velocity.Slow, Settings.Default.ZVelLow)
+                    .WithVelRegime(Velocity.Service, Settings.Default.ZVelService)
+                    .Build();
+
+
+                _laserMachine.AddGroup(Groups.XY, Ax.X, Ax.Y);
+                //_laserMachine.SetGroupConfig(0, gpXYpar);
+
+                _laserMachine.ConfigureGeometryFor(LMPlace.Loading)
+                    .SetCoordinateForPlace(Ax.X, Settings.Default.XLoad)
+                    .SetCoordinateForPlace(Ax.Y, Settings.Default.YLoad)
+                    .Build();
+
+                //TODO put it to JSON
+                _laserMachine.ConfigureHomingForAxis(Ax.X)
+                    .SetHomingDirection(AxDir.Neg)
+                    .SetHomingMode(HmMode.MODE6_Lmt_Ref)
+                    .SetHomingVelocity(Settings.Default.XVelService)
+                    .Configure();
+
+                _laserMachine.ConfigureHomingForAxis(Ax.Y)
+                    .SetHomingDirection(AxDir.Neg)
+                    .SetHomingMode(HmMode.MODE6_Lmt_Ref)
+                    .SetHomingVelocity(Settings.Default.YVelService)
+                    .Configure();
+
+                _laserMachine.ConfigureHomingForAxis(Ax.Z)
+                    .SetHomingDirection(AxDir.Neg)
+                    .SetHomingVelocity(/*Settings.Default.ZVelService*/1)
+                    .SetPositionAfterHoming(1)
+                    .Configure();
+
+                _laserMachine.ConfigureValves(
+                        new()
+                        {
+                            [Valves.Light] = (Ax.Y, Do.Out4)
+                        }
+                    );
             }
             catch (Exception ex)
             {
-
-                //throw;
+                throw;
             }
 
-            _laserMachine.SetVelocity(VelocityRegime);
-
-
-            _laserMachine.ConfigureGeometry(new Dictionary<LMPlace, (Ax, double)[]>
-            {
-                [LMPlace.Loading] = new[] { (Ax.X, Settings.Default.XLoad), (Ax.Y, Settings.Default.YLoad) } //,
-            });
-
-
-            _laserMachine.ConfigureHomingForAxis(Ax.X)
-                .SetHomingMode(HmMode.MODE6_Lmt_Ref)
-                .SetHomingVelocity(Settings.Default.XVelService)
-                .Configure();
-
-            _laserMachine.ConfigureHomingForAxis(Ax.Y)
-                .SetHomingMode(HmMode.MODE6_Lmt_Ref)
-                .SetHomingVelocity(Settings.Default.YVelService)
-                .Configure();
-
-            _laserMachine.ConfigureHomingForAxis(Ax.Z)
-                .SetHomingVelocity(/*Settings.Default.ZVelService*/1)
-                .SetPositionAfterHoming(1)
-                .Configure();
-
+            _laserMachine.SetVelocity(VelocityRegime);            
 #endif
         }
         private CoorSystem<LMPlace> GetCoorSystem()

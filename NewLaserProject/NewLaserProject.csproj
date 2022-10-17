@@ -127,7 +127,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="TempFiles\" />
   </ItemGroup>
   
     <ItemGroup>
@@ -136,5 +135,7 @@
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
     </ItemGroup>
+  
+    <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
   
 </Project>

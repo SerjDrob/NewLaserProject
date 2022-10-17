@@ -33,6 +33,16 @@ namespace NewLaserProject
 
 
             MainIoC = new ServiceCollection();
+<<<<<<< HEAD
+            MainIoC//.AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotionDevicePCI1245E))
+                   //.AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotDevMock))
+                   .AddSingleton(typeof(IMotionDevicePCI1240U),typeof(MotionDevicePCI1240U))
+                   .AddSingleton<ExceptionsAgregator>()
+                   .AddScoped(typeof(IPWM), typeof(PWM2))
+                   .AddScoped(typeof(IMarkLaser), typeof(JCZLaser))
+                   //.AddScoped(typeof(IMarkLaser), typeof(MockLaser))
+                   .AddScoped(typeof(IVideoCapture), typeof(USBCamera))                   
+=======
 
             MainIoC.AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
@@ -55,6 +65,7 @@ namespace NewLaserProject
                        return new LaserBoardFactory(sp, machineconfigs).GetLaserBoard();
                    })
                    .AddScoped<IVideoCapture,USBCamera>()                   
+>>>>>>> 5c1e89f2b6ef6054293a352780cdfa8e7563ec79
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
                    .AddDbContext<DbContext, LaserDbContext>()

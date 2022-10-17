@@ -18,7 +18,10 @@ namespace NewLaserProject.ViewModels
 			_appStateMachine = new StateMachine<AppState, AppTrigger>(AppState.Default, FiringMode.Queued);
 
 			_appStateMachine.Configure(AppState.Default)
-				.OnEntry(() => { })
+				.OnEntry(() => 
+				{
+					IsProcessPanelVisible = false;
+				})
 				.Permit(AppTrigger.StartLearning, AppState.Learning)
 				.PermitIf(AppTrigger.StartProcess, AppState.Processing,() => IsFileLoaded)
 				.Ignore(AppTrigger.EndLearning)

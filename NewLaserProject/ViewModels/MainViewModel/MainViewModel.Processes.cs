@@ -215,6 +215,7 @@ namespace NewLaserProject.ViewModels
                 default:
                     break;
             }
+            _appStateMachine.Fire(AppTrigger.EndProcess);
         }
 
         private async Task MarkWaferAsync(MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem<LMPlace> coorSystem)
@@ -323,12 +324,5 @@ namespace NewLaserProject.ViewModels
             WaferHeight = material.Height;
             WaferThickness = material.Thickness;
         }
-    }
-    public enum MarkPosition
-    {
-        W,
-        N,
-        E,
-        S
     }
 }

@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using MachineClassLibrary.Laser;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace NewLaserProject.Classes
 {
@@ -37,6 +39,8 @@ namespace NewLaserProject.Classes
             }
             return result;
         }
+
+        public TObject DeserializeFromFile(string jsonpath) => Deserialize(File.ReadAllText(jsonpath));
     }
         
 }
