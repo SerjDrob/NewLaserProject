@@ -226,7 +226,7 @@ namespace NewLaserProject.ViewModels
             if (double.TryParse(caps[0],out xRatio) && double.TryParse(caps[2], out yRatio))
             {
                 var k = xRatio / yRatio;
-                var offset = new[] { e.x * Settings.Default.CameraScale * k, e.y * Settings.Default.CameraScale };
+                var offset = new[] { - e.x * Settings.Default.CameraScale * k, e.y * Settings.Default.CameraScale };
                 _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);//TODO fix it. it smells
             }            
         }

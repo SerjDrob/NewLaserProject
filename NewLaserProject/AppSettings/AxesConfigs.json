@@ -6,7 +6,7 @@
   "RightDirectionComment": "Set true if moving right is the positive direction",
   "XRightDirection": true,
   "YRightDirection": true,
-  "ZRightDirection": false,
+  "ZRightDirection": true,
   "ZToObjAproxComment": "Set true if z move toward the objective in the positive direction",
   "ZToObjectiveAproximation": true
 }

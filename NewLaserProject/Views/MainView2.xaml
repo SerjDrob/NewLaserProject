@@ -590,13 +590,16 @@
                                             <i:DataTrigger Binding="{Binding IsProcessPanelVisible}" Value="True">
                                                 <i:ChangePropertyAction PropertyName="Visibility" Value="Hidden"/>
                                             </i:DataTrigger>
+                                            <i:DataTrigger Binding="{Binding IsProcessPanelVisible}" Value="False">
+                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                            </i:DataTrigger>
                                         </i:Interaction.Triggers>
 
                                     </Button>
                                     <ToggleButton 
                                                   Command="{Binding StartStopProcessCommand}"
                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
-                                                  IsChecked="False"
+                                                  IsChecked="{Binding OnProcess}"
                                                   hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
                                                   hc:IconSwitchElement.GeometrySelected="{StaticResource StopSignGeometry}"
                                                   RenderTransformOrigin="0,0.5"
