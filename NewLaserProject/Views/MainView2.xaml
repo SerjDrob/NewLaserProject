@@ -730,16 +730,16 @@
                                              Grid.ColumnSpan="6"
                                               >
                                     <GroupBox.Header>
-                                        <StackPanel Orientation="Horizontal" DataContext="{Binding ElementName=ProcObjGrid, Path=SelectedItem}">
-                                            <!--<TextBlock Text="{Binding StringFormat='{}#{0}  '}" DataContext="{Binding ElementName=ProcObjGrid, Path=SelectedIndex}"/>-->
-                                            <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=GroupBox}, Path=DataContext.IsBeingProcessedIndex, StringFormat='{}#{0}  '}"/>
-                                            <TextBlock Text="{Binding LayerName, StringFormat='{}{0}  '}"/>
-                                            <ContentControl Content="{Binding Converter={StaticResource IProcTypeToEntityConverter}}" 
-                                                                            ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding IsBeingProcessedIndex, StringFormat='{}#{0}  '}"/>
+                                            <TextBlock Text="{Binding IsBeingProcessedObject.LayerName, StringFormat='{}{0}  '}"/>
+                                            <ContentControl Content="{Binding IsBeingProcessedObject,
+                                                Converter={StaticResource IProcTypeToEntityConverter}}" 
+                                                ContentTemplateSelector="{StaticResource EntitySelector}"/>
                                             <TextBlock>
-                                                <Run Text="{Binding X, StringFormat='{}  {0:#.}'}"/>
+                                                <Run Text="{Binding IsBeingProcessedObject.X, StringFormat='{}  {0:#.}'}"/>
                                                 <Run Text="&#215;"/>
-                                                <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
+                                                <Run Text="{Binding IsBeingProcessedObject.Y, StringFormat='{}{0:#.}'}"/>
                                             </TextBlock>
                                         </StackPanel>
                                     </GroupBox.Header>

@@ -289,8 +289,8 @@ namespace NewLaserProject.ViewModels
             //    IsBeingProcessedObject = e.procObj;
             //    ProcessingObjects[e.index] = e.procObj;
             //}
-
-            IsBeingProcessedObject = ProcessingObjects[e.index];//= ProcessingObjects.SingleOrDefault(o => o.Id == e.procObj.Id);
+            var i = ProcessingObjects.SingleOrDefault(o => o.Id == e.procObj.Id);
+            IsBeingProcessedObject = ProcessingObjects[e.index];//
             IsBeingProcessedIndex = e.index + 1;
         }
 
