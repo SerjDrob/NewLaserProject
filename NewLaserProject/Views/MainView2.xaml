@@ -378,6 +378,8 @@
 
                     <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
                     <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
+                    <KeyBinding Command="{Binding UndoRemoveSelectionCommand}" Key="M"/>
+                    
                 </TabItem.InputBindings>
                 <Grid>
                     <Grid.ColumnDefinitions>

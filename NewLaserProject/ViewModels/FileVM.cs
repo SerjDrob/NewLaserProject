@@ -3,6 +3,7 @@ using MachineControlsLibrary.Classes;
 using MachineControlsLibrary.Controls.GraphWin;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Xaml.Behaviors.Core;
 using NewLaserProject.Classes;
 using NewLaserProject.Properties;
 using PropertyChanged;
@@ -10,6 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace NewLaserProject.ViewModels
@@ -18,6 +22,10 @@ namespace NewLaserProject.ViewModels
     internal partial class FileVM
     {
         private IDxfReader _dxfReader;
+        private DxfEditor? _dxfEditor;
+
+
+        private LayGeomsEditor _geomsEditor;
         public FileVM(double waferWidth, double waferHeight)
         {
             WaferWidth = waferWidth;
@@ -28,6 +36,9 @@ namespace NewLaserProject.ViewModels
             double waferOffsetY, string filePath)
         {
             _dxfReader = dxfReader;
+
+            _dxfEditor = dxfReader as DxfEditor;
+
             FileScale = fileScale;
             MirrorX = mirrorX;
             WaferOffsetX = waferOffsetX;
@@ -56,12 +67,82 @@ namespace NewLaserProject.ViewModels
             FileSizeX = Math.Round(fileSize.width);
             FileSizeY = Math.Round(fileSize.height);
             //LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
-            LayGeoms=new LayGeomAdapter(new IMGeometryAdapter(_filePath)).LayerGeometryCollections;
+            LayGeoms =new LayGeomAdapter(new IMGeometryAdapter(_filePath)).LayerGeometryCollections;
+            _geomsEditor = new(LayGeoms);
             MirrorX = Settings.Default.WaferMirrorX;
             WaferTurn90 = Settings.Default.WaferAngle90;
             WaferOffsetX = 0;
             WaferOffsetY = 0;
         }
+
+        [ICommand]
+        private void GotSelection(RoutedPropertyChangedEventArgs<Rect> args)
+        {
+            var rect = args.NewValue;
+            _geomsEditor?.RemoveBySelection(rect);
+            
+            var layers = LayGeoms.Where(l => l.LayerEnable)
+                .Select(l => l.LayerName)
+                .ToArray();
+
+            _dxfEditor?.RemoveBySelection(layers, rect);
+        }
+
+        public void UndoRemoveSelection()
+        {
+            _geomsEditor?.Undo();
+            _dxfEditor?.Undo();
+        }
+
+        class LayGeomsEditor
+        {
+            private readonly IEnumerable<LayerGeometryCollection> _layerGeometryCollections;
+            public LayGeomsEditor(in IEnumerable<LayerGeometryCollection> layerGeometryCollections)
+            {
+                _layerGeometryCollections = layerGeometryCollections;
+            }
+
+            private Stack<(string layer, Geometry geometry)[]> _erasedGeometries;
+            public void RemoveBySelection(Rect selection) 
+            {
+                _erasedGeometries ??= new();
+
+                var entities = _layerGeometryCollections.Where(c => c.LayerEnable)
+                    .SelectMany(e => e.Geometries.Where(item => selection.Contains(item.Bounds)), (lgc, g) => new { lgc.LayerName, g })
+                    .ToArray();
+
+                foreach (var item in entities)
+                {
+                    var res = _layerGeometryCollections.Where(lg => lg.LayerName == item.LayerName)
+                        .Single().Geometries
+                        .Remove(item.g);
+                }
+                _erasedGeometries.Push(entities.Select(e=>(e.LayerName,e.g)).ToArray());
+            }
+            public void Undo() 
+            {
+                if(_erasedGeometries.TryPop(out var values)) InsertElements(values);
+            }
+            private void InsertElements((string layer,Geometry geometry)[] elements)
+            {
+                foreach (var item in elements)
+                {
+                    _layerGeometryCollections.Where(lg => lg.LayerName == item.layer)
+                        .Single()
+                        .Geometries.Add(item.geometry);
+                }
+            }
+            public void Reset()
+            {
+                while (_erasedGeometries.TryPop(out var values))
+                {
+                    InsertElements(values);
+                }
+            }
+
+        }
+
+
 
         private string _filePath;
         public string FileName { get; set; }

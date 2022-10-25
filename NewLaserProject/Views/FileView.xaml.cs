@@ -24,5 +24,6 @@ namespace NewLaserProject.Views
         {
             InitializeComponent();
         }
+
     }
 }

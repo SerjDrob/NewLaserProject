@@ -62,7 +62,13 @@ namespace NewLaserProject
 
             var listenerName = "myListener";
             Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));
+            
+            //Trace.Listeners.Add(new MyTraceListener("MyLog.log", listenerName));
+
             Trace.Listeners[listenerName].TraceOutputOptions |= TraceOptions.DateTime;
+
+
+            Trace.Write("Start", "Header");
         }
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -85,6 +91,23 @@ namespace NewLaserProject
             {
                 DataContext = viewModel
             }.Show();
+        }
+    }
+
+    class MyTraceListener : TextWriterTraceListener
+    {
+        public MyTraceListener(string? fileName, string? name) : base(fileName, name)
+        {
+        }
+
+        public override void Write(string? message, string? category)
+        {
+            base.Write(message, category);
+        }
+
+        public override void Flush()
+        {
+            base.Flush();
         }
     }
 }

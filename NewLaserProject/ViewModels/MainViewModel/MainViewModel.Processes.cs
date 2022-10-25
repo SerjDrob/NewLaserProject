@@ -327,4 +327,5 @@ namespace NewLaserProject.ViewModels
             WaferThickness = material.Thickness;
         }
     }
+        
 }

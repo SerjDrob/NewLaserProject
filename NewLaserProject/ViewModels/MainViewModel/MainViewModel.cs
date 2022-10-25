@@ -238,6 +238,13 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
         }
 
+        [ICommand]
+        private void UndoRemoveSelection()
+        {
+            _openedFileVM?.UndoRemoveSelection();
+        }
+
+
         private void TechMessager_PublishMessage(string message, string iconPath, MessageType icon)
         {
             TechInfo = message;
