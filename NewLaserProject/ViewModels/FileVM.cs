@@ -24,6 +24,7 @@ namespace NewLaserProject.ViewModels
         private IDxfReader _dxfReader;
         private DxfEditor? _dxfEditor;
 
+        public bool CanCut { get; set; } = false;
 
         private LayGeomsEditor _geomsEditor;
         public FileVM(double waferWidth, double waferHeight)

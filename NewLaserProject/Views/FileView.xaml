@@ -3,22 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NewLaserProject.Views"
-            xmlns:mcl="clr-namespace:MachineClassLibrary.Machine;assembly=MachineClassLibrary"    
-            xmlns:hc="https://handyorg.github.io/handycontrol" 
-            xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"         
-            xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
-            xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
-            xmlns:clr="clr-namespace:System;assembly=mscorlib"
-            xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
-            xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
-            xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
-            xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
-            xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"    
+             xmlns:hc="https://handyorg.github.io/handycontrol" 
+             xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"         
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
+             xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
+             xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="UCntrl"
-             MinHeight="300">
+             MinHeight="300"
+             >
     <UserControl.Resources>
         <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
@@ -51,6 +46,7 @@
                            TextPosition="{Binding DataContext.TextPosition, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
                            MarkText="{Binding FileName}"
                            FontSize="1000"
+                           CutCursor="{Binding DataContext.CanCut, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"
                            >
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="GotSelectionEvent">
@@ -60,7 +56,9 @@
                         PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-           
+
+                        
+            
             <!--PointerX="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerX}"
                            PointerY="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerY}"
                            PointerVisibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=DataContext.TeacherPointerVisibility}"-->

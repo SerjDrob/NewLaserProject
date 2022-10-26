@@ -497,6 +497,10 @@
                                                 </i:DataTrigger>
                                             </i:Interaction.Triggers>
                                         </Button>
+                                        <ToggleButton Content="Cut" 
+                                                      IsChecked="{Binding CutMode}"
+                                                      />
+                                        <Button Content="Undo" Command="{Binding UndoCutCommand}"/>
                                     </DockPanel>
                                     <!--<hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
                                     <TreeView
