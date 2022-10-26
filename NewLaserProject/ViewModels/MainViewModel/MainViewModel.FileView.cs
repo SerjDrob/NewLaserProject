@@ -47,7 +47,9 @@ namespace NewLaserProject.ViewModels
         public double CameraViewfinderY { get; set; }
         public double LaserViewfinderX { get; set; }
         public double LaserViewfinderY { get; set; }
-        
+        [OnChangedMethod(nameof(CutModeSwitched))]
+        public bool CutMode { get; set; }
+               
         public string FileName { get; set; } = "Open the file";
 
         public Dictionary<string, bool> IgnoredLayers { get; set; }
@@ -81,11 +83,15 @@ namespace NewLaserProject.ViewModels
                 FileName = openFileDialog.FileName;
                 if (File.Exists(FileName))
                 {
-                    _dxfReader = new IMDxfReader(FileName);
+                    var dxfReader = new IMDxfReader(FileName);
+
+                    _dxfReader = new DxfEditor(dxfReader);
+
                     MirrorX = Settings.Default.WaferMirrorX;
                     WaferTurn90 = Settings.Default.WaferAngle90;
                     WaferOffsetX = 0;
                     WaferOffsetY = 0;
+
                     _openedFileVM.SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName);
                     _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
 
@@ -168,7 +174,19 @@ namespace NewLaserProject.ViewModels
                 MirrorX = fileVM.MirrorX;
             }
         }
+        private void CutModeSwitched()
+        {
+            if (_openedFileVM is not null)
+            {
+                _openedFileVM.CanCut = CutMode;
+            }
+        }
 
+        [ICommand]
+        private void UndoCut()
+        {
+            _openedFileVM?.UndoRemoveSelection();
+        }
         private void WiferDimensionChanged()
         {
             var fileVM = _openedFileVM as FileVM;
