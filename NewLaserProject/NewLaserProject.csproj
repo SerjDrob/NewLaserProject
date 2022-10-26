@@ -40,6 +40,46 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Content Include="EZCAD\res\Company.bmp" />
+    <Content Include="EZCAD\res\drawbar.bmp" />
+    <Content Include="EZCAD\res\drawbar_dis.bmp" />
+    <Content Include="EZCAD\res\enttype0.bmp" />
+    <Content Include="EZCAD\res\enttype1.bmp" />
+    <Content Include="EZCAD\res\enttype10.bmp" />
+    <Content Include="EZCAD\res\enttype11.bmp" />
+    <Content Include="EZCAD\res\enttype12.bmp" />
+    <Content Include="EZCAD\res\enttype13.bmp" />
+    <Content Include="EZCAD\res\enttype14.bmp" />
+    <Content Include="EZCAD\res\enttype15.bmp" />
+    <Content Include="EZCAD\res\enttype16.bmp" />
+    <Content Include="EZCAD\res\enttype17.bmp" />
+    <Content Include="EZCAD\res\enttype18.bmp" />
+    <Content Include="EZCAD\res\enttype2.bmp" />
+    <Content Include="EZCAD\res\enttype3.bmp" />
+    <Content Include="EZCAD\res\enttype4.bmp" />
+    <Content Include="EZCAD\res\enttype5.bmp" />
+    <Content Include="EZCAD\res\enttype6.bmp" />
+    <Content Include="EZCAD\res\enttype7.bmp" />
+    <Content Include="EZCAD\res\enttype8.bmp" />
+    <Content Include="EZCAD\res\enttype9.bmp" />
+    <Content Include="EZCAD\res\license.txt" />
+    <Content Include="EZCAD\res\license_en.txt" />
+    <Content Include="EZCAD\res\Logo.bmp" />
+    <Content Include="EZCAD\res\MarkOff.bmp" />
+    <Content Include="EZCAD\res\MarkOn.bmp" />
+    <Content Include="EZCAD\res\sysbar.bmp" />
+    <Content Include="EZCAD\res\sysbar_dis.bmp" />
+    <Content Include="EZCAD\res\weld_drawbar.bmp" />
+    <Content Include="EZCAD\res\weld_drawbar_dis.bmp" />
+    <Content Include="EZCAD\res\Zoom.ico" />
+    <Content Include="EZCAD\res\ZoomAll.ico" />
+    <Content Include="EZCAD\res\zoombar.bmp" />
+    <Content Include="EZCAD\res\zoombar_dis.bmp" />
+    <Content Include="EZCAD\res\ZoomIn.ico" />
+    <Content Include="EZCAD\res\ZoomOut.ico" />
+    <Content Include="EZCAD\res\ZoomPage.ico" />
+    <Content Include="EZCAD\res\ZoomPan.ico" />
+    <Content Include="EZCAD\res\ZoomWnd.ico" />
     <Content Include="Views\Sources\angle.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
