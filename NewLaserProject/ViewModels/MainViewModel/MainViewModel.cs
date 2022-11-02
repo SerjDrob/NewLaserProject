@@ -5,6 +5,7 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
+using MachineControlsLibrary.Classes;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Diagnostics;
@@ -207,9 +208,28 @@ namespace NewLaserProject.ViewModels
         }
         private void InitViews()
         {
+           
+            
+            var mediator = 
+                new Mediator<ScopedGeomsRequest, SnapShot>();
             _openedFileVM = new FileVM(48, 60);
+            
+            
+            mediator.Subscribe(_openedFileVM);
+
+
+
+            //---------------
+            ServiceFactory serviceFactory = T => _openedFileVM;
+
+            var med = new Mediator(serviceFactory);
+            //---------------
+
+
             CentralSideVM = _openedFileVM;
-            _cameraVM = new CameraVM();
+            _cameraVM = new CameraVM(mediator);
+            //_cameraVM = new CameraVM(med);
+
             RightSideVM = _cameraVM;
 #if PCIInserted
             _laserMachine.OnBitmapChanged += _cameraVM.OnVideoSourceBmpChanged;

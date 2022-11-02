@@ -11,11 +11,12 @@
              xmlns:hc="https://handyorg.github.io/handycontrol" 
              xmlns:Controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary" 
              xmlns:entities ="clr-namespace:MachineClassLibrary.Laser.Entities;assembly=MachineClassLibrary"
+             xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
              >
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Views/WizardDictionary.xaml"/>
+                <ResourceDictionary Source="WizardDictionary.xaml"/>
                 <!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinViolet.xaml"/>-->
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDark.xaml"/>
 
@@ -242,6 +243,58 @@
                     </Button>
                 </ItemsControl>
             </DataTemplate>
+
+
+            <DataTemplate DataType="{x:Type viewmodels:SnapShot}">
+                <Border BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="2"
+                        Padding="4"
+                        Background="{StaticResource SecondaryBorderBrush}"
+                        CornerRadius="4"
+                        >
+                    <Grid Background="Black"
+                          ClipToBounds="False"
+                          >
+                        <uc:SpecimenWindow
+                            LayGeoms="{Binding LayGeoms}"
+                            FieldSizeX="{Binding FieldSizeX}"
+                            FieldSizeY="{Binding FieldSizeY}"
+                            SpecSizeX="{Binding SpecSizeX}"
+                            SpecSizeY="{Binding SpecSizeY}"
+                            MirrorX="{Binding MirrorX}"
+                            Angle="{Binding Angle}"
+                            AutoProportion="True"
+                            SpecMargin="0"
+                            />
+                        <uc:SpecimenWindow
+                            FieldSizeX="{Binding FieldSizeX}"
+                            FieldSizeY="{Binding FieldSizeY}"
+                            SpecSizeX="{Binding SpecSizeX}"
+                            SpecSizeY="{Binding SpecSizeY}"
+                            MirrorX="{Binding MirrorX}"
+                            Angle="{Binding Angle}"
+                            AutoProportion="True"
+                            SpecMargin="0"
+                            IsFillPath="True"
+                            LightPathModeOn="True"
+                            >
+                            <uc:SpecimenWindow.LayGeoms>
+                                <MultiBinding Converter="{StaticResource PointSpecWinConverter}">
+                                    <Binding Path="GeomPoints"/>
+                                </MultiBinding>
+                            </uc:SpecimenWindow.LayGeoms>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="OnGeometryClickEvent">
+                                    <i:InvokeCommandAction Command="{Binding GotPointCommand}" 
+                                                           PassEventArgsToCommand="True"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </uc:SpecimenWindow>
+                    </Grid>
+                </Border>
+
+            </DataTemplate>
+            
             
             <Style x:Key="CornerButton" TargetType="Button" >
                 <Setter Property="Button.Background">

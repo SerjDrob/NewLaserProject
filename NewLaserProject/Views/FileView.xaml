@@ -18,6 +18,7 @@
         <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
         <cnvrt:DivideConverter x:Key="DivideConverter"/>
         <Localconverters:MarkPositionConverter x:Key="MarkPositionConverter"/>
+        <Localconverters:PointSpecWinConverter x:Key="PointSpecWinConverter"/>
     </UserControl.Resources>
     <Grid>        
         <uc:GraphWindow                         
@@ -240,5 +241,67 @@
                 </Button>
             </hc:CirclePanel>
         </Grid>
+
+
+        <!--<Grid 
+              HorizontalAlignment="Left"
+              VerticalAlignment="Bottom"
+              Width="400"
+              Height="400"
+              ClipToBounds="True"
+            >
+            <uc:SpecimenWindow
+                LayGeoms="{Binding ScopedLayGeoms}"
+                FieldSizeX="4000"
+                FieldSizeY="4000"
+                AutoProportion="True"
+                SpecMargin="0"
+                >
+                
+                <i:Interaction.Triggers>
+                    <i:DataTrigger Binding="{Binding MirrorX}" Value="True">
+                        <i:ChangePropertyAction PropertyName="MirrorX" Value="-1"/>
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding MirrorX}" Value="False">
+                        <i:ChangePropertyAction PropertyName="MirrorX" Value="1"/>
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding WaferTurn90}" Value="True">
+                        <i:ChangePropertyAction PropertyName="Angle" Value="90"/>
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding WaferTurn90}" Value="False">
+                        <i:ChangePropertyAction PropertyName="Angle" Value="0"/>
+                    </i:DataTrigger>
+                </i:Interaction.Triggers>
+            </uc:SpecimenWindow>
+            <uc:SpecimenWindow
+                FieldSizeX="4000"
+                FieldSizeY="4000"
+                AutoProportion="True"
+                SpecMargin="0"
+                IsFillPath="True"
+                LightPathModeOn="True"
+                >
+                <uc:SpecimenWindow.LayGeoms>
+                    <MultiBinding Converter="{StaticResource PointSpecWinConverter}">
+                        <Binding RelativeSource="{RelativeSource AncestorType=Grid, Mode=FindAncestor}"
+                                 Path ="DataContext.ScopedLayPoints"/>
+                    </MultiBinding>
+                </uc:SpecimenWindow.LayGeoms>
+                <i:Interaction.Triggers>
+                    <i:DataTrigger Binding="{Binding MirrorX}" Value="True">
+                        <i:ChangePropertyAction PropertyName="MirrorX" Value="-1"/>
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding MirrorX}" Value="False">
+                        <i:ChangePropertyAction PropertyName="MirrorX" Value="1"/>
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding WaferTurn90}" Value="True">
+                        <i:ChangePropertyAction PropertyName="Angle" Value="90"/>
+                    </i:DataTrigger>
+                    <i:DataTrigger Binding="{Binding WaferTurn90}" Value="False">
+                        <i:ChangePropertyAction PropertyName="Angle" Value="0"/>
+                    </i:DataTrigger>
+                </i:Interaction.Triggers>
+            </uc:SpecimenWindow>
+        </Grid>-->
     </Grid>
 </UserControl>

@@ -24,6 +24,8 @@
         <cnvrt:MulConvereter x:Key="MulConvereter"/>
         <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
         <Localconverters:MouseEventArgsConverter x:Key="MouseEventArgsConverter"/>
+        <Localconverters:PointSpecWinConverter x:Key="PointSpecWinConverter"/>
+        <Localconverters:MarkPositionConverter x:Key="MarkPositionConverter"/>
 
         <ControlTemplate x:Key="ResizeDecoratorTemplate" TargetType="{x:Type Control}">
             <Grid>
@@ -45,18 +47,22 @@
                 <ContentPresenter Content="{TemplateBinding ContentControl.Content}"/>
             </Grid>
         </ControlTemplate>
-        
+
     </UserControl.Resources>
     <Grid>
         <Border Background="{DynamicResource RegionBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
             <Grid>
-               
+                <Button Content="P" Command="{Binding OpenTargetWindowCommand}"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Panel.ZIndex="10"/>
+
                 <Image x:Name="VideoCamera" 
                        Panel.ZIndex="1" 
                        Source="{Binding CameraImage}"
                        RenderTransformOrigin="0.5 0.5"
                        >
-                    
+
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseDown" >
                             <i:InvokeCommandAction Command="{Binding VideoClickCommand}" 
@@ -137,6 +143,17 @@
                         </Line.Y1>
                     </Line>
                 </Canvas>
+
+                <Grid
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom"
+                        Width="200"
+                        Height="200"
+                        Panel.ZIndex="2"
+                        Visibility="{Binding SnapshotVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
+                    >
+                    <ContentControl Content="{Binding SnapShot}"/>
+                </Grid>
             </Grid>
         </Border>
     </Grid>
