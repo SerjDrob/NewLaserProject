@@ -73,13 +73,25 @@ namespace NewLaserProject.Classes.Process
             var originPoints = new List<PointF>();
             
             _mediator.OfType<SnapShotResult>()
-                .Subscribe(result => originPoints.Add(result));
+                .Subscribe(async result =>
+                {
+                    originPoints.Add(result);
+                    try
+                    {
+                        await _stateMachine?.FireAsync(Trigger.Next);
+                    }
+                    catch (Exception)
+                    {
+
+                       // throw;
+                    }
+                });
             
             _mediator.OfType<ReadyForSnap>()
                 .Subscribe(result => 
                 {
                     var position = _coorSystem.FromGlobal(_xActual, _yActual);
-                    var request = new ScopedGeomsRequest(10000, 10000, position[0], position[1]);
+                    var request = new ScopedGeomsRequest(5000, 5000, position[0]*1000, position[1]*1000);
                     _mediator.OnNext(request);
                 });
             
@@ -98,7 +110,7 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(() =>
                 {
                     _mediator.OnNext(new PermitSnap(true));
-                    _infoMessager.RealeaseMessage("Сопоставьте точку и нажмите *", ViewModels.MessageType.Info);
+                    _infoMessager.RealeaseMessage($"Сопоставьте точку {originPoints.Count + 1}", ViewModels.MessageType.Info);
                 })
                 .OnExit(() =>
                 {

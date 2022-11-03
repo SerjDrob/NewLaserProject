@@ -148,7 +148,8 @@ namespace NewLaserProject.ViewModels
             }
             public void Undo() 
             {
-                if(_erasedGeometries?.TryPop(out var values) ?? false) InsertElements(values);
+                if (_erasedGeometries is null) return;
+                if (_erasedGeometries.TryPop(out var values)) InsertElements(values);
             }
             private void InsertElements((string layer,Geometry geometry)[] elements)
             {
@@ -161,10 +162,8 @@ namespace NewLaserProject.ViewModels
             }
             public void Reset()
             {
-                while (_erasedGeometries?.TryPop(out var values) ?? false)
-                {
-                    InsertElements(values);
-                }
+                if (_erasedGeometries is null) return;
+                while (_erasedGeometries.TryPop(out var values)) InsertElements(values);
             }
 
 

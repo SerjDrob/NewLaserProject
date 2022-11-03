@@ -131,15 +131,21 @@ namespace NewLaserProject.ViewModels
                         waferPoints.OffsetY((float)WaferOffsetY);
 
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
-                        if (waferPoints.Count() < 3)
-                        {
-                            techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", MessageType.Exclamation);
-                            return;
-                        }
+                        //if (waferPoints.Count() < 3)
+                        //{
+                        //    techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", MessageType.Exclamation);
+                        //    return;
+                        //}
 
                         var points = waferPoints.Cast<PPoint>();
                         var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
-                        _mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+                        
+
+                        //_mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+                        //                coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                        //                Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
+
+                        _mainProcess = new ThreePointProcesSnap(wafer, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
                     }

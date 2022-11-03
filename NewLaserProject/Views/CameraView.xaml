@@ -149,8 +149,8 @@
                 <Grid
                         HorizontalAlignment="Left"
                         VerticalAlignment="Bottom"
-                        Width="200"
-                        Height="200"
+                        Width="400"
+                        Height="400"
                         Panel.ZIndex="2"
                         Visibility="{Binding SnapshotVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                     >

@@ -8,7 +8,7 @@ using System.Numerics;
 
 namespace NewLaserProject.Classes.Geometry
 {
-    public class CoorSystem<TPlaceEnum> : ICoorSystem<TPlaceEnum> where TPlaceEnum : Enum
+    public class CoorSystem<TPlaceEnum> : ICoorSystem<TPlaceEnum>, ICloneable where TPlaceEnum : Enum
     {
         private Dictionary<TPlaceEnum, CoorSystem<TPlaceEnum>> _subSystems = new();
 
@@ -274,8 +274,12 @@ namespace NewLaserProject.Classes.Geometry
             return this;
         }
 
-        public ICoorSystem<TPlaceEnum> ExtractSubSystem(TPlaceEnum from) => _subSystems[from];       
-        
+        public ICoorSystem<TPlaceEnum> ExtractSubSystem(TPlaceEnum from) => (CoorSystem<TPlaceEnum>)_subSystems[from].Clone();
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 
     public abstract class CoorSys<T, TPlaceEnum> where T : CoorSys<T, TPlaceEnum>, new() where TPlaceEnum : Enum
