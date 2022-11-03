@@ -24,6 +24,7 @@ namespace NewLaserProject.Classes.Process
     internal class ThreePointProcesSnap : IProcess
     {
         private readonly IEnumerable<IProcObject> _wafer;
+        private readonly LaserWafer _serviceWafer;
         private readonly string _jsonPierce;
         private readonly LaserMachine _laserMachine;
         private readonly ICoorSystem<LMPlace> _coorSystem;
@@ -44,12 +45,13 @@ namespace NewLaserProject.Classes.Process
         private double _matrixAngle;
         private IProcess _subProcess;
         
-        public ThreePointProcesSnap(IEnumerable<IProcObject> wafer,
+        public ThreePointProcesSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<INotification> mediator)
         {
             _wafer = wafer;
+            _serviceWafer = serviceWafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
             _coorSystem = coorSystem;
@@ -91,7 +93,8 @@ namespace NewLaserProject.Classes.Process
                 .Subscribe(result => 
                 {
                     var position = _coorSystem.FromGlobal(_xActual, _yActual);
-                    var request = new ScopedGeomsRequest(5000, 5000, position[0]*1000, position[1]*1000);
+                    var point = _serviceWafer.GetPointFromWafer(new((float)position[0], (float)position[1]));
+                    var request = new ScopedGeomsRequest(5000, 5000, point.X, point.Y);
                     _mediator.OnNext(request);
                 });
             

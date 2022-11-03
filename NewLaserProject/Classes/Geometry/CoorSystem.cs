@@ -251,16 +251,14 @@ namespace NewLaserProject.Classes.Geometry
                 _mainMatrix = Translate * _mainMatrix;
                 return this;
             }
-
             public RelatedSystemBuilder<TPlace> Scale(double scale)
             {
-                var Translate = new Matrix3(m11: scale, m12: 0, m13: 0,
-                                            m21: 0, m22: scale, m23: 0,
-                                            m31: 0, m32: 0, m33: 1);
+                var Translate = new Matrix3(m11: scale, m12: 0,     m13: 0,
+                                                  m21: 0,      m22: scale, m23: 0,
+                                                  m31: 0,      m32: 0,     m33: 1);
                 _mainMatrix = Translate * _mainMatrix;
                 return this;
             }
-
             public void Build(TPlace place)
             {
                 _parentSystem.SetRelatedSystem(place, _mainMatrix.ConvertMatrix());

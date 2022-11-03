@@ -124,11 +124,25 @@ namespace NewLaserProject.ViewModels
                     {
                         var pts = _dxfReader.GetPoints();
                         var waferPoints = new LaserWafer(pts, topologySize);
+
                         waferPoints.Scale(1F / FileScale);
                         if (WaferTurn90) waferPoints.Turn90();
                         if (MirrorX) waferPoints.MirrorX();
                         waferPoints.OffsetX((float)WaferOffsetX);
                         waferPoints.OffsetY((float)WaferOffsetY);
+
+
+                        //------SnapTest--------------
+
+                        var serviceWafer = new LaserWafer(topologySize);
+                        serviceWafer.Scale(1F / FileScale);
+                        if (WaferTurn90) serviceWafer.Turn90();
+                        if (MirrorX) serviceWafer.MirrorX();
+                        serviceWafer.OffsetX((float)WaferOffsetX);
+                        serviceWafer.OffsetY((float)WaferOffsetY);
+
+                        //----------------------------
+
 
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
                         //if (waferPoints.Count() < 3)
@@ -138,14 +152,14 @@ namespace NewLaserProject.ViewModels
                         //}
 
                         var points = waferPoints.Cast<PPoint>();
-                        var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+                        var coorSystem = (CoorSystem<LMPlace>)_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
                         
 
                         //_mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
                         //                coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                         //                Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
 
-                        _mainProcess = new ThreePointProcesSnap(wafer, _pierceSequenceJson, _laserMachine,
+                        _mainProcess = new ThreePointProcesSnap(wafer, serviceWafer, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
                     }
