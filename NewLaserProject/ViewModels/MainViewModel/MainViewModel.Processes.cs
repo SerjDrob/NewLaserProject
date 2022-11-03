@@ -1,4 +1,6 @@
-﻿using MachineClassLibrary.Classes;
+﻿#define Snap
+
+using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
@@ -132,6 +134,30 @@ namespace NewLaserProject.ViewModels
                         waferPoints.OffsetY((float)WaferOffsetY);
 
 
+
+                        var coorSystem = (CoorSystem<LMPlace>)_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+
+
+#if notSnap
+                        waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
+                        if (waferPoints.Count() < 3)
+                        {
+                            techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", MessageType.Exclamation);
+                            return;
+                        }
+
+                        var points = waferPoints.Cast<PPoint>();
+
+
+
+                        _mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
+                                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
+#endif
+
+
+
+#if Snap
                         //------SnapTest--------------
 
                         var serviceWafer = new LaserWafer(topologySize);
@@ -141,27 +167,13 @@ namespace NewLaserProject.ViewModels
                         serviceWafer.OffsetX((float)WaferOffsetX);
                         serviceWafer.OffsetY((float)WaferOffsetY);
 
-                        //----------------------------
-
-
-                        waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
-                        //if (waferPoints.Count() < 3)
-                        //{
-                        //    techMessager.RealeaseMessage("Невозможно запустить процесс. В области пластины должно быть три референтных точки.", MessageType.Exclamation);
-                        //    return;
-                        //}
-
-                        var points = waferPoints.Cast<PPoint>();
-                        var coorSystem = (CoorSystem<LMPlace>)_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
-                        
-
-                        //_mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
-                        //                coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
-                        //                Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
-
                         _mainProcess = new ThreePointProcesSnap(wafer, serviceWafer, _pierceSequenceJson, _laserMachine,
-                                        coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
-                                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
+                                                               coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                                                               Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
+                        //----------------------------  
+#endif
+
+
                     }
                     break;
 
@@ -175,8 +187,8 @@ namespace NewLaserProject.ViewModels
             _mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
             _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
             _mainProcess.ProcessingCompleted += _mainProcess_ProcessingCompleted;
+            HideProcessPanel(false); 
 
-            HideProcessPanel(false);
         }
 
         private async Task StartProcess()

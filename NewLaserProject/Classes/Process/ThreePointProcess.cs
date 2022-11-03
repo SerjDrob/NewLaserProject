@@ -152,7 +152,7 @@ namespace NewLaserProject.Classes.Process
 
             _stateMachine.Configure(State.Working)
                 .OnEntryAsync(async () => {
-                    _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle + Math.PI);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
+                    _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle /*+ Math.PI*/);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
                     _subProcess = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
                     _subProcess.CurrentWaferChanged += _process_CurrentWaferChanged;

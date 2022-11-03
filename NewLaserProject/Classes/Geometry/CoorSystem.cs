@@ -276,7 +276,13 @@ namespace NewLaserProject.Classes.Geometry
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            var copy = new CoorSystem<TPlaceEnum>(_workTransformation);
+            copy._axisXNeg = _axisXNeg;
+            copy._axisYNeg = _axisYNeg;
+            copy._axisXNeg = _axisXNeg;
+            copy._subSystems = _subSystems;
+           
+            return copy;
         }
     }
 
