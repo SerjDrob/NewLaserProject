@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Threading;
@@ -25,7 +26,7 @@ using System.Windows;
 
 namespace NewLaserProject
 {
-    internal class ScopedGeomsRequest:IRequest<(IEnumerable<LayerGeometryCollection>,IEnumerable<Point>)> 
+    internal class ScopedGeomsRequest:INotification
     {
         public ScopedGeomsRequest(double width, double height, double x, double y)
         {
@@ -59,6 +60,7 @@ namespace NewLaserProject
         }
     }
 
+    
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
@@ -74,6 +76,7 @@ namespace NewLaserProject
             MainIoC = new ServiceCollection();
 
             MainIoC.AddMediatR(Assembly.GetExecutingAssembly())
+                   //.AddSingleton<ISubject,Subject>()
                    .AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
                    .AddScoped<MotionDevicePCI1245E>()

@@ -52,10 +52,12 @@
     <Grid>
         <Border Background="{DynamicResource RegionBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
             <Grid>
-                <Button Content="P" Command="{Binding OpenTargetWindowCommand}"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Panel.ZIndex="10"/>
+                <Button Content="Snap" 
+                        Visibility="{Binding SnapShotButtonVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
+                        Command="{Binding OpenTargetWindowCommand}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Panel.ZIndex="10"/>
 
                 <Image x:Name="VideoCamera" 
                        Panel.ZIndex="1" 

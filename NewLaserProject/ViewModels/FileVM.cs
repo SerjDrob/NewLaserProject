@@ -21,29 +21,35 @@ using MediatR;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Reactive.Subjects;
+using System.Reactive.Linq;
 using MachineControlsLibrary.Controls;
+using System.CodeDom;
+using System.Drawing;
+using Point = System.Windows.Point;
 
 namespace NewLaserProject.ViewModels
 {
     
     [INotifyPropertyChanged]
-    internal partial class FileVM:
-        IReqHandler<ScopedGeomsRequest, SnapShot>,
-        IRequestHandler<ScopedGeomsRequest, (IEnumerable<LayerGeometryCollection>, IEnumerable<Point>)>
-
+    internal partial class FileVM
     {
         private IDxfReader _dxfReader;
         private DxfEditor? _dxfEditor;
-
+        private readonly ISubject<INotification> _mediator;
         public bool CanCut { get; set; } = false;
 
         private LayGeomsEditor _geomsEditor;
-        public FileVM(double waferWidth, double waferHeight)
+        public FileVM(double waferWidth, double waferHeight, ISubject<INotification> mediator)
         {
             WaferWidth = waferWidth;
             WaferHeight = waferHeight;
+            _mediator = mediator;
         }
 
+        public FileVM()
+        {
+
+        }
         public void SetFileView(IDxfReader dxfReader, int fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
             double waferOffsetY, string filePath)
         {
@@ -59,6 +65,12 @@ namespace NewLaserProject.ViewModels
             _filePath = filePath;
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
+            
+            _mediator.OfType<ScopedGeomsRequest>()
+                .Subscribe(request => HandleAsync(request).ContinueWith(result =>
+                {
+                    _mediator.OnNext(result.Result);
+                }));
         }
 
         public void SetWaferDimensions(double width, double height)
@@ -320,9 +332,7 @@ namespace NewLaserProject.ViewModels
             var scopedLayGeoms = _geomsEditor.GetScopedLayerGeometryCollections(scope);
             var scopedLayPoints = _geomsEditor.GetScopedLayerPointsCollections(scope);
 
-
-
-            var snapshot = new SnapShot(x,y)
+            var snapshot = new SnapShot(x,y, _mediator)
             {
                 LayGeoms = scopedLayGeoms.ToObservableCollection(),
                 GeomPoints = scopedLayPoints.ToObservableCollection(),
@@ -336,23 +346,20 @@ namespace NewLaserProject.ViewModels
 
             return Task.FromResult(snapshot);
         }
-
-        public Task<(IEnumerable<LayerGeometryCollection>, IEnumerable<Point>)> Handle(ScopedGeomsRequest request, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     [INotifyPropertyChanged]
-    internal partial class SnapShot
+    internal partial class SnapShot:INotification
     {
         private readonly double snapX;
         private readonly double snapY;
+        private readonly ISubject<INotification> _subject;
 
-        public SnapShot(double snapX, double snapY)
+        public SnapShot(double snapX, double snapY, ISubject<INotification> subject)
         {
             this.snapX = snapX;
             this.snapY = snapY;
+            _subject = subject;
         }
 
         public ObservableCollection<LayerGeometryCollection>? LayGeoms { get; set; }
@@ -371,7 +378,16 @@ namespace NewLaserProject.ViewModels
             {
                 var tr = new TranslateTransform(snapX, snapY);
                 var resultPoint = tr.Transform((Point)args);
+                _subject.OnNext(new SnapShotResult(resultPoint));
             }
         }
     }
+
+    public record SnapShotResult(Point Point) : INotification
+    {
+        public static implicit operator PointF(SnapShotResult result) => new PointF((float)result.Point.X, (float)result.Point.Y);
+        public static implicit operator Point(SnapShotResult result) => result.Point;
+    }
+    public record PermitSnap(bool Permited):INotification;
+    public record ReadyForSnap():INotification;
 }

@@ -24,6 +24,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -70,7 +71,7 @@ namespace NewLaserProject.ViewModels
 
         private readonly DbContext _db;
         private readonly IMediator _mediator;
-
+        private ISubject<INotification> _subjMediator = new Subject<INotification>();
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
         public bool ShowVideo { get; set; }
@@ -208,27 +209,10 @@ namespace NewLaserProject.ViewModels
         }
         private void InitViews()
         {
-           
-            
-            var mediator = 
-                new Mediator<ScopedGeomsRequest, SnapShot>();
-            _openedFileVM = new FileVM(48, 60);
-            
-            
-            mediator.Subscribe(_openedFileVM);
-
-
-
-            //---------------
-            ServiceFactory serviceFactory = T => _openedFileVM;
-
-            var med = new Mediator(serviceFactory);
-            //---------------
-
+            _openedFileVM = new FileVM(48, 60, _subjMediator);
 
             CentralSideVM = _openedFileVM;
-            _cameraVM = new CameraVM(mediator);
-            //_cameraVM = new CameraVM(med);
+            _cameraVM = new CameraVM(_subjMediator);
 
             RightSideVM = _cameraVM;
 #if PCIInserted
