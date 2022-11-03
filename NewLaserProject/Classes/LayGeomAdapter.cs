@@ -4,6 +4,7 @@ using Microsoft.Toolkit.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 
 namespace NewLaserProject.Classes
@@ -32,6 +33,7 @@ namespace NewLaserProject.Classes
         public ObservableCollection<LayerGeometryCollection> LayerGeometryCollections { get => new(CalcGeometry()); }
         public IEnumerable<LayerGeometryCollection> CalcGeometry()
         {
+         
             return _geomAdapter.GetGeometries()
                 .GroupBy(ag => ag.LayerName)
                 .Select(x =>

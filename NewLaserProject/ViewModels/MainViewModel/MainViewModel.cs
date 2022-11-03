@@ -5,6 +5,7 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
+using MachineControlsLibrary.Classes;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Diagnostics;
@@ -23,6 +24,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -69,7 +71,7 @@ namespace NewLaserProject.ViewModels
 
         private readonly DbContext _db;
         private readonly IMediator _mediator;
-
+        private ISubject<INotification> _subjMediator = new Subject<INotification>();
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
         public bool ShowVideo { get; set; }
@@ -207,9 +209,11 @@ namespace NewLaserProject.ViewModels
         }
         private void InitViews()
         {
-            _openedFileVM = new FileVM(48, 60);
+            _openedFileVM = new FileVM(48, 60, _subjMediator);
+
             CentralSideVM = _openedFileVM;
-            _cameraVM = new CameraVM();
+            _cameraVM = new CameraVM(_subjMediator);
+
             RightSideVM = _cameraVM;
 #if PCIInserted
             _laserMachine.OnBitmapChanged += _cameraVM.OnVideoSourceBmpChanged;

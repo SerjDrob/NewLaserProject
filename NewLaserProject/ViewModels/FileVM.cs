@@ -8,31 +8,48 @@ using NewLaserProject.Classes;
 using NewLaserProject.Properties;
 using PropertyChanged;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using MediatR;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
+using MachineControlsLibrary.Controls;
+using System.CodeDom;
+using System.Drawing;
+using Point = System.Windows.Point;
 
 namespace NewLaserProject.ViewModels
 {
+    
     [INotifyPropertyChanged]
     internal partial class FileVM
     {
         private IDxfReader _dxfReader;
         private DxfEditor? _dxfEditor;
-
+        private readonly ISubject<INotification> _mediator;
         public bool CanCut { get; set; } = false;
 
         private LayGeomsEditor _geomsEditor;
-        public FileVM(double waferWidth, double waferHeight)
+        public FileVM(double waferWidth, double waferHeight, ISubject<INotification> mediator)
         {
             WaferWidth = waferWidth;
             WaferHeight = waferHeight;
+            _mediator = mediator;
         }
 
+        public FileVM()
+        {
+
+        }
         public void SetFileView(IDxfReader dxfReader, int fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
             double waferOffsetY, string filePath)
         {
@@ -48,6 +65,12 @@ namespace NewLaserProject.ViewModels
             _filePath = filePath;
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
+            
+            _mediator.OfType<ScopedGeomsRequest>()
+                .Subscribe(request => HandleAsync(request).ContinueWith(result =>
+                {
+                    _mediator.OnNext(result.Result);
+                }));
         }
 
         public void SetWaferDimensions(double width, double height)
@@ -74,12 +97,14 @@ namespace NewLaserProject.ViewModels
             WaferTurn90 = Settings.Default.WaferAngle90;
             WaferOffsetX = 0;
             WaferOffsetY = 0;
+
+            //GetScopedGeometries();
         }
 
         [ICommand]
-        private void GotSelection(RoutedPropertyChangedEventArgs<Rect> args)
+        private void GotSelection(RoutedSelectionEventArgs args)
         {
-            var rect = args.NewValue;
+            var rect = (Rect)args;
             _geomsEditor?.RemoveBySelection(rect);
             
             var layers = LayGeoms.Where(l => l.LayerEnable)
@@ -104,6 +129,7 @@ namespace NewLaserProject.ViewModels
             }
 
             private Stack<(string layer, Geometry geometry)[]> _erasedGeometries;
+
             public void RemoveBySelection(Rect selection) 
             {
                 _erasedGeometries ??= new();
@@ -122,7 +148,7 @@ namespace NewLaserProject.ViewModels
             }
             public void Undo() 
             {
-                if(_erasedGeometries.TryPop(out var values)) InsertElements(values);
+                if(_erasedGeometries?.TryPop(out var values) ?? false) InsertElements(values);
             }
             private void InsertElements((string layer,Geometry geometry)[] elements)
             {
@@ -135,12 +161,65 @@ namespace NewLaserProject.ViewModels
             }
             public void Reset()
             {
-                while (_erasedGeometries.TryPop(out var values))
+                while (_erasedGeometries?.TryPop(out var values) ?? false)
                 {
                     InsertElements(values);
                 }
             }
 
+
+            public IEnumerable<Point> GetScopedLayerPointsCollections(Rect scope)
+            {
+                var scopeWin = new RectangleGeometry(scope);
+                var translation = new TranslateTransform(-scope.Location.X, -scope.Location.Y);
+
+                var result = _layerGeometryCollections
+                .SelectMany(lgc => lgc.Geometries
+                .Where(g => scope.IntersectsWith(g.Bounds)))
+                .Select(g => Geometry.Combine(scopeWin, g, GeometryCombineMode.Intersect, translation))
+                .SelectMany(GetGeometryPoints);
+
+                return result;
+
+                static IEnumerable<Point> GetGeometryPoints(Geometry geometry)
+                {
+                    if (geometry is PathGeometry path)
+                    {
+                        return path.GetFlattenedPathGeometry()
+                         .Figures.SelectMany(f => f.Segments)
+                         .Where(s => s is PolyLineSegment)
+                         .Cast<PolyLineSegment>()
+                         .SelectMany(ps => ps.Points);
+                    }
+                    if (geometry is EllipseGeometry ellipse)
+                    {
+                        return new Point[] { ellipse.Center };
+                    }
+                    return Enumerable.Empty<Point>();
+                }
+            }
+
+
+            public IEnumerable<LayerGeometryCollection> GetScopedLayerGeometryCollections(Rect scope)
+            {
+                var scopeWin = new RectangleGeometry(scope);
+                var translation = new TranslateTransform(-scope.Location.X, -scope.Location.Y);
+
+                return _layerGeometryCollections.Select(lgc =>
+                {
+                    var geometries =
+                    new GeometryCollection(lgc.Geometries
+                    .Where(g=>scope.IntersectsWith(g.Bounds))
+                    .Select(g=> 
+                    {
+                        var geometry = g.Clone();
+                        var combGeometry = 
+                        Geometry.Combine(geometry, scopeWin, GeometryCombineMode.Intersect, translation);
+                        return combGeometry;
+                    }));
+                    return lgc with { Geometries = geometries };
+                });
+            }
         }
 
 
@@ -182,6 +261,7 @@ namespace NewLaserProject.ViewModels
             TextPosition = (TextPosition)position;
         }
         public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
+        public ObservableCollection<LayerGeometryCollection> ScopedLayGeoms { get; set; } = new();
         public Dictionary<string, bool> IgnoredLayers { get; set; }
         [ICommand]
         private void AlignWafer(object obj)
@@ -230,10 +310,84 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void ChangeTurn90() => WaferTurn90 ^= true;
 
+        private void GetScopedGeometries()
+        {
+            var scope = new Rect(10000, 10000, 5000, 5000);
+            ScopedLayGeoms = _geomsEditor.GetScopedLayerGeometryCollections(scope).ToObservableCollection();
+            ScopedLayPoints = _geomsEditor.GetScopedLayerPointsCollections(scope)
+                .ToObservableCollection();
+        }
 
+        public ObservableCollection<Point> ScopedLayPoints { get; set; } = new();
         private void TransChanged()
         {
             TransformationChanged?.Invoke(this, EventArgs.Empty);
         }
+
+        public Task<SnapShot> HandleAsync(ScopedGeomsRequest request)
+        {
+            var x = request.X - request.Width/ 2;
+            var y = request.Y - request.Height / 2;
+            var scope = new Rect(x, y, request.Width, request.Height);
+            var scopedLayGeoms = _geomsEditor.GetScopedLayerGeometryCollections(scope);
+            var scopedLayPoints = _geomsEditor.GetScopedLayerPointsCollections(scope);
+
+            var snapshot = new SnapShot(x,y, _mediator)
+            {
+                LayGeoms = scopedLayGeoms.ToObservableCollection(),
+                GeomPoints = scopedLayPoints.ToObservableCollection(),
+                FieldSizeX = request.Width,
+                FieldSizeY = request.Height,
+                SpecSizeX = request.Width,
+                SpecSizeY = request.Height,
+                MirrorX = this.MirrorX ? -1 : 1,
+                Angle = WaferTurn90 ? 90d : 0d
+            };
+
+            return Task.FromResult(snapshot);
+        }
     }
+
+    [INotifyPropertyChanged]
+    internal partial class SnapShot:INotification
+    {
+        private readonly double snapX;
+        private readonly double snapY;
+        private readonly ISubject<INotification> _subject;
+
+        public SnapShot(double snapX, double snapY, ISubject<INotification> subject)
+        {
+            this.snapX = snapX;
+            this.snapY = snapY;
+            _subject = subject;
+        }
+
+        public ObservableCollection<LayerGeometryCollection>? LayGeoms { get; set; }
+        public ObservableCollection<Point>? GeomPoints { get; set; }
+        public double FieldSizeX { get; set; }
+        public double FieldSizeY { get; set; }
+        public double SpecSizeX { get; set; }
+        public double SpecSizeY { get; set; }
+        public double MirrorX { get; set; }
+        public double Angle { get; set; }
+        
+        [ICommand]
+        private void GotPoint(GeomClickEventArgs? args)
+        {
+            if (args is not null)
+            {
+                var tr = new TranslateTransform(snapX, snapY);
+                var resultPoint = tr.Transform((Point)args);
+                _subject.OnNext(new SnapShotResult(resultPoint));
+            }
+        }
+    }
+
+    public record SnapShotResult(Point Point) : INotification
+    {
+        public static implicit operator PointF(SnapShotResult result) => new PointF((float)result.Point.X, (float)result.Point.Y);
+        public static implicit operator Point(SnapShotResult result) => result.Point;
+    }
+    public record PermitSnap(bool Permited):INotification;
+    public record ReadyForSnap():INotification;
 }

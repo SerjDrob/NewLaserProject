@@ -15,12 +15,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Process
 {
-    internal class ThreePointProcess:IProcess
+    internal class ThreePointProcesSnap : IProcess
     {
         private readonly IEnumerable<IProcObject> _wafer;
         private readonly string _jsonPierce;
@@ -28,7 +29,6 @@ namespace NewLaserProject.Classes.Process
         private readonly ICoorSystem<LMPlace> _coorSystem;
         private StateMachine<State, Trigger> _stateMachine;
         private bool _inProcess = false;
-        private readonly IEnumerable<PPoint> _refPoints;
         private readonly double _zeroZPiercing;
         private readonly double _zeroZCamera;
         private readonly double _waferThickness;
@@ -43,40 +43,17 @@ namespace NewLaserProject.Classes.Process
         private readonly EntityPreparator _entityPreparator;
         private double _matrixAngle;
         private IProcess _subProcess;
-        public ThreePointProcess(IEnumerable<IProcObject> wafer, IEnumerable<PPoint> refPoints,
-            string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
-            double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager, 
-            double dX, double dY, double pazAngle, ISubject<INotification> mediator)
-        {
-            Guard.IsEqualTo(refPoints.Count(), 3, nameof(refPoints));
-            _wafer = wafer;
-            _jsonPierce = jsonPierce;
-            _laserMachine = laserMachine;
-            _coorSystem = coorSystem;
-            _zeroZPiercing = zeroZPiercing;
-            _refPoints = refPoints;
-            _zeroZCamera = zeroZCamera;
-            _infoMessager = infoMessager;
-            _dX = dX;
-            _dY = dY;
-            _pazAngle = pazAngle;
-            _mediator = mediator;
-            _waferThickness = waferThickness;
-
-        }
-
-        public ThreePointProcess(IEnumerable<IProcObject> wafer, IEnumerable<PPoint> refPoints,
+        
+        public ThreePointProcesSnap(IEnumerable<IProcObject> wafer,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<INotification> mediator)
         {
-            Guard.IsEqualTo(refPoints.Count(), 3, nameof(refPoints));
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
             _coorSystem = coorSystem;
             _zeroZPiercing = zeroZPiercing;
-            _refPoints = refPoints;
             _zeroZCamera = zeroZCamera;
             _infoMessager = infoMessager;
             _dX = dX;
@@ -93,10 +70,19 @@ namespace NewLaserProject.Classes.Process
         {
             _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
             var resultPoints = new List<PointF>();
-            var refPointsEnumerator = _refPoints.GetEnumerator();
-            refPointsEnumerator.MoveNext();
-            var originPoints = _refPoints.Select(p => new PointF((float)p.X, (float)p.Y)).ToArray();
-
+            var originPoints = new List<PointF>();
+            
+            _mediator.OfType<SnapShotResult>()
+                .Subscribe(result => originPoints.Add(result));
+            
+            _mediator.OfType<ReadyForSnap>()
+                .Subscribe(result => 
+                {
+                    var position = _coorSystem.FromGlobal(_xActual, _yActual);
+                    var request = new ScopedGeomsRequest(10000, 10000, position[0], position[1]);
+                    _mediator.OnNext(request);
+                });
+            
             CoorSystem<LMPlace> workCoorSys = new();
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
@@ -109,21 +95,14 @@ namespace NewLaserProject.Classes.Process
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.GoRefPoint)
-                .OnEntryAsync(async () => 
+                .OnEntry(() =>
                 {
-                    _laserMachine.SetVelocity(Velocity.Fast);
-                    var refX = refPointsEnumerator.Current.X; 
-                    var refY = refPointsEnumerator.Current.Y;
-                    var points = _coorSystem.ToGlobal(refX, refY);
-                    await Task.WhenAll(_laserMachine.MoveGpInPosAsync(Groups.XY, points),
-                                               _laserMachine.MoveAxInPosAsync(Ax.Z, _zeroZCamera - _waferThickness));
-                    _mediator.OnNext(new ScopedGeomsRequest(10000,10000,refX,refY));
-                    _infoMessager.RealeaseMessage("Укажите точку и нажмите *", ViewModels.MessageType.Info);
+                    _mediator.OnNext(new PermitSnap(true));
+                    _infoMessager.RealeaseMessage("Сопоставьте точку и нажмите *", ViewModels.MessageType.Info);
                 })
                 .OnExit(() =>
                 {
                     resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY)));
-                    refPointsEnumerator.MoveNext();
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
                 .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
@@ -132,8 +111,9 @@ namespace NewLaserProject.Classes.Process
 
             _stateMachine.Configure(State.GetRefPoint)
                 .OnEntry(_infoMessager.EraseMessage)
-                .OnEntry(() => 
+                .OnEntry(() =>
                 {
+                    _mediator.OnNext(new PermitSnap(false));
                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                     SwitchCamera?.Invoke(this, false);
                     workCoorSys = new CoorSystem<LMPlace>
@@ -145,14 +125,14 @@ namespace NewLaserProject.Classes.Process
                     .Build();
                     _matrixAngle = workCoorSys.GetMatrixAngle();
                     _stateMachine.Fire(Trigger.Next);
-                })                
+                })
                 .Permit(Trigger.Next, State.Working)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Working)
                 .OnEntryAsync(async () => {
-                    _entityPreparator.SetEntityAngle(- _pazAngle - _matrixAngle + Math.PI);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
+                    _entityPreparator.SetEntityAngle(-_pazAngle - _matrixAngle + Math.PI);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
                     _subProcess = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
                     _subProcess.CurrentWaferChanged += _process_CurrentWaferChanged;
@@ -180,7 +160,7 @@ namespace NewLaserProject.Classes.Process
             ProcessingCompleted?.Invoke(this, args);
         }
 
-        private void _process_ProcessingObjectChanged(object? sender, (IProcObject,int) e)
+        private void _process_ProcessingObjectChanged(object? sender, (IProcObject, int) e)
         {
             ProcessingObjectChanged?.Invoke(sender, e);
         }
@@ -192,7 +172,7 @@ namespace NewLaserProject.Classes.Process
 
         public event EventHandler<bool> SwitchCamera;
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
-        public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
+        public event EventHandler<(IProcObject, int)> ProcessingObjectChanged;
         public event EventHandler<ProcessCompletedEventArgs> ProcessingCompleted;
 
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)

@@ -5,6 +5,7 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
+using MachineControlsLibrary.Classes;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,13 +14,53 @@ using NewLaserProject.Data;
 using NewLaserProject.ViewModels;
 using NewLaserProject.Views;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive;
+using System.Reactive.Subjects;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace NewLaserProject
 {
+    internal class ScopedGeomsRequest:INotification
+    {
+        public ScopedGeomsRequest(double width, double height, double x, double y)
+        {
+            Width = width;
+            Height = height;
+            X = x;
+            Y = y;
+        }
+
+        public double Width { get; init; }
+        public double Height { get; init; }
+        public double X { get; init; }
+        public double Y { get; init; }
+    }
+
+    public interface IReqHandler<TRequest, TResponse>
+    {
+        Task<TResponse> HandleAsync(TRequest request);
+    }
+
+    public class Mediator<TRequest, TResponse>
+    {
+        private Func<TRequest, Task<TResponse>> _handler;
+        public void Subscribe(IReqHandler<TRequest,TResponse> reqHandler)
+        {
+            _handler = reqHandler.HandleAsync;
+        }
+        public async Task<TResponse> Send(TRequest request)
+        {
+            return await _handler?.Invoke(request);
+        }
+    }
+
+    
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
@@ -34,7 +75,9 @@ namespace NewLaserProject
 
             MainIoC = new ServiceCollection();
 
-            MainIoC.AddScoped<MotDevMock>()
+            MainIoC.AddMediatR(Assembly.GetExecutingAssembly())
+                   //.AddSingleton<ISubject,Subject>()
+                   .AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
                    .AddScoped<MotionDevicePCI1245E>()
                    .AddSingleton(sp =>
@@ -58,7 +101,7 @@ namespace NewLaserProject
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
                    .AddDbContext<DbContext, LaserDbContext>()
-                   .AddMediatR(Assembly.GetExecutingAssembly());
+                   ;
 
             var listenerName = "myListener";
             Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));
@@ -75,7 +118,6 @@ namespace NewLaserProject
             var provider = MainIoC.BuildServiceProvider();
 
 #if PCIInserted
-
             var viewModel = provider.GetService<MainViewModel>();
 #else
             var db = provider.GetService<LaserDbContext>();

@@ -6,6 +6,8 @@
                     >
     <converters:MouseEventArgsConverter x:Key="MouseConverter"/>
     <libconverters:BoolToVisibilityConverter x:Key="BTVConverter"/>
+    <converters:PointSpecWinConverter x:Key="PointSpecWinConverter"/>
+    
     <Color x:Key="WindowColor">#FFE8EDF9</Color>
     <Color x:Key="ContentAreaColorLight">#FFC5CBF9</Color>
     <Color x:Key="ContentAreaColorDark">#FF7381F9</Color>

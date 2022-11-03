@@ -141,7 +141,7 @@ namespace NewLaserProject.ViewModels
                         var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
                         _mainProcess = new ThreePointProcess(wafer, points, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
-                                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _mediator);
+                                        Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
                     }
                     break;
 
@@ -326,6 +326,8 @@ namespace NewLaserProject.ViewModels
             WaferHeight = material.Height;
             WaferThickness = material.Thickness;
         }
+
+        
     }
         
 }

@@ -497,10 +497,21 @@
                                                 </i:DataTrigger>
                                             </i:Interaction.Triggers>
                                         </Button>
-                                        <ToggleButton Content="Cut" 
-                                                      IsChecked="{Binding CutMode}"
-                                                      />
-                                        <Button Content="Undo" Command="{Binding UndoCutCommand}"/>
+                                        <ToggleButton IsChecked="{Binding CutMode}"
+                                                      hc:IconElement.Geometry="{StaticResource ScissorGeometry}"
+                                                      RenderTransformOrigin="0.5 0.5">
+                                            <ToggleButton.RenderTransform>
+                                                <ScaleTransform ScaleY="-1"/>
+                                            </ToggleButton.RenderTransform>
+                                        </ToggleButton>
+
+                                        <Button Command="{Binding UndoCutCommand}"
+                                                hc:IconElement.Geometry="{StaticResource UndoArrowGeometry}"
+                                                RenderTransformOrigin="0.5 0.5">
+                                            <Button.RenderTransform>
+                                                <ScaleTransform ScaleY="-1"/>
+                                            </Button.RenderTransform>
+                                        </Button>
                                     </DockPanel>
                                     <!--<hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
                                     <TreeView
