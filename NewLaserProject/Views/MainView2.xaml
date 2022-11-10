@@ -21,14 +21,27 @@
         Height="800" 
         Width="1000" 
         WindowState="Maximized">
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="KeyDown">
-            <i:InvokeCommandAction Command="{Binding KeyDownCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
-        </i:EventTrigger>
-        <i:EventTrigger EventName="KeyUp">
-            <i:InvokeCommandAction Command="{Binding KeyUpCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
+    
+    <Window.InputBindings>
+        <!--
+        <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
+       
+        <KeyBinding Command="{Binding MachineSettingsCommand}" Modifiers="Ctrl" Key="H"/>
+       
+        
+        <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
+        <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
+        <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
+        <KeyBinding Command="{Binding TeachCameraScaleCommand}" Key="F5"/>
+
+        <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource TRUE}" Key="F6"/>
+        <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource FALSE}" Key="F7"/>
+
+        -->
+        
+    </Window.InputBindings>
+    
+    
     <Window.Resources>
         <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
         <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
@@ -36,7 +49,7 @@
         <Localconverters:IProcTypeToEntityConverter x:Key="IProcTypeToEntityConverter"/>
         <Localconverters:GetLayerNameConverter x:Key="GetLayerNameConverter"/>
         <Localconverters:FileAlignmentConverter x:Key="FileAlignmentConverter"/>
-        
+        <Localconverters:KeyProcessorArgsConverter x:Key="KeyProcessorArgsConverter"/>
         <CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>
         <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
         <CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>
@@ -80,7 +93,36 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         </Style>
     </Window.Resources>
-
+    
+    <!--<i:Interaction.Triggers>
+        <i:EventTrigger EventName="KeyDown">
+            <i:InvokeCommandAction Command="{Binding KeyDownCommand, Mode=OneWay}" 
+                                   PassEventArgsToCommand="True"
+                                   />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="KeyUp">
+            <i:InvokeCommandAction Command="{Binding KeyUpCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>-->
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="KeyDown">
+            <i:InvokeCommandAction Command="{Binding TestKeyCommand, Mode=OneWay}" 
+                                   PassEventArgsToCommand="True"
+                                   EventArgsConverter="{StaticResource KeyProcessorArgsConverter}"
+                                   EventArgsConverterParameter="{StaticResource TRUE}"/>
+        </i:EventTrigger>
+        <!--<i:EventTrigger EventName="KeyUp">
+            <i:InvokeCommandAction Command="{Binding KeyUpCommand, Mode=OneWay}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>-->
+        <i:EventTrigger EventName="KeyUp">
+            <i:InvokeCommandAction Command="{Binding TestKeyCommand, Mode=OneWay}" 
+                                   PassEventArgsToCommand="True"
+                                   EventArgsConverter="{StaticResource KeyProcessorArgsConverter}"
+                                   EventArgsConverterParameter="{StaticResource FALSE}"
+                                   />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
@@ -344,6 +386,11 @@
         </ToolBarTray>
         <TabControl Margin="1" Grid.Column="1">
             <TabItem>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="GotFocus">
+                        <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsMainTabOpen" Value="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <TabItem.Header>
                     <Border BorderBrush="CadetBlue" Margin="0,0,10,0" CornerRadius="4" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -356,31 +403,7 @@
                         </StackPanel>
                     </Border>
                 </TabItem.Header>
-                <TabItem.InputBindings>
-                    <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
-                    <KeyBinding Command="{Binding StartProcessCommand}" Key="Divide"/>
-
-                    <KeyBinding Command="{Binding MachineSettingsCommand}" Modifiers="Ctrl" Key="H"/>
-                    <KeyBinding Command="{Binding ChangeVelocityCommand}" Key="Add"/>
-                    <KeyBinding Command="{Binding SetStepVelocityCommand}" Key="Subtract"/>
-                    <KeyBinding Command="{Binding GoLeftCommand}" Key="X"/>
-                    <KeyBinding Command="{Binding GoRightCommand}" Key="C"/>
-                    <KeyBinding Command="{Binding GoUpCommand}" Key="A"/>
-                    <KeyBinding Command="{Binding GoDownCommand}" Key="Z"/>
-
-                    <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
-                    <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
-                    <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
-                    <KeyBinding Command="{Binding TeachCameraScaleCommand}" Key="F5"/>
-
-                    <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource TRUE}" Key="F6"/>
-                    <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource FALSE}" Key="F7"/>
-
-                    <KeyBinding Command="{Binding TeachNextCommand}" Key="Multiply"/>
-                    <KeyBinding Command="{Binding TeachDenyCommand}" Key="Esc"/>
-                    <KeyBinding Command="{Binding UndoRemoveSelectionCommand}" Key="M"/>
-                    
-                </TabItem.InputBindings>
+                
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
@@ -816,6 +839,11 @@
                                    Value="True">
                         <i:InvokeCommandAction Command="{Binding DbLoadCommand}"/>
                     </i:DataTrigger>
+
+                    <i:EventTrigger EventName="GotFocus">
+                        <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsMainTabOpen" Value="False"/>
+                    </i:EventTrigger>
+
                 </i:Interaction.Triggers>
                 <DockPanel>
                     <ContentControl Content="{Binding LaserDbVM}"/>
@@ -831,6 +859,9 @@
                                    Value="False">
                         <i:InvokeCommandAction Command="{Binding AppSettingsCloseCommand}"/>
                     </i:DataTrigger>
+                    <i:EventTrigger EventName="GotFocus">
+                        <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsMainTabOpen" Value="False"/>
+                    </i:EventTrigger>
                 </i:Interaction.Triggers>
                 <ContentControl Content="{Binding AppSngsVM}"/>
             </TabItem>

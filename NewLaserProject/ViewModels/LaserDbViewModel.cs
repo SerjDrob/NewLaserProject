@@ -26,18 +26,35 @@ namespace NewLaserProject.ViewModels
 
             _db.Set<Technology>()
                 .Include(t => t.Material)
-                .Load();
-
-            Technologies = _db.Set<Technology>()
+                .LoadAsync()
+                .ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully)
+                    {
+                        Technologies = _db.Set<Technology>()
                 .Local
                 .ToObservableCollection();
 
-            _db.Set<Material>()
-            .Load();
+                        _db.Set<Material>()
+                        .Load();
 
-            Materials = _db.Set<Material>()
-                .Local
-                .ToObservableCollection();
+                        Materials = _db.Set<Material>()
+                            .Local
+                            .ToObservableCollection();
+                    }
+                });
+                //.Load();
+
+            //Technologies = _db.Set<Technology>()
+            //    .Local
+            //    .ToObservableCollection();
+
+            //_db.Set<Material>()
+            //.Load();
+
+            //Materials = _db.Set<Material>()
+            //    .Local
+            //    .ToObservableCollection();
         }
         private readonly DbContext _db;
 

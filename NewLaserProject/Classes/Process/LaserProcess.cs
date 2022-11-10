@@ -13,12 +13,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
-    public class LaserProcess : IProcess
+
+    public interface IProcessNotify{ }
+    public record ProcObjectChanged(IProcObject ProcObject):IProcessNotify;
+
+
+    public class LaserProcess : IProcess,IObservable<IProcessNotify>
     {
         private readonly IEnumerable<IProcObject> _wafer;
         private readonly string _jsonPierce;
@@ -34,6 +41,7 @@ namespace NewLaserProject.Classes
         private readonly double _zPiercing;
         private readonly double _waferThickness;
         private readonly EntityPreparator _entityPreparator;
+        private readonly ISubject<IProcessNotify> _subject;
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
@@ -49,12 +57,12 @@ namespace NewLaserProject.Classes
             _zPiercing = zPiercing;
             _waferThickness = waferThickness;
             _entityPreparator = entityPreparator;
-
+            _subject=new Subject<IProcessNotify>();
         }
 
 
         public void CreateProcess()
-        {            
+        {   
             _progTreeParser = new ProgTreeParser(_jsonPierce);
 
             var currentIndex = -1;
@@ -85,6 +93,9 @@ namespace NewLaserProject.Classes
                 {                    
                     var procObject = waferEnumerator.Current;
                     ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
+                    
+                    _subject.OnNext(new ProcObjectChanged(procObject));
+
                     if (!_excludedObjects?.Any(o=>o.Id==procObject.Id) ?? true)
                     {
                         var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
@@ -227,6 +238,8 @@ namespace NewLaserProject.Classes
                 //throw;
             }
         }
+
+        public IDisposable Subscribe(IObserver<IProcessNotify> observer) => _subject.Subscribe(observer);
 
         enum State
         {

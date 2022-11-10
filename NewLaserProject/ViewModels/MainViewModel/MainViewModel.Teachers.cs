@@ -621,24 +621,7 @@ namespace NewLaserProject.ViewModels
         }
 
         
-        [ICommand]
-        private Task TeachNext()
-        {
-            if (_canTeach)
-            {
-                return _currentTeacher?.Next();
-            }
-            return _mainProcess?.Next();
-        }
-        [ICommand]
-        private Task TeachDeny()
-        {
-            if (_canTeach)
-            {
-                return _currentTeacher?.Deny();
-            }
-            return null;
-        }
+       
 
         private CoorSystem<LMPlace> _testCoorSys; 
 

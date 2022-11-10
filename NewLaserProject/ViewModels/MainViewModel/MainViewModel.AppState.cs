@@ -6,14 +6,18 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xaml;
+
 
 namespace NewLaserProject.ViewModels
 {
 	internal partial class MainViewModel
 	{
 		private StateMachine<AppState, AppTrigger> _appStateMachine;
+		public bool IsMainTabOpen { get; set; } = true;
+		public bool IsProcessing { get; set; } = false;
 
-		private void InitAppState()
+        private void InitAppState()
 		{
 			_appStateMachine = new StateMachine<AppState, AppTrigger>(AppState.Default, FiringMode.Queued);
 

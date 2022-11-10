@@ -125,7 +125,7 @@ namespace NewLaserProject.ViewModels
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
             InitViews();
             InitAppState();
-
+            InitCommands();
             //AppSngsVM = new(_db);
         }
         [ICommand]
@@ -304,8 +304,6 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task Test()
         {
-            ChangeViews();
-
             //var element = ProcessingObjects.ElementAt(15);
             //element.IsBeingProcessed = true;
             //IsBeingProcessedObject = element;
@@ -331,146 +329,9 @@ namespace NewLaserProject.ViewModels
             }
         }
 
-
         #region Driving the machine     
 
-        [ICommand]
-        private async Task KeyDown(object args)
-        {
-            var key = (KeyEventArgs)args;
-            if (key.OriginalSource is TextBoxBase) return;
-
-            
-            switch (key.Key)
-            {
-                case Key.A or Key.Z or Key.X or Key.C or Key.V or Key.B:
-                    await moveAsync(key);
-                    break;
-                case Key.Tab when !key.IsRepeat:
-                    await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { 1, 1 });
-                    break;
-                case Key.E:
-                    _laserMachine.SwitchOnValve(Valves.Light);
-                    break;
-                case Key.G when !key.IsRepeat:
-                    await _laserMachine.GoThereAsync(LMPlace.Loading);
-                    break;
-                case Key.J:
-                    break;
-                case Key.K:
-                    break;
-                case Key.L:
-                    break;
-                case Key.Home when !key.IsRepeat:
-                    {
-                        try
-                        {
-                            await _laserMachine.GoHomeAsync().ConfigureAwait(false);
-                            var corner = new double[] { Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
-                            await _laserMachine.MoveGpInPosAsync(Groups.XY, corner).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-
-                            throw;
-                        }
-                        techMessager.EraseMessage();
-                    }
-                    break;
-            }
-            key.Handled = true;
-
-            async Task moveAsync(KeyEventArgs key)
-            {
-                var res = key.Key switch
-                {
-                    Key.A => (Ax.Y, AxDir.Pos),
-                    Key.Z => (Ax.Y, AxDir.Neg),
-                    Key.X => (Ax.X, AxDir.Neg),
-                    Key.C => (Ax.X, AxDir.Pos),
-                    Key.V => (Ax.Z, AxDir.Pos),
-                    Key.B => (Ax.Z, AxDir.Neg),
-                };
-
-                if (!key.IsRepeat)
-                {
-                    if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(res.Item1, res.Item2);
-                    if (VelocityRegime == Velocity.Step)
-                    {
-                        var step = (res.Item2 == AxDir.Pos ? 1 : -1) * 0.005;
-                        await _laserMachine.MoveAxRelativeAsync(res.Item1, step, false);
-
-                    }
-                }
-                key.Handled = true;
-                return;
-            }
-        }
-
-        [ICommand]
-        private async Task KeyUp(object args)
-        {
-            var key = (KeyEventArgs)args;
-            if (key.OriginalSource is TextBoxBase) return;
-
-            switch (key.Key)
-            {
-                case Key.Tab:
-                    break;
-                case Key.A:
-                    _laserMachine.Stop(Ax.Y);
-                    break;
-                case Key.B:
-                    _laserMachine.Stop(Ax.Z);
-                    break;
-                case Key.C:
-                    _laserMachine.Stop(Ax.X);
-                    break;
-                case Key.E:
-                    break;
-                case Key.G:
-                    break;
-                case Key.J:
-                    break;
-                case Key.K:
-                    break;
-                case Key.L:
-                    break;
-                case Key.V:
-                    _laserMachine.Stop(Ax.Z);
-                    break;
-                case Key.X:
-                    _laserMachine.Stop(Ax.X);
-                    break;
-                case Key.Z:
-                    _laserMachine.Stop(Ax.Y);
-                    break;
-            }
-            key.Handled = true;
-        }
-
-        [ICommand]
-        private void ChangeVelocity()
-        {
-            VelocityRegime = VelocityRegime switch
-            {
-                Velocity.Slow => Velocity.Fast,
-                Velocity.Fast => Velocity.Slow,
-                _ => Velocity.Fast
-            };
-#if PCIInserted
-            _laserMachine.SetVelocity(VelocityRegime);
-#endif
-        }
-
-        [ICommand]
-        private void SetStepVelocity()
-        {
-            VelocityRegime = Velocity.Step;
-#if PCIInserted
-            _laserMachine.SetVelocity(Velocity.Slow);
-#endif
-        }
+        
 
 #endregion
 

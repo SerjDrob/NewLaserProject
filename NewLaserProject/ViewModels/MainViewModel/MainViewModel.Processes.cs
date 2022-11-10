@@ -17,6 +17,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -101,6 +102,7 @@ namespace NewLaserProject.ViewModels
                         })).ToList();
 
             var wafer = new LaserWafer(procObjects, topologySize);
+
 
             wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
             wafer.Scale(1F / FileScale);
@@ -318,7 +320,7 @@ namespace NewLaserProject.ViewModels
         {
             if (e.procObj.IsProcessed)
             {
-                var o = ProcessingObjects.Single(po => po.Id == e.procObj.Id);
+                var o = ProcessingObjects.SingleOrDefault(po => po.Id == e.procObj.Id);
                 ProcessingObjects.Remove(o);
             }
             else
