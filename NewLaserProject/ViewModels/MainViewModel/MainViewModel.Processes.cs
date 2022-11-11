@@ -186,14 +186,59 @@ namespace NewLaserProject.ViewModels
             ProcessingObjects = new(wafer);
             ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
 
-            _mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
-            _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
-            _mainProcess.ProcessingCompleted += _mainProcess_ProcessingCompleted;
+            //_mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
+            //_mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
+            //_mainProcess.ProcessingCompleted += _mainProcess_ProcessingCompleted;
 
 
             _mainProcess.OfType<ProcWaferChanged>()
-                .Subscribe(args => { }, 
-                completed => { });
+                .Subscribe(args => 
+                {
+                    ProcessingObjects = new(args.Wafer);
+                });
+
+            _mainProcess.OfType<ProcObjectChanged>()
+                .Where(poargs => poargs.ProcObject.IsProcessed)
+                .Subscribe(args =>
+                {
+                    var o = ProcessingObjects.SingleOrDefault(po => po.Id == e.procObj.Id);
+                    ProcessingObjects.Remove(o);
+                });
+
+            _mainProcess.OfType<ProcObjectChanged>()
+                .Where(poargs => !poargs.ProcObject.IsProcessed & poargs.ProcObject.IsBeingProcessed)
+                .Subscribe(poargs =>
+                {
+                    IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == poargs.ProcObject.Id);
+                    //IsBeingProcessedIndex = poargs.ProcObject.index + 1;
+                });
+
+            _mainProcess.OfType<ProcCompletionPreview>()
+                .Subscribe(args =>
+                {
+                    var status = args.Status;
+                    switch (status)
+                    {
+                        case CompletionStatus.Success:
+                            if (IsWaferMark)
+                            {
+                                MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem)
+                                    .ContinueWith(t => techMessager.RealeaseMessage("Процесс завершён", MessageType.Info), TaskScheduler.Default);
+                            }
+                            else
+                            {
+                                techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
+                            }
+                            break;
+                        case CompletionStatus.Cancelled:
+                            techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
+                            break;
+                        default:
+                            break;
+                    }
+                    _appStateMachine.Fire(AppTrigger.EndProcess);
+                });
+            
 
             HideProcessPanel(false); 
 
@@ -233,30 +278,30 @@ namespace NewLaserProject.ViewModels
 
         }
 
-        private void _mainProcess_ProcessingCompleted(object? sender, ProcessCompletedEventArgs args)
-        {
-            var status = args.Status;
-            switch (status)
-            {
-                case CompletionStatus.Success:
-                    if (IsWaferMark)
-                    {
-                        MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem)
-                            .ContinueWith(t => techMessager.RealeaseMessage("Процесс завершён", MessageType.Info),TaskScheduler.Default);
-                    }
-                    else
-                    {
-                        techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
-                    }
-                    break;
-                case CompletionStatus.Cancelled:
-                    techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
-                    break;
-                default:
-                    break;
-            }
-            _appStateMachine.Fire(AppTrigger.EndProcess);
-        }
+        //private void _mainProcess_ProcessingCompleted(object? sender, ProcessCompletedEventArgs args)
+        //{
+        //    var status = args.Status;
+        //    switch (status)
+        //    {
+        //        case CompletionStatus.Success:
+        //            if (IsWaferMark)
+        //            {
+        //                MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem)
+        //                    .ContinueWith(t => techMessager.RealeaseMessage("Процесс завершён", MessageType.Info),TaskScheduler.Default);
+        //            }
+        //            else
+        //            {
+        //                techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
+        //            }
+        //            break;
+        //        case CompletionStatus.Cancelled:
+        //            techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //    _appStateMachine.Fire(AppTrigger.EndProcess);
+        //}
 
         private async Task MarkWaferAsync(MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem<LMPlace> coorSystem)
         {
@@ -322,24 +367,24 @@ namespace NewLaserProject.ViewModels
             _openedFileVM?.SetTextPosition(MarkPosition);
         }
         public MarkPosition MarkPosition { get; set; }
-        private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj, int index) e)
-        {
-            if (e.procObj.IsProcessed)
-            {
-                var o = ProcessingObjects.SingleOrDefault(po => po.Id == e.procObj.Id);
-                ProcessingObjects.Remove(o);
-            }
-            else
-            {
-                IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == e.procObj.Id);
-                IsBeingProcessedIndex = e.index + 1;
-            }
-        }
+        //private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj, int index) e)
+        //{
+        //    if (e.procObj.IsProcessed)
+        //    {
+        //        var o = ProcessingObjects.SingleOrDefault(po => po.Id == e.procObj.Id);
+        //        ProcessingObjects.Remove(o);
+        //    }
+        //    else
+        //    {
+        //        IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == e.procObj.Id);
+        //        IsBeingProcessedIndex = e.index + 1;
+        //    }
+        //}
 
-        private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
-        {
-            ProcessingObjects = new(e);
-        }
+        //private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
+        //{
+        //    ProcessingObjects = new(e);
+        //}
 
         private void CancelProcess()
         {

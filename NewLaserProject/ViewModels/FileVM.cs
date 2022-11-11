@@ -382,11 +382,11 @@ namespace NewLaserProject.ViewModels
         }
     }
 
-    public record SnapShotResult(Point Point) : INotification
+    public record SnapShotResult(Point Point) : IProcessNotify
     {
         public static implicit operator PointF(SnapShotResult result) => new PointF((float)result.Point.X, (float)result.Point.Y);
         public static implicit operator Point(SnapShotResult result) => result.Point;
     }
-    public record PermitSnap(bool Permited):INotification;
-    public record ReadyForSnap():INotification;
+    public record PermitSnap(bool Permited): IProcessNotify;
+    public record ReadyForSnap(): IProcessNotify;
 }

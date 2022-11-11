@@ -62,4 +62,5 @@ namespace NewLaserProject.ViewModels
             SnapshotVisible = true;
         }
     }
+       
 }

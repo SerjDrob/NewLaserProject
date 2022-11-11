@@ -116,7 +116,8 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.GoRefPoint)
                 .OnEntry(() =>
                 {
-                    _mediator.OnNext(new PermitSnap(true));
+                    //_mediator.OnNext(new PermitSnap(true));
+                    _subject.OnNext(new PermitSnap(true));
                     _infoMessager.RealeaseMessage($"Сопоставьте точку {originPoints.Count + 1}", ViewModels.MessageType.Info);
                 })
                 .OnExit(() =>
@@ -132,7 +133,8 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(_infoMessager.EraseMessage)
                 .OnEntry(() =>
                 {
-                    _mediator.OnNext(new PermitSnap(false));
+                    //_mediator.OnNext(new PermitSnap(false));
+                    _subject.OnNext(new PermitSnap(false));  
                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                     SwitchCamera?.Invoke(this, false);
                     workCoorSys = new CoorSystem<LMPlace>
