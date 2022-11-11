@@ -189,6 +189,12 @@ namespace NewLaserProject.ViewModels
             _mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
             _mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
             _mainProcess.ProcessingCompleted += _mainProcess_ProcessingCompleted;
+
+
+            _mainProcess.OfType<ProcWaferChanged>()
+                .Subscribe(args => { }, 
+                completed => { });
+
             HideProcessPanel(false); 
 
         }

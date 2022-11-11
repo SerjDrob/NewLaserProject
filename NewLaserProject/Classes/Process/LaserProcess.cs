@@ -23,9 +23,10 @@ namespace NewLaserProject.Classes
 
     public interface IProcessNotify{ }
     public record ProcObjectChanged(IProcObject ProcObject):IProcessNotify;
+    public record ProcWaferChanged(IEnumerable<IProcObject> Wafer):IProcessNotify;
+    public record ProcCompletionPreview(CompletionStatus Status, ICoorSystem<LMPlace> CoorSystem):IProcessNotify;
 
-
-    public class LaserProcess : IProcess,IObservable<IProcessNotify>
+    public class LaserProcess : IProcess
     {
         private readonly IEnumerable<IProcObject> _wafer;
         private readonly string _jsonPierce;
@@ -109,6 +110,9 @@ namespace NewLaserProject.Classes
                         procObject.IsProcessed = true;
                     }
                     ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
+
+                    _subject.OnNext(new ProcObjectChanged(procObject));
+
                     _inLoop = waferEnumerator.MoveNext();
                     currentIndex++;
                 })
@@ -122,6 +126,9 @@ namespace NewLaserProject.Classes
                     _loopCount++;
                     var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
                     CurrentWaferChanged?.Invoke(this,currentWafer);
+
+                    _subject.OnNext(new ProcWaferChanged(currentWafer));
+
                     waferEnumerator = currentWafer.GetEnumerator();
                     currentIndex = -1;
                     _inLoop = waferEnumerator.MoveNext();
@@ -135,6 +142,9 @@ namespace NewLaserProject.Classes
                 .OnEntry(() => 
                 {
                     ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Success, _coorSystem));
+
+                    _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _coorSystem));
+                    _subject.OnCompleted();
                 })
                 .Ignore(Trigger.Next);
 
@@ -193,6 +203,8 @@ namespace NewLaserProject.Classes
                 Trace.TraceInformation("The process was interupted by user");
                 Trace.Flush();
                 ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Cancelled,_coorSystem));
+                _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Cancelled, _coorSystem));
+                _subject.OnCompleted();
             }
         }
         public override string ToString()

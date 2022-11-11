@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
-    public interface IProcess
+    public interface IProcess: IObservable<IProcessNotify>
     {
         event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
@@ -21,6 +21,7 @@ namespace NewLaserProject.Classes
         Task StartAsync();
         Task StartAsync(CancellationToken cancellationToken);
     }
+
     [Flags]
     public enum CompletionStatus
     {

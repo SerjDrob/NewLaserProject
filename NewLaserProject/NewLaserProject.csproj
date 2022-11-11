@@ -24,7 +24,8 @@
   
   
   <ItemGroup>
-    <Compile Remove="Classes\Geometry\FirstCoorSystem.cs" />	  
+    <Compile Remove="Classes\Geometry\FirstCoorSystem.cs" />
+    <Compile Remove="Classes\Process\ThreePointProcess.cs" />	  
   </ItemGroup>
   
   <ItemGroup>
@@ -112,6 +113,7 @@
   
   <ItemGroup>
     <None Include="Classes\Geometry\FirstCoorSystem.cs" />
+    <None Include="Classes\Process\ThreePointProcess.cs" />
   </ItemGroup>
 
   <ItemGroup>
