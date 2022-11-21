@@ -107,7 +107,7 @@ namespace NewLaserProject.ViewModels
             var count = _laserMachine.GetVideoCaptureDevicesCount();
             CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
             CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
-            _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+            _laserMachine.StartCamera(0, /*CameraCapabilitiesIndex*/2);
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
                 .ContinueWith(t =>
                 {
@@ -121,6 +121,12 @@ namespace NewLaserProject.ViewModels
                         MessageBox.Show(t.Exception?.InnerException?.Message, "Ошибка инициализации", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 });
+
+            var defLaserParams = ExtensionMethods
+                .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+
+            _laserMachine.SetMarkParams(defLaserParams);
+
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
             InitViews();
@@ -349,6 +355,7 @@ namespace NewLaserProject.ViewModels
             Settings.Default.Save();
             ImplementMachineSettings();
         }
+        
         private void ImplementMachineSettings()
         {
 #if PCIInserted
@@ -452,7 +459,7 @@ namespace NewLaserProject.ViewModels
                 _laserMachine.ConfigureHomingForAxis(Ax.Z)
                     .SetHomingDirection(AxDir.Neg)
                     .SetHomingVelocity(/*Settings.Default.ZVelService*/1)
-                    .SetPositionAfterHoming(1)
+                    .SetPositionAfterHoming(Settings.Default.ZeroFocusPoint - WaferThickness)
                     .Configure();
 
                 _laserMachine.ConfigureValves(
@@ -467,7 +474,15 @@ namespace NewLaserProject.ViewModels
                 throw;
             }
 
-            _laserMachine.SetVelocity(VelocityRegime);
+            try
+            {
+                _laserMachine.SetVelocity(VelocityRegime);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
 #endif
         }
         private CoorSystem<LMPlace> GetCoorSystem()

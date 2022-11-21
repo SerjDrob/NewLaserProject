@@ -116,8 +116,13 @@
                     </ContentControl>
                 </Canvas>
                 <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
-                                            Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, 
-                                            Path=TeachScaleMarkerEnable}">
+                        Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, 
+                        Path=TeachScaleMarkerEnable}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Height="{Binding ElementName=VideoCamera, Path=ActualHeight}"
+                        Width="{Binding ElementName=VideoCamera, Path=ActualWidth}"
+                        >
                     <Line Stroke="Red" Fill="Red" 
                                                 StrokeThickness="1" 
                                                 X1="0" 
@@ -134,7 +139,7 @@
                     <Line Stroke="Red" Fill="Red" 
                               StrokeThickness="1" 
                               X1="0" 
-                              X2="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth}"                               
+                              X2="{Binding ElementName=VideoCamera, Path=ActualWidth}"                               
                               Y2="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Y1}" 
                               >
                         <Line.Y1>

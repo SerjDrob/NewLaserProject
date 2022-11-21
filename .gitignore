@@ -411,3 +411,5 @@ obj/
 /NewLaserProject/Data/laserDatabase.db-wal
 /NewLaserProject/EZCAD/
 /NewLaserProject/AppSettings/
+/NewLaserProject/Properties/Settings.Designer.cs
+/NewLaserProject/Properties/Settings.settings

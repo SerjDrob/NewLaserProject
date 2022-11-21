@@ -118,6 +118,14 @@ namespace NewLaserProject.ViewModels
             {
                 case FileAlignment.AlignByCorner:
                     {
+                        var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
+                        var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
+
+                        var angle = Math.Atan2(dy, dx);
+                        
+                        entityPreparator.SetEntityAngle(angle)
+                            .AddEntityAngle(-Settings.Default.PazAngle);
+
                         var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
                         _mainProcess = new LaserProcess(wafer, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness, entityPreparator);
