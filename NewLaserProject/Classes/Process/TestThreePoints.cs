@@ -1,9 +1,10 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using Microsoft.Toolkit.Diagnostics;
-using NewLaserProject.Classes.Geometry;
+using MachineClassLibrary.GeometryUtility;
 using NewLaserProject.ViewModels;
 using Stateless;
 using System;

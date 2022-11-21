@@ -5,7 +5,7 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MediatR;
 using Microsoft.Toolkit.Diagnostics;
-using NewLaserProject.Classes.Geometry;
+using MachineClassLibrary.GeometryUtility;
 using NewLaserProject.Classes.Mediator;
 using NewLaserProject.ViewModels;
 using Stateless;

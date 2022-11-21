@@ -4,7 +4,7 @@ using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
-using NewLaserProject.Classes.Geometry;
+using MachineClassLibrary.GeometryUtility;
 using NewLaserProject.Classes.ProgBlocks;
 using Stateless;
 using Stateless.Graph;
@@ -24,14 +24,14 @@ namespace NewLaserProject.Classes
     public interface IProcessNotify{ }
     public record ProcObjectChanged(IProcObject ProcObject):IProcessNotify;
     public record ProcWaferChanged(IEnumerable<IProcObject> Wafer):IProcessNotify;
-    public record ProcCompletionPreview(CompletionStatus Status, ICoorSystem<LMPlace> CoorSystem):IProcessNotify;
+    public record ProcCompletionPreview(CompletionStatus Status, ICoorSystem CoorSystem):IProcessNotify;
 
     public class LaserProcess : IProcess
     {
         private readonly IEnumerable<IProcObject> _wafer;
         private readonly string _jsonPierce;
         private readonly LaserMachine _laserMachine;
-        private readonly ICoorSystem<LMPlace> _coorSystem;
+        private readonly ICoorSystem _coorSystem;
         private StateMachine<State, Trigger> _stateMachine;
         private bool _inProcess = false;
         private bool _inLoop = false;
@@ -49,7 +49,7 @@ namespace NewLaserProject.Classes
         public event EventHandler<ProcessCompletedEventArgs> ProcessingCompleted;
 
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
-            ICoorSystem<LMPlace> coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
+            ICoorSystem coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
         {
             _wafer = wafer;
             _jsonPierce = jsonPierce;

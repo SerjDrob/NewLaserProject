@@ -1,12 +1,12 @@
 ﻿#define Snap
 
 using MachineClassLibrary.Classes;
+using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
-using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.Process;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
@@ -43,7 +43,7 @@ namespace NewLaserProject.ViewModels
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
         public int IsBeingProcessedIndex { get; private set; }
-        public FileAlignment FileAlignment { get; set; }                
+        public FileAlignment FileAlignment { get; set; }
 
         public Technology CurrentTechnology { get; set; }
         public string CurrentLayerFilter { get; set; }
@@ -69,13 +69,13 @@ namespace NewLaserProject.ViewModels
                 //OnProcess = false;
             }
         }
-        
+
         [ICommand]
         private void AddObjectToProcess()
         {
             ObjectsForProcessing.Add(new ObjsToProcess(LayersStructure));
         }
-        
+
         [ICommand]
         private void RemoveObjectFromProcess(ObjsToProcess @object)
         {
@@ -192,7 +192,7 @@ namespace NewLaserProject.ViewModels
 
 
             _mainProcess.OfType<ProcWaferChanged>()
-                .Subscribe(args => 
+                .Subscribe(args =>
                 {
                     ProcessingObjects = new(args.Wafer);
                 });
@@ -201,7 +201,7 @@ namespace NewLaserProject.ViewModels
                 .Where(poargs => poargs.ProcObject.IsProcessed)
                 .Subscribe(args =>
                 {
-                    var o = ProcessingObjects.SingleOrDefault(po => po.Id == e.procObj.Id);
+                    var o = ProcessingObjects.SingleOrDefault(po => po.Id == args.ProcObject.Id);
                     ProcessingObjects.Remove(o);
                 });
 
@@ -238,15 +238,15 @@ namespace NewLaserProject.ViewModels
                     }
                     _appStateMachine.Fire(AppTrigger.EndProcess);
                 });
-            
 
-            HideProcessPanel(false); 
+
+            HideProcessPanel(false);
 
         }
 
         private async Task StartProcess()
         {
-            
+
 #if PCIInserted
 
             try
@@ -303,20 +303,20 @@ namespace NewLaserProject.ViewModels
         //    _appStateMachine.Fire(AppTrigger.EndProcess);
         //}
 
-        private async Task MarkWaferAsync(MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem<LMPlace> coorSystem)
+        private async Task MarkWaferAsync(MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem coorSystem)
         {
-            var (x,y,angle) = markPosition switch
+            var (x, y, angle) = markPosition switch
             {
-                MarkPosition.N => (WaferWidth/2, WaferHeight - edgeGap - fontHeight/2,0d),
-                MarkPosition.E => (WaferWidth - edgeGap - fontHeight / 2, WaferHeight/2, Math.PI / 2),
+                MarkPosition.N => (WaferWidth / 2, WaferHeight - edgeGap - fontHeight / 2, 0d),
+                MarkPosition.E => (WaferWidth - edgeGap - fontHeight / 2, WaferHeight / 2, Math.PI / 2),
                 MarkPosition.S => (WaferWidth / 2, edgeGap + fontHeight / 2, 0d),
                 MarkPosition.W => (edgeGap + fontHeight / 2, WaferHeight / 2, Math.PI / 2),
             };
-            var position = coorSystem.ToGlobal(x,y);
+            var position = coorSystem.ToGlobal(x, y);
             var theta = coorSystem.GetMatrixAngle();
             var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Today.Date;
             await _laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, position, true);
-            await _laserMachine.MarkTextAsync(markingText,0.8, angle + theta);
+            await _laserMachine.MarkTextAsync(markingText, 0.8, angle + theta);
         }
 
         private void ProcessingObjects_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -412,7 +412,7 @@ namespace NewLaserProject.ViewModels
             WaferThickness = material.Thickness;
         }
 
-        
+
     }
-        
+
 }

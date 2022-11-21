@@ -35,11 +35,11 @@ namespace NewLaserProject.ViewModels
     {
         private IDxfReader _dxfReader;
         private DxfEditor? _dxfEditor;
-        private readonly ISubject<INotification> _mediator;
+        private readonly ISubject<IProcessNotify> _mediator;
         public bool CanCut { get; set; } = false;
 
         private LayGeomsEditor _geomsEditor;
-        public FileVM(double waferWidth, double waferHeight, ISubject<INotification> mediator)
+        public FileVM(double waferWidth, double waferHeight, ISubject<IProcessNotify> mediator)
         {
             WaferWidth = waferWidth;
             WaferHeight = waferHeight;
@@ -348,13 +348,13 @@ namespace NewLaserProject.ViewModels
     }
 
     [INotifyPropertyChanged]
-    internal partial class SnapShot:INotification
+    internal partial class SnapShot:IProcessNotify
     {
         private readonly double snapX;
         private readonly double snapY;
-        private readonly ISubject<INotification> _subject;
+        private readonly ISubject<IProcessNotify> _subject;
 
-        public SnapShot(double snapX, double snapY, ISubject<INotification> subject)
+        public SnapShot(double snapX, double snapY, ISubject<IProcessNotify> subject)
         {
             this.snapX = snapX;
             this.snapY = snapY;

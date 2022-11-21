@@ -1,6 +1,6 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
-using NewLaserProject.Classes.Geometry;
+using MachineClassLibrary.GeometryUtility;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -31,13 +31,13 @@ namespace NewLaserProject.Classes
 
     public class ProcessCompletedEventArgs : EventArgs
     {
-        public ProcessCompletedEventArgs(CompletionStatus status, ICoorSystem<LMPlace> coorSystem)
+        public ProcessCompletedEventArgs(CompletionStatus status, ICoorSystem coorSystem)
         {
             Status = status;
             CoorSystem = coorSystem;
         }
 
         public CompletionStatus Status { get; init; }
-        public ICoorSystem<LMPlace> CoorSystem { get; init; }
+        public ICoorSystem CoorSystem { get; init; }
     }
 }

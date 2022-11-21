@@ -22,8 +22,8 @@ namespace NewLaserProject.ViewModels
     [INotifyPropertyChanged]
     internal partial class CameraVM
     {
-        private readonly ISubject<INotification> _mediator;
-        public CameraVM(ISubject<INotification> mediator)
+        private readonly ISubject<IProcessNotify> _mediator;
+        public CameraVM(ISubject<IProcessNotify> mediator)
         {
             _mediator = mediator;
             _mediator.OfType<SnapShot>()

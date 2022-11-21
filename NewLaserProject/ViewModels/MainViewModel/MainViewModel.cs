@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
@@ -11,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
-using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.Process;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Properties;
@@ -71,7 +71,7 @@ namespace NewLaserProject.ViewModels
 
         private readonly DbContext _db;
         private readonly IMediator _mediator;
-        private ISubject<INotification> _subjMediator = new Subject<INotification>();
+        private ISubject<IProcessNotify> _subjMediator = new Subject<IProcessNotify>();
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
         public bool ShowVideo { get; set; }
@@ -109,18 +109,18 @@ namespace NewLaserProject.ViewModels
             CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
-                .ContinueWith(t => 
+                .ContinueWith(t =>
                 {
-                    if (t.Status==TaskStatus.RanToCompletion)
+                    if (t.Status == TaskStatus.RanToCompletion)
                     {
                         IsLaserInitialized = t.Result;
                     }
-                    else if (t.Status==TaskStatus.Faulted)
+                    else if (t.Status == TaskStatus.Faulted)
                     {
                         IsLaserInitialized = false;
-                        MessageBox.Show(t.Exception?.InnerException?.Message,"Ошибка инициализации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(t.Exception?.InnerException?.Message, "Ошибка инициализации", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                }); 
+                });
             TuneMachineFileView();
             techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
             InitViews();
@@ -131,7 +131,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void DbLoad()
         {
-            if(LaserDbVM is null) LaserDbVM = new(_db);
+            if (LaserDbVM is null) LaserDbVM = new(_db);
         }
         [ICommand]
         private void AppSettingsOpen()
@@ -155,9 +155,9 @@ namespace NewLaserProject.ViewModels
                 {
                     LayerFilterId = AppSngsVM.DefaultTechSelector.DefLayerFilter.Id,
                     MaterialId = AppSngsVM.DefaultMaterial.Id,
-                    EntityType=(uint)AppSngsVM.DefaultEntityType,
-                    DefaultWidth=AppSngsVM.DefaultWidth,
-                    DefaultHeight=AppSngsVM.DefaultHeight
+                    EntityType = (uint)AppSngsVM.DefaultEntityType,
+                    DefaultWidth = AppSngsVM.DefaultWidth,
+                    DefaultHeight = AppSngsVM.DefaultHeight
                 };
 
                 var defLaserParams = AppSngsVM.MarkSettingsViewModel.GetLaserParams();
@@ -182,10 +182,10 @@ namespace NewLaserProject.ViewModels
             {
                 ChangeViews();
             }
-            else if(!IsVideOnCenter & CentralSideVM is CameraVM)
+            else if (!IsVideOnCenter & CentralSideVM is CameraVM)
             {
                 ChangeViews();
-            }            
+            }
         }
         private void HideRightPanel(bool hide)
         {
@@ -227,12 +227,12 @@ namespace NewLaserProject.ViewModels
             var xRatio = 0d;
             var yRatio = 0d;
 
-            if (double.TryParse(caps[0],out xRatio) && double.TryParse(caps[2], out yRatio))
+            if (double.TryParse(caps[0], out xRatio) && double.TryParse(caps[2], out yRatio))
             {
                 var k = xRatio / yRatio;
-                var offset = new[] { - e.x * Settings.Default.CameraScale * k, e.y * Settings.Default.CameraScale };
+                var offset = new[] { -e.x * Settings.Default.CameraScale * k, e.y * Settings.Default.CameraScale };
                 _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);//TODO fix it. it smells
-            }            
+            }
         }
 
         [ICommand]
@@ -331,9 +331,9 @@ namespace NewLaserProject.ViewModels
 
         #region Driving the machine     
 
-        
 
-#endregion
+
+        #endregion
 
 
         [ICommand]
@@ -355,7 +355,7 @@ namespace NewLaserProject.ViewModels
 
             var axesConfigs = ExtensionMethods
                 .DeserilizeObject<LaserAxesConfiguration>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "AxesConfigs.json"));
-            
+
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
 
             var xpar = new MotionDeviceConfigs
@@ -467,12 +467,12 @@ namespace NewLaserProject.ViewModels
                 throw;
             }
 
-            _laserMachine.SetVelocity(VelocityRegime);            
+            _laserMachine.SetVelocity(VelocityRegime);
 #endif
         }
         private CoorSystem<LMPlace> GetCoorSystem()
         {
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS,"PureDeformation.json") 
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "PureDeformation.json")
                 ?? throw new NullReferenceException("CoorSystem in the file is invalid"));
 
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();

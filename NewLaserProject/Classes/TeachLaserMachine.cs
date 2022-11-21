@@ -1,7 +1,7 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
-using NewLaserProject.Classes.Geometry;
+using MachineClassLibrary.GeometryUtility;
 using System;
 using System.Collections.Generic;
 using System.Linq;

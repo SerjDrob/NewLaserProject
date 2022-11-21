@@ -1,10 +1,10 @@
 using MachineClassLibrary.BehaviourTree;
+using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using NewLaserProject.Classes;
-using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.ProgBlocks;
 using NUnit.Framework;
 using Stateless;
@@ -349,7 +349,7 @@ namespace NewLaserTest
             Deny
         }
 
-        
+
     }
 
 }

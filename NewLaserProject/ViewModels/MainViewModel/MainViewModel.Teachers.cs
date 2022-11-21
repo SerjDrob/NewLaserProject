@@ -1,11 +1,11 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
-using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.Teachers;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
@@ -36,7 +36,7 @@ namespace NewLaserProject.ViewModels
         private async Task StartTeaching(Teacher teacher)
         {
             var assignTrigger = _appStateMachine.SetTriggerParameters<Teacher>(AppTrigger.StartLearning);
-            await _appStateMachine.FireAsync(assignTrigger,teacher);
+            await _appStateMachine.FireAsync(assignTrigger, teacher);
         }
 
         [ICommand]
@@ -122,10 +122,10 @@ namespace NewLaserProject.ViewModels
         {
             //if(_canTeach) return;
 
-            TeachingSteps = new() 
+            TeachingSteps = new()
             {
                 "Установка подложки",
-                "Выбор места прожига", 
+                "Выбор места прожига",
                 "Совмещение прожига"
             };
             StepIndex = -1;
@@ -141,7 +141,7 @@ namespace NewLaserProject.ViewModels
             var dc = new AskThicknessVM { Thickness = waferThickness };
             new AskThicknesView { DataContext = dc }.ShowDialog();
 
-            
+
             waferThickness = dc.Thickness;
 
             var tcb = CameraOffsetTeacher.GetBuilder();
@@ -226,8 +226,8 @@ namespace NewLaserProject.ViewModels
                 .SetOnBiasToughtAction(() => Task.Run(() =>
                 {
                     techMessager.RealeaseMessage("Обучение отменено", MessageType.Exclamation);
-                   // StopVideoCapture();
-                    TeachingSteps = new();                    
+                    // StopVideoCapture();
+                    TeachingSteps = new();
                     _canTeach = false;
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
@@ -294,7 +294,7 @@ namespace NewLaserProject.ViewModels
                     await Task.WhenAll
                     (
                         _laserMachine.MoveAxInPosAsync(Ax.X, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)[0], true),
-                        _laserMachine.MoveAxRelativeAsync(Ax.Y,-tempY - Settings.Default.YOffset,true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.Y, -tempY - Settings.Default.YOffset, true),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
                         );
 
@@ -380,7 +380,7 @@ namespace NewLaserProject.ViewModels
             new AskThicknesView { DataContext = dc }.ShowDialog();
             waferThickness = dc.Thickness;
 
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS,"TeachingDeformation.json"));
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "TeachingDeformation.json"));
 
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             buider.SetWorkMatrix(new Matrix3x2(
@@ -478,7 +478,7 @@ namespace NewLaserProject.ViewModels
 
                     _canTeach = false;
                 }));
-                return builder.Build();
+            return builder.Build();
             //await _currentTeacher.StartTeach();
             //_canTeach = true;
         }
@@ -620,15 +620,15 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
 
-        
-       
 
-        private CoorSystem<LMPlace> _testCoorSys; 
+
+
+        private CoorSystem<LMPlace> _testCoorSys;
 
         public double TestPointX { get; set; } = 58;
         public double TestPointY { get; set; } = 46;
 
-        
+
         [ICommand]
         private async Task TestPierce()
         {

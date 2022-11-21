@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
     <ProjectReference Include="..\NewLaserProject\NewLaserProject.csproj" />
   </ItemGroup>
 

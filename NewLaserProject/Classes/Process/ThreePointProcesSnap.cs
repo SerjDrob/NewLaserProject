@@ -1,11 +1,11 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MediatR;
 using Microsoft.Toolkit.Diagnostics;
-using NewLaserProject.Classes.Geometry;
 using NewLaserProject.Classes.Mediator;
 using NewLaserProject.ViewModels;
 using Stateless;
@@ -14,8 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,7 +40,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _dX;
         private readonly double _dY;
         private readonly double _pazAngle;
-        private readonly ISubject<INotification> _mediator;
+        private readonly ISubject<IProcessNotify> _mediator;
         private readonly EntityPreparator _entityPreparator;
         private double _matrixAngle;
         private IProcess _subProcess;
@@ -51,7 +51,7 @@ namespace NewLaserProject.Classes.Process
         public ThreePointProcesSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
-            double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<INotification> mediator)
+            double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
             _wafer = wafer;
             _serviceWafer = serviceWafer;
@@ -77,7 +77,7 @@ namespace NewLaserProject.Classes.Process
             _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
             var resultPoints = new List<PointF>();
             var originPoints = new List<PointF>();
-            
+
             _mediator.OfType<SnapShotResult>()
                 .Subscribe(async result =>
                 {
@@ -89,20 +89,20 @@ namespace NewLaserProject.Classes.Process
                     }
                     catch (Exception)
                     {
-                       // throw;
+                        // throw;
                     }
                 });
-            
+
             _mediator.OfType<ReadyForSnap>()
-                .Subscribe(result => 
+                .Subscribe(result =>
                 {
                     var position = _coorSystem.FromGlobal(_xActual, _yActual);
                     var point = _serviceWafer.GetPointFromWafer(new((float)position[0], (float)position[1]));
                     var request = new ScopedGeomsRequest(5000, 5000, point.X, point.Y);
                     _mediator.OnNext(request);
                 });
-            
-            CoorSystem<LMPlace> workCoorSys = new();
+
+            ICoorSystem workCoorSys = new CoorSystem<LMPlace>();
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
             SwitchCamera?.Invoke(this, true);
@@ -134,7 +134,7 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(() =>
                 {
                     //_mediator.OnNext(new PermitSnap(false));
-                    _subject.OnNext(new PermitSnap(false));  
+                    _subject.OnNext(new PermitSnap(false));
                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                     SwitchCamera?.Invoke(this, false);
                     workCoorSys = new CoorSystem<LMPlace>
@@ -152,7 +152,8 @@ namespace NewLaserProject.Classes.Process
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.Working)
-                .OnEntryAsync(async () => {
+                .OnEntryAsync(async () =>
+                {
                     _entityPreparator.SetEntityAngle(-_pazAngle - _matrixAngle /*+ Math.PI*/);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
                     _subProcess = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
                     _zeroZPiercing, _waferThickness, _entityPreparator);
@@ -259,7 +260,7 @@ namespace NewLaserProject.Classes.Process
         }
 
         public IDisposable Subscribe(IObserver<IProcessNotify> observer) => _subject.Subscribe(observer);
-       
+
         enum State
         {
             Started,

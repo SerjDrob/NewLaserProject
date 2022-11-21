@@ -26,7 +26,7 @@ using System.Windows;
 
 namespace NewLaserProject
 {
-    internal class ScopedGeomsRequest:INotification
+    internal class ScopedGeomsRequest:IProcessNotify
     {
         public ScopedGeomsRequest(double width, double height, double x, double y)
         {
