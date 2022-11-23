@@ -23,7 +23,14 @@ namespace NewLaserProject.ViewModels
                 .CreateAnyKeyUpCommand(stopAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.E, () =>
                 {
-                    _laserMachine.SwitchOnValve(Valves.Light);
+                    if (_laserMachine.GetValveState(Valves.Light))
+                    {
+                        _laserMachine.SwitchOffValve(Valves.Light);
+                    }
+                    else
+                    {
+                        _laserMachine.SwitchOffValve(Valves.Light);
+                    }
                     return Task.CompletedTask;
                 }, () => true)
                 .CreateKeyDownCommand(Key.G, () => _laserMachine.GoThereAsync(LMPlace.Loading), () => IsMainTabOpen)

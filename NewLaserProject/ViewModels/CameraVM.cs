@@ -29,7 +29,11 @@ namespace NewLaserProject.ViewModels
             _mediator.OfType<SnapShot>()
                 .Subscribe(Handle);
             _mediator.OfType<PermitSnap>()
-                .Subscribe(result => SnapShotButtonVisible = result.Permited);
+                .Subscribe(
+                result =>
+                {
+                    SnapShotButtonVisible = result.Permited;
+                });
             _mediator.OfType<SnapShotResult>()
                 .Subscribe(result => SnapshotVisible = false);
         }

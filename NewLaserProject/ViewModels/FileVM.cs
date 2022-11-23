@@ -173,10 +173,11 @@ namespace NewLaserProject.ViewModels
                 var translation = new TranslateTransform(-scope.Location.X, -scope.Location.Y);
 
                 var result = _layerGeometryCollections
-                .SelectMany(lgc => lgc.Geometries
-                .Where(g => scope.IntersectsWith(g.Bounds)))
-                .Select(g => Geometry.Combine(scopeWin, g, GeometryCombineMode.Intersect, translation))
-                .SelectMany(GetGeometryPoints);
+                    .Where(lgc=>lgc.LayerEnable)
+                    .SelectMany(lgc => lgc.Geometries
+                    .Where(g => scope.IntersectsWith(g.Bounds)))
+                    .Select(g => Geometry.Combine(scopeWin, g, GeometryCombineMode.Intersect, translation))
+                    .SelectMany(GetGeometryPoints);
 
                 return result;
 

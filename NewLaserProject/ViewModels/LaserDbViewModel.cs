@@ -101,7 +101,7 @@ namespace NewLaserProject.ViewModels
                 var path = ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES);
                 newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(path);
 
-                newTechnology.ProgramName = writeTechVM.TechnologyName;
+                newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();//TODO if name isn't typed
                 _db.Set<Technology>()
                           .Add(newTechnology);
                 _db.SaveChanges();

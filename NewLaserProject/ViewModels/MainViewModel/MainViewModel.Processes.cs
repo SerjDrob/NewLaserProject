@@ -124,7 +124,7 @@ namespace NewLaserProject.ViewModels
                         var angle = Math.Atan2(dy, dx);
                         
                         entityPreparator.SetEntityAngle(angle)
-                            .AddEntityAngle(-Settings.Default.PazAngle);
+                            .AddEntityAngle(-Settings.Default.PazAngle);//TODO do this in the three point proces too!!!!
 
                         var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
                         _mainProcess = new LaserProcess(wafer, _pierceSequenceJson, _laserMachine,

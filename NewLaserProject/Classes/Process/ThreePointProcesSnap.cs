@@ -68,7 +68,8 @@ namespace NewLaserProject.Classes.Process
             _waferThickness = waferThickness;
             _ctSource = new CancellationTokenSource();
             _mediator = mediator;
-            _subject = new Subject<IProcessNotify>();
+            //_subject = new Subject<IProcessNotify>();
+            _subject = mediator;
         }
 
 
