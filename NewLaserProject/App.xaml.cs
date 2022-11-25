@@ -1,5 +1,4 @@
-﻿using DicingBlade.Classes;
-using MachineClassLibrary.Laser;
+﻿using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Markers;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;

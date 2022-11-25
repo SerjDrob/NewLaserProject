@@ -176,7 +176,15 @@ namespace NewLaserProject.ViewModels
                     .Where(lgc=>lgc.LayerEnable)
                     .SelectMany(lgc => lgc.Geometries
                     .Where(g => scope.IntersectsWith(g.Bounds)))
-                    .Select(g => Geometry.Combine(scopeWin, g, GeometryCombineMode.Intersect, translation))
+                    .Select(g =>
+                    {
+                        if (g is EllipseGeometry ellipse)
+                        {
+                            var center = new Point(ellipse.Center.X + translation.X, ellipse.Center.Y + translation.Y);
+                            return (Geometry)(new EllipseGeometry(center, ellipse.RadiusX, ellipse.RadiusY));
+                        }
+                        return Geometry.Combine(scopeWin, g, GeometryCombineMode.Intersect, translation);
+                    })
                     .SelectMany(GetGeometryPoints);
 
                 return result;
