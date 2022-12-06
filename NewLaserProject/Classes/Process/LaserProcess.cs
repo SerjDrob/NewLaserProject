@@ -43,6 +43,7 @@ namespace NewLaserProject.Classes
         private readonly double _waferThickness;
         private readonly EntityPreparator _entityPreparator;
         private readonly ISubject<IProcessNotify> _subject;
+        private readonly bool _underCamera;
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         public event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
@@ -51,6 +52,7 @@ namespace NewLaserProject.Classes
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
         {
+            _underCamera = true;
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
@@ -102,11 +104,22 @@ namespace NewLaserProject.Classes
                         var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
                         _laserMachine.SetVelocity(Velocity.Fast);
                         await Task.WhenAll(
-                        _laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
+                        //_laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
+                        
+                        _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
+                        _laserMachine.MoveAxInPosAsync(Ax.X, position[0],true),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
                         procObject.IsBeingProcessed = true;
 
-                        if (_inProcess) await pierceFunction();
+                        if (_inProcess && !_underCamera)
+                        {
+                            await pierceFunction();
+                        }
+                        else
+                        {
+                            await Task.Delay(1000);
+                            System.Windows.Forms.MessageBox.Show("Test");
+                        }
                         procObject.IsProcessed = true;
                     }
                     ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));

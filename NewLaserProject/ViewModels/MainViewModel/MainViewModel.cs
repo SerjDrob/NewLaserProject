@@ -447,12 +447,14 @@ namespace NewLaserProject.ViewModels
                 _laserMachine.ConfigureHomingForAxis(Ax.X)
                     .SetHomingDirection(AxDir.Neg)
                     .SetHomingMode(HmMode.MODE6_Lmt_Ref)
+                    .SetPositionAfterHoming(Settings.Default.XLeftPoint)
                     .SetHomingVelocity(Settings.Default.XVelService)
                     .Configure();
 
                 _laserMachine.ConfigureHomingForAxis(Ax.Y)
                     .SetHomingDirection(AxDir.Neg)
                     .SetHomingMode(HmMode.MODE6_Lmt_Ref)
+                    .SetPositionAfterHoming(Settings.Default.YLeftPoint)
                     .SetHomingVelocity(Settings.Default.YVelService)
                     .Configure();
 

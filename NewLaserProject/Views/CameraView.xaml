@@ -26,6 +26,8 @@
         <Localconverters:MouseEventArgsConverter x:Key="MouseEventArgsConverter"/>
         <Localconverters:PointSpecWinConverter x:Key="PointSpecWinConverter"/>
         <Localconverters:MarkPositionConverter x:Key="MarkPositionConverter"/>
+        <ScaleTransform x:Key="ImageScale" ScaleX="1" ScaleY="-1"/>
+
 
         <ControlTemplate x:Key="ResizeDecoratorTemplate" TargetType="{x:Type Control}">
             <Grid>
@@ -63,6 +65,7 @@
                        Panel.ZIndex="1" 
                        Source="{Binding CameraImage}"
                        RenderTransformOrigin="0.5 0.5"
+                       RenderTransform="{StaticResource ImageScale}"
                        >
 
                     <i:Interaction.Triggers>
@@ -73,9 +76,9 @@
                                                    />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
-                    <Image.RenderTransform>
+                    <!--<Image.RenderTransform>
                         <ScaleTransform ScaleX="-1"/>
-                    </Image.RenderTransform>
+                    </Image.RenderTransform>-->
                 </Image>
                 <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1">
                     <Line Stroke="Red" Fill="Red" 

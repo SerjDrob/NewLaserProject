@@ -140,11 +140,10 @@ namespace NewLaserProject.ViewModels
         private void SetPiercingParams(object progModule)
         {
             _tempParams ??= new ExtendedParams();
-            var item = (PierceBlock)progModule;
-            var markSettings = item.MarkParams ?? _tempParams;
-            new ExtMarkParamsView { DataContext = markSettings }.ShowDialog();
-            _tempParams = markSettings;
-            item.MarkParams = markSettings;
+            var item = (PierceBlock)progModule;//TODO use as casting
+            if (item.MarkParams is not null) _tempParams = item.MarkParams;
+            new ExtMarkParamsView { DataContext = _tempParams }.ShowDialog();
+            item.MarkParams = (ExtendedParams)_tempParams.Clone();
         }
 
         //[ICommand]

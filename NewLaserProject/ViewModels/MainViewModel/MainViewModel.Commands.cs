@@ -15,6 +15,9 @@ namespace NewLaserProject.ViewModels
     {
         //public ICommand? TestKeyCommand { get; protected set; }
         public ICommand? TestKeyCommand { get; protected set; }
+        public double TestX { get; set; }
+        public double TestY { get; set; }
+
         private void InitCommands()
         {
 
@@ -29,7 +32,7 @@ namespace NewLaserProject.ViewModels
                     }
                     else
                     {
-                        _laserMachine.SwitchOffValve(Valves.Light);
+                        _laserMachine.SwitchOnValve(Valves.Light);
                     }
                     return Task.CompletedTask;
                 }, () => true)
@@ -44,6 +47,13 @@ namespace NewLaserProject.ViewModels
                 }, () => IsMainTabOpen)
                 .CreateKeyDownCommand(Key.Multiply, next, () => !IsProcessing)
                 .CreateKeyDownCommand(Key.Escape, deny, () => true)
+                .CreateKeyDownCommand(Key.P, async () => 
+                {
+                    await Task.WhenAll(
+                        _laserMachine.MoveAxInPosAsync(Ax.X, TestX, true),
+                        _laserMachine.MoveAxInPosAsync(Ax.Y, TestY, true)
+                        );
+                }, () => true);
                 ;
 
 
@@ -109,8 +119,8 @@ namespace NewLaserProject.ViewModels
                 try
                 {
                     await _laserMachine.GoHomeAsync().ConfigureAwait(false);
-                    var corner = new double[] { Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
-                    await _laserMachine.MoveGpInPosAsync(Groups.XY, corner).ConfigureAwait(false);
+                    //var corner = new double[] { Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
+                    //await _laserMachine.MoveGpInPosAsync(Groups.XY, corner).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

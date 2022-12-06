@@ -45,14 +45,14 @@ namespace NewLaserProject.Classes.Process
         private double _matrixAngle;
         private IProcess _subProcess;
         private readonly ISubject<IProcessNotify> _subject;
-
-
+        private readonly bool _underCamera;
 
         public ThreePointProcesSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
+            _underCamera = true;
             _wafer = wafer;
             _serviceWafer = serviceWafer;
             _jsonPierce = jsonPierce;
@@ -123,7 +123,7 @@ namespace NewLaserProject.Classes.Process
                 })
                 .OnExit(() =>
                 {
-                    resultPoints.Add(new((float)(_xActual + _dX), (float)(_yActual + _dY)));
+                    resultPoints.Add(new((float)(_xActual + (_underCamera ? 0 :_dX)), (float)(_yActual + (_underCamera ? 0 : _dY))));
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
                 .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
@@ -157,7 +157,7 @@ namespace NewLaserProject.Classes.Process
                 {
                     _entityPreparator.SetEntityAngle(-_pazAngle - _matrixAngle /*+ Math.PI*/);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
                     _subProcess = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
-                    _zeroZPiercing, _waferThickness, _entityPreparator);
+                    _underCamera ? _zeroZCamera : _zeroZPiercing, _waferThickness, _entityPreparator);
 
                     _subProcess.Subscribe(_subject);
 
