@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic.ApplicationServices;
 using NewLaserProject.Data.Models;
 using System;
 using System.Collections.Generic;
@@ -25,6 +27,7 @@ namespace NewLaserProject.Data
         public string DbPath { get; }
         public DbSet<Material> Material { get; set; }
         public DbSet<Technology> Technology { get; set; }
+        public DbSet<MaterialEntRule> MaterialEntRule { get; set; }
         public DbSet<DefaultLayerEntityTechnology> DefaultLayerEntityTechnology { get; set; }
         public DbSet<DefaultLayerFilter> DefaultLayerFilter { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -32,7 +35,8 @@ namespace NewLaserProject.Data
             var connectionstring = new SqlConnectionStringBuilder()
             {
                 //DataSource = @"C:\Users\serjd\source\repos\NewLaserProject\NewLaserProject\Data\laserDatabase.db"
-               DataSource = Path.Join( ProjectPath.GetFolderPath("Data"), "laserDatabase.db")
+                DataSource = Path.Join( ProjectPath.GetFolderPath("Data"), "laserDatabase.db")
+               //DataSource = "C:/Users/Serj/source/repos/NewLaserProject/NewLaserProject/Data/laserDatabase.db"
              }.ToString();
 
             optionsBuilder.UseSqlite(connectionstring);

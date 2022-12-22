@@ -105,9 +105,9 @@ namespace NewLaserProject.ViewModels
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
-            CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
-            CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
-            _laserMachine.StartCamera(0, /*CameraCapabilitiesIndex*/2);
+            //CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
+            //CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
+            //_laserMachine.StartCamera(0, /*CameraCapabilitiesIndex*/2);
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
                 .ContinueWith(t =>
                 {

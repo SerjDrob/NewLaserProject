@@ -109,6 +109,40 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
+        private void AssignRule(Material material)
+        {
+            var writeTechVM = new WriteTechnologyVM
+            {
+                MaterialName = material.Name,
+                MaterialThickness = material.Thickness
+            };
+
+            var newRule = new MaterialEntRule 
+            {
+                Material = material,
+            };
+
+            var result = new AddToDbContainerView
+            {
+                DataContext = newRule
+            }.ShowDialog();
+            //if (result ?? false)
+            //{
+
+            //    var newTechnology = new Technology();
+            //    newTechnology.Material = material;
+
+            //    var path = ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES);
+            //    newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(path);
+
+            //    newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();//TODO if name isn't typed
+            //    _db.Set<Technology>()
+            //              .Add(newTechnology);
+            //    _db.SaveChanges();
+            //}
+        }
+
+        [ICommand]
         private void EditTechnology(Technology technology)
         {
             var techWizard = new TechWizardViewModel { EditEnable = true };

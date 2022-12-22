@@ -1,6 +1,9 @@
-﻿using MachineClassLibrary.Classes;
+﻿using HandyControl.Controls;
+using HandyControl.Tools.Extension;
+using MachineClassLibrary.Classes;
 using MachineClassLibrary.Machine;
 using NewLaserProject.Properties;
+using NewLaserProject.UserControls;
 using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
@@ -8,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media.Media3D;
 
 namespace NewLaserProject.ViewModels
 {
@@ -53,7 +57,35 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxInPosAsync(Ax.X, TestX, true),
                         _laserMachine.MoveAxInPosAsync(Ax.Y, TestY, true)
                         );
-                }, () => true);
+                }, () => true)
+                .CreateKeyDownCommand(Key.L, async () =>
+                {
+                    if (MessageBox.Ask("Обучить фокус лазера?")==System.Windows.MessageBoxResult.OK)
+                    {
+                        _laserMachine.SetVelocity(Velocity.Fast);
+                        _laserMachine.SetExtMarkParams(new MachineClassLibrary.Laser.ExtParamsAdapter(new()
+                        {
+                            EnableHatch=false,
+                            EnablePWM=true,
+                            Freq = 40000,
+                            MarkLoop=1,
+                            MarkSpeed=50,
+                            PWMFrequency=1000,
+                            PWMDutyCycle=50,
+                            QPulseWidth=1,
+                            PowerRatio=50
+                        });
+
+                        await _laserMachine.MoveAxInPosAsync(Ax.Z, Settings.Default.ZeroPiercePoint - WaferThickness);
+                        await _laserMachine.MoveAxRelativeAsync(Ax.Z, -1);
+                        for (int i = 1; i < 21; i++)
+                        {
+                            await _laserMachine.PierceLineAsync(0, -5, 0, 5);
+                            await _laserMachine.MoveAxRelativeAsync(Ax.X, 0.1);
+                            await _laserMachine.MoveAxRelativeAsync(Ax.Z, 0.1 * i);
+                        }
+                    }                    
+                },()=>true)
                 ;
 
 

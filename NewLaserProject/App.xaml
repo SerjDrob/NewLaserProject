@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:NewLaserProject.Views"
              xmlns:dbviews="clr-namespace:NewLaserProject.Views.DbViews"
+             xmlns:dbmodels="clr-namespace:NewLaserProject.Data.Models"
              xmlns:viewmodels="clr-namespace:NewLaserProject.ViewModels"
              xmlns:dbviewmodels="clr-namespace:NewLaserProject.ViewModels.DbVM"
              xmlns:dd="urn:gong-wpf-dragdrop"
@@ -292,9 +293,11 @@
                         </uc:SpecimenWindow>
                     </Grid>
                 </Border>
-
             </DataTemplate>
-            
+
+            <DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
+                <hc:PropertyGrid SelectedObject="{Binding}"/>
+            </DataTemplate>
             
             <Style x:Key="CornerButton" TargetType="Button" >
                 <Setter Property="Button.Background">

@@ -86,7 +86,7 @@ namespace NewLaserTest
         {
             var coorSys = _builder.FormWorkMatrix(2, 2, false).Build();
 
-            TestAsertion((a, b) => coorSys.ToGlobal(a, b), x1, y1, x2, y2);
+            TestAsertion(coorSys.ToGlobal, x1, y1, x2, y2);
         }
 
         [TestCase(0, 96, -55.42562584F, 110.85125168F)]
@@ -95,7 +95,7 @@ namespace NewLaserTest
         {
             var coorSys = _builderPureDeformation.FormWorkMatrix(0.5, 0.5, true).Build();
 
-            TestAsertion((a, b) => coorSys.ToGlobal(a, b), x1, y1, x2, y2);
+            TestAsertion(coorSys.ToGlobal, x1, y1, x2, y2);
         }
 
 

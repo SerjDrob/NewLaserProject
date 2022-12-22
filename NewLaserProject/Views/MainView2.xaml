@@ -416,7 +416,9 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <ContentControl Content="{Binding CentralSideVM}"/>
-
+                    <hc:ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right" IsPenetrating="True">
+                        <StackPanel hc:Growl.GrowlParent="True" VerticalAlignment="Top" Margin="0,10,10,10"/>
+                    </hc:ScrollViewer>
                     <DockPanel Grid.Column="1" VerticalAlignment="Stretch" LastChildFill="True">
                         <Border x:Name="ImportantMessage"
                                 DockPanel.Dock="Top"

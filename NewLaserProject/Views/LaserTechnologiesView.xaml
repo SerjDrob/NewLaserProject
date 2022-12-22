@@ -110,6 +110,17 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                            Path=DataContext.AssignRuleCommand}" CommandParameter="{Binding}"                                            
+                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                            Content="Правило обработки"
+                                            Style="{StaticResource ButtonSuccess.Small}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
                                             Path=DataContext.ViewMaterialCommand}" CommandParameter="{Binding}"                                            
                                             hc:IconElement.Geometry="{StaticResource DocGeometry}" 
                                             Style="{StaticResource ButtonInfo.Small}"/>
