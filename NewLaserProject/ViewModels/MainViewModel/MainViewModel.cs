@@ -31,6 +31,9 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using MsgBox = HandyControl.Controls.MessageBox;
+using HandyControl.Controls;
+using HandyControl.Data;
 
 namespace NewLaserProject.ViewModels
 {
@@ -105,9 +108,9 @@ namespace NewLaserProject.ViewModels
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
-            //CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
-            //CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
-            //_laserMachine.StartCamera(0, /*CameraCapabilitiesIndex*/2);
+            CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
+            CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
+            _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
                 .ContinueWith(t =>
                 {
@@ -118,7 +121,7 @@ namespace NewLaserProject.ViewModels
                     else if (t.Status == TaskStatus.Faulted)
                     {
                         IsLaserInitialized = false;
-                        MessageBox.Show(t.Exception?.InnerException?.Message, "Ошибка инициализации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MsgBox.Error(t.Exception?.InnerException?.Message);
                     }
                 });
 
@@ -128,12 +131,27 @@ namespace NewLaserProject.ViewModels
             _laserMachine.SetMarkParams(defLaserParams);
 
             TuneMachineFileView();
-            techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
+            //techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
+            
             InitViews();
             InitAppState();
             InitCommands();
+           
             //AppSngsVM = new(_db);
         }
+
+
+        public void OnInitialized()
+        {
+            Growl.Warning(new GrowlInfo
+            {
+                Message = "Необходимо выйти в исходное положение. Клавиша Home",
+                StaysOpen = true,
+                ShowDateTime = false
+            }); ;
+        }
+
+
         [ICommand]
         private void DbLoad()
         {
@@ -331,16 +349,10 @@ namespace NewLaserProject.ViewModels
             }
             else
             {
-                MessageBox.Show("Имя файла неверно или файл не существует", "Внимание", MessageBoxButton.OK, MessageBoxImage.Error);
+                //MessageBox.Show("Имя файла неверно или файл не существует", "Внимание", MessageBoxButton.OK, MessageBoxImage.Error);
+                Growl.Warning("Имя файла неверно или файл не существует");
             }
         }
-
-        #region Driving the machine     
-
-
-
-        #endregion
-
 
         [ICommand]
         private void MachineSettings()
@@ -460,7 +472,7 @@ namespace NewLaserProject.ViewModels
 
                 _laserMachine.ConfigureHomingForAxis(Ax.Z)
                     .SetHomingDirection(AxDir.Neg)
-                    .SetHomingVelocity(/*Settings.Default.ZVelService*/1)
+                    .SetHomingVelocity(Settings.Default.ZVelService)
                     .SetPositionAfterHoming(Settings.Default.ZeroFocusPoint - WaferThickness)
                     .Configure();
 

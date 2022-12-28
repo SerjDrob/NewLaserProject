@@ -1,5 +1,7 @@
 ﻿#define Snap
 
+using HandyControl.Controls;
+using HandyControl.Data;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
@@ -42,9 +44,7 @@ namespace NewLaserProject.ViewModels
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
-        public int IsBeingProcessedIndex { get; private set; }
         public FileAlignment FileAlignment { get; set; }
-
         public Technology CurrentTechnology { get; set; }
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
@@ -182,8 +182,6 @@ namespace NewLaserProject.ViewModels
                                                                Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
                         //----------------------------  
 #endif
-
-
                     }
                     break;
 
@@ -239,6 +237,7 @@ namespace NewLaserProject.ViewModels
                             }
                             break;
                         case CompletionStatus.Cancelled:
+                            MessageBox.Fatal("Процесс отменён");
                             techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
                             break;
                         default:
@@ -246,6 +245,35 @@ namespace NewLaserProject.ViewModels
                     }
                     _appStateMachine.Fire(AppTrigger.EndProcess);
                 });
+
+
+            _mainProcess.OfType<ProcessMessage>()
+                .Subscribe(args =>
+                {
+                    switch (args.MessageType)
+                    {
+                        case Classes.MsgType.Request:
+                            break;
+                        case Classes.MsgType.Info:
+                            Growl.Info(new GrowlInfo()
+                            {
+                                StaysOpen = true,
+                                Message = args.Message,
+                                ShowDateTime = false                                
+                            });                            
+                            break;
+                        case MsgType.Warn:
+                            break;
+                        case MsgType.Error:
+                            break;
+                        case MsgType.Clear:
+                            Growl.Clear();
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
 
 
             HideProcessPanel(false);

@@ -1,6 +1,5 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
-using MachineClassLibrary.GeometryUtility;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -20,24 +19,5 @@ namespace NewLaserProject.Classes
         Task Next();
         Task StartAsync();
         Task StartAsync(CancellationToken cancellationToken);
-    }
-
-    [Flags]
-    public enum CompletionStatus
-    {
-        Success = 1,
-        Cancelled = 2
-    }
-
-    public class ProcessCompletedEventArgs : EventArgs
-    {
-        public ProcessCompletedEventArgs(CompletionStatus status, ICoorSystem coorSystem)
-        {
-            Status = status;
-            CoorSystem = coorSystem;
-        }
-
-        public CompletionStatus Status { get; init; }
-        public ICoorSystem CoorSystem { get; init; }
     }
 }

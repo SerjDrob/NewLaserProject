@@ -40,7 +40,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _dX;
         private readonly double _dY;
         private readonly double _pazAngle;
-        private readonly ISubject<IProcessNotify> _mediator;
+       // private readonly ISubject<IProcessNotify> _mediator;
         private readonly EntityPreparator _entityPreparator;
         private double _matrixAngle;
         private IProcess _subProcess;
@@ -52,7 +52,7 @@ namespace NewLaserProject.Classes.Process
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
-            _underCamera = true;
+            _underCamera = false;// true;
             _wafer = wafer;
             _serviceWafer = serviceWafer;
             _jsonPierce = jsonPierce;
@@ -67,7 +67,7 @@ namespace NewLaserProject.Classes.Process
             _entityPreparator = entityPreparator;
             _waferThickness = waferThickness;
             _ctSource = new CancellationTokenSource();
-            _mediator = mediator;
+           // _mediator = mediator;
             //_subject = new Subject<IProcessNotify>();
             _subject = mediator;
         }
@@ -79,14 +79,15 @@ namespace NewLaserProject.Classes.Process
             var resultPoints = new List<PointF>();
             var originPoints = new List<PointF>();
 
-            _mediator.OfType<SnapShotResult>()
+            _subject.OfType<SnapShotResult>()
                 .Subscribe(async result =>
                 {
                     var point = _serviceWafer.GetPointToWafer(result);
                     originPoints.Add(point);
+                    _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                     try
                     {
-                        await _stateMachine?.FireAsync(Trigger.Next);
+                        await _stateMachine.FireAsync(Trigger.Next);
                     }
                     catch (Exception)
                     {
@@ -94,13 +95,13 @@ namespace NewLaserProject.Classes.Process
                     }
                 });
 
-            _mediator.OfType<ReadyForSnap>()
+            _subject.OfType<ReadyForSnap>()
                 .Subscribe(result =>
                 {
                     var position = _coorSystem.FromGlobal(_xActual, _yActual);
                     var point = _serviceWafer.GetPointFromWafer(new((float)position[0], (float)position[1]));
                     var request = new ScopedGeomsRequest(5000, 5000, point.X, point.Y);
-                    _mediator.OnNext(request);
+                    _subject.OnNext(request);
                 });
 
             ICoorSystem workCoorSys = new CoorSystem<LMPlace>();
@@ -119,11 +120,14 @@ namespace NewLaserProject.Classes.Process
                 {
                     //_mediator.OnNext(new PermitSnap(true));
                     _subject.OnNext(new PermitSnap(true));
-                    _infoMessager.RealeaseMessage($"Сопоставьте точку {originPoints.Count + 1}", ViewModels.MessageType.Info);
+                    _infoMessager.RealeaseMessage($"Сопоставьте точку {originPoints.Count + 1}", MessageType.Info);
+                    _subject.OnNext(new ProcessMessage($"Сопоставьте точку {originPoints.Count + 1}", MsgType.Info));
                 })
                 .OnExit(() =>
                 {
-                    resultPoints.Add(new((float)(_xActual + (_underCamera ? 0 :_dX)), (float)(_yActual + (_underCamera ? 0 : _dY))));
+                    var x = (float)(_xActual + (_underCamera ? 0 : _dX));
+                    var y = (float)(_yActual + (_underCamera ? 0 : _dY));
+                    resultPoints.Add(new(x, y));
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
                 .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
@@ -230,11 +234,10 @@ namespace NewLaserProject.Classes.Process
         {
             try
             {
-                await _stateMachine?.FireAsync(Trigger.Next);
+                await _stateMachine.FireAsync(Trigger.Next);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
                 throw;
             }
         }
