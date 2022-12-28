@@ -54,13 +54,16 @@ namespace NewLaserProject.ViewModels
                 .Include(m => m.Technologies)
                 .Load();
 
+             _db.Set<DefaultLayerEntityTechnology>()
+                .Include(d=>d.DefaultLayerFilter)
+                .Load();
+
+            _db.Set<DefaultLayerFilter>().Load();
+            
+            
             Materials = _db.Set<Material>()
                 .Local
                 .ToObservableCollection();
-
-            _db.Set<DefaultLayerEntityTechnology>()
-                .Include(d=>d.DefaultLayerFilter)
-                .Load();
 
             DefaultTechnologies = _db.Set<DefaultLayerEntityTechnology>()
                 .Local

@@ -132,6 +132,8 @@ namespace NewLaserProject
             {
                 DataContext = viewModel
             }.Show();
+            
+            viewModel?.OnInitialized();
         }
     }
 

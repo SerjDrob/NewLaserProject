@@ -416,6 +416,9 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <ContentControl Content="{Binding CentralSideVM}"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
+                        <StackPanel hc:Growl.GrowlParent="True" VerticalAlignment="Top" Margin="0,10,10,10"/>
+                    </ScrollViewer>
                     <hc:ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right" IsPenetrating="True">
                         <StackPanel hc:Growl.GrowlParent="True" VerticalAlignment="Top" Margin="0,10,10,10"/>
                     </hc:ScrollViewer>

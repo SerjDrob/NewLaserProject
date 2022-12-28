@@ -21,11 +21,6 @@ using System.Threading.Tasks;
 namespace NewLaserProject.Classes
 {
 
-    public interface IProcessNotify{ }
-    public record ProcObjectChanged(IProcObject ProcObject):IProcessNotify;
-    public record ProcWaferChanged(IEnumerable<IProcObject> Wafer):IProcessNotify;
-    public record ProcCompletionPreview(CompletionStatus Status, ICoorSystem CoorSystem):IProcessNotify;
-
     public class LaserProcess : IProcess
     {
         private readonly IEnumerable<IProcObject> _wafer;
@@ -52,7 +47,7 @@ namespace NewLaserProject.Classes
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
         {
-            _underCamera = true;
+            _underCamera = false;// true;
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
@@ -61,6 +56,20 @@ namespace NewLaserProject.Classes
             _waferThickness = waferThickness;
             _entityPreparator = entityPreparator;
             _subject=new Subject<IProcessNotify>();
+
+
+            //try
+            //{
+            //    _wafer.Select(obj => _coorSystem.ToGlobal(obj.X, obj.Y))
+            //           .Select(coor => new { x = coor[0], y = coor[1] })
+            //           .ToList()
+            //           .SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.DATA, $"tempWaf - {Guid.NewGuid()}"));
+            //}
+            //catch (Exception ex)
+            //{
+
+            //    throw;
+            //}
         }
 
 
@@ -109,6 +118,13 @@ namespace NewLaserProject.Classes
                         _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
                         _laserMachine.MoveAxInPosAsync(Ax.X, position[0],true),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
+                        await Task.Delay(300);
+                        await Task.WhenAll(
+                            //_laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
+
+                            _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
+                            _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true)//,
+                           /* _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness)*/);
                         procObject.IsBeingProcessed = true;
 
                         if (_inProcess && !_underCamera)
@@ -157,7 +173,7 @@ namespace NewLaserProject.Classes
                     ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Success, _coorSystem));
 
                     _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _coorSystem));
-                    _subject.OnCompleted();
+                    //_subject.OnCompleted();
                 })
                 .Ignore(Trigger.Next);
 
@@ -217,7 +233,6 @@ namespace NewLaserProject.Classes
                 Trace.Flush();
                 ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Cancelled,_coorSystem));
                 _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Cancelled, _coorSystem));
-                _subject.OnCompleted();
             }
         }
         public override string ToString()

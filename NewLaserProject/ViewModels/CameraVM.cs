@@ -1,21 +1,12 @@
-﻿using GongSolutions.Wpf.DragDrop;
-using MachineClassLibrary.VideoCapture;
-using MachineControlsLibrary.Classes;
-using MachineControlsLibrary.Controls;
-using MediatR;
+﻿using MachineClassLibrary.VideoCapture;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Windows.Media.Imaging;
 
 namespace NewLaserProject.ViewModels
 {
@@ -56,7 +47,7 @@ namespace NewLaserProject.ViewModels
 
         [ICommand]
         private void OpenTargetWindow()
-        {            
+        {
             _mediator.OnNext(new ReadyForSnap());
         }
 
@@ -66,5 +57,5 @@ namespace NewLaserProject.ViewModels
             SnapshotVisible = true;
         }
     }
-       
+
 }

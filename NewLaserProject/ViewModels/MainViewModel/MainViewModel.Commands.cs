@@ -41,7 +41,11 @@ namespace NewLaserProject.ViewModels
                     return Task.CompletedTask;
                 }, () => true)
                 .CreateKeyDownCommand(Key.G, () => _laserMachine.GoThereAsync(LMPlace.Loading), () => IsMainTabOpen)
-                .CreateKeyDownCommand(Key.Home, moveHomeAsync, () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.Home, async() =>
+                {
+                    await moveHomeAsync();
+                    Growl.Clear();
+                }, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.Add, changeVelocity, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.Subtract, setStepVelocity, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.Q, () =>
@@ -69,21 +73,30 @@ namespace NewLaserProject.ViewModels
                             EnablePWM=true,
                             Freq = 40000,
                             MarkLoop=1,
-                            MarkSpeed=50,
-                            PWMFrequency=1000,
-                            PWMDutyCycle=50,
+                            MarkSpeed=10000,
+                            PWMFrequency=100,
+                            PWMDutyCycle=90,
                             QPulseWidth=1,
                             PowerRatio=50
-                        });
-
-                        await _laserMachine.MoveAxInPosAsync(Ax.Z, Settings.Default.ZeroPiercePoint - WaferThickness);
-                        await _laserMachine.MoveAxRelativeAsync(Ax.Z, -1);
-                        for (int i = 1; i < 21; i++)
+                        }));
+                        double xOffset = Settings.Default.XOffset;
+                        double yOffset = Settings.Default.YOffset;
+                        await Task.WhenAll(
+                           _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
+                           _laserMachine.MoveAxInPosAsync(Ax.Z, Settings.Default.ZeroPiercePoint - WaferThickness)
+                           );
+                        await _laserMachine.MoveAxRelativeAsync(Ax.Z, -10);
+                        for (int i = 1; i < 41; i++)
                         {
                             await _laserMachine.PierceLineAsync(0, -5, 0, 5);
-                            await _laserMachine.MoveAxRelativeAsync(Ax.X, 0.1);
-                            await _laserMachine.MoveAxRelativeAsync(Ax.Z, 0.1 * i);
+                            await _laserMachine.MoveAxRelativeAsync(Ax.X, 0.2);
+                            await _laserMachine.MoveAxRelativeAsync(Ax.Z, 0.2);
                         }
+
+                        await Task.WhenAll(
+                          _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true),
+                          _laserMachine.MoveAxInPosAsync(Ax.Z, Settings.Default.ZeroFocusPoint - WaferThickness)
+                          );
                     }                    
                 },()=>true)
                 ;
@@ -151,12 +164,9 @@ namespace NewLaserProject.ViewModels
                 try
                 {
                     await _laserMachine.GoHomeAsync().ConfigureAwait(false);
-                    //var corner = new double[] { Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
-                    //await _laserMachine.MoveGpInPosAsync(Groups.XY, corner).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-
                     throw;
                 }
                 techMessager.EraseMessage();
@@ -186,6 +196,7 @@ namespace NewLaserProject.ViewModels
             {
                 if (_canTeach)
                 {
+                    Growl.Clear();
                     return _currentTeacher?.Next();
                 }
                 return _mainProcess?.Next();
@@ -194,164 +205,13 @@ namespace NewLaserProject.ViewModels
             {
                 if (_canTeach)
                 {
+                    Growl.Clear();
                     return _currentTeacher?.Deny();
                 }
                 return null;
             }
         }
-        //[ICommand]
-        //private Task TeachNext()
-        //{
-        //    if (_canTeach)
-        //    {
-        //        return _currentTeacher?.Next();
-        //    }
-        //    return _mainProcess?.Next();
-        //}
-        //[ICommand]
-        //private Task TeachDeny()
-        //{
-        //    if (_canTeach)
-        //    {
-        //        return _currentTeacher?.Deny();
-        //    }
-        //    return null;
-        //}
-        //[ICommand]
-        //private async Task KeyDown(object args)
-        //{
-        //    var key = (KeyEventArgs)args;
-        //    if (key.OriginalSource is TextBoxBase) return;
-        //    switch (key.Key)
-        //    {
-        //        case Key.A or Key.Z or Key.X or Key.C or Key.V or Key.B:
-        //            await moveAsync(key);
-        //            break;
-        //        case Key.Tab when !key.IsRepeat:
-        //            await _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { 1, 1 });
-        //            break;
-        //        case Key.E:
-        //            _laserMachine.SwitchOnValve(Valves.Light);
-        //            break;
-        //        case Key.G when !key.IsRepeat:
-        //            await _laserMachine.GoThereAsync(LMPlace.Loading);
-        //            break;
-        //        case Key.J:
-        //            break;
-        //        case Key.K:
-        //            break;
-        //        case Key.L:
-        //            break;
-        //        case Key.Home when !key.IsRepeat:
-        //            {
-        //                try
-        //                {
-        //                    await _laserMachine.GoHomeAsync().ConfigureAwait(false);
-        //                    var corner = new double[] { Settings.Default.XLeftPoint, Settings.Default.YLeftPoint };
-        //                    await _laserMachine.MoveGpInPosAsync(Groups.XY, corner).ConfigureAwait(false);
-        //                }
-        //                catch (Exception ex)
-        //                {
-
-        //                    throw;
-        //                }
-        //                techMessager.EraseMessage();
-        //            }
-        //            break;
-        //    }
-        //    key.Handled = true;
-
-        //    async Task moveAsync(KeyEventArgs key)
-        //    {
-        //        var res = key.Key switch
-        //        {
-        //            Key.A => (Ax.Y, AxDir.Pos),
-        //            Key.Z => (Ax.Y, AxDir.Neg),
-        //            Key.X => (Ax.X, AxDir.Neg),
-        //            Key.C => (Ax.X, AxDir.Pos),
-        //            Key.V => (Ax.Z, AxDir.Pos),
-        //            Key.B => (Ax.Z, AxDir.Neg),
-        //        };
-
-        //        if (!key.IsRepeat)
-        //        {
-        //            if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(res.Item1, res.Item2);
-        //            if (VelocityRegime == Velocity.Step)
-        //            {
-        //                var step = (res.Item2 == AxDir.Pos ? 1 : -1) * 0.005;
-        //                await _laserMachine.MoveAxRelativeAsync(res.Item1, step, false);
-
-        //            }
-        //        }
-        //        key.Handled = true;
-        //        return;
-        //    }
-        //}
-
-        //[ICommand]
-        //private async Task KeyUp(object args)
-        //{
-        //    var key = (KeyEventArgs)args;
-        //    if (key.OriginalSource is TextBoxBase) return;
-
-        //    switch (key.Key)
-        //    {
-        //        case Key.Tab:
-        //            break;
-        //        case Key.A:
-        //            _laserMachine.Stop(Ax.Y);
-        //            break;
-        //        case Key.B:
-        //            _laserMachine.Stop(Ax.Z);
-        //            break;
-        //        case Key.C:
-        //            _laserMachine.Stop(Ax.X);
-        //            break;
-        //        case Key.E:
-        //            break;
-        //        case Key.G:
-        //            break;
-        //        case Key.J:
-        //            break;
-        //        case Key.K:
-        //            break;
-        //        case Key.L:
-        //            break;
-        //        case Key.V:
-        //            _laserMachine.Stop(Ax.Z);
-        //            break;
-        //        case Key.X:
-        //            _laserMachine.Stop(Ax.X);
-        //            break;
-        //        case Key.Z:
-        //            _laserMachine.Stop(Ax.Y);
-        //            break;
-        //    }
-        //    key.Handled = true;
-        //}
-
-        //        [ICommand]
-        //        private void ChangeVelocity()
-        //        {
-        //            VelocityRegime = VelocityRegime switch
-        //            {
-        //                Velocity.Slow => Velocity.Fast,
-        //                Velocity.Fast => Velocity.Slow,
-        //                _ => Velocity.Fast
-        //            };
-        //#if PCIInserted
-        //            _laserMachine.SetVelocity(VelocityRegime);
-        //#endif
-        //        }
-
-        //        [ICommand]
-        //        private void SetStepVelocity()
-        //        {
-        //            VelocityRegime = Velocity.Step;
-        //#if PCIInserted
-        //            _laserMachine.SetVelocity(Velocity.Slow);
-        //#endif
-        //        }
+        
     }
 }
 

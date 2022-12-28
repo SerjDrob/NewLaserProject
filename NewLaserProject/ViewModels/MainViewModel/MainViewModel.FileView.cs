@@ -1,7 +1,5 @@
-﻿using HandyControl.Tools.Extension;
-using MachineClassLibrary.Classes;
+﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
-using MachineControlsLibrary.Classes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
@@ -15,8 +13,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Media;
 
 namespace NewLaserProject.ViewModels
 {
@@ -30,11 +26,11 @@ namespace NewLaserProject.ViewModels
         public double WaferOffsetY { get; set; }
         [OnChangedMethod(nameof(WiferDimensionChanged))]
         public double WaferWidth { get; set; } = 48;
-        
+
         [OnChangedMethod(nameof(WiferDimensionChanged))]
         public double WaferHeight { get; set; } = 60;
         public double WaferThickness { get; set; } = 0.5;
-        
+
         public double XDimension { get; private set; }
         public double YDimension { get; private set; }
         public double XDimensionOffset { get; private set; }
@@ -49,7 +45,7 @@ namespace NewLaserProject.ViewModels
         public double LaserViewfinderY { get; set; }
         [OnChangedMethod(nameof(CutModeSwitched))]
         public bool CutMode { get; set; }
-               
+
         public string FileName { get; set; } = "Open the file";
 
         public Dictionary<string, bool> IgnoredLayers { get; set; }
@@ -74,7 +70,7 @@ namespace NewLaserProject.ViewModels
             openFileDialog.Filter = "dxf files (*.dxf)|*.dxf";
             openFileDialog.FilterIndex = 2;
             openFileDialog.RestoreDirectory = false;
-            
+
             if (openFileDialog.ShowDialog() ?? false)
             {
                 //techMessager.RealeaseMessage("Загрузка...", Icon.Loading);
@@ -92,17 +88,21 @@ namespace NewLaserProject.ViewModels
                     WaferOffsetX = 0;
                     WaferOffsetY = 0;
 
-                    _openedFileVM.SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName);
-                    _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
+                    IgnoredLayers = new();
 
                     _db.Set<DefaultLayerFilter>()
                         .AsNoTracking()
-                        .ToDictionaryAsync(key => key.Filter, val => val.IsVisible)
-                        .ContinueWith(res=>IgnoredLayers=res.Result, TaskScheduler.Default)
-                        .ConfigureAwait(false);
+                        .ToList().ForEach(d =>
+                        {
+                            IgnoredLayers[d.Filter] = d.IsVisible;
+                        });
+                   
+
+                    _openedFileVM.SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers);
+                    _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
 
                     AvailableMaterials = _db.Set<Material>()
-                                            .Include(m=>m.Technologies)
+                                            .Include(m => m.Technologies)
                                             .AsNoTracking()
                                             .ToObservableCollection();
 
@@ -129,7 +129,7 @@ namespace NewLaserProject.ViewModels
                                 DefEntityIndex = LayersStructure[layer]
                                     .Select(e => LaserEntDxfTypeAdapter.GetLaserEntity(e.objType))
                                     .ToList()
-                                    .IndexOf((LaserEntity)defLayerProcDTO.EntityType);
+                                    .IndexOf((LaserEntity)defLayerProcDTO.EntityType);//TODO what if there is no entities on the layer
                             }
                         }
                         else
@@ -194,7 +194,7 @@ namespace NewLaserProject.ViewModels
         }
         private void ViewFinderChanged()
         {
-            _openedFileVM?.SetViewFinders(CameraViewfinderX,CameraViewfinderY,LaserViewfinderX,LaserViewfinderY);
+            _openedFileVM?.SetViewFinders(CameraViewfinderX, CameraViewfinderY, LaserViewfinderX, LaserViewfinderY);
         }
         private void TuneMachineFileView()
         {

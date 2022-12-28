@@ -80,7 +80,7 @@ namespace NewLaserProject.Classes
 
         public override string ToString()
         {
-            return $"dx: {_newOffset.dx}, dy: {_newOffset.dy}";
+            return $"dx: {_newOffset.dx.ToString("0.###")}, dy: {_newOffset.dy.ToString("0.###")}";
         }
         public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
         public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);

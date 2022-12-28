@@ -1,35 +1,26 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineControlsLibrary.Classes;
+using MachineControlsLibrary.Controls;
 using MachineControlsLibrary.Controls.GraphWin;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Xaml.Behaviors.Core;
 using NewLaserProject.Classes;
 using NewLaserProject.Properties;
 using PropertyChanged;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using MediatR;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Reactive.Subjects;
-using System.Reactive.Linq;
-using MachineControlsLibrary.Controls;
-using System.CodeDom;
-using System.Drawing;
 using Point = System.Windows.Point;
 
 namespace NewLaserProject.ViewModels
 {
-    
+
     [INotifyPropertyChanged]
     internal partial class FileVM
     {
@@ -51,12 +42,11 @@ namespace NewLaserProject.ViewModels
 
         }
         public void SetFileView(IDxfReader dxfReader, int fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
-            double waferOffsetY, string filePath)
+            double waferOffsetY, string filePath, IDictionary<string, bool> ignoredLayers)
         {
             _dxfReader = dxfReader;
-
             _dxfEditor = dxfReader as DxfEditor;
-
+            IgnoredLayers = new(ignoredLayers);
             FileScale = fileScale;
             MirrorX = mirrorX;
             WaferOffsetX = waferOffsetX;
@@ -65,7 +55,7 @@ namespace NewLaserProject.ViewModels
             _filePath = filePath;
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
-            
+
             _mediator.OfType<ScopedGeomsRequest>()
                 .Subscribe(request => HandleAsync(request).ContinueWith(result =>
                 {
@@ -91,7 +81,7 @@ namespace NewLaserProject.ViewModels
             FileSizeX = Math.Round(fileSize.width);
             FileSizeY = Math.Round(fileSize.height);
             //LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
-            LayGeoms =new LayGeomAdapter(new IMGeometryAdapter(_filePath)).LayerGeometryCollections;
+            LayGeoms = new LayGeomAdapter(new IMGeometryAdapter(_filePath)).LayerGeometryCollections;
             _geomsEditor = new(LayGeoms);
             MirrorX = Settings.Default.WaferMirrorX;
             WaferTurn90 = Settings.Default.WaferAngle90;
@@ -106,7 +96,7 @@ namespace NewLaserProject.ViewModels
         {
             var rect = (Rect)args;
             _geomsEditor?.RemoveBySelection(rect);
-            
+
             var layers = LayGeoms.Where(l => l.LayerEnable)
                 .Select(l => l.LayerName)
                 .ToArray();
@@ -130,7 +120,7 @@ namespace NewLaserProject.ViewModels
 
             private Stack<(string layer, Geometry geometry)[]> _erasedGeometries;
 
-            public void RemoveBySelection(Rect selection) 
+            public void RemoveBySelection(Rect selection)
             {
                 _erasedGeometries ??= new();
 
@@ -144,14 +134,14 @@ namespace NewLaserProject.ViewModels
                         .Single().Geometries
                         .Remove(item.g);
                 }
-                _erasedGeometries.Push(entities.Select(e=>(e.LayerName,e.g)).ToArray());
+                _erasedGeometries.Push(entities.Select(e => (e.LayerName, e.g)).ToArray());
             }
-            public void Undo() 
+            public void Undo()
             {
                 if (_erasedGeometries is null) return;
                 if (_erasedGeometries.TryPop(out var values)) InsertElements(values);
             }
-            private void InsertElements((string layer,Geometry geometry)[] elements)
+            private void InsertElements((string layer, Geometry geometry)[] elements)
             {
                 foreach (var item in elements)
                 {
@@ -173,7 +163,7 @@ namespace NewLaserProject.ViewModels
                 var translation = new TranslateTransform(-scope.Location.X, -scope.Location.Y);
 
                 var result = _layerGeometryCollections
-                    .Where(lgc=>lgc.LayerEnable)
+                    .Where(lgc => lgc.LayerEnable)
                     .SelectMany(lgc => lgc.Geometries
                     .Where(g => scope.IntersectsWith(g.Bounds)))
                     .Select(g =>
@@ -217,11 +207,11 @@ namespace NewLaserProject.ViewModels
                 {
                     var geometries =
                     new GeometryCollection(lgc.Geometries
-                    .Where(g=>scope.IntersectsWith(g.Bounds))
-                    .Select(g=> 
+                    .Where(g => scope.IntersectsWith(g.Bounds))
+                    .Select(g =>
                     {
                         var geometry = g.Clone();
-                        var combGeometry = 
+                        var combGeometry =
                         Geometry.Combine(geometry, scopeWin, GeometryCombineMode.Intersect, translation);
                         return combGeometry;
                     }));
@@ -334,13 +324,13 @@ namespace NewLaserProject.ViewModels
 
         public Task<SnapShot> HandleAsync(ScopedGeomsRequest request)
         {
-            var x = request.X - request.Width/ 2;
+            var x = request.X - request.Width / 2;
             var y = request.Y - request.Height / 2;
             var scope = new Rect(x, y, request.Width, request.Height);
             var scopedLayGeoms = _geomsEditor.GetScopedLayerGeometryCollections(scope);
             var scopedLayPoints = _geomsEditor.GetScopedLayerPointsCollections(scope);
 
-            var snapshot = new SnapShot(x,y, _mediator)
+            var snapshot = new SnapShot(x, y, _mediator)
             {
                 LayGeoms = scopedLayGeoms.ToObservableCollection(),
                 GeomPoints = scopedLayPoints.ToObservableCollection(),
@@ -355,47 +345,4 @@ namespace NewLaserProject.ViewModels
             return Task.FromResult(snapshot);
         }
     }
-
-    [INotifyPropertyChanged]
-    internal partial class SnapShot:IProcessNotify
-    {
-        private readonly double snapX;
-        private readonly double snapY;
-        private readonly ISubject<IProcessNotify> _subject;
-
-        public SnapShot(double snapX, double snapY, ISubject<IProcessNotify> subject)
-        {
-            this.snapX = snapX;
-            this.snapY = snapY;
-            _subject = subject;
-        }
-
-        public ObservableCollection<LayerGeometryCollection>? LayGeoms { get; set; }
-        public ObservableCollection<Point>? GeomPoints { get; set; }
-        public double FieldSizeX { get; set; }
-        public double FieldSizeY { get; set; }
-        public double SpecSizeX { get; set; }
-        public double SpecSizeY { get; set; }
-        public double MirrorX { get; set; }
-        public double Angle { get; set; }
-        
-        [ICommand]
-        private void GotPoint(GeomClickEventArgs? args)
-        {
-            if (args is not null)
-            {
-                var tr = new TranslateTransform(snapX, snapY);
-                var resultPoint = tr.Transform((Point)args);
-                _subject.OnNext(new SnapShotResult(resultPoint));
-            }
-        }
-    }
-
-    public record SnapShotResult(Point Point) : IProcessNotify
-    {
-        public static implicit operator PointF(SnapShotResult result) => new PointF((float)result.Point.X, (float)result.Point.Y);
-        public static implicit operator Point(SnapShotResult result) => result.Point;
-    }
-    public record PermitSnap(bool Permited): IProcessNotify;
-    public record ReadyForSnap(): IProcessNotify;
 }
