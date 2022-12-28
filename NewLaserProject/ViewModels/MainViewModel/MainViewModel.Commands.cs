@@ -58,35 +58,53 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxInPosAsync(Ax.Y, TestY, true)
                         );
                 }, () => true)
-                .CreateKeyDownCommand(Key.L, async () =>
+                .CreateKeyDownCommand(Key.L, () =>
                 {
-                    if (MessageBox.Ask("Обучить фокус лазера?")==System.Windows.MessageBoxResult.OK)
+                    Dialog.Show<MaterialDialogControl>()
+                    .SetDataContext<AskLearnFocus>()
+                    .Initialize<AskLearnFocus>(vm =>
                     {
-                        _laserMachine.SetVelocity(Velocity.Fast);
-                        _laserMachine.SetExtMarkParams(new MachineClassLibrary.Laser.ExtParamsAdapter(new()
-                        {
-                            EnableHatch=false,
-                            EnablePWM=true,
-                            Freq = 40000,
-                            MarkLoop=1,
-                            MarkSpeed=50,
-                            PWMFrequency=1000,
-                            PWMDutyCycle=50,
-                            QPulseWidth=1,
-                            PowerRatio=50
-                        });
+                        vm.Height = 15;
+                        vm.Speed = 1000;
+                    })
+                    .GetResultAsync<AskLearnFocus>()
+                    .ContinueWith(result=> 
+                    {
+                        var w = result.Result;
+                    });
+                    return Task.CompletedTask;
+                    //.GetResultAsync<string>()
+                    //.ContinueWith(res=> 
+                    //{
+                    //    var s = res.Result;
+                    //});
 
-                        await _laserMachine.MoveAxInPosAsync(Ax.Z, Settings.Default.ZeroPiercePoint - WaferThickness);
-                        await _laserMachine.MoveAxRelativeAsync(Ax.Z, -1);
-                        for (int i = 1; i < 21; i++)
-                        {
-                            await _laserMachine.PierceLineAsync(0, -5, 0, 5);
-                            await _laserMachine.MoveAxRelativeAsync(Ax.X, 0.1);
-                            await _laserMachine.MoveAxRelativeAsync(Ax.Z, 0.1 * i);
-                        }
-                    }                    
-                },()=>true)
-                ;
+                    //if (MessageBox.Ask("Обучить фокус лазера?")==System.Windows.MessageBoxResult.OK)
+                    //{
+                    //    _laserMachine.SetVelocity(Velocity.Fast);
+                    //    _laserMachine.SetExtMarkParams(new MachineClassLibrary.Laser.ExtParamsAdapter(new()
+                    //    {
+                    //        EnableHatch=false,
+                    //        EnablePWM=true,
+                    //        Freq = 40000,
+                    //        MarkLoop=1,
+                    //        MarkSpeed=50,
+                    //        PWMFrequency=1000,
+                    //        PWMDutyCycle=50,
+                    //        QPulseWidth=1,
+                    //        PowerRatio=50
+                    //    });
+
+                    //    await _laserMachine.MoveAxInPosAsync(Ax.Z, Settings.Default.ZeroPiercePoint - WaferThickness);
+                    //    await _laserMachine.MoveAxRelativeAsync(Ax.Z, -1);
+                    //    for (int i = 1; i < 21; i++)
+                    //    {
+                    //        await _laserMachine.PierceLineAsync(0, -5, 0, 5);
+                    //        await _laserMachine.MoveAxRelativeAsync(Ax.X, 0.1);
+                    //        await _laserMachine.MoveAxRelativeAsync(Ax.Z, 0.1 * i);
+                    //    }
+                    //}                    
+                },()=>true);
 
 
             async Task moveAsync(KeyEventArgs key)
