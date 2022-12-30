@@ -21,6 +21,9 @@ using System.Windows.Input;
 using MsgBox = HandyControl.Controls.MessageBox;
 using Growl = HandyControl.Controls.Growl;
 using HandyControl.Data;
+using NewLaserProject.UserControls;
+using Dialog = HandyControl.Controls.Dialog;
+using HandyControl.Tools.Extension;
 
 namespace NewLaserProject.ViewModels
 {
@@ -51,95 +54,7 @@ namespace NewLaserProject.ViewModels
             }
            
         }
-
-        //[ICommand]
-        //private async Task WaferCornersTeach(bool leftCorner)
-        //{
-
-        //    var lwct = WaferCornerTeacher.GetBuilder();
-
-        //    lwct.SetOnRequestPermissionToStartAction(() => Task.Run(async () =>
-        //    {
-        //        var pointName = leftCorner ? "левую" : "правую";
-
-        //        if (MsgBox.Ask($"Обучить {pointName} точку пластины?", "Обучение") == MessageBoxResult.OK)
-        //        {
-        //            await _currentTeacher.Accept();
-        //        }
-        //        else
-        //        {
-        //            await _currentTeacher.Deny();
-        //        }
-        //    }))
-        //    .SetOnGoCornerPointAction(async () =>
-        //    {
-        //        var x = leftCorner ? Settings.Default.XLeftPoint : Settings.Default.XRightPoint;
-        //        var y = leftCorner ? Settings.Default.YLeftPoint : Settings.Default.YRightPoint;
-        //        var z = Settings.Default.ZeroFocusPoint; //Settings.Default.ZObjective;
-
-        //        _laserMachine.SetVelocity(Velocity.Fast);
-        //        await Task.WhenAll(
-        //            _laserMachine.MoveGpInPosAsync(Groups.XY, new double[] { x, y }, true),
-        //            _laserMachine.MoveAxInPosAsync(Ax.Z, z)
-        //            );
-
-        //        //techMessager.RealeaseMessage("Наведите перекрестие на угол и нажмите * чтобы продолжить", MessageType.Exclamation);
-
-        //        Growl.Info(new GrowlInfo
-        //        {
-        //            Message = "Наведите перекрестие на угол и нажмите * чтобы продолжить",
-        //            ShowDateTime = false,
-        //            StaysOpen = true
-        //        });
-        //    })
-        //    .SetOnRequestPermissionToAcceptAction(() => Task.Run(async () =>
-        //    {
-        //        techMessager.EraseMessage();
-        //        var x = XAxis.Position;
-        //        var y = YAxis.Position;
-        //        _currentTeacher.SetParams(new double[] { x, y });
-
-        //        Growl.Clear();
-
-        //        if (MessageBox.Show($"Принять новые координаты точки {_currentTeacher}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-        //        {
-        //            await _currentTeacher.Accept();
-        //        }
-        //        else
-        //        {
-        //            await _currentTeacher.Deny();
-        //        }
-        //    }))
-        //    .SetOnHasResultAction(() => Task.Run(() =>
-        //    {
-        //        if (leftCorner)
-        //        {
-        //            Settings.Default.XLeftPoint = _currentTeacher.GetParams()[0];
-        //            Settings.Default.YLeftPoint = _currentTeacher.GetParams()[1];
-        //        }
-        //        else
-        //        {
-        //            Settings.Default.XRightPoint = _currentTeacher.GetParams()[0];
-        //            Settings.Default.YRightPoint = _currentTeacher.GetParams()[1];
-        //        }
-        //        Settings.Default.Save();
-        //        techMessager.RealeaseMessage($"Новое значение {_currentTeacher} установленно", MessageType.Info);
-
-        //        //---Set new coordinate system
-        //        _coorSystem = GetCoorSystem();
-
-        //        _canTeach = false;
-        //    }))
-        //    .SetOnCornerToughtAction(() => Task.Run(() =>
-        //    {
-        //        techMessager.RealeaseMessage("Обучение отменено", MessageType.Exclamation);
-        //        _canTeach = false;
-        //    }));
-        //    _currentTeacher = lwct.Build();
-        //    await _currentTeacher.StartTeach();
-        //    _canTeach = true;
-        //}
-
+               
         private async Task<ITeacher> TeachCameraOffsetAsync()
         {
             //if(_canTeach) return;
@@ -159,12 +74,15 @@ namespace NewLaserProject.ViewModels
             var zCamera = Settings.Default.ZeroFocusPoint;
             var zLaser = Settings.Default.ZeroPiercePoint;
             var waferThickness = WaferThickness;
-
-            var dc = new AskThicknessVM { Thickness = waferThickness };
-            new AskThicknesView { DataContext = dc }.ShowDialog();
-
-
-            waferThickness = dc.Thickness;
+            
+            var result = await Dialog.Show<AskThicknessDialog>()
+                    .SetDataContext<AskThicknessVM>()
+                    .Initialize<AskThicknessVM>(vm =>
+                    {
+                        vm.Thickness = 0.5;
+                    })
+                    .GetResultAsync<AskThicknessVM>();
+            waferThickness = result.Thickness;
 
             var tcb = CameraOffsetTeacher.GetBuilder();
             tcb.SetOnGoLoadPointAction(() => Task.Run(async () =>
@@ -244,8 +162,6 @@ namespace NewLaserProject.ViewModels
                 })
                 .SetOnRequestPermissionToStartAction(() => Task.Run(async () =>
                 {
-                    //Growl.Clear();
-
                     if (MsgBox.Ask("Обучить смещение камеры от объектива лазера?", "Обучение") == MessageBoxResult.OK)
                     {
                         await _currentTeacher.Accept();
@@ -257,8 +173,6 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(async () =>
                 {
-                    //Growl.Clear();
-
                     _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
                     if (MsgBox.Ask($"Принять новое смещение камеры от объектива лазера {_currentTeacher}?", "Обучение") == MessageBoxResult.OK)
                     {
@@ -271,8 +185,6 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnBiasToughtAction(() => Task.Run(() =>
                 {
-                   // Growl.Clear();
-
                     //techMessager.RealeaseMessage("Обучение отменено", MessageType.Exclamation);
                     Growl.Warning(new GrowlInfo
                     {
@@ -303,9 +215,6 @@ namespace NewLaserProject.ViewModels
                     _canTeach = false;
                 }));
             return tcb.Build();
-            //_currentTeacher = tcb.Build();
-            //await _currentTeacher.StartTeach();
-            //_canTeach = true;
         }
         private async Task<ITeacher> TeachScanatorHorizontAsync()
         {
@@ -327,7 +236,15 @@ namespace NewLaserProject.ViewModels
                  await Task.WhenAll(
                  _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, waferWidth / 2, waferHeight / 2)),
                  _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
-                 techMessager.RealeaseMessage("Выберете место на пластине для прожига горизонтальной линии", MessageType.Info);
+                 //techMessager.RealeaseMessage("Выберете место на пластине для прожига горизонтальной линии", MessageType.Info);
+                 
+                 Growl.Info(new GrowlInfo
+                 {
+                     Message = "Выберете место на пластине для прожига горизонтальной линии",
+                     ShowDateTime = false,
+                     StaysOpen = true
+                 });
+
              }))
                 .SetGoAtFirstPointAction(async () =>
                 {
@@ -357,7 +274,15 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
                         );
 
-                    techMessager.RealeaseMessage("Установите перекрестие на первую точку линии и нажмите *", MessageType.Info);
+                    //techMessager.RealeaseMessage("Установите перекрестие на первую точку линии и нажмите *", MessageType.Info);
+
+                    Growl.Info(new GrowlInfo
+                    {
+                        Message = "Установите перекрестие на первую точку линии и нажмите *",
+                        ShowDateTime = false,
+                        StaysOpen = true
+                    });
+
                     tempX = points[1].X + waferWidth / 2;
                     tempY = -tempY + points[1].Y;
                 })
@@ -378,11 +303,18 @@ namespace NewLaserProject.ViewModels
                        );
 
 
-                    techMessager.RealeaseMessage("Установите перекрестие на вторую точку линии и нажмите *", MessageType.Info);
+                    //techMessager.RealeaseMessage("Установите перекрестие на вторую точку линии и нажмите *", MessageType.Info);
+
+                    Growl.Info(new GrowlInfo
+                    {
+                        Message = "Установите перекрестие на вторую точку линии и нажмите *",
+                        ShowDateTime = false,
+                        StaysOpen = true
+                    });
                 }))
                 .SetOnRequestPermissionToStartAction(() => Task.Run(() =>
                 {
-                    if (MessageBox.Show("Обучить горизонтальность сканатора?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (MsgBox.Ask("Обучить горизонтальность сканатора?", "Обучение") == MessageBoxResult.OK)
                     {
                         _currentTeacher.Accept();
                     }
@@ -394,7 +326,7 @@ namespace NewLaserProject.ViewModels
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(() =>
                 {
                     _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
-                    if (MessageBox.Show($"Принять новое значение горизонтальности сканатора {_currentTeacher}?", "Обучение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (MsgBox.Ask($"Принять новое значение горизонтальности сканатора {_currentTeacher}?", "Обучение") == MessageBoxResult.OK)
                     {
                         _currentTeacher.Accept();
                     }
@@ -402,11 +334,12 @@ namespace NewLaserProject.ViewModels
                     {
                         _currentTeacher.Deny();
                     }
-                    techMessager.EraseMessage();
+                    //techMessager.EraseMessage();
                 }))
                 .SetOnLaserHorizontToughtAction(() => Task.Run(() =>
                 {
-                    MessageBox.Show("Обучение отменено", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                    //MsgBox.Show("Обучение отменено", "Обучение");
+                    Growl.Warning("Обучение отменено");
                     _canTeach = false;
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
@@ -420,13 +353,10 @@ namespace NewLaserProject.ViewModels
                     double CB = second[1] - first[1];
                     Settings.Default.PazAngle = Math.Atan2(CB, AC);
                     Settings.Default.Save();
-                    MessageBox.Show("Новое значение установленно", "Обучение", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MsgBox.Info("Новое значение установленно", "Обучение");
                     _canTeach = false;
                 }));
             return tcb.Build();
-            //_currentTeacher = tcb.Build();
-            //await _currentTeacher.StartTeach();
-            //_canTeach = true;
         }
         private async Task<ITeacher> TeachOrthXYAsync()
         {
@@ -470,6 +400,14 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveGpInPosAsync(Groups.XY, sys.ToGlobal(point.X, point.Y), true)/*,
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zFocus - waferThickness)*/).ConfigureAwait(false);
                     techMessager.RealeaseMessage("Совместите перекрестие визира с ориентиром и нажмите *", MessageType.Exclamation);
+
+                    Growl.Info(new GrowlInfo
+                    {
+                        Message = "Совместите перекрестие визира с ориентиром и нажмите *",
+                        StaysOpen = true,
+                        ShowDateTime = false
+                    });
+
                     TeacherPointerX = point.X;
                     TeacherPointerY = point.Y;
                     TeacherPointerVisibility = true;
@@ -679,14 +617,7 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
 
-
-
-
         private CoorSystem<LMPlace> _testCoorSys;
-
-        public double TestPointX { get; set; } = 58;
-        public double TestPointY { get; set; } = 46;
-
 
         [ICommand]
         private async Task TestPierce()

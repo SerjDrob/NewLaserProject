@@ -384,7 +384,7 @@
                     </Border>
                 </DockPanel>
             </ToolBar>
-            <ToolBar>
+            <ToolBar Visibility="Hidden">
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
 

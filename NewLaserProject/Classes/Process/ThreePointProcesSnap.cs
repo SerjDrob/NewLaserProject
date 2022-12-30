@@ -45,6 +45,7 @@ namespace NewLaserProject.Classes.Process
         private double _matrixAngle;
         private IProcess _subProcess;
         private readonly ISubject<IProcessNotify> _subject;
+        private List<IDisposable> _subscriptions;
         private readonly bool _underCamera;
 
         public ThreePointProcesSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
@@ -263,7 +264,19 @@ namespace NewLaserProject.Classes.Process
             _subProcess?.IncludeObject(procObject);
         }
 
-        public IDisposable Subscribe(IObserver<IProcessNotify> observer) => _subject.Subscribe(observer);
+        public IDisposable Subscribe(IObserver<IProcessNotify> observer)
+        {
+            _subscriptions ??= new();
+            var subscription  = _subject.Subscribe(observer);
+            _subscriptions.Add(subscription);
+            return subscription;
+        }
+
+        public void Dispose()
+        {
+            _subProcess?.Dispose();
+            _subscriptions?.ForEach(s => s.Dispose());
+        }
 
         enum State
         {

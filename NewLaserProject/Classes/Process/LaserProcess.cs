@@ -38,6 +38,7 @@ namespace NewLaserProject.Classes
         private readonly double _waferThickness;
         private readonly EntityPreparator _entityPreparator;
         private readonly ISubject<IProcessNotify> _subject;
+        private List<IDisposable> _subscriptions;
         private readonly bool _underCamera;
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
@@ -279,7 +280,18 @@ namespace NewLaserProject.Classes
             }
         }
 
-        public IDisposable Subscribe(IObserver<IProcessNotify> observer) => _subject.Subscribe(observer);
+        public IDisposable Subscribe(IObserver<IProcessNotify> observer)
+        {
+            _subscriptions ??= new();
+            var subscription = _subject.Subscribe(observer);
+            _subscriptions.Add(subscription);
+            return subscription;
+        } 
+
+        public void Dispose()
+        {
+            _subscriptions?.ForEach(s=>s.Dispose());
+        }
 
         enum State
         {

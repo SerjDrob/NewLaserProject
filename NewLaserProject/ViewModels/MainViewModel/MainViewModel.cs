@@ -48,14 +48,12 @@ namespace NewLaserProject.ViewModels
         private readonly LaserMachine _laserMachine;
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
-        public string VideoScreenMessage { get; set; } = "";
         public bool IsRightPanelVisible { get; set; } = true;
         public bool IsCentralPanelVisible { get; set; } = false;
         public bool IsLearningPanelVisible { get; set; } = false;
         public bool IsProcessPanelVisible { get; set; } = false;
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
-        public bool ProcessUnderCamera { get; set; } = false;
         public bool OnProcess { get; set; } = false;
         public MessageType CurrentMessageType { get; private set; } = MessageType.Empty;
         public BitmapImage CameraImage { get; set; }
@@ -367,7 +365,6 @@ namespace NewLaserProject.ViewModels
             Settings.Default.Save();
             ImplementMachineSettings();
         }
-        
         private void ImplementMachineSettings()
         {
 #if PCIInserted

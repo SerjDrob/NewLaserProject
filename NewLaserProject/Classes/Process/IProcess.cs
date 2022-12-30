@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
 {
-    public interface IProcess: IObservable<IProcessNotify>
+    public interface IProcess: IObservable<IProcessNotify>, IDisposable
     {
         event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
         event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
