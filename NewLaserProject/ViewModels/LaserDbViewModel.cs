@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HandyControl.Controls;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Data;
 using NewLaserProject.Data.Models;
@@ -111,35 +113,40 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void AssignRule(Material material)
         {
-            var writeTechVM = new WriteTechnologyVM
-            {
-                MaterialName = material.Name,
-                MaterialThickness = material.Thickness
-            };
-
-            var newRule = new MaterialEntRule 
+            var matEntRule = _db.Set<MaterialEntRule>()
+                   .FirstOrDefault(mer => mer.Material.Id == material.Id);
+            var newRule = new MaterialEntRule
             {
                 Material = material,
             };
 
+            if (matEntRule is not null)
+            {
+                newRule = matEntRule;  
+            }
+           
             var result = new AddToDbContainerView
             {
                 DataContext = newRule
             }.ShowDialog();
-            //if (result ?? false)
-            //{
 
-            //    var newTechnology = new Technology();
-            //    newTechnology.Material = material;
-
-            //    var path = ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES);
-            //    newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(path);
-
-            //    newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();//TODO if name isn't typed
-            //    _db.Set<Technology>()
-            //              .Add(newTechnology);
-            //    _db.SaveChanges();
-            //}
+            if (result ?? false)
+            {
+                if (matEntRule is not null) 
+                {
+                    _db.Set<MaterialEntRule>()
+                        .Update(matEntRule);
+                    _db.SaveChanges();
+                }
+                else
+                {
+                    _db.Set<MaterialEntRule>()
+                        .Add(newRule);
+                    _db.SaveChanges();
+                }
+                
+            }
+           
         }
 
         [ICommand]

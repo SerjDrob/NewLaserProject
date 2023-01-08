@@ -41,5 +41,13 @@ namespace NewLaserProject.Data
 
             optionsBuilder.UseSqlite(connectionstring);
         }
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+        //    modelBuilder.Entity<Material>()
+        //        .HasOne<MaterialEntRule>()
+        //        .WithOne(m => m.Material)
+        //        .HasForeignKey<MaterialEntRule>(mer => mer.MaterialId);
+        //}
     }
 }

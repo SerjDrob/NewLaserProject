@@ -295,10 +295,38 @@
                 </Border>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
+            <!--<DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
                 <hc:PropertyGrid SelectedObject="{Binding}"/>
+            </DataTemplate>-->
+
+            <DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
+                <StackPanel>
+                    <hc:NumericUpDown Value="{Binding Offset}"
+                                      ValueFormat="N3" 
+                                      Maximum="2" 
+                                      Minimum="-2"
+                                      Increment="0.01"
+                                      hc:InfoElement.TitleWidth="160" 
+                                      hc:InfoElement.Placeholder="Please enter the content" 
+                                      hc:InfoElement.TitlePlacement="Left" 
+                                      hc:InfoElement.Title="Смещение от контура, мм" 
+                                      Style="{StaticResource NumericUpDownExtend}" 
+                                      Margin="0,3,0,0"/>
+                    
+                    <hc:NumericUpDown Value="{Binding Width}"
+                                      ValueFormat="N3" 
+                                      Maximum="2"
+                                      Minimum="0"
+                                      Increment="0.01"
+                                      hc:InfoElement.TitleWidth="160" 
+                                      hc:InfoElement.Placeholder="Please enter the content" 
+                                      hc:InfoElement.TitlePlacement="Left" 
+                                      hc:InfoElement.Title="Ширина контура, мм" 
+                                      Style="{StaticResource NumericUpDownExtend}" 
+                                      Margin="0,3,0,0"/>
+                </StackPanel>
             </DataTemplate>
-            
+
             <Style x:Key="CornerButton" TargetType="Button" >
                 <Setter Property="Button.Background">
                     <Setter.Value>
