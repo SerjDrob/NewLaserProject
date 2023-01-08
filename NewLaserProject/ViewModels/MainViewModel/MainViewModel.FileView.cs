@@ -103,6 +103,7 @@ namespace NewLaserProject.ViewModels
 
                     AvailableMaterials = _db.Set<Material>()
                                             .Include(m => m.Technologies)
+                                            .Include(m=>m.MaterialEntRule)
                                             .AsNoTracking()
                                             .ToObservableCollection();
 

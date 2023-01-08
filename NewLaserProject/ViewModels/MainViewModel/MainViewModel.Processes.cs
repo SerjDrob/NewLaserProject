@@ -87,7 +87,7 @@ namespace NewLaserProject.ViewModels
         {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
-
+           
             var procObjects = (CurrentEntityType switch
             {
                 LaserEntity.Curve => _dxfReader.GetAllCurves(CurrentLayerFilter).Cast<IProcObject>(),
@@ -113,7 +113,12 @@ namespace NewLaserProject.ViewModels
 
             _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
             var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
-
+            var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
+            if (materialEntRule is not null)
+            {
+                entityPreparator.SetEntityContourOffset(materialEntRule.Offset);
+                entityPreparator.SetEntityContourWidth(materialEntRule.Width);
+            }
             switch (FileAlignment)
             {
                 case FileAlignment.AlignByCorner:
