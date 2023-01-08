@@ -177,7 +177,7 @@ namespace NewLaserProject.ViewModels
                         serviceWafer.OffsetX((float)WaferOffsetX);
                         serviceWafer.OffsetY((float)WaferOffsetY);
 
-                        _mainProcess = new ThreePointProcesSnap(wafer, serviceWafer, _pierceSequenceJson, _laserMachine,
+                        _mainProcess = new ThreePointProcesSnap(/*wafer*/ procObjects, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
                                                                coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                                                Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
                         //----------------------------  

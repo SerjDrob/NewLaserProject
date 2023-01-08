@@ -79,7 +79,7 @@ namespace NewLaserProject.ViewModels
                     .SetDataContext<AskThicknessVM>()
                     .Initialize<AskThicknessVM>(vm =>
                     {
-                        vm.Thickness = 0.5;
+                        vm.Thickness = waferThickness;
                     })
                     .GetResultAsync<AskThicknessVM>();
             waferThickness = result.Thickness;

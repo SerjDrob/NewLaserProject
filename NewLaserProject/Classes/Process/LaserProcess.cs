@@ -17,6 +17,8 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
+//using System.IO;
 
 namespace NewLaserProject.Classes
 {
@@ -48,7 +50,7 @@ namespace NewLaserProject.Classes
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
         {
-            _underCamera = false;// true;
+            _underCamera = true;
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
@@ -81,7 +83,7 @@ namespace NewLaserProject.Classes
             var currentIndex = -1;
             var waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
                             : _wafer.GetEnumerator();
-
+            var coorFile = new StreamWriter(ProjectPath.GetFilePathInFolder(ProjectPath.GetFolderPath("TempFiles"), "coorFile"));
             _progTreeParser
                 //TODO don't pass the taper, it should be calculated value respective the taper and other tech params like specified tolerance
                 .SetModuleFunction<TaperBlock, double>(new FuncProxy<double>(taper => _entityPreparator.SetEntityContourOffset(taper)))
@@ -113,7 +115,7 @@ namespace NewLaserProject.Classes
                     {
                         var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
                         _laserMachine.SetVelocity(Velocity.Fast);
-                        await Task.WhenAll(
+                        if(!_underCamera) await Task.WhenAll(
                         //_laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
                         
                         _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
@@ -127,6 +129,20 @@ namespace NewLaserProject.Classes
                             _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true)//,
                            /* _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness)*/);
                         procObject.IsBeingProcessed = true;
+
+                        //var pointsLine = $"X: {procObject.X,8} | Y: {procObject.X,8} | X: {position[0],8} | Y: {position[1],8} | X: {_laserMachine.GetAxActual(Ax.X),8} | Y: {_laserMachine.GetAxActual(Ax.Y),8}";
+
+                        var dx = position[0] - _laserMachine.GetAxActual(Ax.X);
+                        var dy = position[1] - _laserMachine.GetAxActual(Ax.Y);
+                        if(dx > Math.Abs(0.003) | dy > Math.Abs(0.003)) 
+                        {
+                            var pointsLine = $"X: {procObject.X,8} | Y: {procObject.X,8} | dX: {dx} | dY: {dy} ";
+
+                            await coorFile.WriteLineAsync(pointsLine);
+                            await coorFile.WriteLineAsync("______________________________________________________");
+                        }
+                       
+
 
                         if (_inProcess && !_underCamera)
                         {

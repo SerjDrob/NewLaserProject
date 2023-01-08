@@ -53,7 +53,7 @@ namespace NewLaserProject.Classes.Process
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
-            _underCamera = false;// true;
+            _underCamera = true;
             _wafer = wafer;
             _serviceWafer = serviceWafer;
             _jsonPierce = jsonPierce;
@@ -84,7 +84,11 @@ namespace NewLaserProject.Classes.Process
                 .Subscribe(async result =>
                 {
                     var point = _serviceWafer.GetPointToWafer(result);
-                    originPoints.Add(point);
+                    //originPoints.Add(point);
+
+
+                    originPoints.Add(result);//TODO das experiment
+
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                     try
                     {
@@ -126,8 +130,11 @@ namespace NewLaserProject.Classes.Process
                 })
                 .OnExit(() =>
                 {
-                    var x = (float)(_xActual + (_underCamera ? 0 : _dX));
-                    var y = (float)(_yActual + (_underCamera ? 0 : _dY));
+                    var xAct = _laserMachine.GetAxActual(Ax.X);
+                    var yAct = _laserMachine.GetAxActual(Ax.Y);
+
+                    var x = (float)(xAct + (_underCamera ? 0 : _dX));
+                    var y = (float)(yAct + (_underCamera ? 0 : _dY));
                     resultPoints.Add(new(x, y));
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
