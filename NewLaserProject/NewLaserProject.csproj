@@ -145,11 +145,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
-    <ProjectReference Include="..\..\MachineControlsLibrary\MachineControlsLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
@@ -169,6 +164,7 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="TempFiles\" />
   </ItemGroup>
   
     <ItemGroup>
@@ -176,6 +172,11 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
+    </ItemGroup>
+  
+    <ItemGroup>
+      <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
+      <ProjectReference Include="..\..\MachineControlsLibrary\MachineControlsLibrary.csproj" />
     </ItemGroup>
   
     <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
