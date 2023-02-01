@@ -18,7 +18,9 @@ namespace NewLaserProject.ViewModels
 {
     internal partial class MainViewModel
     {
-        public int FileScale { get; set; } = 1000;
+        //public int FileScale { get; set; } = 1000;
+        public ObservableCollection<Scale> Scales { get; set; } = new(new() { new Scale(1000, 1), new Scale(100,1), new Scale(1,1) });
+        public Scale DefaultFileScale { get; set; } 
         public bool IsFileLoaded { get; set; } = false;
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
@@ -73,6 +75,8 @@ namespace NewLaserProject.ViewModels
 
             if (openFileDialog.ShowDialog() ?? false)
             {
+                DefaultFileScale = Scales[0];
+                FileAlignment = (FileAlignment)Alignments[0];
                 //techMessager.RealeaseMessage("Загрузка...", Icon.Loading);
 
                 //Get the path of specified file
@@ -98,11 +102,12 @@ namespace NewLaserProject.ViewModels
                         });
                    
 
-                    _openedFileVM.SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers);
+                    _openedFileVM.SetFileView(_dxfReader, DefaultFileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers);
                     _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
 
                     AvailableMaterials = _db.Set<Material>()
                                             .Include(m => m.Technologies)
+                                            .Include(m=>m.MaterialEntRule)
                                             .AsNoTracking()
                                             .ToObservableCollection();
 

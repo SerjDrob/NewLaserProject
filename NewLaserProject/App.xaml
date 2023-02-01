@@ -13,6 +13,7 @@
              xmlns:Controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary" 
              xmlns:entities ="clr-namespace:MachineClassLibrary.Laser.Entities;assembly=MachineClassLibrary"
              xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              >
     <Application.Resources>
         <ResourceDictionary>
@@ -57,37 +58,61 @@
             </DataTemplate>
 
             <DataTemplate x:Key="LaserCircleDataTemplate" DataType="{x:Type entities:PCircle}">
-                <Path Data="{StaticResource CircleGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="0.7">
+                <Path Data="{StaticResource CircleGeometry}" Stretch="Uniform" Stroke="{DynamicResource AccentBrush}" StrokeThickness="0.7">
                     <Path.LayoutTransform>
-                        <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
+                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
                     </Path.LayoutTransform>
                 </Path>
             </DataTemplate>
 
             <DataTemplate x:Key="LaserCurveDataTemplate" DataType="{x:Type entities:PCurve}">
-                <Path Data="{StaticResource CurveGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
+                <Path Data="{StaticResource CurveGeometry}" Stretch="Uniform" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1">
                     <Path.LayoutTransform>
-                        <ScaleTransform ScaleX="1.5" ScaleY="-1.5"/>
+                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
                     </Path.LayoutTransform>
                 </Path>
             </DataTemplate>
 
             <DataTemplate x:Key="LaserLineDataTemplate" DataType="{x:Type entities:PLine}">
-                <Path Data="{StaticResource LineGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2">
+                <Path Data="{StaticResource LineGeometry}" Stretch="Uniform" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2">
                     <Path.LayoutTransform>
-                        <ScaleTransform ScaleX="0.6" ScaleY="-0.6"/>
+                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
                     </Path.LayoutTransform>
                 </Path>
             </DataTemplate>
 
             <DataTemplate x:Key="LaserPointDataTemplate" DataType="{x:Type entities:PPoint}">
-                <Path Data="{StaticResource PointGeometry}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="3">
+                <Path Data="{StaticResource PointGeometry}" Stretch="Uniform" Fill="{DynamicResource AccentBrush}">
                     <Path.LayoutTransform>
-                        <ScaleTransform ScaleX="0.5" ScaleY="-0.5"/>
+                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
                     </Path.LayoutTransform>
                 </Path>
             </DataTemplate>
-            
+
+            <DataTemplate x:Key="AlignByCornerDataTemplate" DataType="{x:Type sys:Enum}">
+                <Path Data="{StaticResource AlignByAngleGeometry}" Stretch="Uniform" Fill="{DynamicResource AccentBrush}">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                    </Path.LayoutTransform>
+                </Path>
+            </DataTemplate>
+
+            <DataTemplate x:Key="AlignByThreePointDataTemplate" DataType="{x:Type sys:Enum}">
+                <Path Data="{StaticResource AlignByThreePointGeometry}" Stretch="Uniform" Fill="{DynamicResource AccentBrush}" StrokeThickness="2" Stroke="{DynamicResource AccentBrush}">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                    </Path.LayoutTransform>
+                </Path>
+            </DataTemplate>
+
+            <DataTemplate x:Key="AlignByTwoPointDataTemplate" DataType="{x:Type sys:Enum}">
+                <Path Data="{StaticResource AlignByTwoPointGeometry}" Stretch="Uniform" Fill="{DynamicResource AccentBrush}" StrokeThickness="2" Stroke="{DynamicResource AccentBrush}">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                    </Path.LayoutTransform>
+                </Path>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type pblocks:LoopBlock}">
                 <GroupBox Style="{StaticResource LoopBox}" DataContext="{Binding}">
                     <GroupBox.Header>
@@ -295,10 +320,38 @@
                 </Border>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
+            <!--<DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
                 <hc:PropertyGrid SelectedObject="{Binding}"/>
+            </DataTemplate>-->
+
+            <DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
+                <StackPanel>
+                    <hc:NumericUpDown Value="{Binding Offset}"
+                                      ValueFormat="N3" 
+                                      Maximum="2" 
+                                      Minimum="-2"
+                                      Increment="0.01"
+                                      hc:InfoElement.TitleWidth="160" 
+                                      hc:InfoElement.Placeholder="Please enter the content" 
+                                      hc:InfoElement.TitlePlacement="Left" 
+                                      hc:InfoElement.Title="Смещение от контура, мм" 
+                                      Style="{StaticResource NumericUpDownExtend}" 
+                                      Margin="0,3,0,0"/>
+                    
+                    <hc:NumericUpDown Value="{Binding Width}"
+                                      ValueFormat="N3" 
+                                      Maximum="2"
+                                      Minimum="0"
+                                      Increment="0.01"
+                                      hc:InfoElement.TitleWidth="160" 
+                                      hc:InfoElement.Placeholder="Please enter the content" 
+                                      hc:InfoElement.TitlePlacement="Left" 
+                                      hc:InfoElement.Title="Ширина контура, мм" 
+                                      Style="{StaticResource NumericUpDownExtend}" 
+                                      Margin="0,3,0,0"/>
+                </StackPanel>
             </DataTemplate>
-            
+
             <Style x:Key="CornerButton" TargetType="Button" >
                 <Setter Property="Button.Background">
                     <Setter.Value>

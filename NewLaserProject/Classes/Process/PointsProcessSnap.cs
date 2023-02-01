@@ -1,9 +1,11 @@
-﻿using MachineClassLibrary.Classes;
+﻿using Humanizer;
+using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
+using MachineClassLibrary.Miscellanius;
 using MediatR;
 using Microsoft.Toolkit.Diagnostics;
 using NewLaserProject.Classes.Mediator;
@@ -21,13 +23,13 @@ using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Process
 {
-    internal class ThreePointProcesSnap : IProcess
+    internal class PointsProcessSnap : IProcess
     {
         private readonly IEnumerable<IProcObject> _wafer;
         private readonly LaserWafer _serviceWafer;
         private readonly string _jsonPierce;
         private readonly LaserMachine _laserMachine;
-        private readonly ICoorSystem<LMPlace> _coorSystem;
+        private readonly ICoorSystem _coorSystem;
         private StateMachine<State, Trigger> _stateMachine;
         private bool _inProcess = false;
         private readonly double _zeroZPiercing;
@@ -42,16 +44,18 @@ namespace NewLaserProject.Classes.Process
         private readonly double _dX;
         private readonly double _dY;
         private readonly double _pazAngle;
-       // private readonly ISubject<IProcessNotify> _mediator;
         private readonly EntityPreparator _entityPreparator;
         private double _matrixAngle;
         private IProcess _subProcess;
         private readonly ISubject<IProcessNotify> _subject;
         private List<IDisposable> _subscriptions;
         private readonly bool _underCamera;
+        private ICoorSystem _workCoorSys;
+        private PureCoorSystem<LMPlace> _pureCoorSys;
+        private readonly AligningPoints _aligningPoints;
 
-        public ThreePointProcesSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
-            string jsonPierce, LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
+        public PointsProcessSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
+            string jsonPierce, LaserMachine laserMachine, ICoorSystem coorSystem,
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
@@ -70,11 +74,23 @@ namespace NewLaserProject.Classes.Process
             _entityPreparator = entityPreparator;
             _waferThickness = waferThickness;
             _ctSource = new CancellationTokenSource();
-           // _mediator = mediator;
-            //_subject = new Subject<IProcessNotify>();
             _subject = mediator;
+            _aligningPoints = AligningPoints.ThreePoints;
         }
 
+        public PointsProcessSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
+           string jsonPierce, LaserMachine laserMachine, ICoorSystem coorSystem,
+           double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
+           double dX, double dY, double pazAngle, EntityPreparator entityPreparator,
+           ISubject<IProcessNotify> mediator, PureCoorSystem<LMPlace> pureCoorSystem)
+            : this(wafer, serviceWafer,
+           jsonPierce, laserMachine, coorSystem,
+           zeroZPiercing, zeroZCamera, waferThickness, infoMessager,
+           dX, dY, pazAngle, entityPreparator, mediator)
+        {
+            _pureCoorSys = pureCoorSystem;
+            _aligningPoints = AligningPoints.TwoPoints;
+        }
 
         public void CreateProcess()
         {
@@ -87,16 +103,13 @@ namespace NewLaserProject.Classes.Process
                 {
                     var point = _serviceWafer.GetPointToWafer(result);
                     //originPoints.Add(point);
-
-
                     originPoints.Add(result);//TODO das experiment
-
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                     try
                     {
                         await _stateMachine.FireAsync(Trigger.Next);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         // throw;
                     }
@@ -111,7 +124,6 @@ namespace NewLaserProject.Classes.Process
                     _subject.OnNext(request);
                 });
 
-            ICoorSystem workCoorSys = new CoorSystem<LMPlace>();
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
             SwitchCamera?.Invoke(this, true);
@@ -125,22 +137,19 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.GoRefPoint)
                 .OnEntry(() =>
                 {
-                    //_mediator.OnNext(new PermitSnap(true));
                     _subject.OnNext(new PermitSnap(true));
-                    _infoMessager.RealeaseMessage($"Сопоставьте точку {originPoints.Count + 1}", MessageType.Info);
-                    _subject.OnNext(new ProcessMessage($"Сопоставьте точку {originPoints.Count + 1}", MsgType.Info));
+                    _subject.OnNext(new ProcessMessage($"Сопоставьте {(originPoints.Count + 1).ToOrdinalWords(GrammaticalGender.Feminine).ApplyCase(GrammaticalCase.Accusative)} точку ", MsgType.Info));
                 })
                 .OnExit(() =>
                 {
                     var xAct = _laserMachine.GetAxActual(Ax.X);
                     var yAct = _laserMachine.GetAxActual(Ax.Y);
-
                     var x = (float)(xAct + (_underCamera ? 0 : _dX));
                     var y = (float)(yAct + (_underCamera ? 0 : _dY));
                     resultPoints.Add(new(x, y));
                 })
-                .PermitReentryIf(Trigger.Next, () => resultPoints.Count < 2)
-                .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == 2)
+                .PermitReentryIf(Trigger.Next, () => resultPoints.Count < (_aligningPoints switch { AligningPoints.ThreePoints => 2, AligningPoints.TwoPoints => 1, _ => 2 }))
+                .PermitIf(Trigger.Next, State.GetRefPoint, () => resultPoints.Count == (_aligningPoints switch { AligningPoints.ThreePoints => 2, AligningPoints.TwoPoints => 1, _ => 2 }))
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
 
@@ -148,18 +157,25 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(_infoMessager.EraseMessage)
                 .OnEntry(() =>
                 {
-                    //_mediator.OnNext(new PermitSnap(false));
                     _subject.OnNext(new PermitSnap(false));
                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                     SwitchCamera?.Invoke(this, false);
-                    workCoorSys = new CoorSystem<LMPlace>
-                    .ThreePointCoorSystemBuilder<LMPlace>()
-                    .SetFirstPointPair(originPoints[0], resultPoints[0])
-                    .SetSecondPointPair(originPoints[1], resultPoints[1])
-                    .SetThirdPointPair(originPoints[2], resultPoints[2])
-                    .FormWorkMatrix(0.001, 0.001, false)
-                    .Build();
-                    _matrixAngle = workCoorSys.GetMatrixAngle();
+                    _workCoorSys = _aligningPoints switch {
+                        AligningPoints.ThreePoints => new CoorSystem<LMPlace>
+                       .ThreePointCoorSystemBuilder()
+                       .SetFirstPointPair(originPoints[0], resultPoints[0])
+                       .SetSecondPointPair(originPoints[1], resultPoints[1])
+                       .SetThirdPointPair(originPoints[2], resultPoints[2])
+                       .FormWorkMatrix(0.001, 0.001)
+                       .Build(),
+                       AligningPoints.TwoPoints => _pureCoorSys
+                       .GetTwoPointSystemBuilder()
+                       .SetFirstPointPair(originPoints[0], resultPoints[0])
+                       .SetSecondPointPair(originPoints[1], resultPoints[1])
+                       .FormWorkMatrix(0.001, 0.001)
+                       .Build()
+                    };
+                    _matrixAngle = _workCoorSys.GetMatrixAngle();
                     _stateMachine.Fire(Trigger.Next);
                 })
                 .Permit(Trigger.Next, State.Working)
@@ -170,7 +186,7 @@ namespace NewLaserProject.Classes.Process
                 .OnEntryAsync(async () =>
                 {
                     _entityPreparator.SetEntityAngle(-_pazAngle - _matrixAngle /*+ Math.PI*/);//TODO make add entity angle method/ fix it for Laserprocess. Get angle from outside!!!
-                    _subProcess = new LaserProcess(_wafer, _jsonPierce, _laserMachine, workCoorSys,
+                    _subProcess = new LaserProcess(_wafer, _jsonPierce, _laserMachine, _workCoorSys,
                     _underCamera ? _zeroZCamera : _zeroZPiercing, _waferThickness, _entityPreparator);
 
                     _subProcess.Subscribe(_subject);
@@ -191,7 +207,6 @@ namespace NewLaserProject.Classes.Process
                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                     ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Cancelled, _coorSystem));
                     //ctSource.Cancel();
-                    //_infoMessager.RealeaseMessage("Процесс отменён", ViewModels.Icon.Exclamation);
                 });
         }
 
@@ -278,7 +293,7 @@ namespace NewLaserProject.Classes.Process
         public IDisposable Subscribe(IObserver<IProcessNotify> observer)
         {
             _subscriptions ??= new();
-            var subscription  = _subject.Subscribe(observer);
+            var subscription = _subject.Subscribe(observer);
             _subscriptions.Add(subscription);
             return subscription;
         }
@@ -304,5 +319,11 @@ namespace NewLaserProject.Classes.Process
             Pause,
             Deny
         }
+        enum AligningPoints
+        {
+            ThreePoints,
+            TwoPoints
+        }
+
     }
 }

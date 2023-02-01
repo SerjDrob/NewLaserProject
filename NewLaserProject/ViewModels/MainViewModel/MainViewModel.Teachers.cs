@@ -460,8 +460,8 @@ namespace NewLaserProject.ViewModels
                            .SetThirdPointPair(new((float)points[2].X, (float)points[2].Y), new((float)resultPoints[4], (float)resultPoints[5]));
 
                     //minus means direction of ordinate axis
-                    var pureSystem = builder.FormWorkMatrix(0.001, -0.001, true).Build();
-                    var teachSystem = builder.FormWorkMatrix(1, 1, false).Build();
+                    var pureSystem = builder.FormWorkMatrix(0.001, -0.001).BuildPure();
+                    var teachSystem = builder.FormWorkMatrix(1, 1).Build();
 
                     pureSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "PureDeformation.json"));
                     teachSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "TeachingDeformation.json"));

@@ -34,9 +34,22 @@ using System.Windows.Media.Imaging;
 using MsgBox = HandyControl.Controls.MessageBox;
 using HandyControl.Controls;
 using HandyControl.Data;
+using Microsoft.Extensions.Logging;
 
 namespace NewLaserProject.ViewModels
 {
+
+    //public static class Ext
+    //{
+    //    public static T With<T>(this T instance, Action<T> action) where T : class, new() 
+    //    {
+    //        var result = new T();
+    //        result = instance.memberwiseclone 
+    //        action.Invoke(result);
+    //        return result;
+    //    }
+    //}
+
 
     [AddINotifyPropertyChangedInterface]
     internal partial class MainViewModel
@@ -82,18 +95,21 @@ namespace NewLaserProject.ViewModels
         private bool _canTeach = false;
 
         private IProcess _mainProcess;
+        private readonly ILogger _logger;
 
         //---------------------------------------------
-        public MainViewModel(DbContext db, IMediator mediator)
+        //public MainViewModel(DbContext db, IMediator mediator)
+        //{
+        //    _db = db;
+        //    _mediator = mediator;
+        //    _coorSystem = GetCoorSystem();
+        //    InitViews();
+        //    InitAppState();
+        //}
+        public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator, ILoggerProvider loggerProvider)
         {
-            _db = db;
-            _mediator = mediator;
-            _coorSystem = GetCoorSystem();
-            InitViews();
-            InitAppState();
-        }
-        public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator)
-        {
+            _logger = loggerProvider.CreateLogger("MainVM");
+           
             _laserMachine = laserMachine;
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _db = db;
@@ -106,8 +122,8 @@ namespace NewLaserProject.ViewModels
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
-            CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
-            CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
+            //CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
+            //CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
                 .ContinueWith(t =>
@@ -287,13 +303,13 @@ namespace NewLaserProject.ViewModels
                 {
                     case Ax.X:
                         XAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
-                        LaserViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderLaser, XAxis.Position, YAxis.Position)[0] * FileScale ?? 0;
-                        CameraViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[0] * FileScale ?? 0;
+                        LaserViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderLaser, XAxis.Position, YAxis.Position)[0] * DefaultFileScale ?? 0;
+                        CameraViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[0] * DefaultFileScale ?? 0;
                         break;
                     case Ax.Y:
                         YAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
-                        LaserViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderLaser, XAxis.Position, YAxis.Position)[1] * FileScale ?? 0;
-                        CameraViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[1] * FileScale ?? 0;
+                        LaserViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderLaser, XAxis.Position, YAxis.Position)[1] * DefaultFileScale ?? 0;
+                        CameraViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[1] * DefaultFileScale ?? 0;
                         break;
                     case Ax.Z:
                         ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);

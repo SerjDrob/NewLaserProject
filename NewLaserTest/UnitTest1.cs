@@ -4,6 +4,7 @@ using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
+using netDxf;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
 using NUnit.Framework;
@@ -25,8 +26,11 @@ namespace NewLaserTest
             one, two, three
         }
 
-        CoorSystem<Place>.ThreePointCoorSystemBuilder<Place> _builder;
-        CoorSystem<Place>.ThreePointCoorSystemBuilder<Place> _builderPureDeformation;
+        CoorSystem<Place>.ThreePointCoorSystemBuilder _builder;
+
+        CoorSystem<Place>.ThreePointCoorSystemBuilder _builder2;
+
+        CoorSystem<Place>.ThreePointCoorSystemBuilder _builderPureDeformation;
         //MainCoorSystem<Place>.ThreePointCoorSystemBuilder _builder;
 
         [SetUp]
@@ -34,6 +38,7 @@ namespace NewLaserTest
         {
 
             _builder = CoorSystem<Place>.GetThreePointSystemBuilder();
+            _builder2 = CoorSystem<Place>.GetThreePointSystemBuilder();
 
 
             //_builder = MainCoorSystem<Place>.GetThreePointSystemBuilder();
@@ -41,6 +46,10 @@ namespace NewLaserTest
             _builder.SetFirstPointPair(new PointF(0, 0), new PointF(120, 96))
                      .SetSecondPointPair(new PointF(60, 0), new PointF(235.91109915F, 127.05828541F))
                      .SetThirdPointPair(new PointF(60, 48), new PointF(153.68364061F, 219.78716474F));
+
+            _builder2.SetFirstPointPair(new(0f, 10000f), new(32.483199f, 38.69009f))
+                .SetSecondPointPair(new(20000f, 10000f), new(54.34078f, 42.780718f))
+                .SetThirdPointPair(new(20000f, 0f), new(49.948233f, 31.181165f));
 
             _builderPureDeformation = CoorSystem<Place>.GetThreePointSystemBuilder();
 
@@ -76,6 +85,27 @@ namespace NewLaserTest
 
         }
 
+        [TestCase(814.666, 2057.855, 29.884906, 29.644182)]
+        [TestCase(6187.603, 6483.988, 37.701076, 35.877232)]
+        [TestCase(17560.537, 8666.873, 51.08916, 40.735404)]
+        public void CoorSystemTestMainTransformation2(double x1, double y1, double x2, double y2)
+        {
+            var coorSys = _builder2.FormWorkMatrix(0.001,0.001).Build();
+            var pureCoorSys = _builder2.BuildPure();
+            var theMatrix = pureCoorSys.GetMainMatrixElements().GetMatrix3();
+
+
+            var pureCoorSys2 = new PureCoorSystem<Place>(theMatrix);
+
+            var coorSys1 = pureCoorSys2.GetTwoPointSystemBuilder()
+                .SetFirstPointPair(new(5010.381f, 1679.401f), new(34.304077f, 30.063347f))
+                .SetSecondPointPair(new(11488f, 4737.625f),new(42.726671f, 34.935628f))
+                .FormWorkMatrix(0.001,0.001)
+                .Build();
+
+            TestAsertion(coorSys1.ToGlobal, x1, y1, x2, y2);
+        }
+
         [TestCase(0, 0, 120, 96)]
         [TestCase(60, 0, 235.91109915F, 127.05828541F)]
         [TestCase(60, 48, 153.68364061F, 219.78716474F)]
@@ -84,7 +114,7 @@ namespace NewLaserTest
 
         public void CoorSystemTestMainTransformation(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builder.FormWorkMatrix(2, 2, false).Build();
+            var coorSys = _builder.FormWorkMatrix(2, 2).Build();
 
             TestAsertion(coorSys.ToGlobal, x1, y1, x2, y2);
         }
@@ -93,7 +123,7 @@ namespace NewLaserTest
         [TestCase(120, 96, 64.57437416F, 110.85125168F)]
         public void CoorSystemTestPureDeformation(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builderPureDeformation.FormWorkMatrix(0.5, 0.5, true).Build();
+            var coorSys = _builderPureDeformation.FormWorkMatrix(0.5, 0.5).BuildPure();
 
             TestAsertion(coorSys.ToGlobal, x1, y1, x2, y2);
         }
@@ -103,7 +133,7 @@ namespace NewLaserTest
         [TestCase(120, 96, 43.68364061F, 133.78716474F)]
         public void CoorSystemTestToSubPureDeformation(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builderPureDeformation.FormWorkMatrix(0.5, 0.5, true).Build();
+            var coorSys = _builderPureDeformation.FormWorkMatrix(0.5, 0.5).BuildPure();
             coorSys.BuildRelatedSystem()
                    .Rotate(15 * Math.PI / 180)
                    .Translate(10, 10)
@@ -119,7 +149,7 @@ namespace NewLaserTest
 
         public void CoorSystemTestPureDeformation2(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
+            var coorSys = _builder.FormWorkMatrix(2, 2).BuildPure();
 
             TestAsertion((a, b) => coorSys.ToGlobal(a, b), x1, y1, x2, y2);
         }
@@ -130,7 +160,7 @@ namespace NewLaserTest
 
         public void CoorSystemTestRotatePureDeformation(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
+            var coorSys = _builder.FormWorkMatrix(2, 2).BuildPure();
 
             coorSys.BuildRelatedSystem()
                    .Rotate(15 * Math.PI / 180)
@@ -145,7 +175,7 @@ namespace NewLaserTest
         [TestCase(120, 0, 140F, 30F)]
         public void CoorSystemTestTranslatePureDeformation(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
+            var coorSys = _builder.FormWorkMatrix(2, 2).BuildPure();
 
             coorSys.BuildRelatedSystem()
                    .Translate(20, 30)
@@ -159,7 +189,7 @@ namespace NewLaserTest
         [TestCase(120, 0, 127.46504433F, 65.2124411F)]
         public void CoorSystemTestTranslateRotatePureDeformation(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
+            var coorSys = _builder.FormWorkMatrix(2, 2).BuildPure();
 
             coorSys.BuildRelatedSystem()
                    .Translate(20, 30)
@@ -174,7 +204,7 @@ namespace NewLaserTest
         [TestCase(120, 0, 135.91109915F, 61.05828541F)]
         public void CoorSystemTestRotateTranslatePureDeformation(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builder.FormWorkMatrix(2, 2, true).Build();
+            var coorSys = _builder.FormWorkMatrix(2, 2).BuildPure();
 
             coorSys.BuildRelatedSystem()
                    .Rotate(15 * Math.PI / 180)

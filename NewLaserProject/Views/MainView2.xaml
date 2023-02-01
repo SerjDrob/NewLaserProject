@@ -14,34 +14,15 @@
         xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
         x:Class="NewLaserProject.Views.MainView2"
+        xmlns:classes="clr-namespace:NewLaserProject.Classes"
         xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
         xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"    
         mc:Ignorable="d"        
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="Лазер"         
         Height="800" 
-        Width="1000" 
+        Width="1200" 
         WindowState="Maximized">
-    
-    <Window.InputBindings>
-        <!--
-        <KeyBinding Command="{Binding TestCommand}" Key="Q"/>
-       
-        <KeyBinding Command="{Binding MachineSettingsCommand}" Modifiers="Ctrl" Key="H"/>
-       
-        
-        <KeyBinding Command="{Binding TeachCameraOffsetCommand}" Key="F2"/>
-        <KeyBinding Command="{Binding TeachScanatorHorizontCommand}" Key="F3"/>
-        <KeyBinding Command="{Binding TeachOrthXYCommand}" Key="F4"/>
-        <KeyBinding Command="{Binding TeachCameraScaleCommand}" Key="F5"/>
-
-        <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource TRUE}" Key="F6"/>
-        <KeyBinding Command="{Binding WaferCornersTeachCommand}" CommandParameter="{StaticResource FALSE}" Key="F7"/>
-
-        -->
-        
-    </Window.InputBindings>
-    
     
     <Window.Resources>
         <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
@@ -66,8 +47,9 @@
 
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
-        <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
 
+        <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
+        <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
 
         <Storyboard x:Key="DangerMessage">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
@@ -93,6 +75,13 @@
             <Setter Property="Background" Value="{DynamicResource DarkMaskBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         </Style>
+
+        <!--<x:Array x:Key="Alignings" Type="{x:Type clr:Object}">
+            <classes:FileAlignment>AlignByCorner</classes:FileAlignment>
+            <classes:FileAlignment> AlignByThreePoint</classes:FileAlignment>
+            <classes:FileAlignment>AlignByTwoPoint</classes:FileAlignment>
+        </x:Array>-->
+      
     </Window.Resources>
     
     <!--<i:Interaction.Triggers>
@@ -496,7 +485,7 @@
 
                                 <StackPanel Orientation="Horizontal" Grid.ColumnSpan="7">
                                     <DockPanel LastChildFill="True" HorizontalAlignment="Left">
-                                        <ToggleButton DockPanel.Dock="Right"
+                                        <!--<ToggleButton DockPanel.Dock="Right"
                                                       IsChecked="{Binding FileAlignment, Mode=OneWayToSource, Converter={StaticResource FileAlignmentConverter}}"
                                                       hc:IconSwitchElement.Geometry="{StaticResource AlignByAngleGeometry}"
                                                       hc:IconSwitchElement.GeometrySelected="{StaticResource AlignByThreePointGeometry}"
@@ -506,9 +495,38 @@
                                             <ToggleButton.RenderTransform>
                                                 <ScaleTransform ScaleY="-1"/>
                                             </ToggleButton.RenderTransform>
-                                        </ToggleButton>
-                                        <Label Content="Тип совмещения"/>
+                                        </ToggleButton>-->
 
+                                        <!--<Button DockPanel.Dock="Right">
+                                            <Path Data="{StaticResource AlignByAngleGeometry}" Stroke="White" Stretch="Uniform"/>
+                                        </Button>-->
+
+                                        <hc:ElementGroup x:Name="FileScale" DockPanel.Dock="Right" Orientation="Horizontal">
+                                            <Label Content="Масштаб файла"/>
+                                            <hc:ComboBox ItemsSource="{Binding Scales}"
+                                                 SelectedItem="{Binding DefaultFileScale}"
+                                                 Style="{StaticResource ComboBoxBaseStyle}"
+                                                 Width="90"/>
+                                            <!--<i:Interaction.Triggers>
+                                                <i:DataTrigger Binding="{Binding FileAlignment}" Value="{x:Static classes:FileAlignment.AlignByThreePoint}">
+                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
+                                                </i:DataTrigger>
+                                                <i:DataTrigger Binding="{Binding FileAlignment}" Value="{x:Static classes:FileAlignment.AlignByCorner}">
+                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                                </i:DataTrigger>
+                                                <i:DataTrigger Binding="{Binding FileAlignment}" Value="{x:Static classes:FileAlignment.AlignByTwoPoint}">
+                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                                </i:DataTrigger>
+                                            </i:Interaction.Triggers>-->
+                                        </hc:ElementGroup>
+                                        <uclocal:ItemsButton DockPanel.Dock="Right"
+                                                             Items="{Binding Alignments}"
+                                                             SelectedItem="{Binding FileAlignment, Mode=OneWayToSource}"
+                                                             ItemSelector="{StaticResource AligningSelector}"
+                                                             HorizontalAlignment="Stretch"
+                                                            >
+                                        </uclocal:ItemsButton>
+                                        <Label Content="Тип совмещения"/>
                                     </DockPanel>
                                     <DockPanel>
                                         <Border CornerRadius="3" Background="{DynamicResource DarkMaskBrush}"
