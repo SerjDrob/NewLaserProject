@@ -41,7 +41,7 @@ namespace NewLaserProject.ViewModels
         {
 
         }
-        public void SetFileView(IDxfReader dxfReader, int fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
+        public void SetFileView(IDxfReader dxfReader, float fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
             double waferOffsetY, string filePath, IDictionary<string, bool> ignoredLayers)
         {
             _dxfReader = dxfReader;
@@ -230,7 +230,7 @@ namespace NewLaserProject.ViewModels
         public double FieldSizeY { get => FileScale * WaferHeight; }
         public double WaferWidth { get; set; } = 48;
         public double WaferHeight { get; set; } = 60;
-        public int FileScale { get; set; } = 1000;
+        public float FileScale { get; set; } = 1000;
         [OnChangedMethod(nameof(TransChanged))]
         public bool MirrorX { get; set; } = true;
         [OnChangedMethod(nameof(TransChanged))]

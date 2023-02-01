@@ -8,6 +8,7 @@ using MachineControlsLibrary.Classes;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+//using Microsoft.Extensions.Logging;
 using NewLaserProject.Classes;
 using NewLaserProject.Data;
 using NewLaserProject.ViewModels;
@@ -22,44 +23,14 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using NReco.Logging.File;
+using Microsoft.Extensions.Logging;
+using HandyControl.Controls;
+using Microsoft.VisualBasic.Logging;
 
 namespace NewLaserProject
 {
-    internal class ScopedGeomsRequest:IProcessNotify
-    {
-        public ScopedGeomsRequest(double width, double height, double x, double y)
-        {
-            Width = width;
-            Height = height;
-            X = x;
-            Y = y;
-        }
 
-        public double Width { get; init; }
-        public double Height { get; init; }
-        public double X { get; init; }
-        public double Y { get; init; }
-    }
-
-    public interface IReqHandler<TRequest, TResponse>
-    {
-        Task<TResponse> HandleAsync(TRequest request);
-    }
-
-    public class Mediator<TRequest, TResponse>
-    {
-        private Func<TRequest, Task<TResponse>> _handler;
-        public void Subscribe(IReqHandler<TRequest,TResponse> reqHandler)
-        {
-            _handler = reqHandler.HandleAsync;
-        }
-        public async Task<TResponse> Send(TRequest request)
-        {
-            return await _handler?.Invoke(request);
-        }
-    }
-
-    
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
@@ -70,7 +41,6 @@ namespace NewLaserProject
         {
             var machineconfigs = ExtensionMethods
                 .DeserilizeObject<MachineConfiguration>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "MachineConfigs.json"));
-
 
             MainIoC = new ServiceCollection();
 
@@ -100,6 +70,10 @@ namespace NewLaserProject
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
                    .AddDbContext<DbContext, LaserDbContext>()
+                   .AddLogging(builder=>
+                   {
+                       builder.AddFile(ProjectPath.GetFilePathInFolder(ProjectFolders.TEMP_FILES, "app.log"));
+                   })
                    ;
 
             var listenerName = "myListener";
@@ -117,7 +91,10 @@ namespace NewLaserProject
             var provider = MainIoC.BuildServiceProvider();
 
 #if PCIInserted
+            
+         
             var viewModel = provider.GetService<MainViewModel>();
+            
 #else
             var db = provider.GetService<LaserDbContext>();
             var mediator = provider.GetService<IMediator>();
@@ -137,6 +114,17 @@ namespace NewLaserProject
         }
     }
 
+
+    internal static partial class LogExtensions
+    {
+        [LoggerMessage(EventId = 23,
+            Level = LogLevel.Error,
+            Message = "Motion failed with '{message}'")]
+        public static partial void LogMotionException(this ILogger logger, string message);
+        [LoggerMessage(12, LogLevel.Warning, "Fuck '{message}'")]
+        public static partial void LogAppException(this ILogger logger, string message);
+    }
+
     class MyTraceListener : TextWriterTraceListener
     {
         public MyTraceListener(string? fileName, string? name) : base(fileName, name)
@@ -151,6 +139,24 @@ namespace NewLaserProject
         public override void Flush()
         {
             base.Flush();
+        }
+    }
+
+    class FileLogger : ILogger
+    {
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            throw new NotImplementedException();
         }
     }
 }

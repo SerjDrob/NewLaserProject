@@ -3,6 +3,7 @@
     public enum FileAlignment
     {
         AlignByCorner,
-        AlignByThreePoint
+        AlignByThreePoint,
+        AlignByTwoPoint
     }
 }

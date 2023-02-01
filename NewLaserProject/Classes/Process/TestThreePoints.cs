@@ -51,7 +51,7 @@ namespace NewLaserProject.Classes.Process
             _zeroZPiercing = zeroZPiercing;
         }
 
-        CoorSystem<LMPlace> workCoorSys = new();
+        CoorSystem<LMPlace> workCoorSys;// = new();
         public void CreateProcess()
         {
             _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
@@ -94,11 +94,11 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(() => _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged)
                 //.OnEntry(() => SwitchCamera?.Invoke(this, false))
                 .OnEntry(() => workCoorSys = new CoorSystem<LMPlace>
-                    .ThreePointCoorSystemBuilder<LMPlace>()
+                    .ThreePointCoorSystemBuilder()
                     .SetFirstPointPair(originPoints[0], resultPoints[0])
                     .SetSecondPointPair(originPoints[1], resultPoints[1])
                     .SetThirdPointPair(originPoints[2], resultPoints[2])
-                    .FormWorkMatrix(0.001, 0.001, false)
+                    .FormWorkMatrix(0.001, 0.001)
                     .Build())
                 .OnEntry(() => _matrixAngle = workCoorSys.GetMatrixAngle())
                 .OnEntry(() => _stateMachine.Fire(Trigger.Next))
