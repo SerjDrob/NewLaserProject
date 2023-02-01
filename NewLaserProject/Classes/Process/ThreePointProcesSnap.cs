@@ -36,7 +36,9 @@ namespace NewLaserProject.Classes.Process
         private CancellationTokenSource _ctSource;
         private readonly InfoMessager _infoMessager;
         private double _xActual;
+        private double _xCmd;
         private double _yActual;
+        private double _yCmd;
         private readonly double _dX;
         private readonly double _dY;
         private readonly double _pazAngle;
@@ -53,7 +55,7 @@ namespace NewLaserProject.Classes.Process
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
-            _underCamera = true;
+            _underCamera = false;// true;
             _wafer = wafer;
             _serviceWafer = serviceWafer;
             _jsonPierce = jsonPierce;
@@ -219,9 +221,11 @@ namespace NewLaserProject.Classes.Process
             {
                 case Ax.X:
                     _xActual = e.Position;
+                    _xCmd = e.CmdPosition;
                     break;
                 case Ax.Y:
                     _yActual = e.Position;
+                    _yCmd = e.CmdPosition;
                     break;
                 default:
                     break;

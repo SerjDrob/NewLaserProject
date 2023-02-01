@@ -50,7 +50,7 @@ namespace NewLaserProject.Classes
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
         {
-            _underCamera = true;
+            _underCamera = false;// true;
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;
@@ -130,20 +130,6 @@ namespace NewLaserProject.Classes
                            /* _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness)*/);
                         procObject.IsBeingProcessed = true;
 
-                        //var pointsLine = $"X: {procObject.X,8} | Y: {procObject.X,8} | X: {position[0],8} | Y: {position[1],8} | X: {_laserMachine.GetAxActual(Ax.X),8} | Y: {_laserMachine.GetAxActual(Ax.Y),8}";
-
-                        var dx = position[0] - _laserMachine.GetAxActual(Ax.X);
-                        var dy = position[1] - _laserMachine.GetAxActual(Ax.Y);
-                        if(dx > Math.Abs(0.003) | dy > Math.Abs(0.003)) 
-                        {
-                            var pointsLine = $"X: {procObject.X,8} | Y: {procObject.X,8} | dX: {dx} | dY: {dy} ";
-
-                            await coorFile.WriteLineAsync(pointsLine);
-                            await coorFile.WriteLineAsync("______________________________________________________");
-                        }
-                       
-
-
                         if (_inProcess && !_underCamera)
                         {
                             await pierceFunction();
@@ -151,7 +137,18 @@ namespace NewLaserProject.Classes
                         else
                         {
                             await Task.Delay(1000);
-                            System.Windows.Forms.MessageBox.Show("Test");
+                            var pointsLine = String.Empty;
+                            var line = $" X: { Math.Round(procObject.X, 3),8 } | Y: { Math.Round(procObject.Y, 3),8} | X: { Math.Round(position[0], 3),8} | Y: { Math.Round(position[1], 3),8} | X: { Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: { Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
+                            if (HandyControl.Controls.MessageBox.Ask("Good?") == System.Windows.MessageBoxResult.OK)
+                            {
+                                pointsLine = "GOOD" + line;
+                            }
+                            else
+                            {
+                                pointsLine = $"BAD " + line;
+                            }
+                            await coorFile.WriteLineAsync(pointsLine);
+                            await coorFile.FlushAsync();
                         }
                         procObject.IsProcessed = true;
                     }

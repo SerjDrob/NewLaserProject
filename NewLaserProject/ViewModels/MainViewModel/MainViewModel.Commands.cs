@@ -59,7 +59,7 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxInPosAsync(Ax.X, TestX, true),
                         _laserMachine.MoveAxInPosAsync(Ax.Y, TestY, true)
                         );
-                }, () => false)
+                }, () => true)
                 .CreateKeyDownCommand(Key.L, () =>
                 {
                     //Dialog.Show<MaterialDialogControl>()
@@ -120,6 +120,11 @@ namespace NewLaserProject.ViewModels
                         return true;
                     });
 
+                    return Task.CompletedTask;
+                },()=>true)
+                .CreateKeyDownCommand(Key.F7,()=>
+                {
+                    _laserMachine.InvokeSettinds();
                     return Task.CompletedTask;
                 },()=>true)
                 ;

@@ -234,6 +234,9 @@
                                     <Image Source="Sources/scale.png" Height="20"/>
                                 </MenuItem.Icon>
                             </MenuItem>
+                            <MenuItem 
+                                      Header="Настройки видео" InputGestureText="F7">
+                            </MenuItem>
                         </StackPanel>
                     </hc:SplitButton.DropDownContent>
                     <!--<Image Source="Sources/learning.png"/>-->
@@ -384,7 +387,7 @@
                     </Border>
                 </DockPanel>
             </ToolBar>
-            <ToolBar Visibility="Hidden">
+            <ToolBar Visibility="Visible">
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
 
