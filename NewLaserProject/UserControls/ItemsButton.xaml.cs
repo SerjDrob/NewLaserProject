@@ -97,7 +97,7 @@ namespace NewLaserProject.UserControls
                 itemsButton.SelectedItem = itemsButton.Items.ElementAt(itemsButton._index);
                 cc.ContentTemplate = itemsButton.ItemSelector.SelectTemplate(itemsButton.SelectedItem, cc);
                 cc.Content = itemsButton.SelectedItem;
-                itemsButton.MainButton.Content = cc; 
+                itemsButton.MainButton.Content = cc;                 
             }
             else
             {

@@ -44,6 +44,7 @@ namespace NewLaserProject.ViewModels
 				.OnExit(() =>
 				{
 					//CancelProcess();
+					_mainProcess?.Dispose();
 					OnProcess = false;
 				})
 				.Permit(AppTrigger.EndProcess, AppState.Default)

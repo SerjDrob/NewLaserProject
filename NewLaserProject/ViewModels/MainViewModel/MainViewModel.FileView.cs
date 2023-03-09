@@ -1,7 +1,5 @@
-﻿using HandyControl.Tools.Extension;
-using MachineClassLibrary.Classes;
+﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
-using MachineControlsLibrary.Classes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
@@ -15,14 +13,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Media;
+using HandyControl.Controls;
+//using HandyControl.Data;
+
 
 namespace NewLaserProject.ViewModels
 {
     internal partial class MainViewModel
     {
-        public int FileScale { get; set; } = 1000;
+        //public int FileScale { get; set; } = 1000;
+        public ObservableCollection<Scale> Scales { get; set; } = new(new() { new Scale(1000, 1), new Scale(100,1), new Scale(1,1) });
+        public Scale DefaultFileScale { get; set; } 
         public bool IsFileLoaded { get; set; } = false;
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
@@ -30,11 +31,11 @@ namespace NewLaserProject.ViewModels
         public double WaferOffsetY { get; set; }
         [OnChangedMethod(nameof(WiferDimensionChanged))]
         public double WaferWidth { get; set; } = 48;
-        
+
         [OnChangedMethod(nameof(WiferDimensionChanged))]
         public double WaferHeight { get; set; } = 60;
         public double WaferThickness { get; set; } = 0.5;
-        
+
         public double XDimension { get; private set; }
         public double YDimension { get; private set; }
         public double XDimensionOffset { get; private set; }
@@ -49,7 +50,7 @@ namespace NewLaserProject.ViewModels
         public double LaserViewfinderY { get; set; }
         [OnChangedMethod(nameof(CutModeSwitched))]
         public bool CutMode { get; set; }
-               
+
         public string FileName { get; set; } = "Open the file";
 
         public Dictionary<string, bool> IgnoredLayers { get; set; }
@@ -70,96 +71,115 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void OpenFile()
         {
-            var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "dxf files (*.dxf)|*.dxf";
-            openFileDialog.FilterIndex = 2;
-            openFileDialog.RestoreDirectory = false;
-            
-            if (openFileDialog.ShowDialog() ?? false)
+            try
             {
-                //techMessager.RealeaseMessage("Загрузка...", Icon.Loading);
+                var openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "dxf files (*.dxf)|*.dxf";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = false;
 
-                //Get the path of specified file
-                FileName = openFileDialog.FileName;
-                if (File.Exists(FileName))
+                if (openFileDialog.ShowDialog() ?? false)
                 {
-                    var dxfReader = new IMDxfReader(FileName);
+                    DefaultFileScale = Scales[0];
+                    FileAlignment = (FileAlignment)Alignments[0];
+                    //techMessager.RealeaseMessage("Загрузка...", Icon.Loading);
 
-                    _dxfReader = new DxfEditor(dxfReader);
-
-                    MirrorX = Settings.Default.WaferMirrorX;
-                    WaferTurn90 = Settings.Default.WaferAngle90;
-                    WaferOffsetX = 0;
-                    WaferOffsetY = 0;
-
-                    _openedFileVM.SetFileView(_dxfReader, FileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName);
-                    _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
-
-                    _db.Set<DefaultLayerFilter>()
-                        .AsNoTracking()
-                        .ToDictionaryAsync(key => key.Filter, val => val.IsVisible)
-                        .ContinueWith(res=>IgnoredLayers=res.Result, TaskScheduler.Default)
-                        .ConfigureAwait(false);
-
-                    AvailableMaterials = _db.Set<Material>()
-                                            .Include(m=>m.Technologies)
-                                            .AsNoTracking()
-                                            .ToObservableCollection();
-
-                    LayersStructure = _dxfReader.GetLayersStructure();
-
-                    var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(Path.Combine(ProjectPath.GetFolderPath(APP_SETTINGS_FOLDER), "DefaultProcessFilter.json"));
-
-                    if (defLayerProcDTO is not null)
+                    //Get the path of specified file
+                    FileName = openFileDialog.FileName;
+                    if (File.Exists(FileName))
                     {
-                        var defLayerName = _db.Set<DefaultLayerFilter>()
-                            .SingleOrDefault(d => d.Id == defLayerProcDTO.LayerFilterId)?.Filter;
+                        var dxfReader = new IMDxfReader(FileName);
 
-                        if (defLayerName is not null)
-                        {
-                            var layer = LayersStructure.Keys
-                                .ToList()
-                                .FirstOrDefault(k => k.Contains(defLayerName, StringComparison.InvariantCultureIgnoreCase));
+                        _dxfReader = new DxfEditor(dxfReader);
 
-                            if (layer is not null)
+                        MirrorX = Settings.Default.WaferMirrorX;
+                        WaferTurn90 = Settings.Default.WaferAngle90;
+                        WaferOffsetX = 0;
+                        WaferOffsetY = 0;
+
+                        IgnoredLayers = new();
+
+                        _db.Set<DefaultLayerFilter>()
+                            .AsNoTracking()
+                            .ToList().ForEach(d =>
                             {
-                                DefLayerIndex = LayersStructure.Keys.ToList()
-                                    .IndexOf(layer);
+                                IgnoredLayers[d.Filter] = d.IsVisible;
+                            });
 
-                                DefEntityIndex = LayersStructure[layer]
-                                    .Select(e => LaserEntDxfTypeAdapter.GetLaserEntity(e.objType))
-                                    .ToList()
-                                    .IndexOf((LaserEntity)defLayerProcDTO.EntityType);
-                            }
-                        }
-                        else
+
+                        _openedFileVM.SetFileView(_dxfReader, DefaultFileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers);
+                        _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
+
+                        AvailableMaterials = _db.Set<Material>()
+                                                .Include(m => m.Technologies)
+                                                .Include(m => m.MaterialEntRule)
+                                                .AsNoTracking()
+                                                .ToObservableCollection();
+
+                        LayersStructure = _dxfReader.GetLayersStructure();
+
+                        var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(Path.Combine(ProjectPath.GetFolderPath(APP_SETTINGS_FOLDER), "DefaultProcessFilter.json"));
+
+                        if (defLayerProcDTO is not null)
                         {
-                            DefLayerIndex = 0;
+                            var defLayerName = _db.Set<DefaultLayerFilter>()
+                                .SingleOrDefault(d => d.Id == defLayerProcDTO.LayerFilterId)?.Filter;
+
+                            if (defLayerName is not null)
+                            {
+                                var layer = LayersStructure.Keys
+                                    .ToList()
+                                    .FirstOrDefault(k => k.Contains(defLayerName, StringComparison.InvariantCultureIgnoreCase));
+
+                                if (layer is not null)
+                                {
+                                    DefLayerIndex = LayersStructure.Keys.ToList()
+                                        .IndexOf(layer);
+
+                                    DefEntityIndex = LayersStructure[layer]
+                                        .Select(e => LaserEntDxfTypeAdapter.GetLaserEntity(e.objType))
+                                        .ToList()
+                                        .IndexOf((LaserEntity)defLayerProcDTO.EntityType);//TODO what if there is no entities on the layer
+                                }
+                            }
+                            else
+                            {
+                                DefLayerIndex = 0;
+                            }
+
+                            DefMaterialIndex = AvailableMaterials
+                                .ToList()
+                                .FindIndex(m => m.Id == defLayerProcDTO.MaterialId);
+
+                            var defLayerEntTechnology = _db.Set<DefaultLayerEntityTechnology>()
+                                .Where(d => d.DefaultLayerFilterId == defLayerProcDTO.LayerFilterId
+                                && d.EntityType == (LaserEntity)defLayerProcDTO.EntityType
+                                && d.Technology.MaterialId == defLayerProcDTO.MaterialId)
+                                .Select(d => d.Technology)
+                                .Single();
+
+                            DefTechnologyIndex = AvailableMaterials.Where(m => m.Id == defLayerProcDTO.MaterialId)
+                                .SingleOrDefault()?
+                                .Technologies?
+                                .FindIndex(t => t.Id == defLayerEntTechnology.Id) ?? -1;
                         }
 
-                        DefMaterialIndex = AvailableMaterials
-                            .ToList()
-                            .FindIndex(m => m.Id == defLayerProcDTO.MaterialId);
-
-                        var defLayerEntTechnology = _db.Set<DefaultLayerEntityTechnology>()
-                            .Where(d => d.DefaultLayerFilterId == defLayerProcDTO.LayerFilterId
-                            && d.EntityType == (LaserEntity)defLayerProcDTO.EntityType
-                            && d.Technology.MaterialId == defLayerProcDTO.MaterialId)
-                            .Select(d => d.Technology)
-                            .Single();
-
-                        DefTechnologyIndex = AvailableMaterials.Where(m => m.Id == defLayerProcDTO.MaterialId)
-                            .SingleOrDefault()?
-                            .Technologies?
-                            .FindIndex(t => t.Id == defLayerEntTechnology.Id) ?? -1;
+                        IsFileLoaded = true;
                     }
-
-                    IsFileLoaded = true;
+                    else
+                    {
+                        IsFileLoaded = false;
+                    }
                 }
-                else
+            }
+            catch (DxfReaderException ex)
+            {
+                Growl.Error(new HandyControl.Data.GrowlInfo()
                 {
-                    IsFileLoaded = false;
-                }
+                    StaysOpen = true,
+                    Message=ex.Message,
+                    
+                });
             }
 
         }
@@ -194,7 +214,7 @@ namespace NewLaserProject.ViewModels
         }
         private void ViewFinderChanged()
         {
-            _openedFileVM?.SetViewFinders(CameraViewfinderX,CameraViewfinderY,LaserViewfinderX,LaserViewfinderY);
+            _openedFileVM?.SetViewFinders(CameraViewfinderX, CameraViewfinderY, LaserViewfinderX, LaserViewfinderY);
         }
         private void TuneMachineFileView()
         {

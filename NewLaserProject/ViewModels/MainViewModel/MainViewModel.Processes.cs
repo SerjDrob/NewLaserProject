@@ -1,5 +1,7 @@
 ﻿#define Snap
 
+using HandyControl.Controls;
+using HandyControl.Data;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
@@ -42,9 +44,8 @@ namespace NewLaserProject.ViewModels
         public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
-        public int IsBeingProcessedIndex { get; private set; }
         public FileAlignment FileAlignment { get; set; }
-
+        public ObservableCollection<object> Alignments { get; set; } = new( new(){ FileAlignment.AlignByThreePoint, FileAlignment.AlignByCorner, FileAlignment.AlignByTwoPoint });
         public Technology CurrentTechnology { get; set; }
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
@@ -87,7 +88,6 @@ namespace NewLaserProject.ViewModels
         {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
-
             var procObjects = (CurrentEntityType switch
             {
                 LaserEntity.Curve => _dxfReader.GetAllCurves(CurrentLayerFilter).Cast<IProcObject>(),
@@ -105,7 +105,7 @@ namespace NewLaserProject.ViewModels
 
 
             wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
-            wafer.Scale(1F / FileScale);
+            wafer.Scale(1F / DefaultFileScale);
             if (WaferTurn90) wafer.Turn90();
             if (MirrorX) wafer.MirrorX();
             wafer.OffsetX((float)WaferOffsetX);
@@ -113,7 +113,12 @@ namespace NewLaserProject.ViewModels
 
             _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
             var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
-
+            var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
+            if (materialEntRule is not null)
+            {
+                entityPreparator.SetEntityContourOffset(materialEntRule.Offset);
+                entityPreparator.SetEntityContourWidth(materialEntRule.Width);
+            }
             switch (FileAlignment)
             {
                 case FileAlignment.AlignByCorner:
@@ -132,21 +137,17 @@ namespace NewLaserProject.ViewModels
                     }
                     break;
 
-                case FileAlignment.AlignByThreePoint:
+                case FileAlignment.AlignByThreePoint or FileAlignment.AlignByTwoPoint:
                     {
-                        var pts = _dxfReader.GetPoints();
-                        var waferPoints = new LaserWafer(pts, topologySize);
+                        //var pts = _dxfReader.GetPoints();
+                        //var waferPoints = new LaserWafer(pts, topologySize);
 
-                        waferPoints.Scale(1F / FileScale);
-                        if (WaferTurn90) waferPoints.Turn90();
-                        if (MirrorX) waferPoints.MirrorX();
-                        waferPoints.OffsetX((float)WaferOffsetX);
-                        waferPoints.OffsetY((float)WaferOffsetY);
-
-
-
-                        var coorSystem = (CoorSystem<LMPlace>)_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
-
+                        //waferPoints.Scale(1/DefaultFileScale);
+                        //if (WaferTurn90) waferPoints.Turn90();
+                        //if (MirrorX) waferPoints.MirrorX();
+                        //waferPoints.OffsetX((float)WaferOffsetX);
+                        //waferPoints.OffsetY((float)WaferOffsetY);
+                        var coorSystem = /*(CoorSystem<LMPlace>)*/_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
 
 #if notSnap
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
@@ -164,26 +165,29 @@ namespace NewLaserProject.ViewModels
                                         coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                         Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
 #endif
-
-
-
 #if Snap
                         //------SnapTest--------------
 
                         var serviceWafer = new LaserWafer(topologySize);
-                        serviceWafer.Scale(1F / FileScale);
+                        serviceWafer.Scale(1/DefaultFileScale);
                         if (WaferTurn90) serviceWafer.Turn90();
                         if (MirrorX) serviceWafer.MirrorX();
                         serviceWafer.OffsetX((float)WaferOffsetX);
                         serviceWafer.OffsetY((float)WaferOffsetY);
 
-                        _mainProcess = new ThreePointProcesSnap(wafer, serviceWafer, _pierceSequenceJson, _laserMachine,
-                                                               coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
-                                                               Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
+                        _mainProcess = FileAlignment switch
+                        {
+                            FileAlignment.AlignByThreePoint => new PointsProcessSnap(wafer /* procObjects*/, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
+                                                                coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                                                                Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator),
+
+                            FileAlignment.AlignByTwoPoint => new PointsProcessSnap(wafer /*procObjects*/, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
+                                                                coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                                                                Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator,
+                                                                new PureCoorSystem<LMPlace>(_coorSystem.GetMainMatrixElements().GetMatrix3()))
+                        };
                         //----------------------------  
 #endif
-
-
                     }
                     break;
 
@@ -239,6 +243,7 @@ namespace NewLaserProject.ViewModels
                             }
                             break;
                         case CompletionStatus.Cancelled:
+                            MessageBox.Fatal("Процесс отменён");
                             techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
                             break;
                         default:
@@ -246,6 +251,35 @@ namespace NewLaserProject.ViewModels
                     }
                     _appStateMachine.Fire(AppTrigger.EndProcess);
                 });
+
+
+            _mainProcess.OfType<ProcessMessage>()
+                .Subscribe(args =>
+                {
+                    switch (args.MessageType)
+                    {
+                        case Classes.MsgType.Request:
+                            break;
+                        case Classes.MsgType.Info:
+                            Growl.Info(new GrowlInfo()
+                            {
+                                StaysOpen = true,
+                                Message = args.Message,
+                                ShowDateTime = false                                
+                            });                            
+                            break;
+                        case MsgType.Warn:
+                            break;
+                        case MsgType.Error:
+                            break;
+                        case MsgType.Clear:
+                            Growl.Clear();
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
 
 
             HideProcessPanel(false);

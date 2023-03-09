@@ -24,7 +24,7 @@ namespace NewLaserProject.Data.Models
         public string Name { get; set; }
 
         public List<Technology>? Technologies { get; set; }
-
+        public MaterialEntRule? MaterialEntRule { get; set; }
         public bool Equals(Material? other)
         {
             if (ReferenceEquals(null, other)) return false;
