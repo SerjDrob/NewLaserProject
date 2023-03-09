@@ -35,9 +35,10 @@ namespace NewLaserProject.Data
             var connectionstring = new SqlConnectionStringBuilder()
             {
                 //DataSource = @"C:\Users\serjd\source\repos\NewLaserProject\NewLaserProject\Data\laserDatabase.db"
-                DataSource = Path.Join( ProjectPath.GetFolderPath("Data"), "laserDatabase.db")
-               //DataSource = "C:/Users/Serj/source/repos/NewLaserProject/NewLaserProject/Data/laserDatabase.db"
-             }.ToString();
+                DataSource = @"C:\Users\UV-Laser\source\repos\NewLaserProject\NewLaserProject\Data\laserDatabase.db"
+                //DataSource = Path.Join( ProjectPath.GetFolderPath("Data"), "laserDatabase.db")
+                //DataSource = "C:/Users/Serj/source/repos/NewLaserProject/NewLaserProject/Data/laserDatabase.db"
+            }.ToString();
 
             optionsBuilder.UseSqlite(connectionstring);
         }

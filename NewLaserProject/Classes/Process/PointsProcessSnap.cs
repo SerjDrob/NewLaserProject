@@ -102,8 +102,8 @@ namespace NewLaserProject.Classes.Process
                 .Subscribe(async result =>
                 {
                     var point = _serviceWafer.GetPointToWafer(result);
-                    //originPoints.Add(point);
-                    originPoints.Add(result);//TODO das experiment
+                    originPoints.Add(point);
+                    //originPoints.Add(result);//TODO das experiment
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                     try
                     {
@@ -129,7 +129,7 @@ namespace NewLaserProject.Classes.Process
             SwitchCamera?.Invoke(this, true);
 
             _stateMachine.Configure(State.Started)
-                .OnActivate(() => _infoMessager.RealeaseMessage("Next", ViewModels.MessageType.Info))
+                .OnActivate(() => _infoMessager.RealeaseMessage("Next", MessageType.Info))
                 .Permit(Trigger.Next, State.GoRefPoint)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
@@ -172,7 +172,7 @@ namespace NewLaserProject.Classes.Process
                        .GetTwoPointSystemBuilder()
                        .SetFirstPointPair(originPoints[0], resultPoints[0])
                        .SetSecondPointPair(originPoints[1], resultPoints[1])
-                       .FormWorkMatrix(0.001, 0.001)
+                       .FormWorkMatrix(1, 1)
                        .Build()
                     };
                     _matrixAngle = _workCoorSys.GetMatrixAngle();
