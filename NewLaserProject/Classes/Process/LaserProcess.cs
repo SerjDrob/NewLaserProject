@@ -52,7 +52,7 @@ namespace NewLaserProject.Classes
         public LaserProcess(IEnumerable<IProcObject> wafer, string jsonPierce, LaserMachine laserMachine,
             ICoorSystem coorSystem, double zPiercing, double waferThickness, EntityPreparator entityPreparator)
         {
-            _underCamera = true;
+            _underCamera = false;
             _wafer = wafer;
             _jsonPierce = jsonPierce;
             _laserMachine = laserMachine;

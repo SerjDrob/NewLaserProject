@@ -102,10 +102,10 @@
       <Value Profile="(Default)">0.01</Value>
     </Setting>
     <Setting Name="XOffset" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">-26.659</Value>
     </Setting>
     <Setting Name="YOffset" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">-9.787</Value>
     </Setting>
     <Setting Name="XRightPoint" Type="System.Double" Scope="User">
       <Value Profile="(Default)">55</Value>
