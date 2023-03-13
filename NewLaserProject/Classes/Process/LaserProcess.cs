@@ -177,7 +177,7 @@ namespace NewLaserProject.Classes
                     _inLoop = waferEnumerator.MoveNext();
                     currentIndex++;
                 })
-                .OnExit(() => _inProcess = false)
+                .OnExit(() => _inProcess = _loopCount < _progTreeParser.MainLoopCount)
                 .PermitIf(Trigger.Next, State.Working, () => _loopCount < _progTreeParser.MainLoopCount)
                 .PermitIf(Trigger.Next, State.Exit, () => _loopCount >= _progTreeParser.MainLoopCount);
 

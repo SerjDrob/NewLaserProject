@@ -4,29 +4,20 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
-using MachineControlsLibrary.Classes;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 //using Microsoft.Extensions.Logging;
 using NewLaserProject.Classes;
 using NewLaserProject.Data;
 using NewLaserProject.ViewModels;
 using NewLaserProject.Views;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reactive;
-using System.Reactive.Subjects;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using NReco.Logging.File;
-using Microsoft.Extensions.Logging;
-using HandyControl.Controls;
-using Microsoft.VisualBasic.Logging;
 
 namespace NewLaserProject
 {
@@ -39,19 +30,20 @@ namespace NewLaserProject
         public ServiceCollection MainIoC { get; private set; }
         public App()
         {
-            var machineconfigs = ExtensionMethods
-                .DeserilizeObject<MachineConfiguration>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "MachineConfigs.json"));
+            MachineConfiguration machineconfigs = ExtensionMethods
+                .DeserilizeObject<MachineConfiguration>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "MachineConfigs.json"))
+                ?? throw new NullReferenceException("The machine configs are null");
 
             MainIoC = new ServiceCollection();
 
             MainIoC.AddMediatR(Assembly.GetExecutingAssembly())
-                   //.AddSingleton<ISubject,Subject>()
+                   //.AddSingleton<ISubject, Subject>()
                    .AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
                    .AddScoped<MotionDevicePCI1245E>()
                    .AddSingleton(sp =>
                    {
-                        return new MotionBoardFactory(sp, machineconfigs).GetMotionBoard();
+                       return new MotionBoardFactory(sp, machineconfigs).GetMotionBoard();
                    })
                    .AddSingleton<ExceptionsAgregator>()
                    .AddScoped<JCZLaser>()
@@ -66,11 +58,11 @@ namespace NewLaserProject
                    {
                        return new LaserBoardFactory(sp, machineconfigs).GetLaserBoard();
                    })
-                   .AddScoped<IVideoCapture,USBCamera>()                   
+                   .AddScoped<IVideoCapture, USBCamera>()
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
                    .AddDbContext<DbContext, LaserDbContext>()
-                   .AddLogging(builder=>
+                   .AddLogging(builder =>
                    {
                        builder.AddFile(ProjectPath.GetFilePathInFolder(ProjectFolders.TEMP_FILES, "app.log"));
                    })
@@ -78,7 +70,7 @@ namespace NewLaserProject
 
             var listenerName = "myListener";
             Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));
-            
+
             //Trace.Listeners.Add(new MyTraceListener("MyLog.log", listenerName));
 
             Trace.Listeners[listenerName].TraceOutputOptions |= TraceOptions.DateTime;
@@ -91,17 +83,17 @@ namespace NewLaserProject
             var provider = MainIoC.BuildServiceProvider();
 
 #if PCIInserted
-            
-         
+
+
             var viewModel = provider.GetService<MainViewModel>();
-            
+
 #else
             var db = provider.GetService<LaserDbContext>();
             var mediator = provider.GetService<IMediator>();
             var viewModel = new MainViewModel(db,mediator);
-#endif   
+#endif
             base.OnStartup(e);
-            
+
             Trace.TraceInformation("The application started");
             Trace.Flush();
 
@@ -109,7 +101,7 @@ namespace NewLaserProject
             {
                 DataContext = viewModel
             }.Show();
-            
+
             viewModel?.OnInitialized();
         }
     }
