@@ -105,6 +105,10 @@ namespace NewLaserProject.ViewModels
             _laserMachine = laserMachine;
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _db = db;
+
+            _loadingContextTask = LoadContext();
+
+
             _mediator = mediator;
 
             techMessager = new();
