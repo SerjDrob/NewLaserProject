@@ -41,6 +41,7 @@ namespace NewLaserProject.Classes
         private readonly EntityPreparator _entityPreparator;
         private readonly ISubject<IProcessNotify> _subject;
         private List<IDisposable> _subscriptions;
+        private StreamWriter _coorFile;
         private readonly bool _underCamera;
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
@@ -77,129 +78,137 @@ namespace NewLaserProject.Classes
 
 
         public void CreateProcess()
-        {   
-            _progTreeParser = new ProgTreeParser(_jsonPierce);
+        {
+            try
+            {
+                _progTreeParser = new ProgTreeParser(_jsonPierce);
 
-            var currentIndex = -1;
-            var waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
-                            : _wafer.GetEnumerator();
-            var coorFile = new StreamWriter(ProjectPath.GetFilePathInFolder(ProjectPath.GetFolderPath("TempFiles"), "coorFile"));
-            _progTreeParser
-                //TODO don't pass the taper, it should be calculated value respective the taper and other tech params like specified tolerance
-                .SetModuleFunction<TaperBlock, double>(new FuncProxy<double>(taper => _entityPreparator.SetEntityContourOffset(taper)))
-                .SetModuleFunction<AddZBlock, double>(new FuncProxy<double>(async z => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); }))
-                .SetModuleFunction<PierceBlock, ExtendedParams>(new FuncProxy<ExtendedParams>(async mlp => { await Pierce(mlp, waferEnumerator.Current); }))
-                .SetModuleFunction<DelayBlock, int>(new FuncProxy<int>(Task.Delay));
+                var currentIndex = -1;
+                var waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
+                                : _wafer.GetEnumerator();
+                _coorFile = new StreamWriter(ProjectPath.GetFilePathInFolder(ProjectPath.GetFolderPath("TempFiles"), "coorFile"));
+                _progTreeParser
+                    //TODO don't pass the taper, it should be calculated value respective the taper and other tech params like specified tolerance
+                    .SetModuleFunction<TaperBlock, double>(new FuncProxy<double>(taper => _entityPreparator.SetEntityContourOffset(taper)))
+                    .SetModuleFunction<AddZBlock, double>(new FuncProxy<double>(async z => { await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true); }))
+                    .SetModuleFunction<PierceBlock, ExtendedParams>(new FuncProxy<ExtendedParams>(async mlp => { await Pierce(mlp, waferEnumerator.Current); }))
+                    .SetModuleFunction<DelayBlock, int>(new FuncProxy<int>(Task.Delay));
 
-            var pierceFunction = _progTreeParser
-                .GetTree()
-                .GetFunc();
+                var pierceFunction = _progTreeParser
+                    .GetTree()
+                    .GetFunc();
 
-            _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
+                _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
 
-            _stateMachine.Configure(State.Started)
-                .OnActivate(() => { _inLoop = waferEnumerator.MoveNext(); currentIndex++; })
-                .Ignore(Trigger.Pause)
-                .Permit(Trigger.Deny, State.Denied)
-                .Permit(Trigger.Next, State.Working);
+                _stateMachine.Configure(State.Started)
+                    .OnActivate(() => { _inLoop = waferEnumerator.MoveNext(); currentIndex++; })
+                    .Ignore(Trigger.Pause)
+                    .Permit(Trigger.Deny, State.Denied)
+                    .Permit(Trigger.Next, State.Working);
 
-            _stateMachine.Configure(State.Working)
-                .OnEntryAsync(async () => 
-                {                    
-                    var procObject = waferEnumerator.Current;
-                    ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
-                    
-                    _subject.OnNext(new ProcObjectChanged(procObject));
-
-                    if (!_excludedObjects?.Any(o=>o.Id==procObject.Id) ?? true)
+                _stateMachine.Configure(State.Working)
+                    .OnEntryAsync(async () =>
                     {
-                        var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
-                        _laserMachine.SetVelocity(Velocity.Fast);
-                        if(!_underCamera) await Task.WhenAll(
-                        //_laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
-                        
-                        _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
-                        _laserMachine.MoveAxInPosAsync(Ax.X, position[0],true),
-                        _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
-                        await Task.Delay(300);
-                        await Task.WhenAll(
-                            //_laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
+                        var procObject = waferEnumerator.Current;
+                        ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
 
-                            _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
-                            _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true)//,
-                           /* _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness)*/);
-                        procObject.IsBeingProcessed = true;
+                        _subject.OnNext(new ProcObjectChanged(procObject));
 
-                        if (_inProcess && !_underCamera)
+                        if (!_excludedObjects?.Any(o => o.Id == procObject.Id) ?? true)
                         {
-                            await pierceFunction();
-                        }
-                        else
-                        {
-                            await Task.Delay(1000);
-                            var pointsLine = String.Empty;
-                            var line = $" X: { Math.Round(procObject.X, 3),8 } | Y: { Math.Round(procObject.Y, 3),8} | X: { Math.Round(position[0], 3),8} | Y: { Math.Round(position[1], 3),8} | X: { Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: { Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
-                            if (HandyControl.Controls.MessageBox.Ask("Good?") == System.Windows.MessageBoxResult.OK)
+                            var position = _coorSystem.ToGlobal(procObject.X, procObject.Y);
+                            _laserMachine.SetVelocity(Velocity.Fast);
+                            if (!_underCamera) await Task.WhenAll(
+                         //_laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
+
+                         _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
+                         _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true),
+                         _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness));
+                            await Task.Delay(300);
+                            await Task.WhenAll(
+                                //_laserMachine.MoveGpInPosAsync(Groups.XY, position, true),
+
+                                _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
+                                _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true)//,
+                               /* _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness)*/);
+                            procObject.IsBeingProcessed = true;
+
+                            if (_inProcess && !_underCamera)
                             {
-                                pointsLine = "GOOD" + line;
+                                await pierceFunction();
                             }
                             else
                             {
-                                pointsLine = $"BAD " + line;
+                                await Task.Delay(1000);
+                                var pointsLine = String.Empty;
+                                var line = $" X: { Math.Round(procObject.X, 3),8 } | Y: { Math.Round(procObject.Y, 3),8} | X: { Math.Round(position[0], 3),8} | Y: { Math.Round(position[1], 3),8} | X: { Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: { Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
+                                if (HandyControl.Controls.MessageBox.Ask("Good?") == System.Windows.MessageBoxResult.OK)
+                                {
+                                    pointsLine = "GOOD" + line;
+                                }
+                                else
+                                {
+                                    pointsLine = $"BAD " + line;
+                                }
+                                await _coorFile.WriteLineAsync(pointsLine);
+                                await _coorFile.FlushAsync();
                             }
-                            await coorFile.WriteLineAsync(pointsLine);
-                            await coorFile.FlushAsync();
+                            procObject.IsProcessed = true;
                         }
-                        procObject.IsProcessed = true;
-                    }
-                    ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
+                        ProcessingObjectChanged?.Invoke(this, (procObject, currentIndex));
 
-                    _subject.OnNext(new ProcObjectChanged(procObject));
+                        _subject.OnNext(new ProcObjectChanged(procObject));
 
-                    _inLoop = waferEnumerator.MoveNext();
-                    currentIndex++;
-                })
-                .PermitReentryIf(Trigger.Next, () => _inLoop)
-                .PermitIf(Trigger.Next, State.Loop,() => !_inLoop)
-                .Ignore(Trigger.Pause);
+                        _inLoop = waferEnumerator.MoveNext();
+                        currentIndex++;
+                    })
+                    .PermitReentryIf(Trigger.Next, () => _inLoop)
+                    .PermitIf(Trigger.Next, State.Loop, () => !_inLoop)
+                    .Ignore(Trigger.Pause);
 
-            _stateMachine.Configure(State.Loop)
-                .OnEntry(() =>
-                {
-                    _loopCount++;
-                    var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
-                    CurrentWaferChanged?.Invoke(this,currentWafer);
+                _stateMachine.Configure(State.Loop)
+                    .OnEntry(() =>
+                    {
+                        _loopCount++;
+                        var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
+                        CurrentWaferChanged?.Invoke(this, currentWafer);
 
-                    _subject.OnNext(new ProcWaferChanged(currentWafer));
+                        _subject.OnNext(new ProcWaferChanged(currentWafer));
 
-                    waferEnumerator = currentWafer.GetEnumerator();
-                    currentIndex = -1;
-                    _inLoop = waferEnumerator.MoveNext();
-                    currentIndex++;
-                })
-                .OnExit(() => _inProcess = _loopCount < _progTreeParser.MainLoopCount)
-                .PermitIf(Trigger.Next, State.Working, () => _loopCount < _progTreeParser.MainLoopCount)
-                .PermitIf(Trigger.Next, State.Exit, () => _loopCount >= _progTreeParser.MainLoopCount);
+                        waferEnumerator = currentWafer.GetEnumerator();
+                        currentIndex = -1;
+                        _inLoop = waferEnumerator.MoveNext();
+                        currentIndex++;
+                    })
+                    .OnExit(() => _inProcess = _loopCount < _progTreeParser.MainLoopCount)
+                    .PermitIf(Trigger.Next, State.Working, () => _loopCount < _progTreeParser.MainLoopCount)
+                    .PermitIf(Trigger.Next, State.Exit, () => _loopCount >= _progTreeParser.MainLoopCount);
 
-            _stateMachine.Configure(State.Exit)
-                .OnEntry(() => 
-                {
-                    ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Success, _coorSystem));
+                _stateMachine.Configure(State.Exit)
+                    .OnEntry(() =>
+                    {
+                        ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Success, _coorSystem));
 
-                    _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _coorSystem));
+                        _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _coorSystem));
                     //_subject.OnCompleted();
                 })
-                .Ignore(Trigger.Next);
+                    .Ignore(Trigger.Next);
 
-            _stateMachine.Activate();
+                _stateMachine.Activate();
 
-            async Task Pierce(ExtendedParams markLaserParams, IProcObject procObject)
-            {
-                using (var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(procObject))
+                async Task Pierce(ExtendedParams markLaserParams, IProcObject procObject)
                 {
-                    _laserMachine.SetExtMarkParams(new ExtParamsAdapter(markLaserParams));
-                    var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath);
+                    using (var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(procObject))
+                    {
+                        _laserMachine.SetExtMarkParams(new ExtParamsAdapter(markLaserParams));
+                        var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath).ConfigureAwait(false);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
 
@@ -248,6 +257,7 @@ namespace NewLaserProject.Classes
                 ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Cancelled,_coorSystem));
                 _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Cancelled, _coorSystem));
             }
+            _coorFile?.Close();
         }
         public override string ToString()
         {

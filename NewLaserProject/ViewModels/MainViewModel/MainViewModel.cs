@@ -86,6 +86,7 @@ namespace NewLaserProject.ViewModels
         private bool _canTeach = false;
 
         private IProcess _mainProcess;
+        private double _waferAngle;
         private readonly ILogger _logger;
 
         //---------------------------------------------
@@ -527,15 +528,18 @@ namespace NewLaserProject.ViewModels
             var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
             var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
 
-            var angle = Math.Atan2(dy, dx);
+            _waferAngle = Math.Atan2(dy, dx);
+#if InvertAngles
+            _waferAngle = -_waferAngle;
+#endif
 
             coorSystem.BuildRelatedSystem()
-                      .Rotate(angle)
+                      .Rotate(_waferAngle)
                       .Translate(Settings.Default.XLeftPoint, Settings.Default.YLeftPoint)
                       .Build(LMPlace.FileOnWaferUnderCamera);
 
             coorSystem.BuildRelatedSystem()
-                      .Rotate(angle)
+                      .Rotate(_waferAngle)
                       .Translate(Settings.Default.XLeftPoint + Settings.Default.XOffset, Settings.Default.YLeftPoint + Settings.Default.YOffset)
                       .Build(LMPlace.FileOnWaferUnderLaser);
 

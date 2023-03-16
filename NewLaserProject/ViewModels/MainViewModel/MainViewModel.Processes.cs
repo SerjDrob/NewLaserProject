@@ -54,20 +54,28 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task StartStopProcess(object arg)
         {
-            if ((bool)arg)
+            try
             {
-                //OnProcess = true;
-                await _appStateMachine.FireAsync(AppTrigger.StartProcess);
+                if ((bool)arg)
+                {
+                    //OnProcess = true;
+                    await _appStateMachine.FireAsync(AppTrigger.StartProcess);
 #if PCIInserted
-                // await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                    // await _appStateMachine.FireAsync(AppTrigger.EndProcess);
 #endif
-            }
-            else
-            {
-                CancelProcess();
-                await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                }
+                else
+                {
+                    await _mainProcess.Deny().ConfigureAwait(false);
+                    await _appStateMachine.FireAsync(AppTrigger.EndProcess).ConfigureAwait(false);
 
-                //OnProcess = false;
+                    //OnProcess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
 
@@ -123,13 +131,16 @@ namespace NewLaserProject.ViewModels
             {
                 case FileAlignment.AlignByCorner:
                     {
-                        var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
-                        var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
+                        //var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
+                        //var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
 
-                        var angle = Math.Atan2(dy, dx);
-                        
-                        entityPreparator.SetEntityAngle(angle)
-                            .AddEntityAngle(-Settings.Default.PazAngle);//TODO do this in the three point proces too!!!!
+                        //var angle = Math.Atan2(dy, dx);
+                        var pazAngle = -Settings.Default.PazAngle;
+#if InvertAngles
+                        pazAngle = Settings.Default.PazAngle;
+#endif
+                        entityPreparator.SetEntityAngle(_waferAngle)
+                            .AddEntityAngle(pazAngle);//TODO do this in the three point proces too!!!!
 
                         var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
                         _mainProcess = new LaserProcess(wafer, _pierceSequenceJson, _laserMachine,
@@ -427,12 +438,7 @@ namespace NewLaserProject.ViewModels
         //{
         //    ProcessingObjects = new(e);
         //}
-
-        private void CancelProcess()
-        {
-            _mainProcess?.Deny();
-        }
-
+              
 
         [ICommand]
         private Task TPProcessNext()

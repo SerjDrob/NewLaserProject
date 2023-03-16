@@ -75,14 +75,14 @@ namespace NewLaserProject.ViewModels
             var zLaser = Settings.Default.ZeroPiercePoint;
             var waferThickness = WaferThickness;
             
-            var result = await Dialog.Show<AskThicknessDialog>()
-                    .SetDataContext<AskThicknessVM>()
-                    .Initialize<AskThicknessVM>(vm =>
-                    {
-                        vm.Thickness = waferThickness;
-                    })
-                    .GetResultAsync<AskThicknessVM>();
-            waferThickness = result.Thickness;
+            //var result = await Dialog.Show<AskThicknessDialog>()
+            //        .SetDataContext<AskThicknessVM>()
+            //        .Initialize<AskThicknessVM>(vm =>
+            //        {
+            //            vm.Thickness = waferThickness;
+            //        })
+            //        .GetResultAsync<AskThicknessVM>();
+            //waferThickness = result.Thickness;
 
             var tcb = CameraOffsetTeacher.GetBuilder();
             tcb.SetOnGoLoadPointAction(() => Task.Run(async () =>

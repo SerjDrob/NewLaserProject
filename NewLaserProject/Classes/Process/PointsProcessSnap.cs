@@ -99,20 +99,12 @@ namespace NewLaserProject.Classes.Process
             var originPoints = new List<PointF>();
 
             _subject.OfType<SnapShotResult>()
-                .Subscribe(async result =>
+                .Subscribe(result =>
                 {
                     var point = _serviceWafer.GetPointToWafer(result);
                     originPoints.Add(point);
-                    //originPoints.Add(result);//TODO das experiment
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
-                    try
-                    {
-                        await _stateMachine.FireAsync(Trigger.Next);
-                    }
-                    catch (Exception ex)
-                    {
-                        // throw;
-                    }
+                    _stateMachine.FireAsync(Trigger.Next);//TODO how to catch an exception?
                 });
 
             _subject.OfType<ReadyForSnap>()
@@ -272,7 +264,15 @@ namespace NewLaserProject.Classes.Process
         {
             _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
             _ctSource.Cancel();
-            var success = await _laserMachine.CancelMarkingAsync();
+            try
+            {
+                var success = await _laserMachine.CancelMarkingAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

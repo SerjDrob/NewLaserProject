@@ -291,6 +291,7 @@
                             Angle="{Binding Angle}"
                             AutoProportion="True"
                             SpecMargin="0"
+                            IsLoading="{Binding LayGeomsLoading}"
                             />
                         <uc:SpecimenWindow
                             FieldSizeX="{Binding FieldSizeX}"
