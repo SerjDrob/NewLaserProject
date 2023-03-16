@@ -124,7 +124,7 @@ namespace NewLaserProject.ViewModels
                 },()=>true)
                 .CreateKeyDownCommand(Key.F7,()=>
                 {
-                    _laserMachine.InvokeSettinds();
+                    _laserMachine.InvokeSettings();
                     return Task.CompletedTask;
                 },()=>true)
                 ;
