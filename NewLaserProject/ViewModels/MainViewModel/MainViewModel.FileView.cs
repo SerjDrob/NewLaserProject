@@ -86,6 +86,7 @@ namespace NewLaserProject.ViewModels
                 FileName = openFileDialog.FileName;
                 if (File.Exists(FileName))
                 {
+                    _openedFileVM?.ResetFileView();
                     _openedFileVM.IsFileLoading = true;
                     try
                     {
@@ -105,7 +106,6 @@ namespace NewLaserProject.ViewModels
                     WaferTurn90 = Settings.Default.WaferAngle90;
                     WaferOffsetX = 0;
                     WaferOffsetY = 0;
-
                     IgnoredLayers = new();
 
                     await LoadDbForFile();

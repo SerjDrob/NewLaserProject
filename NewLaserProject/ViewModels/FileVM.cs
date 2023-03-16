@@ -37,10 +37,9 @@ namespace NewLaserProject.ViewModels
             WaferHeight = waferHeight;
             _mediator = mediator;
         }
-
-        public FileVM()
+        public void ResetFileView()
         {
-
+            LayGeoms = new();
         }
         public void SetFileView(IDxfReader dxfReader, float fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
             double waferOffsetY, string filePath, IDictionary<string, bool> ignoredLayers)
