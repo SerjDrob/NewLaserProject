@@ -28,6 +28,7 @@ namespace NewLaserProject.ViewModels
         private DxfEditor? _dxfEditor;
         private readonly ISubject<IProcessNotify> _mediator;
         public bool CanCut { get; set; } = false;
+        public bool IsFileLoading { get; set; } = false;
 
         private LayGeomsEditor _geomsEditor;
         public FileVM(double waferWidth, double waferHeight, ISubject<IProcessNotify> mediator)
