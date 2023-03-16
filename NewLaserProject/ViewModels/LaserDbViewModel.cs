@@ -34,11 +34,11 @@ namespace NewLaserProject.ViewModels
                     if (t.IsCompletedSuccessfully)
                     {
                         Technologies = _db.Set<Technology>()
-                .Local
-                .ToObservableCollection();
+                            .Local
+                            .ToObservableCollection();
 
                         _db.Set<Material>()
-                        .Load();
+                            .Load();
 
                         Materials = _db.Set<Material>()
                             .Local

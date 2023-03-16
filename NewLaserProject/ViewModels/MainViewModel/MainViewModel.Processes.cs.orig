@@ -139,15 +139,15 @@ namespace NewLaserProject.ViewModels
 
                 case FileAlignment.AlignByThreePoint or FileAlignment.AlignByTwoPoint:
                     {
-                        //var pts = _dxfReader.GetPoints();
-                        //var waferPoints = new LaserWafer(pts, topologySize);
+                        var pts = _dxfReader.GetPoints();
+                        var waferPoints = new LaserWafer(pts, topologySize);
 
-                        //waferPoints.Scale(1/DefaultFileScale);
-                        //if (WaferTurn90) waferPoints.Turn90();
-                        //if (MirrorX) waferPoints.MirrorX();
-                        //waferPoints.OffsetX((float)WaferOffsetX);
-                        //waferPoints.OffsetY((float)WaferOffsetY);
-                        var coorSystem = /*(CoorSystem<LMPlace>)*/_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+                        waferPoints.Scale(DefaultFileScale);
+                        if (WaferTurn90) waferPoints.Turn90();
+                        if (MirrorX) waferPoints.MirrorX();
+                        waferPoints.OffsetX((float)WaferOffsetX);
+                        waferPoints.OffsetY((float)WaferOffsetY);
+                        var coorSystem = (CoorSystem<LMPlace>)_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
 
 #if notSnap
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
@@ -169,23 +169,29 @@ namespace NewLaserProject.ViewModels
                         //------SnapTest--------------
 
                         var serviceWafer = new LaserWafer(topologySize);
-                        serviceWafer.Scale(1/DefaultFileScale);
+                        serviceWafer.Scale(DefaultFileScale);
                         if (WaferTurn90) serviceWafer.Turn90();
                         if (MirrorX) serviceWafer.MirrorX();
                         serviceWafer.OffsetX((float)WaferOffsetX);
                         serviceWafer.OffsetY((float)WaferOffsetY);
 
+<<<<<<< HEAD
+                        _mainProcess = new ThreePointProcesSnap(/*wafer */ procObjects, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
+                                                               coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
+                                                               Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator);
+=======
                         _mainProcess = FileAlignment switch
                         {
-                            FileAlignment.AlignByThreePoint => new PointsProcessSnap(wafer /* procObjects*/, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
+                            FileAlignment.AlignByThreePoint => new PointsProcessSnap(/*wafer*/ procObjects, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
                                                                 coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                                                 Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator),
 
-                            FileAlignment.AlignByTwoPoint => new PointsProcessSnap(wafer /*procObjects*/, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
+                            FileAlignment.AlignByTwoPoint => new PointsProcessSnap(/*wafer*/ procObjects, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
                                                                 coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                                                 Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator,
                                                                 new PureCoorSystem<LMPlace>(_coorSystem.GetMainMatrixElements().GetMatrix3()))
                         };
+>>>>>>> f5abee58adab43d7819ebb63ddf592c2726e6326
                         //----------------------------  
 #endif
                     }

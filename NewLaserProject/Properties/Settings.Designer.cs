@@ -421,7 +421,7 @@ namespace NewLaserProject.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("-26.659")]
         public double XOffset {
             get {
                 return ((double)(this["XOffset"]));
@@ -433,7 +433,7 @@ namespace NewLaserProject.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("-9.787")]
         public double YOffset {
             get {
                 return ((double)(this["YOffset"]));

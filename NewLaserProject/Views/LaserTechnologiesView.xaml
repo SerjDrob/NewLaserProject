@@ -15,7 +15,10 @@
                               Source="{Binding Materials}"/>
     </UserControl.Resources>
     <Grid>
-        <StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
             <GroupBox Style="{StaticResource GroupBoxTab}" BorderThickness="3">
                 <GroupBox.Header>
                     <Grid Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=GroupBox}, Path=ActualWidth}">
@@ -23,7 +26,6 @@
                     </Grid>
                 </GroupBox.Header>
                 <DataGrid AutoGenerateColumns="False"  
-                  Height="200"
                   VerticalScrollBarVisibility="Visible"
                   hc:ScrollViewerAttach.AutoHide="False"
                           BorderBrush="{StaticResource InfoBrush}"
@@ -69,7 +71,7 @@
                    
                 </DataGrid>
             </GroupBox>
-            <GroupBox Style="{StaticResource GroupBoxTab}">
+            <GroupBox Style="{StaticResource GroupBoxTab}" Grid.Row="1">
                 <GroupBox.Header>
                     <DockPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=GroupBox}, Path=ActualWidth}">
                         <TextBlock Text="Материалы" DockPanel.Dock="Left" Style="{StaticResource TextBlockSubTitleBold}"/>
@@ -83,7 +85,6 @@
                     </DockPanel>
                 </GroupBox.Header>
                 <DataGrid AutoGenerateColumns="False"
-                          Height="200"
                           VerticalScrollBarVisibility="Visible"
                           hc:ScrollViewerAttach.AutoHide="False"
                           BorderBrush="{StaticResource InfoBrush}"
@@ -150,6 +151,5 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>                
-        </StackPanel>
     </Grid>
 </UserControl>

@@ -15,19 +15,19 @@ namespace NewLaserProject.Classes
             _serviceProvider = serviceProvider;
             _machineConfiguration = machineConfiguration;
         }
-        public IMarkLaser? GetLaserBoard()
+        public IMarkLaser GetLaserBoard()
         {
-            if (_machineConfiguration.IsUF) return _serviceProvider.GetService<JCZLaser>();
-            if (_machineConfiguration.IsIR) return _serviceProvider.GetService<JCZLaser>();
-            if (_machineConfiguration.IsLaserMock) return _serviceProvider.GetService<MockLaser>();
-            return null;
+            if (_machineConfiguration.IsUF) return _serviceProvider.GetService<JCZLaser>() ?? throw new NullReferenceException("Cannot get service JCZLaser");
+            if (_machineConfiguration.IsIR) return _serviceProvider.GetService<JCZLaser>() ?? throw new NullReferenceException("Cannot get service JCZLaser");
+            if (_machineConfiguration.IsLaserMock) return _serviceProvider.GetService<MockLaser>() ?? throw new NullReferenceException("Cannot get service MockLaser");
+            throw new ArgumentException("Cannot get laser board");
         }
 
-        public IPWM? GetPWM()
+        public IPWM GetPWM()
         {
-            if (_machineConfiguration.IsUF) return _serviceProvider.GetService<PWM>();
-            if (_machineConfiguration.IsIR) return _serviceProvider.GetService<PWM2>();
-            return null;
+            if (_machineConfiguration.IsUF) return _serviceProvider.GetService<PWM>() ?? throw new NullReferenceException("Cannot get service PWM");
+            if (_machineConfiguration.IsIR) return _serviceProvider.GetService<PWM2>() ?? throw new NullReferenceException("Cannot get service PWM2");
+            throw new ArgumentException("Cannot get PWM");
         }
     }
 }

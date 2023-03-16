@@ -59,7 +59,11 @@ namespace NewLaserProject.Classes.Process
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
+<<<<<<< HEAD:NewLaserProject/Classes/Process/ThreePointProcesSnap.cs
+            _underCamera = false;
+=======
             _underCamera = false;// true;
+>>>>>>> 2fb9080f4fc6ad91e8f9481fdce98f807a3341d3:NewLaserProject/Classes/Process/PointsProcessSnap.cs
             _wafer = wafer;
             _serviceWafer = serviceWafer;
             _jsonPierce = jsonPierce;

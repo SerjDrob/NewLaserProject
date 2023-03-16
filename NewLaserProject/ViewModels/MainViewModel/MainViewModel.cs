@@ -1,40 +1,31 @@
-﻿using MachineClassLibrary.Classes;
+﻿using HandyControl.Controls;
+using HandyControl.Data;
+using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
-using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
-using MachineControlsLibrary.Classes;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
-using NewLaserProject.Classes.Process;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Properties;
-using NewLaserProject.UserControls;
 using NewLaserProject.Views;
 using PropertyChanged;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using MsgBox = HandyControl.Controls.MessageBox;
-using HandyControl.Controls;
-using HandyControl.Data;
-using Microsoft.Extensions.Logging;
 
 namespace NewLaserProject.ViewModels
 {
@@ -109,7 +100,7 @@ namespace NewLaserProject.ViewModels
         public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator, ILoggerProvider loggerProvider)
         {
             _logger = loggerProvider.CreateLogger("MainVM");
-           
+
             _laserMachine = laserMachine;
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _db = db;
@@ -126,8 +117,8 @@ namespace NewLaserProject.ViewModels
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
-            //CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
-            //CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
+            CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
+            CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
                 .ContinueWith(t =>
@@ -150,11 +141,11 @@ namespace NewLaserProject.ViewModels
 
             TuneMachineFileView();
             //techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
-            
+
             InitViews();
             InitAppState();
             InitCommands();
-           
+
             //AppSngsVM = new(_db);
         }
 

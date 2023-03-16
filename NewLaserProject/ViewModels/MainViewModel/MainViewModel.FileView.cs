@@ -87,14 +87,14 @@ namespace NewLaserProject.ViewModels
                     _openedFileVM.IsFileLoading = true;
                     var dxfReader = new IMDxfReader(FileName);
 
-                    _dxfReader = new DxfEditor(dxfReader);
+                        _dxfReader = new DxfEditor(dxfReader);
 
-                    MirrorX = Settings.Default.WaferMirrorX;
-                    WaferTurn90 = Settings.Default.WaferAngle90;
-                    WaferOffsetX = 0;
-                    WaferOffsetY = 0;
+                        MirrorX = Settings.Default.WaferMirrorX;
+                        WaferTurn90 = Settings.Default.WaferAngle90;
+                        WaferOffsetX = 0;
+                        WaferOffsetY = 0;
 
-                    IgnoredLayers = new();
+                        IgnoredLayers = new();
 
                     await LoadDbForFile();
                     await Task.Factory.StartNew(
@@ -166,16 +166,16 @@ namespace NewLaserProject.ViewModels
                             DefLayerIndex = LayersStructure.Keys.ToList()
                                 .IndexOf(layer);
 
-                            DefEntityIndex = LayersStructure[layer]
-                                .Select(e => LaserEntDxfTypeAdapter.GetLaserEntity(e.objType))
-                                .ToList()
-                                .IndexOf((LaserEntity)defLayerProcDTO.EntityType);//TODO what if there is no entities on the layer
+                                DefEntityIndex = LayersStructure[layer]
+                                    .Select(e => LaserEntDxfTypeAdapter.GetLaserEntity(e.objType))
+                                    .ToList()
+                                    .IndexOf((LaserEntity)defLayerProcDTO.EntityType);//TODO what if there is no entities on the layer
+                            }
                         }
-                    }
-                    else
-                    {
-                        DefLayerIndex = 0;
-                    }
+                        else
+                        {
+                            DefLayerIndex = 0;
+                        }
 
                     DefMaterialIndex = AvailableMaterials
                         .ToList()
@@ -194,6 +194,16 @@ namespace NewLaserProject.ViewModels
                         .FindIndex(t => t.Id == defLayerEntTechnology.Id) ?? -1;
                 }
             });
+                }
+            }
+            catch (DxfReaderException ex)
+            {
+                Growl.Error(new HandyControl.Data.GrowlInfo()
+                {
+                    StaysOpen = true,
+                    Message=ex.Message,
+                    
+                });
         }
 
         private void MainViewModel_TransformationChanged(object? sender, EventArgs e)
