@@ -1,5 +1,11 @@
-﻿using HandyControl.Controls;
-using IxMilia.Dxf;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using HandyControl.Controls;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -10,26 +16,28 @@ using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Properties;
 using PropertyChanged;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace NewLaserProject.ViewModels
 {
     internal partial class MainViewModel
     {
         //public int FileScale { get; set; } = 1000;
-        public ObservableCollection<Scale> Scales { get; set; } = new(new() { new Scale(1000, 1), new Scale(100,1), new Scale(1,1) });
-        public Scale DefaultFileScale { get; set; } 
+        public ObservableCollection<Scale> Scales { get; set; } = new(new() { new Scale(1000, 1), new Scale(100, 1), new Scale(1, 1) });
+        public Scale DefaultFileScale
+        {
+            get; set;
+        }
         public bool IsFileLoaded { get; set; } = false;
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
-        public double WaferOffsetX { get; set; }
-        public double WaferOffsetY { get; set; }
+        public double WaferOffsetX
+        {
+            get; set;
+        }
+        public double WaferOffsetY
+        {
+            get; set;
+        }
         [OnChangedMethod(nameof(WiferDimensionChanged))]
         public double WaferWidth { get; set; } = 48;
 
@@ -37,33 +45,87 @@ namespace NewLaserProject.ViewModels
         public double WaferHeight { get; set; } = 60;
         public double WaferThickness { get; set; } = 0.5;
 
-        public double XDimension { get; private set; }
-        public double YDimension { get; private set; }
-        public double XDimensionOffset { get; private set; }
-        public double YDimensionOffset { get; private set; }
-        public double CameraPosX { get; private set; }
-        public double CameraPosY { get; private set; }
+        public double XDimension
+        {
+            get; private set;
+        }
+        public double YDimension
+        {
+            get; private set;
+        }
+        public double XDimensionOffset
+        {
+            get; private set;
+        }
+        public double YDimensionOffset
+        {
+            get; private set;
+        }
+        public double CameraPosX
+        {
+            get; private set;
+        }
+        public double CameraPosY
+        {
+            get; private set;
+        }
         [OnChangedMethod(nameof(ViewFinderChanged))]
-        public double CameraViewfinderX { get; set; }
+        public double CameraViewfinderX
+        {
+            get; set;
+        }
         [OnChangedMethod(nameof(ViewFinderChanged))]
-        public double CameraViewfinderY { get; set; }
-        public double LaserViewfinderX { get; set; }
-        public double LaserViewfinderY { get; set; }
+        public double CameraViewfinderY
+        {
+            get; set;
+        }
+        public double LaserViewfinderX
+        {
+            get; set;
+        }
+        public double LaserViewfinderY
+        {
+            get; set;
+        }
         [OnChangedMethod(nameof(CutModeSwitched))]
-        public bool CutMode { get; set; }
+        public bool CutMode
+        {
+            get; set;
+        }
         public string FileName { get; set; } = "Open the file";
 
-        public Dictionary<string, bool> IgnoredLayers { get; set; }
-        public LaserDbViewModel LaserDbVM { get; set; }
+        public Dictionary<string, bool> IgnoredLayers
+        {
+            get; set;
+        }
+        public LaserDbViewModel LaserDbVM
+        {
+            get; set;
+        }
         public ObservableCollection<Material> AvailableMaterials { get; set; } = new();
-        public IDictionary<string, IEnumerable<(string objType, int count)>> LayersStructure { get; private set; }
+        public IDictionary<string, IEnumerable<(string objType, int count)>> LayersStructure
+        {
+            get; private set;
+        }
 
         private FileVM _openedFileVM;
 
-        public int DefLayerIndex { get; set; }
-        public int DefEntityIndex { get; set; }
-        public int DefMaterialIndex { get; set; }
-        public int DefTechnologyIndex { get; set; }
+        public int DefLayerIndex
+        {
+            get; set;
+        }
+        public int DefEntityIndex
+        {
+            get; set;
+        }
+        public int DefMaterialIndex
+        {
+            get; set;
+        }
+        public int DefTechnologyIndex
+        {
+            get; set;
+        }
 
         private IDxfReader _dxfReader;
 
@@ -102,7 +164,7 @@ namespace NewLaserProject.ViewModels
                         });
                     }
 
-                MirrorX = Settings.Default.WaferMirrorX;
+                    MirrorX = Settings.Default.WaferMirrorX;
                     WaferTurn90 = Settings.Default.WaferAngle90;
                     WaferOffsetX = 0;
                     WaferOffsetY = 0;

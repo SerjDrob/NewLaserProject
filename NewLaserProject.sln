@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32630.194
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33513.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewLaserProject", "NewLaserProject\NewLaserProject.csproj", "{689B904E-7D69-4517-81EB-B21863679010}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineClassLibrary", "..\MachineClassLibrary\MachineClassLibrary.csproj", "{6CD86558-A410-40BE-98D5-A67BC2F74CEA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineControlsLibrary", "..\MachineControlsLibrary\MachineControlsLibrary.csproj", "{51EC1BC3-3B44-4AF9-AE00-D211CB3C662C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp1", "WpfApp1\WpfApp1.csproj", "{92B29064-D205-41F1-8FA2-1ABFEE1E7418}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,14 @@ Global
 		{51EC1BC3-3B44-4AF9-AE00-D211CB3C662C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{51EC1BC3-3B44-4AF9-AE00-D211CB3C662C}.Release|x86.ActiveCfg = Release|x86
 		{51EC1BC3-3B44-4AF9-AE00-D211CB3C662C}.Release|x86.Build.0 = Release|x86
+		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Debug|x86.Build.0 = Debug|Any CPU
+		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Release|x86.ActiveCfg = Release|Any CPU
+		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

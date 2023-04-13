@@ -14,7 +14,6 @@ using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -26,18 +25,6 @@ using System.Windows.Media;
 
 namespace NewLaserProject.ViewModels
 {
-    internal class ObjsToProcess
-    {
-        public IDictionary<string, IEnumerable<(string objType, int count)>> Structure { get; init; }
-        public ObjsToProcess(IDictionary<string, IEnumerable<(string objType, int count)>> layersStructure)
-        {
-            Structure = layersStructure;
-            LaserEntity = LaserEntity.None;
-        }
-
-        public string Layer { get; set; }
-        public LaserEntity LaserEntity { get; set; }
-    }
 
     internal partial class MainViewModel
     {
@@ -150,15 +137,7 @@ namespace NewLaserProject.ViewModels
 
                 case FileAlignment.AlignByThreePoint or FileAlignment.AlignByTwoPoint:
                     {
-                        //var pts = _dxfReader.GetPoints();
-                        //var waferPoints = new LaserWafer(pts, topologySize);
-
-                        //waferPoints.Scale(1/DefaultFileScale);
-                        //if (WaferTurn90) waferPoints.Turn90();
-                        //if (MirrorX) waferPoints.MirrorX();
-                        //waferPoints.OffsetX((float)WaferOffsetX);
-                        //waferPoints.OffsetY((float)WaferOffsetY);
-                        var coorSystem = /*(CoorSystem<LMPlace>)*/_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+                        var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
 
 #if notSnap
                         waferPoints.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
@@ -188,11 +167,11 @@ namespace NewLaserProject.ViewModels
 
                         _mainProcess = FileAlignment switch
                         {
-                            FileAlignment.AlignByThreePoint => new PointsProcessSnap(wafer /* procObjects*/, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
+                            FileAlignment.AlignByThreePoint => new PointsProcessSnap(wafer, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
                                                                 coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                                                 Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator),
 
-                            FileAlignment.AlignByTwoPoint => new PointsProcessSnap(wafer /*procObjects*/, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
+                            FileAlignment.AlignByTwoPoint => new PointsProcessSnap(wafer, serviceWafer, _pierceSequenceJson, _laserMachine,//TODO das experiment
                                                                 coorSystem, Settings.Default.ZeroPiercePoint, Settings.Default.ZeroFocusPoint, WaferThickness, techMessager,
                                                                 Settings.Default.XOffset, Settings.Default.YOffset, Settings.Default.PazAngle, entityPreparator, _subjMediator,
                                                                 new PureCoorSystem<LMPlace>(_coorSystem.GetMainMatrixElements().GetMatrix3()))
@@ -208,11 +187,6 @@ namespace NewLaserProject.ViewModels
 
             ProcessingObjects = new(wafer);
             ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
-
-            //_mainProcess.CurrentWaferChanged += _mainProcess_CurrentWaferChanged;
-            //_mainProcess.ProcessingObjectChanged += _mainProcess_ProcessingObjectChanged;
-            //_mainProcess.ProcessingCompleted += _mainProcess_ProcessingCompleted;
-
 
             _mainProcess.OfType<ProcWaferChanged>()
                 .Subscribe(args =>
@@ -331,31 +305,6 @@ namespace NewLaserProject.ViewModels
 
         }
 
-        //private void _mainProcess_ProcessingCompleted(object? sender, ProcessCompletedEventArgs args)
-        //{
-        //    var status = args.Status;
-        //    switch (status)
-        //    {
-        //        case CompletionStatus.Success:
-        //            if (IsWaferMark)
-        //            {
-        //                MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem)
-        //                    .ContinueWith(t => techMessager.RealeaseMessage("Процесс завершён", MessageType.Info),TaskScheduler.Default);
-        //            }
-        //            else
-        //            {
-        //                techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
-        //            }
-        //            break;
-        //        case CompletionStatus.Cancelled:
-        //            techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
-        //            break;
-        //        default:
-        //            break;
-        //    }
-        //    _appStateMachine.Fire(AppTrigger.EndProcess);
-        //}
-
         private async Task MarkWaferAsync(MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem coorSystem)
         {
             var (x, y, angle) = markPosition switch
@@ -420,25 +369,6 @@ namespace NewLaserProject.ViewModels
             _openedFileVM?.SetTextPosition(MarkPosition);
         }
         public MarkPosition MarkPosition { get; set; }
-        //private void _mainProcess_ProcessingObjectChanged(object? sender, (IProcObject procObj, int index) e)
-        //{
-        //    if (e.procObj.IsProcessed)
-        //    {
-        //        var o = ProcessingObjects.SingleOrDefault(po => po.Id == e.procObj.Id);
-        //        ProcessingObjects.Remove(o);
-        //    }
-        //    else
-        //    {
-        //        IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == e.procObj.Id);
-        //        IsBeingProcessedIndex = e.index + 1;
-        //    }
-        //}
-
-        //private void _mainProcess_CurrentWaferChanged(object? sender, IEnumerable<IProcObject> e)
-        //{
-        //    ProcessingObjects = new(e);
-        //}
-              
 
         [ICommand]
         private Task TPProcessNext()
