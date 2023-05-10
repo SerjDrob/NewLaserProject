@@ -212,20 +212,26 @@ namespace NewLaserProject.Classes
             }
         }
 
+        private CancellationTokenSource _innerCtSource;
+
         public async Task StartAsync()
         {
-            if (_stateMachine is null) CreateProcess();
-            _inProcess = true;
+            //if (_stateMachine is null) CreateProcess();
+            //_inProcess = true;
 
-            for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
-            {
-                while (_inProcess)
-                {
-                    await _stateMachine.FireAsync(Trigger.Next);
-                }
-            }
-            Trace.TraceInformation("The process ended");
-            Trace.Flush();
+            //for (int i = 0; i < _progTreeParser.MainLoopCount; i++)
+            //{
+            //    while (_inProcess)
+            //    {
+            //        await _stateMachine.FireAsync(Trigger.Next);
+            //    }
+
+            //}
+            //Trace.TraceInformation("The process ended");
+            //Trace.Flush();
+            _innerCtSource = new CancellationTokenSource();
+            var token = _innerCtSource.Token;
+            await StartAsync(token);
         }
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -268,6 +274,7 @@ namespace NewLaserProject.Classes
         {
             if (_inProcess)
             {
+                _innerCtSource?.Cancel();
                 _inProcess = false;
                 Trace.TraceInformation("The process was cancelled by user");
                 Trace.Flush();

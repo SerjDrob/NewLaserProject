@@ -118,7 +118,7 @@ namespace NewLaserProject.ViewModels
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
-            if (false)
+            if (true)
             {
                 CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
                 CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
