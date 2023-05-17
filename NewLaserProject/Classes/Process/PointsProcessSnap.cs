@@ -130,7 +130,8 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(() =>
                 {
                     _subject.OnNext(new PermitSnap(true));
-                    _subject.OnNext(new ProcessMessage($"Сопоставьте {(originPoints.Count + 1).ToOrdinalWords(GrammaticalGender.Feminine).ApplyCase(GrammaticalCase.Accusative)} точку ", MsgType.Info));
+                    _subject.OnNext(new ProcessMessage($"Сопоставьте {(originPoints.Count + 1)
+                        .ToOrdinalWords(GrammaticalGender.Feminine).ApplyCase(GrammaticalCase.Accusative)} точку ", MsgType.Info));
                 })
                 .OnExit(() =>
                 {
