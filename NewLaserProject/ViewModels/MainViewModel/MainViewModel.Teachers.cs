@@ -383,7 +383,7 @@ namespace NewLaserProject.ViewModels
             var sys = buider.Build();
 
 
-            using var wafer = new LaserWafer(_dxfReader.GetPoints(), (60, 48));
+            using var wafer = new LaserWafer(_dxfReader.GetPoints(), (60, 48));//TODO situation when file isn't  correct or even absent
 
             var points = wafer.ToList() ?? throw new NullReferenceException();
 

@@ -30,18 +30,6 @@ using MsgBox = HandyControl.Controls.MessageBox;
 namespace NewLaserProject.ViewModels
 {
 
-    //public static class Ext
-    //{
-    //    public static T With<T>(this T instance, Action<T> action) where T : class, new() 
-    //    {
-    //        var result = new T();
-    //        result = instance.memberwiseclone 
-    //        action.Invoke(result);
-    //        return result;
-    //    }
-    //}
-
-
     [AddINotifyPropertyChangedInterface]
     internal partial class MainViewModel
     {
@@ -89,15 +77,6 @@ namespace NewLaserProject.ViewModels
         private double _waferAngle;
         private readonly ILogger _logger;
 
-        //---------------------------------------------
-        //public MainViewModel(DbContext db, IMediator mediator)
-        //{
-        //    _db = db;
-        //    _mediator = mediator;
-        //    _coorSystem = GetCoorSystem();
-        //    InitViews();
-        //    InitAppState();
-        //}
         public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator, ILoggerProvider loggerProvider)
         {
             _logger = loggerProvider.CreateLogger("MainVM");
@@ -118,7 +97,7 @@ namespace NewLaserProject.ViewModels
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
             var count = _laserMachine.GetVideoCaptureDevicesCount();
-            if (false)
+            if (true)
             {
                 CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
                 CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
@@ -400,7 +379,7 @@ namespace NewLaserProject.ViewModels
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.XAcc,
                 dec = Settings.Default.XDec,
-                ppu = Settings.Default.XPPU,
+                ppu = Settings.Default.XPPU*2,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = Settings.Default.XVelLow,
                 homeVelHigh = Settings.Default.XVelService
@@ -415,7 +394,7 @@ namespace NewLaserProject.ViewModels
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.YAcc,
                 dec = Settings.Default.YDec,
-                ppu = Settings.Default.YPPU,
+                ppu = Settings.Default.YPPU*2,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = Settings.Default.YVelLow,
                 homeVelHigh = Settings.Default.YVelService
@@ -471,14 +450,16 @@ namespace NewLaserProject.ViewModels
                 //TODO put it to JSON
                 _laserMachine.ConfigureHomingForAxis(Ax.X)
                     .SetHomingDirection(AxDir.Neg)
-                    .SetHomingMode(HmMode.MODE6_Lmt_Ref)
+                    //.SetHomingMode(HmMode.MODE6_Lmt_Ref)
+                    .SetHomingMode(HmMode.MODE7_AbsSearch)
                     .SetPositionAfterHoming(Settings.Default.XLeftPoint)
                     .SetHomingVelocity(Settings.Default.XVelService)
                     .Configure();
 
                 _laserMachine.ConfigureHomingForAxis(Ax.Y)
                     .SetHomingDirection(AxDir.Neg)
-                    .SetHomingMode(HmMode.MODE6_Lmt_Ref)
+                    //.SetHomingMode(HmMode.MODE6_Lmt_Ref)
+                    .SetHomingMode(HmMode.MODE7_AbsSearch)
                     .SetPositionAfterHoming(Settings.Default.YLeftPoint)
                     .SetHomingVelocity(Settings.Default.YVelService)
                     .Configure();

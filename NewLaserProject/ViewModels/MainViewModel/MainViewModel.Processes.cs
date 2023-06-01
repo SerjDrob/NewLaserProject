@@ -79,7 +79,7 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void DownloadProcess()
+        private void DownloadProcess2()
         {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
@@ -129,7 +129,7 @@ namespace NewLaserProject.ViewModels
                         entityPreparator.SetEntityAngle(_waferAngle)
                             .AddEntityAngle(pazAngle);//TODO do this in the three point proces too!!!!
 
-                        var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser);
+                        var coorSystem = _coorSystem.ExtractSubSystem(/*LMPlace.FileOnWaferUnderLaser*/LMPlace.FileOnWaferUnderCamera);
                         _mainProcess = new LaserProcess(wafer, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness, entityPreparator);
                     }
@@ -272,155 +272,168 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void DownloadProcess2()
+        private void DownloadProcess()
         {
             //TODO determine size by specified layer
-            var topologySize = _dxfReader.GetSize();
-            var procObjects = (CurrentEntityType switch
+            try
             {
-                LaserEntity.Curve => _dxfReader.GetAllCurves(CurrentLayerFilter).Cast<IProcObject>(),
-                LaserEntity.Circle => _dxfReader.GetCircles(CurrentLayerFilter).Cast<IProcObject>()
-            }).Concat(
-                        ObjectsForProcessing
-                        .Where(o => o.LaserEntity == LaserEntity.Circle | o.LaserEntity == LaserEntity.Curve)
-                        .SelectMany(o => o.LaserEntity switch
-                        {
-                            LaserEntity.Curve => _dxfReader.GetAllCurves(o.Layer).Cast<IProcObject>(),
-                            LaserEntity.Circle => _dxfReader.GetCircles(o.Layer).Cast<IProcObject>()
-                        })).ToList();
-
-            var wafer = new LaserWafer(procObjects, topologySize);
-            var serviceWafer = new LaserWafer(topologySize);
-
-            wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
-            wafer.Scale(1F / DefaultFileScale);
-            serviceWafer.Scale(1 / DefaultFileScale);
-
-            if (WaferTurn90) 
-            { 
-                wafer.Turn90();
-                serviceWafer.Turn90();
-            }
-            if (MirrorX) 
-            { 
-                wafer.MirrorX();
-                serviceWafer.MirrorX();
-            } 
-            wafer.OffsetX((float)WaferOffsetX);
-            wafer.OffsetY((float)WaferOffsetY);
-            serviceWafer.OffsetX((float)WaferOffsetX);
-            serviceWafer.OffsetY((float)WaferOffsetY);
-
-
-            _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
-            var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
-            var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
-            if (materialEntRule is not null)
-            {
-                entityPreparator.SetEntityContourOffset(materialEntRule.Offset);
-                entityPreparator.SetEntityContourWidth(materialEntRule.Width);
-            }
-
-            _mainProcess = new GeneralLaserProcess(
-                wafer: wafer,
-                serviceWafer: serviceWafer,
-                jsonPierce: _pierceSequenceJson,
-                laserMachine: _laserMachine,
-                zeroZPiercing: Settings.Default.ZeroPiercePoint,
-                zeroZCamera: Settings.Default.ZeroFocusPoint,
-                waferThickness: WaferThickness,
-                dX: Settings.Default.XOffset,
-                dY: Settings.Default.YOffset,
-                pazAngle: Settings.Default.PazAngle,
-                entityPreparator: entityPreparator,
-                subject: _subjMediator,
-                baseCoorSystem: _coorSystem,
-                underCamera: false,
-                aligningPoints: FileAlignment,
-                waferAngle: _waferAngle);
-
-
-            ProcessingObjects = new(wafer);
-            ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
-
-            _mainProcess.OfType<ProcWaferChanged>()
-                .Subscribe(args =>
+                var topologySize = _dxfReader.GetSize();
+                var procObjects = (CurrentEntityType switch
                 {
-                    ProcessingObjects = new(args.Wafer);
-                });
+                    LaserEntity.Curve => _dxfReader.GetAllCurves(CurrentLayerFilter).Cast<IProcObject>(),
+                    LaserEntity.Circle => _dxfReader.GetCircles(CurrentLayerFilter).Cast<IProcObject>(),
+                    LaserEntity.Point or LaserEntity.Line or LaserEntity.None => throw new ArgumentOutOfRangeException($"{CurrentEntityType} is not valid entity type for processing")
+                }).Concat(
+                            ObjectsForProcessing
+                            .Where(o => o.LaserEntity == LaserEntity.Circle | o.LaserEntity == LaserEntity.Curve)
+                            .SelectMany(o => o.LaserEntity switch
+                            {
+                                LaserEntity.Curve => _dxfReader.GetAllCurves(o.Layer).Cast<IProcObject>(),
+                                LaserEntity.Circle => _dxfReader.GetCircles(o.Layer).Cast<IProcObject>()
+                            })).ToList();
 
-            _mainProcess.OfType<ProcObjectChanged>()
-                .Where(poargs => poargs.ProcObject.IsProcessed)
-                .Subscribe(args =>
-                {
-                    var o = ProcessingObjects.SingleOrDefault(po => po.Id == args.ProcObject.Id);
-                    ProcessingObjects.Remove(o);
-                });
+                var wafer = new LaserWafer(procObjects, topologySize);
+                var serviceWafer = new LaserWafer(topologySize);
 
-            _mainProcess.OfType<ProcObjectChanged>()
-                .Where(poargs => !poargs.ProcObject.IsProcessed & poargs.ProcObject.IsBeingProcessed)
-                .Subscribe(poargs =>
+                wafer.SetRestrictingArea(0, 0, WaferWidth, WaferHeight);
+                wafer.Scale(1F / DefaultFileScale);
+                serviceWafer.Scale(1 / DefaultFileScale);
+
+                if (WaferTurn90)
                 {
-                    IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == poargs.ProcObject.Id);
+                    wafer.Turn90();
+                    serviceWafer.Turn90();
+                }
+                if (MirrorX)
+                {
+                    wafer.MirrorX();
+                    serviceWafer.MirrorX();
+                }
+                wafer.OffsetX((float)WaferOffsetX);
+                wafer.OffsetY((float)WaferOffsetY);
+                serviceWafer.OffsetX((float)WaferOffsetX);
+                serviceWafer.OffsetY((float)WaferOffsetY);
+
+
+                _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
+                var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
+                var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
+                if (materialEntRule is not null)
+                {
+                    entityPreparator.SetEntityContourOffset(materialEntRule.Offset);
+                    entityPreparator.SetEntityContourWidth(materialEntRule.Width);
+                }
+
+                _mainProcess = new GeneralLaserProcess(
+                    wafer: wafer,
+                    serviceWafer: serviceWafer,
+                    jsonPierce: _pierceSequenceJson,
+                    laserMachine: _laserMachine,
+                    zeroZPiercing: Settings.Default.ZeroPiercePoint,
+                    zeroZCamera: Settings.Default.ZeroFocusPoint,
+                    waferThickness: WaferThickness,
+                    dX: Settings.Default.XOffset,
+                    dY: Settings.Default.YOffset,
+                    pazAngle: Settings.Default.PazAngle,
+                    entityPreparator: entityPreparator,
+                    subject: _subjMediator,
+                    baseCoorSystem: _coorSystem,
+                    underCamera: false,
+                    aligningPoints: FileAlignment,
+                    waferAngle: _waferAngle);
+
+
+                ProcessingObjects = new(wafer);
+                ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
+
+                _mainProcess.OfType<ProcWaferChanged>()
+                    .Subscribe(args =>
+                    {
+                        ProcessingObjects = new(args.Wafer);
+                    });
+
+                _mainProcess.OfType<ProcObjectChanged>()
+                    .Where(poargs => poargs.ProcObject.IsProcessed)
+                    .Subscribe(args =>
+                    {
+                        var o = ProcessingObjects.SingleOrDefault(po => po.Id == args.ProcObject.Id);
+                        ProcessingObjects.Remove(o);
+                    });
+
+                _mainProcess.OfType<ProcObjectChanged>()
+                    .Where(poargs => !poargs.ProcObject.IsProcessed & poargs.ProcObject.IsBeingProcessed)
+                    .Subscribe(poargs =>
+                    {
+                        IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == poargs.ProcObject.Id);
                     //IsBeingProcessedIndex = poargs.ProcObject.index + 1;
                 });
 
-            _mainProcess.OfType<ProcCompletionPreview>()
-                .Subscribe(args =>
-                {
-                    var status = args.Status;
-                    switch (status)
+                _mainProcess.OfType<ProcCompletionPreview>()
+                    .Subscribe(args =>
                     {
-                        case CompletionStatus.Success:
-                            if (IsWaferMark)
-                            {
-                                MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem)
-                                    .ContinueWith(t => techMessager.RealeaseMessage("Процесс завершён", MessageType.Info), TaskScheduler.Default);
-                            }
-                            else
-                            {
-                                techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
-                            }
-                            break;
-                        case CompletionStatus.Cancelled:
-                            MessageBox.Fatal("Процесс отменён");
-                            techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
-                            break;
-                        default:
-                            break;
-                    }
-                    _appStateMachine.Fire(AppTrigger.EndProcess);
-                });
+                        var status = args.Status;
+                        switch (status)
+                        {
+                            case CompletionStatus.Success:
+                                if (IsWaferMark)
+                                {
+                                    MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem)
+                                        .ContinueWith(t => techMessager.RealeaseMessage("Процесс завершён", MessageType.Info), TaskScheduler.Default);
+                                }
+                                else
+                                {
+                                    techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
+                                }
+                                break;
+                            case CompletionStatus.Cancelled:
+                                MessageBox.Fatal("Процесс отменён");
+                                techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
+                                break;
+                            default:
+                                break;
+                        }
+                        _appStateMachine.Fire(AppTrigger.EndProcess);
+                    });
 
 
-            _mainProcess.OfType<ProcessMessage>()
-                .Subscribe(args =>
-                {
-                    switch (args.MessageType)
+                _mainProcess.OfType<ProcessMessage>()
+                    .Subscribe(args =>
                     {
-                        case Classes.MsgType.Request:
-                            break;
-                        case Classes.MsgType.Info:
-                            Growl.Info(new GrowlInfo()
-                            {
-                                StaysOpen = true,
-                                Message = args.Message,
-                                ShowDateTime = false
-                            });
-                            break;
-                        case MsgType.Warn:
-                            break;
-                        case MsgType.Error:
-                            break;
-                        case MsgType.Clear:
-                            Growl.Clear();
-                            break;
-                        default:
-                            break;
-                    }
-                });
+                        switch (args.MessageType)
+                        {
+                            case Classes.MsgType.Request:
+                                break;
+                            case Classes.MsgType.Info:
+                                Growl.Info(new GrowlInfo()
+                                {
+                                    StaysOpen = true,
+                                    Message = args.Message,
+                                    ShowDateTime = false
+                                });
+                                break;
+                            case MsgType.Warn:
+                                break;
+                            case MsgType.Error:
+                                break;
+                            case MsgType.Clear:
+                                Growl.Clear();
+                                break;
+                            default:
+                                break;
+                        }
+                    });
 
-            HideProcessPanel(false);
+                HideProcessPanel(false);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Growl.Error(new GrowlInfo()
+                {
+                    StaysOpen = false,
+                    Message = ex.Message,
+                    ShowDateTime = false
+                });
+            }
 
         }
 
@@ -446,8 +459,8 @@ namespace NewLaserProject.ViewModels
                 Trace.WriteLine($"Layer's name for processing: {CurrentLayerFilter}");
                 Trace.WriteLine($"Entity type for processing: {CurrentEntityType}");
                 Trace.Flush();
-                await _mainProcess.StartAsync();
-
+                //await _mainProcess.StartAsync();
+                await _mainProcess.StartAsync(new System.Threading.CancellationToken());
             }
             catch (Exception ex)
             {
