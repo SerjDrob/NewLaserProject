@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineControlsLibrary", ".
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApp1", "WpfApp1\WpfApp1.csproj", "{92B29064-D205-41F1-8FA2-1ABFEE1E7418}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfApp2", "WpfApp2\WpfApp2.csproj", "{3A826404-4713-4EB6-A496-23DB04D8624D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,14 +71,6 @@ Global
 		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Release|Any CPU.Build.0 = Release|Any CPU
 		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Release|x86.ActiveCfg = Release|Any CPU
 		{92B29064-D205-41F1-8FA2-1ABFEE1E7418}.Release|x86.Build.0 = Release|Any CPU
-		{3A826404-4713-4EB6-A496-23DB04D8624D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A826404-4713-4EB6-A496-23DB04D8624D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A826404-4713-4EB6-A496-23DB04D8624D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3A826404-4713-4EB6-A496-23DB04D8624D}.Debug|x86.Build.0 = Debug|Any CPU
-		{3A826404-4713-4EB6-A496-23DB04D8624D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A826404-4713-4EB6-A496-23DB04D8624D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3A826404-4713-4EB6-A496-23DB04D8624D}.Release|x86.ActiveCfg = Release|Any CPU
-		{3A826404-4713-4EB6-A496-23DB04D8624D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
