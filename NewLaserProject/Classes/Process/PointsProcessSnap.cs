@@ -59,7 +59,7 @@ namespace NewLaserProject.Classes.Process
             double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
-            _underCamera = false;// true;
+            _underCamera = true;
             _wafer = wafer;
             _serviceWafer = serviceWafer;
             _jsonPierce = jsonPierce;
@@ -130,13 +130,12 @@ namespace NewLaserProject.Classes.Process
                 .OnEntry(() =>
                 {
                     _subject.OnNext(new PermitSnap(true));
-                    _subject.OnNext(new ProcessMessage($"Сопоставьте {(originPoints.Count + 1)
-                        .ToOrdinalWords(GrammaticalGender.Feminine).ApplyCase(GrammaticalCase.Accusative)} точку ", MsgType.Info));
+                    _subject.OnNext(new ProcessMessage($"Сопоставьте {(originPoints.Count + 1).ToOrdinalWords(GrammaticalGender.Feminine).ApplyCase(GrammaticalCase.Accusative)} точку ", MsgType.Info));
                 })
                 .OnExit(() =>
                 {
-                    var xAct = _laserMachine.GetAxActual(Ax.X);
-                    var yAct = _laserMachine.GetAxActual(Ax.Y);
+                    var xAct = _xActual;//_laserMachine.GetAxActual(Ax.X);
+                    var yAct = _yActual;//_laserMachine.GetAxActual(Ax.Y);
                     var x = (float)(xAct + (_underCamera ? 0 : _dX));
                     var y = (float)(yAct + (_underCamera ? 0 : _dY));
                     resultPoints.Add(new(x, y));
