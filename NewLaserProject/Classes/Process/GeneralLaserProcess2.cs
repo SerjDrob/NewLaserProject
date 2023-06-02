@@ -141,6 +141,7 @@ namespace NewLaserProject.Classes.Process
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
             _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
+            _inProcess = true;
 
             _stateMachine.Configure(State.Teaching)
                 .Permit(Trigger.Deny, State.Denied)
@@ -149,6 +150,7 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.Started)
                 .SubstateOf(State.Teaching)
                 .OnActivate(() => _subject.OnNext(new ProcessMessage("Next", MsgType.Info)))
+                .OnExit(() => _subject.OnNext(new ProcessMessage("", MsgType.Clear)))
                 .PermitDynamic(Trigger.Next, () => _fileAlignment switch
                 {
                     FileAlignment.AlignByThreePoint or FileAlignment.AlignByTwoPoint => State.GoRefPoint,
@@ -327,35 +329,20 @@ namespace NewLaserProject.Classes.Process
         }
         public void ExcludeObject(IProcObject procObject) => throw new NotImplementedException();
         public void IncludeObject(IProcObject procObject) => throw new NotImplementedException();
-        public Task Next()
+        public async Task Next()
         {
-            if (_stateMachine?.IsInState(State.Teaching) ?? false) _triggersQueue.Enqueue(Trigger.Next);
-            return Task.CompletedTask;
-        }
-        public async Task StartAsync()
-        {
-            _cancellationTokenSource = new();
-            if (_cancellationTokenSource.Token.IsCancellationRequested) return;
-            if (_stateMachine is null)
+            try
             {
-                CreateProcess();
-                await _stateMachine.ActivateAsync();
-
-                _inProcess = true;
-                for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
+                while (_inProcess)
                 {
-                    while (_inProcess)
+                    if (_cancellationTokenSource.Token.IsCancellationRequested)
                     {
-                        if (_cancellationTokenSource.Token.IsCancellationRequested)
-                        {
-                            _inProcess = false;
-                            continue;
-                        }
-
-                        if (_triggersQueue.TryDequeue(out var trigger))
-                        {
-                            await _stateMachine.FireAsync(trigger);
-                        }
+                        _inProcess = false;
+                        continue;
+                    }
+                    if (_triggersQueue.TryDequeue(out var trigger))
+                    {
+                        await _stateMachine.FireAsync(trigger);
                     }
                 }
                 if (!_cancellationTokenSource.Token.IsCancellationRequested)
@@ -369,6 +356,70 @@ namespace NewLaserProject.Classes.Process
                     Trace.Flush();
                     _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Cancelled, _workCoorSystem));
                 }
+                _coorFile?.Close();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task Next2()
+        {
+            try
+            {
+                if (_stateMachine.IsInState(State.Teaching))
+                {
+                    await _stateMachine.FireAsync(Trigger.Next);
+                }
+                else
+                {
+                    _inProcess = true;
+
+                    for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
+                    {
+                        while (_inProcess)
+                        {
+                            if (_cancellationTokenSource.Token.IsCancellationRequested)
+                            {
+                                _inProcess = false;
+                                continue;
+                            }
+                            if (_triggersQueue.TryDequeue(out var trigger))
+                            {
+                                await _stateMachine.FireAsync(trigger);
+                            }
+                        }
+                    }
+                    if (!_cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        Trace.TraceInformation("The process ended");
+                        Trace.Flush();
+                    }
+                    else
+                    {
+                        Trace.TraceInformation("The process was interrupted by user");
+                        Trace.Flush();
+                        _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Cancelled, _workCoorSystem));
+                    }
+                    _coorFile?.Close();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task StartAsync()
+        {
+            _cancellationTokenSource  = new();
+            if (_cancellationTokenSource.Token.IsCancellationRequested) return;
+            if (_stateMachine is null)
+            {
+                CreateProcess();
+                await _stateMachine.ActivateAsync();
+                _triggersQueue.Enqueue(Trigger.Next);
             }
         }
         public Task StartAsync(CancellationToken cancellationToken) => throw new NotImplementedException();

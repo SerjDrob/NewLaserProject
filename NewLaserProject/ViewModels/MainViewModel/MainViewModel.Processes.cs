@@ -324,7 +324,7 @@ namespace NewLaserProject.ViewModels
                     entityPreparator.SetEntityContourWidth(materialEntRule.Width);
                 }
 
-                _mainProcess = new GeneralLaserProcess(
+                _mainProcess = new GeneralLaserProcess2(
                     wafer: wafer,
                     serviceWafer: serviceWafer,
                     jsonPierce: _pierceSequenceJson,
@@ -459,8 +459,8 @@ namespace NewLaserProject.ViewModels
                 Trace.WriteLine($"Layer's name for processing: {CurrentLayerFilter}");
                 Trace.WriteLine($"Entity type for processing: {CurrentEntityType}");
                 Trace.Flush();
-                //await _mainProcess.StartAsync();
-                await _mainProcess.StartAsync(new System.Threading.CancellationToken());
+                _mainProcess.StartAsync();
+                //await _mainProcess.StartAsync(new System.Threading.CancellationToken());
             }
             catch (Exception ex)
             {
