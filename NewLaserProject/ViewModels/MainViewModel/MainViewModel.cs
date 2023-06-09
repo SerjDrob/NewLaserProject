@@ -325,7 +325,12 @@ namespace NewLaserProject.ViewModels
             //element.IsBeingProcessed = true;
             //IsBeingProcessedObject = element;
         }
-
+        [ICommand]
+        private void LasSettings()
+        {
+            _laserMachine.SetDevConfig();
+            //_laserMachine.SetMarkDeviceParams();
+        }
 
 
         [ICommand]
@@ -517,7 +522,8 @@ namespace NewLaserProject.ViewModels
             var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
             var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
 
-            _waferAngle = Math.Atan2(dy, dx);
+            //_waferAngle = Math.Atan2(dy, dx);
+            _waferAngle = Math.Atan(dy/dx);
 #if InvertAngles
             _waferAngle = -_waferAngle;
 #endif

@@ -154,6 +154,22 @@ namespace NewLaserProject.ViewModels
                     {
                         var dxfReader = new IMDxfReader(FileName);
                         _dxfReader = new DxfEditor(dxfReader);
+                        MirrorX = Settings.Default.WaferMirrorX;
+                        WaferTurn90 = Settings.Default.WaferAngle90;
+                        WaferOffsetX = 0;
+                        WaferOffsetY = 0;
+                        IgnoredLayers = new();
+
+                        await LoadDbForFile();
+                        await Task.Factory.StartNew(
+                            () => _openedFileVM.SetFileView(_dxfReader, DefaultFileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers),
+                            CancellationToken.None,
+                            TaskCreationOptions.None,
+                            TaskScheduler.FromCurrentSynchronizationContext()
+                            );
+                        _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
+
+                        IsFileLoaded = true;
                     }
                     catch (DxfReaderException ex)
                     {
@@ -162,24 +178,7 @@ namespace NewLaserProject.ViewModels
                             StaysOpen = true,
                             Message = ex.Message,
                         });
-                    }
-
-                    MirrorX = Settings.Default.WaferMirrorX;
-                    WaferTurn90 = Settings.Default.WaferAngle90;
-                    WaferOffsetX = 0;
-                    WaferOffsetY = 0;
-                    IgnoredLayers = new();
-
-                    await LoadDbForFile();
-                    await Task.Factory.StartNew(
-                        () => _openedFileVM.SetFileView(_dxfReader, DefaultFileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers),
-                        CancellationToken.None,
-                        TaskCreationOptions.None,
-                        TaskScheduler.FromCurrentSynchronizationContext()
-                        );
-                    _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
-
-                    IsFileLoaded = true;
+                    }                    
                 }
                 else
                 {

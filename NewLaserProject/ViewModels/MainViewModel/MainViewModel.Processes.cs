@@ -79,7 +79,7 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void DownloadProcess2()
+        private void DownloadProcess()
         {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
@@ -118,10 +118,6 @@ namespace NewLaserProject.ViewModels
             {
                 case FileAlignment.AlignByCorner:
                     {
-                        //var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
-                        //var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
-
-                        //var angle = Math.Atan2(dy, dx);
                         var pazAngle = -Settings.Default.PazAngle;
 #if InvertAngles
                         pazAngle = Settings.Default.PazAngle;
@@ -129,7 +125,7 @@ namespace NewLaserProject.ViewModels
                         entityPreparator.SetEntityAngle(_waferAngle)
                             .AddEntityAngle(pazAngle);//TODO do this in the three point proces too!!!!
 
-                        var coorSystem = _coorSystem.ExtractSubSystem(/*LMPlace.FileOnWaferUnderLaser*/LMPlace.FileOnWaferUnderCamera);
+                        var coorSystem = _coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderLaser/*LMPlace.FileOnWaferUnderCamera*/);
                         _mainProcess = new LaserProcess(wafer, _pierceSequenceJson, _laserMachine,
                                         coorSystem, Settings.Default.ZeroPiercePoint, WaferThickness, entityPreparator);
                     }
@@ -272,7 +268,7 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void DownloadProcess()
+        private void DownloadProcess2()
         {
             //TODO determine size by specified layer
             try
@@ -324,7 +320,7 @@ namespace NewLaserProject.ViewModels
                     entityPreparator.SetEntityContourWidth(materialEntRule.Width);
                 }
 
-                _mainProcess = new GeneralLaserProcess2(
+                _mainProcess = new GeneralLaserProcess(
                     wafer: wafer,
                     serviceWafer: serviceWafer,
                     jsonPierce: _pierceSequenceJson,

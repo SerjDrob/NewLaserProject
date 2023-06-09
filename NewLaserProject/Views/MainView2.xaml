@@ -191,7 +191,7 @@
                         </StackPanel>
                     </Button.ToolTip>
                 </Button>
-
+                <Button Content="LaserSettings" Command="{Binding LasSettingsCommand}"/>
                 <hc:SplitButton hc:IconElement.Geometry="{StaticResource AcademicHatGeometry}" HorizontalAlignment="Stretch">
                     <hc:SplitButton.DropDownContent>
                         <StackPanel>
