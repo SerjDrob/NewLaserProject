@@ -79,7 +79,7 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void DownloadProcess()
+        private void DownloadProcess2()
         {
             //TODO determine size by specified layer
             var topologySize = _dxfReader.GetSize();
@@ -268,7 +268,7 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void DownloadProcess2()
+        private void DownloadProcess()
         {
             //TODO determine size by specified layer
             try
@@ -320,7 +320,7 @@ namespace NewLaserProject.ViewModels
                     entityPreparator.SetEntityContourWidth(materialEntRule.Width);
                 }
 
-                _mainProcess = new GeneralLaserProcess(
+                _mainProcess = new GeneralLaserProcess2(
                     wafer: wafer,
                     serviceWafer: serviceWafer,
                     jsonPierce: _pierceSequenceJson,
@@ -362,7 +362,7 @@ namespace NewLaserProject.ViewModels
                     {
                         IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == poargs.ProcObject.Id);
                     //IsBeingProcessedIndex = poargs.ProcObject.index + 1;
-                });
+                    });
 
                 _mainProcess.OfType<ProcCompletionPreview>()
                     .Subscribe(args =>
@@ -433,19 +433,19 @@ namespace NewLaserProject.ViewModels
 
         }
 
-        private async Task StartProcess()
+        private async Task StartProcessAsync()
         {
 
 #if PCIInserted
 
             try
             {
-                var laserSettingsjson = File.ReadAllText(ProjectPath.GetFilePathInFolder("AppSettings", "DefaultLaserParams.json"));
+                var laserSettingsJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("AppSettings", "DefaultLaserParams.json"));
 
                 var laserParams = new JsonDeserializer<MarkLaserParams>()
                     .SetKnownType<PenParams>()
                     .SetKnownType<HatchParams>()
-                    .Deserialize(laserSettingsjson);
+                    .Deserialize(laserSettingsJson);
 
                 _laserMachine.SetMarkParams(laserParams);
 
@@ -455,16 +455,14 @@ namespace NewLaserProject.ViewModels
                 Trace.WriteLine($"Layer's name for processing: {CurrentLayerFilter}");
                 Trace.WriteLine($"Entity type for processing: {CurrentEntityType}");
                 Trace.Flush();
-                _mainProcess.StartAsync();
+                await _mainProcess.StartAsync().ConfigureAwait(false);
                 //await _mainProcess.StartAsync(new System.Threading.CancellationToken());
             }
             catch (Exception ex)
             {
-
                 throw;
             }
 #endif
-
         }
 
         private async Task MarkWaferAsync(MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem coorSystem)

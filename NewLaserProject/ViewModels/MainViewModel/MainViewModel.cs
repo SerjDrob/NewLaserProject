@@ -34,8 +34,7 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         const string APP_SETTINGS_FOLDER = "AppSettings";
-
-
+        
         private InfoMessager techMessager;
         private readonly LaserMachine _laserMachine;
         public bool IsLaserInitialized { get; set; } = false;
@@ -96,8 +95,8 @@ namespace NewLaserProject.ViewModels
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
-            var count = _laserMachine.GetVideoCaptureDevicesCount();
-            if (true)
+            var count = _laserMachine.AvaliableVideoCaptureDevices.Count;
+            if (count != 0)
             {
                 CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
                 CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
@@ -143,7 +142,6 @@ namespace NewLaserProject.ViewModels
                 ShowDateTime = false
             }); ;
         }
-
 
         [ICommand]
         private void DbLoad()
@@ -212,17 +210,14 @@ namespace NewLaserProject.ViewModels
         private void HideCentralPanel(bool hide)
         {
             IsCentralPanelVisible = !hide;
-
         }
         private void HideLearningPanel(bool hide)
         {
             IsLearningPanelVisible = !hide;
-
         }
         private void HideProcessPanel(bool hide)
         {
             IsProcessPanelVisible = !hide;
-
         }
         private void InitViews()
         {
@@ -272,8 +267,6 @@ namespace NewLaserProject.ViewModels
             IconPath = iconPath;
             CurrentMessageType = icon;
         }
-
-
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
             try
@@ -300,13 +293,10 @@ namespace NewLaserProject.ViewModels
                 //throw;
             }
         }
-
         private void _laserMachine_OnVideoSourceBmpChanged(object? sender, VideoCaptureEventArgs e)
         {
             CameraImage = e.Image;
         }
-
-
         private void StartVideoCapture()
         {
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
@@ -325,13 +315,13 @@ namespace NewLaserProject.ViewModels
             //element.IsBeingProcessed = true;
             //IsBeingProcessedObject = element;
         }
+        
         [ICommand]
         private void LasSettings()
         {
             _laserMachine.SetDevConfig();
             //_laserMachine.SetMarkDeviceParams();
         }
-
 
         [ICommand]
         private void OpenLayersProcessing()
@@ -343,7 +333,6 @@ namespace NewLaserProject.ViewModels
                 {
                     DataContext = new LayersProcessingModel(_dxfReader)
                 }.Show();
-
             }
             else
             {

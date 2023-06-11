@@ -126,9 +126,7 @@ namespace NewLaserProject.ViewModels
                 {
                     _laserMachine.InvokeSettings();
                     return Task.CompletedTask;
-                },()=>true)
-                ;
-
+                },()=>true);
 
             async Task moveAsync(KeyEventArgs key)
             {

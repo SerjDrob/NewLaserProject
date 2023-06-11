@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -26,7 +24,6 @@ namespace NewLaserProject.Classes.Process
     internal class GeneralLaserProcess2 : BaseLaserProcess, IProcess
     {
         private bool disposedValue;
-        private IEnumerator<IProcObject> _waferEnumerator;
         private StateMachine<State, Trigger> _stateMachine;
         private double _xActual;
         private double _yActual;
@@ -36,7 +33,6 @@ namespace NewLaserProject.Classes.Process
         private readonly ICoorSystem<LMPlace> _baseCoorSystem;
         private readonly ICoorSystem<LMPlace> _teachingPointsCoorSystem;
         private readonly PureCoorSystem<LMPlace> _pureCoorSystem;
-        private ICoorSystem? _workCoorSystem;
         private double _matrixAngle;
         private readonly double _zeroZPiercing;
         private readonly double _zeroZCamera;
@@ -52,11 +48,9 @@ namespace NewLaserProject.Classes.Process
         private readonly bool _underCamera;
         private readonly double _zPiercing;
         private readonly FileAlignment _fileAlignment;
-        private StreamWriter _coorFile;
-        private bool _inLoop = false;
-        private int _loopCount = 0;
         private CancellationTokenSource _cancellationTokenSource;
         private List<IDisposable> _subscriptions;
+        private IProcObject _currentProcObject;
         private readonly ConcurrentQueue<Trigger> _triggersQueue;
 
 
@@ -81,10 +75,8 @@ namespace NewLaserProject.Classes.Process
             _pureCoorSystem = new PureCoorSystem<LMPlace>(baseCoorSystem.GetMainMatrixElements().GetMatrix3());
             _baseCoorSystem = baseCoorSystem;
             _teachingPointsCoorSystem = baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
-            _underCamera = underCamera;//TODO use it outside of the constructor
+            _underCamera = underCamera;
             _zPiercing = _underCamera ? _zeroZCamera : _zeroZPiercing;//TODO use it outside of the constructor
-            _waferEnumerator = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle().GetEnumerator()
-                            : _wafer.GetEnumerator();
             _underCamera = underCamera;
             _fileAlignment = aligningPoints;
             _waferAngle = waferAngle;
@@ -100,6 +92,8 @@ namespace NewLaserProject.Classes.Process
             Started,
             GoRefPoint,
             GetRefPoint,
+            InitialCorner,
+            InitialPoints,
             Working,
             Paused,
             Denied,
@@ -115,18 +109,108 @@ namespace NewLaserProject.Classes.Process
 
         public void CreateProcess()
         {
-            var currentIndex = -1;
-
             var resultPoints = new List<PointF>();
             var originPoints = new List<PointF>();
+            var workingTrigger = _stateMachine.SetTriggerParameters<ICoorSystem>(Trigger.Next);
+
+            static int properPointsCount(FileAlignment aligning) => aligning switch
+            {
+                FileAlignment.AlignByThreePoint => 3,
+                FileAlignment.AlignByTwoPoint => 2,
+                _ => throw new ArgumentOutOfRangeException(nameof(aligning))
+            };
+            async Task ProcessingTheWaferAsync(ICoorSystem coorSystem)
+            {
+                if (_cancellationTokenSource.Token.IsCancellationRequested) return;
+                var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
+
+                for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
+                {
+                    if (_cancellationTokenSource.Token.IsCancellationRequested) break;
+                    foreach (var procObject in currentWafer)
+                    {
+                        _currentProcObject = procObject;
+                        if (_cancellationTokenSource.Token.IsCancellationRequested) break;
+                        _subject.OnNext(new ProcObjectChanged(procObject));
+
+                        if (!_excludedObjects?.Any(o => o.Id == procObject.Id) ?? true)
+                        {
+                            var position = coorSystem.ToGlobal(procObject.X, procObject.Y);
+                            _laserMachine.SetVelocity(Velocity.Fast);
+                            await Task.WhenAll(
+                                 _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
+                                 _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true),
+                                 Task.Run(async () => { if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness); })
+                                 );
+                            procObject.IsBeingProcessed = true;
+                            if (_inProcess && !_underCamera)
+                            {
+                                await _pierceFunction();
+                            }
+                            else
+                            {
+                                await Task.Delay(1000);
+                                var pointsLine = string.Empty;
+                                var line = $" X: {Math.Round(procObject.X, 3),8} | Y: {Math.Round(procObject.Y, 3),8} | X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8} | X: {Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: {Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
+                                if (HandyControl.Controls.MessageBox.Ask("Good?") == System.Windows.MessageBoxResult.OK)
+                                {
+                                    pointsLine = "GOOD" + line;
+                                }
+                                else
+                                {
+                                    pointsLine = $"BAD " + line;
+                                }
+                                //await _coorFile.WriteLineAsync(pointsLine);
+                                //await _coorFile.FlushAsync();
+                            }
+                            procObject.IsProcessed = true;
+                        }
+                    }
+                }
+                _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+                var completeStatus = _cancellationTokenSource.Token.IsCancellationRequested ? CompletionStatus.Cancelled : CompletionStatus.Success;
+                _subject.OnNext(new ProcCompletionPreview(completeStatus, coorSystem));
+            }
 
             _subject.OfType<SnapShotResult>()
                 .Subscribe(result =>
                 {
                     var point = _serviceWafer.GetPointToWafer(result);
                     originPoints.Add(point);
+                    var xAct = _xActual;
+                    var yAct = _yActual;
+                    var x = (float)(xAct + (_underCamera ? 0 : _dX));
+                    var y = (float)(yAct + (_underCamera ? 0 : _dY));
+                    resultPoints.Add(new(x, y));
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
-                    _triggersQueue.Enqueue(Trigger.Next);
+                    if (resultPoints.Count == properPointsCount(_fileAlignment))
+                    {
+                        var coorSys = _fileAlignment switch
+                        {
+                            FileAlignment.AlignByThreePoint => new CoorSystem<LMPlace>
+                           .ThreePointCoorSystemBuilder()
+                           .SetFirstPointPair(originPoints[0], resultPoints[0])
+                           .SetSecondPointPair(originPoints[1], resultPoints[1])
+                           .SetThirdPointPair(originPoints[2], resultPoints[2])
+                           .FormWorkMatrix(0.001, 0.001)
+                           .Build(),
+                            FileAlignment.AlignByTwoPoint => _pureCoorSystem
+                                .GetTwoPointSystemBuilder()
+                                .SetFirstPointPair(originPoints[0], resultPoints[0])
+                                .SetSecondPointPair(originPoints[1], resultPoints[1])
+                                .FormWorkMatrix(-1, -1)
+                                .Build(),
+                            FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
+                            _ => throw new InvalidOperationException()
+                        };
+                        _matrixAngle = coorSys.GetMatrixAngle();
+                        _entityPreparator.SetEntityAngle(-_pazAngle - _matrixAngle);
+                        _stateMachine.FireAsync(workingTrigger, coorSys);
+                    }
+                    else
+                    {
+                        _stateMachine.FireAsync(Trigger.Next);
+                    }
                 });
 
             _subject.OfType<ReadyForSnap>()
@@ -140,23 +224,30 @@ namespace NewLaserProject.Classes.Process
 
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
 
-            _stateMachine = new StateMachine<State, Trigger>(State.Started, FiringMode.Queued);
+            _stateMachine = new StateMachine<State, Trigger>(_fileAlignment switch
+            {
+                FileAlignment.AlignByCorner => State.InitialCorner,
+                _ => State.InitialPoints
+            }, FiringMode.Queued);
+
             _inProcess = true;
+
+            _stateMachine.Configure(State.InitialCorner)
+                .OnActivateAsync(async () =>
+                    {
+                        _entityPreparator.SetEntityAngle(_waferAngle).AddEntityAngle(_pazAngle);
+                        await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
+                    }
+                )
+                .Permit(Trigger.Next, State.Working);
+
+            _stateMachine.Configure(State.InitialPoints)
+                .OnActivateAsync(() => _stateMachine.FireAsync(Trigger.Next))
+                .Permit(Trigger.Next, State.GoRefPoint);
 
             _stateMachine.Configure(State.Teaching)
                 .Permit(Trigger.Deny, State.Denied)
                 .Ignore(Trigger.Pause);
-
-            _stateMachine.Configure(State.Started)
-                .SubstateOf(State.Teaching)
-                .OnActivate(() => _subject.OnNext(new ProcessMessage("Next", MsgType.Info)))
-                .OnExit(() => _subject.OnNext(new ProcessMessage("", MsgType.Clear)))
-                .PermitDynamic(Trigger.Next, () => _fileAlignment switch
-                {
-                    FileAlignment.AlignByThreePoint or FileAlignment.AlignByTwoPoint => State.GoRefPoint,
-                    FileAlignment.AlignByCorner => State.GetRefPoint,
-                    _ => throw new ArgumentOutOfRangeException($"{_fileAlignment} isn't supported")
-                });
 
             _stateMachine.Configure(State.GoRefPoint)
                 .SubstateOf(State.Teaching)
@@ -165,148 +256,20 @@ namespace NewLaserProject.Classes.Process
                     _subject.OnNext(new PermitSnap(true));
                     _subject.OnNext(new ProcessMessage($"Сопоставьте {(originPoints.Count + 1).ToOrdinalWords(GrammaticalGender.Feminine).ApplyCase(GrammaticalCase.Accusative)} точку ", MsgType.Info));
                 })
-                .OnExit(() =>
-                {
-                    var xAct = _xActual;// _laserMachine.GetAxActual(Ax.X);
-                    var yAct = _yActual;// _laserMachine.GetAxActual(Ax.Y);
-                    var x = (float)(xAct + (_underCamera ? 0 : _dX));
-                    var y = (float)(yAct + (_underCamera ? 0 : _dY));
-                    resultPoints.Add(new(x, y));
-                })
-                .PermitReentryIf(Trigger.Next,
-                () => resultPoints.Count < (_fileAlignment switch
-                {
-                    FileAlignment.AlignByThreePoint => 2,
-                    FileAlignment.AlignByTwoPoint => 1,
-                    _ => 2
-                }))
-                .PermitIf(Trigger.Next, State.GetRefPoint,
-                () => resultPoints.Count == (_fileAlignment switch
-                {
-                    FileAlignment.AlignByThreePoint => 2,
-                    FileAlignment.AlignByTwoPoint => 1,
-                    _ => 2
-                }));
-
-            _stateMachine.Configure(State.GetRefPoint)
-                //.SubstateOf(State.Teaching)
-                .OnEntry(() => _subject.OnNext(new ProcessMessage("", MsgType.Clear)))
-                .OnEntry(() =>
-                {
-                    _subject.OnNext(new PermitSnap(false));
-                    _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
-                    _workCoorSystem = _fileAlignment switch
-                    {
-                        FileAlignment.AlignByThreePoint => new CoorSystem<LMPlace>
-                       .ThreePointCoorSystemBuilder()
-                       .SetFirstPointPair(originPoints[0], resultPoints[0])
-                       .SetSecondPointPair(originPoints[1], resultPoints[1])
-                       .SetThirdPointPair(originPoints[2], resultPoints[2])
-                       .FormWorkMatrix(0.001, 0.001)
-                       .Build(),
-                        FileAlignment.AlignByTwoPoint => _pureCoorSystem
-                            .GetTwoPointSystemBuilder()
-                            .SetFirstPointPair(originPoints[0], resultPoints[0])
-                            .SetSecondPointPair(originPoints[1], resultPoints[1])
-                            .FormWorkMatrix(-1, -1)
-                            .Build(),
-                        FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
-                        _ => throw new InvalidOperationException()
-                    };
-                    _matrixAngle = _workCoorSystem.GetMatrixAngle();
-                    _triggersQueue.Enqueue(Trigger.Next);
-                })
-                .OnExit(() =>
-                {
-                    _waferEnumerator.MoveNext();
-                    if (_fileAlignment == FileAlignment.AlignByCorner) _entityPreparator.SetEntityAngle(_waferAngle).AddEntityAngle(_pazAngle);
-                    _entityPreparator.SetEntityAngle(-_pazAngle - _matrixAngle);
-                })
-                .Permit(Trigger.Next, State.Working);
+                .PermitReentryIf(Trigger.Next, () => resultPoints.Count < properPointsCount(_fileAlignment))
+                .PermitIf(Trigger.Next, State.Working, () => resultPoints.Count == properPointsCount(_fileAlignment));
 
             _stateMachine.Configure(State.Working)
-                .OnEntryAsync(async () =>
-                {
-                    var procObject = _waferEnumerator.Current;
-                    _subject.OnNext(new ProcObjectChanged(procObject));
-
-                    if (!_excludedObjects?.Any(o => o.Id == procObject.Id) ?? true)
-                    {
-                        var position = _workCoorSystem.ToGlobal(procObject.X, procObject.Y);
-                        _laserMachine.SetVelocity(Velocity.Fast);
-                        await Task.WhenAll(
-                             _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
-                             _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true),
-                             Task.Run(() => { if (!_underCamera) _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness); })
-                             );
-                        procObject.IsBeingProcessed = true;
-
-                        if (_inProcess && !_underCamera)
-                        {
-                            await _pierceFunction();
-                        }
-                        else
-                        {
-                            await Task.Delay(1000);
-                            var pointsLine = string.Empty;
-                            var line = $" X: {Math.Round(procObject.X, 3),8} | Y: {Math.Round(procObject.Y, 3),8} | X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8} | X: {Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: {Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
-                            if (HandyControl.Controls.MessageBox.Ask("Good?") == System.Windows.MessageBoxResult.OK)
-                            {
-                                pointsLine = "GOOD" + line;
-                            }
-                            else
-                            {
-                                pointsLine = $"BAD " + line;
-                            }
-                            //await _coorFile.WriteLineAsync(pointsLine);
-                            //await _coorFile.FlushAsync();
-                        }
-                        procObject.IsProcessed = true;
-                    }
-                    _subject.OnNext(new ProcObjectChanged(procObject));
-                    _inLoop = _waferEnumerator.MoveNext();
-                    currentIndex++;
-                    _triggersQueue.Enqueue(Trigger.Next);
-                })
-                .PermitReentryIf(Trigger.Next, () => _inLoop)
-                .PermitIf(Trigger.Next, State.Loop, () => !_inLoop)
+                .OnEntryFromAsync(workingTrigger, ProcessingTheWaferAsync)
                 .Ignore(Trigger.Pause);
-
-            _stateMachine.Configure(State.Loop)
-                .OnEntry(() =>
-                {
-                    _loopCount++;
-                    var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
-                    CurrentWaferChanged?.Invoke(this, currentWafer);
-
-                    _subject.OnNext(new ProcWaferChanged(currentWafer));
-
-                    _waferEnumerator = currentWafer.GetEnumerator();
-                    currentIndex = -1;
-                    _inLoop = _waferEnumerator.MoveNext();
-                    currentIndex++;
-                    _triggersQueue.Enqueue(Trigger.Next);
-                })
-                .OnExit(() => _inProcess = _loopCount < _progTreeParser.MainLoopCount)
-                .PermitIf(Trigger.Next, State.Working, () => _loopCount < _progTreeParser.MainLoopCount)
-                .PermitIf(Trigger.Next, State.Exit, () => _loopCount >= _progTreeParser.MainLoopCount);
-
-            _stateMachine.Configure(State.Exit)
-                .OnEntry(() =>
-                {
-                    _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _workCoorSystem));
-                })
-                .Ignore(Trigger.Next);
 
             _stateMachine.Configure(State.Denied)
                 .OnEntryAsync(() =>
                 {
                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
-                    ProcessingCompleted?.Invoke(this, new ProcessCompletedEventArgs(CompletionStatus.Cancelled, _workCoorSystem));
+                    _subject.OnNext(new TeachingCancelledByUser());
                     return Task.CompletedTask;
-                    //ctSource.Cancel();
                 });
-
         }
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
@@ -327,99 +290,21 @@ namespace NewLaserProject.Classes.Process
             _cancellationTokenSource?.Cancel();
             await _laserMachine.CancelMarkingAsync();
         }
-        public void ExcludeObject(IProcObject procObject) => throw new NotImplementedException();
-        public void IncludeObject(IProcObject procObject) => throw new NotImplementedException();
+        public void ExcludeObject(IProcObject procObject) => _excludedObjects.Add(procObject);
+        public void IncludeObject(IProcObject procObject) => _excludedObjects.Remove(procObject);
         public async Task Next()
         {
-            try
-            {
-                while (_inProcess)
-                {
-                    if (_cancellationTokenSource.Token.IsCancellationRequested)
-                    {
-                        _inProcess = false;
-                        continue;
-                    }
-                    if (_triggersQueue.TryDequeue(out var trigger))
-                    {
-                        await _stateMachine.FireAsync(trigger);
-                    }
-                }
-                if (!_cancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    Trace.TraceInformation("The process ended");
-                    Trace.Flush();
-                }
-                else
-                {
-                    Trace.TraceInformation("The process was interrupted by user");
-                    Trace.Flush();
-                    _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Cancelled, _workCoorSystem));
-                }
-                _coorFile?.Close();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            throw new NotImplementedException();
         }
-
-        public async Task Next2()
-        {
-            try
-            {
-                if (_stateMachine.IsInState(State.Teaching))
-                {
-                    await _stateMachine.FireAsync(Trigger.Next);
-                }
-                else
-                {
-                    _inProcess = true;
-
-                    for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
-                    {
-                        while (_inProcess)
-                        {
-                            if (_cancellationTokenSource.Token.IsCancellationRequested)
-                            {
-                                _inProcess = false;
-                                continue;
-                            }
-                            if (_triggersQueue.TryDequeue(out var trigger))
-                            {
-                                await _stateMachine.FireAsync(trigger);
-                            }
-                        }
-                    }
-                    if (!_cancellationTokenSource.Token.IsCancellationRequested)
-                    {
-                        Trace.TraceInformation("The process ended");
-                        Trace.Flush();
-                    }
-                    else
-                    {
-                        Trace.TraceInformation("The process was interrupted by user");
-                        Trace.Flush();
-                        _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Cancelled, _workCoorSystem));
-                    }
-                    _coorFile?.Close();
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
         public async Task StartAsync()
         {
-            _cancellationTokenSource  = new();
+            _cancellationTokenSource = new();
             if (_cancellationTokenSource.Token.IsCancellationRequested) return;
             if (_stateMachine is null)
             {
                 CreateProcess();
-                await _stateMachine.ActivateAsync();
-                _triggersQueue.Enqueue(Trigger.Next);
+                await _stateMachine.ActivateAsync().ConfigureAwait(false);
+                await _stateMachine.FireAsync(Trigger.Next);
             }
         }
         public Task StartAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
@@ -430,7 +315,6 @@ namespace NewLaserProject.Classes.Process
             _subscriptions.Add(subscription);
             return subscription;
         }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -472,7 +356,7 @@ namespace NewLaserProject.Classes.Process
         }
         protected async override Task FuncForPierseBlockAsync(ExtendedParams extendedParams)
         {
-            using var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(_waferEnumerator.Current);
+            using var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(_currentProcObject);
             _laserMachine.SetExtMarkParams(new ExtParamsAdapter(extendedParams));
             var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath).ConfigureAwait(false);
         }
@@ -481,4 +365,6 @@ namespace NewLaserProject.Classes.Process
             await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
         }
     }
+
+    internal record ProcessParams(IEnumerable<IProcObject> Wafer, LaserWafer ServiceWafer, LaserMachine LaserMachine, EntityPreparator EntityPreparator, ISubject<IProcessNotify> Subject, ICoorSystem<LMPlace> BaseCoorSystem, FileAlignment AligningPoints, double ZeroZPiercing, double ZeroZCamera, double WaferThickness, double DX, double DY, double PazAngle, double WaferAngle, string JsonPierce, bool UnderCamera);
 }

@@ -11,13 +11,12 @@ namespace NewLaserProject.Classes
         }
 
         public uint Numerator { get; set; } 
-        public uint Denominator { get; set; } 
-        public float Ratio { get => Numerator / Denominator; }
+        public uint Denominator { get; set; }
+        public float Ratio => Numerator / Denominator;
         public override string ToString()
         {
             return $"{Numerator} : {Denominator}";
         }
         public static implicit operator float(Scale scale) => scale?.Ratio ?? 1f;
     }
-
 }

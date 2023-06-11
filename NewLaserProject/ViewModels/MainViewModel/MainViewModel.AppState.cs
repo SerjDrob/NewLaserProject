@@ -39,7 +39,7 @@ namespace NewLaserProject.ViewModels
 					//HideVideoPanel(false);
 					HideRightPanel(true);
 					ChangeViews(IsVideOnCenter: false);
-					await StartProcess();
+					await StartProcessAsync();
 				})
 				.OnExit(() =>
 				{
