@@ -41,6 +41,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _dY;
         private readonly double _pazAngle;
         private readonly double _waferAngle;
+        private readonly Scale _scale;
         private readonly EntityPreparator _entityPreparator;
         private readonly ISubject<IProcessNotify> _subject;
         private List<IProcObject> _excludedObjects;
@@ -51,7 +52,6 @@ namespace NewLaserProject.Classes.Process
         private CancellationTokenSource _cancellationTokenSource;
         private List<IDisposable> _subscriptions;
         private IProcObject _currentProcObject;
-        private readonly ConcurrentQueue<Trigger> _triggersQueue;
 
 
         public GeneralLaserProcess2(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
@@ -59,7 +59,7 @@ namespace NewLaserProject.Classes.Process
                double zeroZPiercing, double zeroZCamera, double waferThickness,
                double dX, double dY, double pazAngle, EntityPreparator entityPreparator,
                ISubject<IProcessNotify> subject, ICoorSystem<LMPlace> baseCoorSystem,
-               bool underCamera, FileAlignment aligningPoints, double waferAngle) : base(jsonPierce)
+               bool underCamera, FileAlignment aligningPoints, double waferAngle, Scale scale) : base(jsonPierce)
         {
             _wafer = wafer;
             _serviceWafer = serviceWafer;
@@ -80,7 +80,7 @@ namespace NewLaserProject.Classes.Process
             _underCamera = underCamera;
             _fileAlignment = aligningPoints;
             _waferAngle = waferAngle;
-            _triggersQueue = new();
+            _scale = scale;
         }
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
@@ -111,6 +111,13 @@ namespace NewLaserProject.Classes.Process
         {
             var resultPoints = new List<PointF>();
             var originPoints = new List<PointF>();
+
+            _stateMachine = new StateMachine<State, Trigger>(_fileAlignment switch
+            {
+                FileAlignment.AlignByCorner => State.InitialCorner,
+                _ => State.InitialPoints
+            }, FiringMode.Queued);
+
             var workingTrigger = _stateMachine.SetTriggerParameters<ICoorSystem>(Trigger.Next);
 
             static int properPointsCount(FileAlignment aligning) => aligning switch
@@ -177,10 +184,8 @@ namespace NewLaserProject.Classes.Process
                 {
                     var point = _serviceWafer.GetPointToWafer(result);
                     originPoints.Add(point);
-                    var xAct = _xActual;
-                    var yAct = _yActual;
-                    var x = (float)(xAct + (_underCamera ? 0 : _dX));
-                    var y = (float)(yAct + (_underCamera ? 0 : _dY));
+                    var x = (float)(_xActual + (_underCamera ? 0 : _dX));
+                    var y = (float)(_yActual + (_underCamera ? 0 : _dY));
                     resultPoints.Add(new(x, y));
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                     if (resultPoints.Count == properPointsCount(_fileAlignment))
@@ -192,13 +197,13 @@ namespace NewLaserProject.Classes.Process
                            .SetFirstPointPair(originPoints[0], resultPoints[0])
                            .SetSecondPointPair(originPoints[1], resultPoints[1])
                            .SetThirdPointPair(originPoints[2], resultPoints[2])
-                           .FormWorkMatrix(0.001, 0.001)
+                           .FormWorkMatrix(_scale, _scale)
                            .Build(),
                             FileAlignment.AlignByTwoPoint => _pureCoorSystem
                                 .GetTwoPointSystemBuilder()
                                 .SetFirstPointPair(originPoints[0], resultPoints[0])
                                 .SetSecondPointPair(originPoints[1], resultPoints[1])
-                                .FormWorkMatrix(-1, -1)
+                                .FormWorkMatrix(1, 1)
                                 .Build(),
                             FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
                             _ => throw new InvalidOperationException()
@@ -223,14 +228,10 @@ namespace NewLaserProject.Classes.Process
                 });
 
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
+           
 
-            _stateMachine = new StateMachine<State, Trigger>(_fileAlignment switch
-            {
-                FileAlignment.AlignByCorner => State.InitialCorner,
-                _ => State.InitialPoints
-            }, FiringMode.Queued);
+            _inProcess = true;//TODO is it necessary?
 
-            _inProcess = true;
 
             _stateMachine.Configure(State.InitialCorner)
                 .OnActivateAsync(async () =>
@@ -304,7 +305,6 @@ namespace NewLaserProject.Classes.Process
             {
                 CreateProcess();
                 await _stateMachine.ActivateAsync().ConfigureAwait(false);
-                await _stateMachine.FireAsync(Trigger.Next);
             }
         }
         public Task StartAsync(CancellationToken cancellationToken) => throw new NotImplementedException();

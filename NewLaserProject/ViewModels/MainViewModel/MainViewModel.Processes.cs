@@ -336,7 +336,8 @@ namespace NewLaserProject.ViewModels
                     baseCoorSystem: _coorSystem,
                     underCamera: false,
                     aligningPoints: FileAlignment,
-                    waferAngle: _waferAngle);
+                    waferAngle: _waferAngle,
+                    scale: DefaultFileScale);
 
 
                 ProcessingObjects = new(wafer);
