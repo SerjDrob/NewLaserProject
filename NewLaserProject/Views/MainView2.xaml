@@ -440,14 +440,6 @@
                                         DockPanel.Dock="Top"
                                         MinHeight="300"
                                         Visibility="{Binding IsRightPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
-                            <!--<i:Interaction.Triggers>
-                                    <i:DataTrigger Binding="{Binding OnProcess}" Value="True">
-                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
-                                    </i:DataTrigger>
-                                    <i:DataTrigger Binding="{Binding OnProcess}" Value="False">
-                                        <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
-                                    </i:DataTrigger>
-                                </i:Interaction.Triggers>-->
                         </ContentControl>
 
                         <GroupBox x:Name="ProcessPanel"
@@ -484,39 +476,12 @@
 
                                 <StackPanel Orientation="Horizontal" Grid.ColumnSpan="7">
                                     <DockPanel LastChildFill="True" HorizontalAlignment="Left">
-                                        <!--<ToggleButton DockPanel.Dock="Right"
-                                                      IsChecked="{Binding FileAlignment, Mode=OneWayToSource, Converter={StaticResource FileAlignmentConverter}}"
-                                                      hc:IconSwitchElement.Geometry="{StaticResource AlignByAngleGeometry}"
-                                                      hc:IconSwitchElement.GeometrySelected="{StaticResource AlignByThreePointGeometry}"
-                                                      RenderTransformOrigin="0,0.5"
-                                                      Style="{StaticResource ToggleButtonIcon}"
-                                                      >
-                                            <ToggleButton.RenderTransform>
-                                                <ScaleTransform ScaleY="-1"/>
-                                            </ToggleButton.RenderTransform>
-                                        </ToggleButton>-->
-
-                                        <!--<Button DockPanel.Dock="Right">
-                                            <Path Data="{StaticResource AlignByAngleGeometry}" Stroke="White" Stretch="Uniform"/>
-                                        </Button>-->
-
                                         <hc:ElementGroup x:Name="FileScale" DockPanel.Dock="Right" Orientation="Horizontal">
                                             <Label Content="Масштаб файла"/>
                                             <hc:ComboBox ItemsSource="{Binding Scales}"
                                                  SelectedItem="{Binding DefaultFileScale}"
                                                  Style="{StaticResource ComboBoxBaseStyle}"
                                                  Width="90"/>
-                                            <!--<i:Interaction.Triggers>
-                                                <i:DataTrigger Binding="{Binding FileAlignment}" Value="{x:Static classes:FileAlignment.AlignByThreePoint}">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
-                                                </i:DataTrigger>
-                                                <i:DataTrigger Binding="{Binding FileAlignment}" Value="{x:Static classes:FileAlignment.AlignByCorner}">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
-                                                </i:DataTrigger>
-                                                <i:DataTrigger Binding="{Binding FileAlignment}" Value="{x:Static classes:FileAlignment.AlignByTwoPoint}">
-                                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
-                                                </i:DataTrigger>
-                                            </i:Interaction.Triggers>-->
                                         </hc:ElementGroup>
                                         <uclocal:ItemsButton DockPanel.Dock="Right"
                                                              Items="{Binding Alignments}"
@@ -567,35 +532,6 @@
                                             </Button.RenderTransform>
                                         </Button>
                                     </DockPanel>
-                                    <!--<hc:ComboBox  Grid.Column="2" Grid.ColumnSpan="6" hc:InfoElement.Placeholder="Состав файла">
-                                    <TreeView
-                                              x:Name="LayersList" 
-                                              Height="150" 
-                                              ItemsSource="{Binding LayersStructure, Converter={StaticResource LTreeStructureConverter}}">
-                                        <TreeView.ItemContainerStyle>
-                                            <Style TargetType="{x:Type TreeViewItem}">
-                                                <Setter Property="IsExpanded" Value="True" />
-                                            </Style>
-                                        </TreeView.ItemContainerStyle>
-                                        <TreeView.Resources>
-                                            <HierarchicalDataTemplate DataType="{x:Type vm:Layer}" ItemsSource="{Binding Objects}">
-                                                <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
-                                            </HierarchicalDataTemplate>
-                                            <DataTemplate DataType="{x:Type vm:Text}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    -->
-                                    <!--<TextBlock Text="{Binding Value}" Foreground="White"/>-->
-                                    <!--
-                                                    <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" 
-                                                        ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                                    <TextBlock Text=" [ " Style="{DynamicResource TextBlockDefaultPrimary}" />
-                                                    <TextBlock Text="{Binding Count}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                                                    <TextBlock Text=" ]" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </TreeView.Resources>
-                                    </TreeView>
-                                </hc:ComboBox>-->
                                 </StackPanel>
 
                                 <Button Grid.Row="1"
@@ -693,20 +629,20 @@
                                                         <ColumnDefinition Width="36"/>
                                                     </Grid.ColumnDefinitions>
                                                     <Button 
-                                                    hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                    Command="{Binding RelativeSource={RelativeSource AncestorType=Window},Path=DataContext.RemoveObjectFromProcessCommand}"
-                                                    CommandParameter="{Binding}"
-                                                    Style="{StaticResource ButtonDanger.Small}"
-                                                    />
+                                                      hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                      Command="{Binding RelativeSource={RelativeSource AncestorType=Window},Path=DataContext.RemoveObjectFromProcessCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      Style="{StaticResource ButtonDanger.Small}"
+                                                      />
 
                                                     <ComboBox 
-                                                    x:Name="LayComb"
-                                                    Grid.Column="1"
-                                                    ItemsSource="{Binding Structure, Converter={StaticResource LStructureConvereter}}"            
-                                                    SelectedValuePath="LayerName"
-                                                    SelectedValue="{Binding Layer, Mode=OneWayToSource}"
-                                                    DisplayMemberPath="LayerName"
-                                                    >
+                                                      x:Name="LayComb"
+                                                      Grid.Column="1"
+                                                      ItemsSource="{Binding Structure, Converter={StaticResource LStructureConvereter}}"            
+                                                      SelectedValuePath="LayerName"
+                                                      SelectedValue="{Binding Layer, Mode=OneWayToSource}"
+                                                      DisplayMemberPath="LayerName"
+                                                      >
                                                     </ComboBox>
 
                                                     <uclocal:ItemsButton 
@@ -735,22 +671,7 @@
                                               SelectionMode="Single"     
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               LoadingRow="DataGrid_LoadingRow"
-                                              
                                               >
-
-                                        <!--<DataGrid.RowStyle>
-                                            <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle.Small}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsProcessed}" Value="True">
-                                                        <Setter Property="IsEnabled"  Value="False"/>
-                                                        <Setter Property="Opacity" Value="0.5"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding IsBeingProcessed}" Value="True">
-                                                        <Setter Property="IsSelected"  Value="True"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </DataGrid.RowStyle>-->
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
                                             <DataGridTemplateColumn Header="Тип">

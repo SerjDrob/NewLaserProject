@@ -150,6 +150,7 @@ namespace NewLaserProject.Classes.Process
                                  Task.Run(async () => { if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness); })
                                  );
                             procObject.IsBeingProcessed = true;
+                            _subject.OnNext(new ProcObjectChanged(procObject));
                             if (_inProcess && !_underCamera)
                             {
                                 await _pierceFunction();
@@ -171,6 +172,7 @@ namespace NewLaserProject.Classes.Process
                                 //await _coorFile.FlushAsync();
                             }
                             procObject.IsProcessed = true;
+                            _subject.OnNext(new ProcObjectChanged(procObject));
                         }
                     }
                 }
