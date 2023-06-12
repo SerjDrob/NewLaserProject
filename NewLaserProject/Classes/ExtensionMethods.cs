@@ -83,11 +83,11 @@ namespace NewLaserProject.Classes
             var obj = JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(T));
             return (T?)obj;
         }
-
         internal static ObservableCollection<T> ToObservableCollection<T>(this IEnumerable<T> en)
         {
             return new ObservableCollection<T>(en);
         }
+        internal static void AddSubscriptionTo(this IDisposable subscription, IList<IDisposable> subscriptions) => subscriptions?.Add(subscription);
     }
     
 }

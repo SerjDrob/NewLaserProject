@@ -51,7 +51,7 @@ namespace NewLaserProject.Classes.Process
         private readonly FileAlignment _fileAlignment;
         private List<IDisposable> _subscriptions;
         private IProcObject _currentProcObject;
-
+        private readonly Guid _procId = Guid.NewGuid();
 
         public GeneralLaserProcess(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
                string jsonPierce, LaserMachine laserMachine,
@@ -108,6 +108,7 @@ namespace NewLaserProject.Classes.Process
 
         public void CreateProcess()
         {
+            if (disposedValue) throw new ObjectDisposedException($"Object {_procId} has already disposed");
             var resultPoints = new List<PointF>();
             var originPoints = new List<PointF>();
 
@@ -217,7 +218,8 @@ namespace NewLaserProject.Classes.Process
                     {
                         _stateMachine.FireAsync(Trigger.Next);
                     }
-                });
+                })
+                .AddSubscriptionTo(_subscriptions);
 
             _subject.OfType<ReadyForSnap>()
                 .Subscribe(result =>
@@ -226,7 +228,8 @@ namespace NewLaserProject.Classes.Process
                     var point = _serviceWafer.GetPointFromWafer(new((float)position[0], (float)position[1]));
                     var request = new ScopedGeomsRequest(5000, 5000, point.X, point.Y);
                     _subject.OnNext(request);
-                });
+                })
+                .AddSubscriptionTo(_subscriptions);
 
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
            
@@ -338,13 +341,24 @@ namespace NewLaserProject.Classes.Process
         //     Dispose(disposing: false);
         // }
 
+        //public void Dispose()
+        //{
+        //    // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //    Dispose(disposing: true);
+        //    GC.SuppressFinalize(this);
+        //}
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            // Никаких Dispose(true) и никаких вызовов GC.SuppressFinalize()
+            DisposeManagedResources(); 
+            disposedValue = true;
         }
 
+        // Никаких параметров, этот метод должен освобождать только неуправляемые ресурсы
+        protected virtual void DisposeManagedResources()
+        {
+            _subscriptions?.ForEach(s => s.Dispose());
+        }
         protected override Task FuncForTapperBlockAsync(double tapper)
         {
             _entityPreparator.SetEntityContourOffset(tapper);

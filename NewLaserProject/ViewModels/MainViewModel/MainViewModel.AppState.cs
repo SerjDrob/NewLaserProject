@@ -38,6 +38,7 @@ namespace NewLaserProject.ViewModels
                 .OnExit(() =>
                 {
                     //CancelProcess();
+                    _currentProcSubscriptions?.ForEach(subscr => subscr.Dispose());
                     _mainProcess?.Dispose();
                     OnProcess = false;
                 })

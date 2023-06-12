@@ -72,7 +72,7 @@ namespace NewLaserProject.ViewModels
         private ITeacher _currentTeacher;
         private bool _canTeach = false;
 
-        private IProcess _mainProcess;
+        private IProcess? _mainProcess;
         private double _waferAngle;
         private readonly ILogger _logger;
 
