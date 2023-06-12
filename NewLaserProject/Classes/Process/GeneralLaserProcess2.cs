@@ -49,7 +49,6 @@ namespace NewLaserProject.Classes.Process
         private readonly bool _underCamera;
         private readonly double _zPiercing;
         private readonly FileAlignment _fileAlignment;
-        private CancellationTokenSource _cancellationTokenSource;
         private List<IDisposable> _subscriptions;
         private IProcObject _currentProcObject;
 
@@ -301,7 +300,6 @@ namespace NewLaserProject.Classes.Process
         }
         public async Task StartAsync()
         {
-            _cancellationTokenSource = new();
             if (_cancellationTokenSource.Token.IsCancellationRequested) return;
             if (_stateMachine is null)
             {

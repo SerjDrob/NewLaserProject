@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
@@ -15,17 +16,18 @@ namespace NewLaserProject.Classes
     public class ProgTreeParser
     {
         private readonly MainLoop _progModules;
-        public bool MainLoopShuffle { get => _progModules.Shuffle; }
-        public int MainLoopCount { get => _progModules.LoopCount; }
-        
-        private Dictionary<Type, object> _functions = new();
+        public bool MainLoopShuffle => _progModules.Shuffle;
+        public int MainLoopCount => _progModules.LoopCount;
+
+        private readonly Dictionary<Type, object> _functions = new();
+        private readonly CancellationToken _cancellationToken;
 
         public ProgTreeParser SetModuleFunction<TBlock, T>(IFuncProxy<T> funcProxy) where TBlock : IProgBlock
         {
             _functions.TryAdd(typeof(TBlock), funcProxy);
             return this;
         }
-        public ProgTreeParser(string jsonTree)
+        public ProgTreeParser(string jsonTree, CancellationToken cancellationToken = new())
         {
             _progModules = new JsonDeserializer<MainLoop>()
                 .SetKnownType<AddZBlock>()
@@ -39,24 +41,22 @@ namespace NewLaserProject.Classes
                 .SetKnownType<HatchParams>()
                 .SetKnownType<ExtendedParams>()
                 .Deserialize(jsonTree);
+            _cancellationToken = cancellationToken;
         }
-
         public FuncTree GetTree()
         {
             var result = ParseModules(_progModules.Children);
             return result;
         }
-
-
         private FuncTree ParseModules(IEnumerable<IProgBlock> progModules)
         {
-            var mainLoop = FuncTree.StartLoop(1);
+            var mainLoop = FuncTree.StartLoop(1,_cancellationToken);
             foreach (var item in progModules)
             {
                 if (item is LoopBlock loop)
                 {
                     FuncTree child = ParseModules(loop.Children);
-                    FuncTree endLoop = FuncTree.StartLoop(loop.LoopCount)
+                    FuncTree endLoop = FuncTree.StartLoop(loop.LoopCount,_cancellationToken)
                         .AddChild(child)
                         .EndLoop;
                     mainLoop.AddChild(endLoop);
