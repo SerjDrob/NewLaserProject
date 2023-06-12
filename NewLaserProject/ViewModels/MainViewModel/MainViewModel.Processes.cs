@@ -28,7 +28,7 @@ namespace NewLaserProject.ViewModels
 
     internal partial class MainViewModel
     {
-        public ObservableCollection<IProcObject> ProcessingObjects { get; set; } //= new();
+        public ObservableCollection<IProcObject> ProcessingObjects { get; set; } 
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
         public FileAlignment FileAlignment { get; set; }
@@ -37,6 +37,7 @@ namespace NewLaserProject.ViewModels
         public string CurrentLayerFilter { get; set; }
         public LaserEntity CurrentEntityType { get; set; }
         public bool IsWaferMark { get; set; }
+        public MarkPosition MarkPosition { get; set; }
 
         [ICommand]
         private async Task StartStopProcess(object arg)
@@ -67,16 +68,10 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void AddObjectToProcess()
-        {
-            ObjectsForProcessing.Add(new ObjsToProcess(LayersStructure));
-        }
+        private void AddObjectToProcess() => ObjectsForProcessing.Add(new ObjsToProcess(LayersStructure));
 
         [ICommand]
-        private void RemoveObjectFromProcess(ObjsToProcess @object)
-        {
-            ObjectsForProcessing.Remove(@object);
-        }
+        private void RemoveObjectFromProcess(ObjsToProcess @object) => ObjectsForProcessing.Remove(@object);
 
         [ICommand]
         private void DownloadProcess2()
@@ -320,7 +315,7 @@ namespace NewLaserProject.ViewModels
                     entityPreparator.SetEntityContourWidth(materialEntRule.Width);
                 }
 
-                _mainProcess = new GeneralLaserProcess2(
+                _mainProcess = new GeneralLaserProcess(
                     wafer: wafer,
                     serviceWafer: serviceWafer,
                     jsonPierce: _pierceSequenceJson,
@@ -529,15 +524,7 @@ namespace NewLaserProject.ViewModels
             MarkPosition++;
             _openedFileVM?.SetTextPosition(MarkPosition);
         }
-        public MarkPosition MarkPosition { get; set; }
-
-        [ICommand]
-        private Task TPProcessNext()
-        {
-            return _mainProcess.Next();
-        }
-
-
+        
         [ICommand]
         private void ChooseMaterial()
         {
@@ -550,8 +537,6 @@ namespace NewLaserProject.ViewModels
             WaferHeight = material.Height;
             WaferThickness = material.Thickness;
         }
-
-
     }
 
 }

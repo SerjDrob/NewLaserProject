@@ -202,23 +202,10 @@ namespace NewLaserProject.ViewModels
                 ChangeViews();
             }
         }
-        private void HideRightPanel(bool hide)
-        {
-            IsRightPanelVisible = !hide;
-
-        }
-        private void HideCentralPanel(bool hide)
-        {
-            IsCentralPanelVisible = !hide;
-        }
-        private void HideLearningPanel(bool hide)
-        {
-            IsLearningPanelVisible = !hide;
-        }
-        private void HideProcessPanel(bool hide)
-        {
-            IsProcessPanelVisible = !hide;
-        }
+        private void HideRightPanel(bool hide) => IsRightPanelVisible = !hide;
+        private void HideCentralPanel(bool hide) => IsCentralPanelVisible = !hide;
+        private void HideLearningPanel(bool hide) => IsLearningPanelVisible = !hide;
+        private void HideProcessPanel(bool hide) => IsProcessPanelVisible = !hide;
         private void InitViews()
         {
             _openedFileVM = new FileVM(48, 60, _subjMediator);
