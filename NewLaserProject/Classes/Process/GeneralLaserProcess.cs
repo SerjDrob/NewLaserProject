@@ -17,6 +17,7 @@ using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Miscellanius;
+using netDxf.Entities;
 using NewLaserProject.ViewModels;
 using Stateless;
 
@@ -33,6 +34,8 @@ namespace NewLaserProject.Classes.Process
         private readonly LaserMachine _laserMachine;
         private readonly ICoorSystem<LMPlace> _baseCoorSystem;
         private readonly ICoorSystem<LMPlace> _teachingPointsCoorSystem;
+        private ICoorSystem _teachingLinesCoorSystem;
+
         private readonly PureCoorSystem<LMPlace> _pureCoorSystem;
         private double _matrixAngle;
         private readonly double _zeroZPiercing;
@@ -98,7 +101,8 @@ namespace NewLaserProject.Classes.Process
             Paused,
             Denied,
             Exit,
-            Loop
+            Loop,
+            LineTeaching
         }
         enum Trigger
         {
@@ -120,6 +124,8 @@ namespace NewLaserProject.Classes.Process
             }, FiringMode.Queued);
 
             var workingTrigger = _stateMachine.SetTriggerParameters<ICoorSystem>(Trigger.Next);
+            var teachLinesTrigger = _stateMachine.SetTriggerParameters<ICoorSystem>(Trigger.Next);
+            var waferEnumerator = _wafer.GetEnumerator();
 
             static int properPointsCount(FileAlignment aligning) => aligning switch
             {
@@ -131,10 +137,6 @@ namespace NewLaserProject.Classes.Process
             {
                 if (_cancellationTokenSource.Token.IsCancellationRequested) return;
                 var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
-
-                var xLineSb = new StringBuilder();
-                var yLineSb = new StringBuilder();
-
 
                 for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
                 {
@@ -162,8 +164,6 @@ namespace NewLaserProject.Classes.Process
                             }
                             else
                             {
-                                var xOrig = _xActual;
-                                var yOrig = _yActual;
                                 await Task.Delay(1000);
                                 var pointsLine = string.Empty;
                                 var line = $" X: {Math.Round(procObject.X, 3),8} | Y: {Math.Round(procObject.Y, 3),8} | X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8} | X: {Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: {Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
@@ -175,21 +175,12 @@ namespace NewLaserProject.Classes.Process
                                 {
                                     pointsLine = $"BAD " + line;
                                 }
-
-                                var xLine = $"({xOrig},{_xActual})";
-                                var yLine = $"({yOrig},{_yActual})";
-
-                                xLineSb.Append(xLine).Append(",");
-                                xLineSb.Append(yLine).Append(",");
-
                                 //await _coorFile.WriteLineAsync(pointsLine);
                                 //await _coorFile.FlushAsync();
                             }
                             procObject.IsProcessed = true;
                             _subject.OnNext(new ProcObjectChanged(procObject));
                         }
-                        await Console.Out.WriteLineAsync(xLineSb.ToString());
-                        await Console.Out.WriteLineAsync(yLineSb.ToString());
                     }
                 }
                 _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
@@ -258,8 +249,7 @@ namespace NewLaserProject.Classes.Process
                     {
                         _entityPreparator.SetEntityAngle(_waferAngle).AddEntityAngle(_pazAngle);
                         await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
-                    }
-                )
+                    })
                 .Permit(Trigger.Next, State.Working);
 
             _stateMachine.Configure(State.InitialPoints)
@@ -281,8 +271,53 @@ namespace NewLaserProject.Classes.Process
                 .PermitIf(Trigger.Next, State.Working, () => resultPoints.Count == properPointsCount(_fileAlignment));
 
             _stateMachine.Configure(State.Working)
-                .OnEntryFromAsync(workingTrigger, ProcessingTheWaferAsync)
+                .OnEntryFromAsync(workingTrigger, p => ProcessingTheWaferAsync(p))
+                .OnEntryFromAsync(teachLinesTrigger, coorSys =>
+                {
+                    if (waferEnumerator.MoveNext())
+                    {
+                        _subject.OnNext(new ProcessMessage("Нажмите next", MsgType.Info));
+                    }
+                    _teachingLinesCoorSystem = coorSys;
+                    return Task.CompletedTask;
+                })
+                .Permit(Trigger.Next, State.LineTeaching)
                 .Ignore(Trigger.Pause);
+            
+            var xLineSb = new StringBuilder();
+            var yLineSb = new StringBuilder();
+            _stateMachine.Configure(State.LineTeaching)
+                .OnEntryAsync(async () =>
+                {
+                    var procObject = waferEnumerator.Current;
+                    _currentProcObject = procObject;
+                    _subject.OnNext(new ProcObjectChanged(procObject));
+
+                    if (!_excludedObjects?.Any(o => o.Id == procObject.Id) ?? true)
+                    {
+                        var position = _teachingLinesCoorSystem.ToGlobal(procObject.X, procObject.Y);
+                        _laserMachine.SetVelocity(Velocity.Fast);
+                        await Task.WhenAll(
+                             _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
+                             _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true));
+                        procObject.IsBeingProcessed = true;
+
+                        _subject.OnNext(new ProcObjectChanged(procObject));
+
+                        xLineSb.Append($"({_xActual},");
+                        yLineSb.Append($"({_yActual},");
+                        
+                        _subject.OnNext(new ProcessMessage("Скорректируйте и нажмите next", MsgType.Info));
+
+                        procObject.IsProcessed = true;
+                        _subject.OnNext(new ProcObjectChanged(procObject));
+                    }
+                })
+                .PermitReentryIf(Trigger.Next, waferEnumerator.MoveNext)
+                .OnExit(() => {
+                    xLineSb.Append($"{_xActual}),");
+                    yLineSb.Append($"{_yActual}),");
+                });
 
             _stateMachine.Configure(State.Denied)
                 .OnEntryAsync(() =>
