@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Humanizer;
@@ -131,6 +132,10 @@ namespace NewLaserProject.Classes.Process
                 if (_cancellationTokenSource.Token.IsCancellationRequested) return;
                 var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
 
+                var xLineSb = new StringBuilder();
+                var yLineSb = new StringBuilder();
+
+
                 for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
                 {
                     if (_cancellationTokenSource.Token.IsCancellationRequested) break;
@@ -157,6 +162,8 @@ namespace NewLaserProject.Classes.Process
                             }
                             else
                             {
+                                var xOrig = _xActual;
+                                var yOrig = _yActual;
                                 await Task.Delay(1000);
                                 var pointsLine = string.Empty;
                                 var line = $" X: {Math.Round(procObject.X, 3),8} | Y: {Math.Round(procObject.Y, 3),8} | X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8} | X: {Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: {Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
@@ -168,12 +175,21 @@ namespace NewLaserProject.Classes.Process
                                 {
                                     pointsLine = $"BAD " + line;
                                 }
+
+                                var xLine = $"({xOrig},{_xActual})";
+                                var yLine = $"({yOrig},{_yActual})";
+
+                                xLineSb.Append(xLine).Append(",");
+                                xLineSb.Append(yLine).Append(",");
+
                                 //await _coorFile.WriteLineAsync(pointsLine);
                                 //await _coorFile.FlushAsync();
                             }
                             procObject.IsProcessed = true;
                             _subject.OnNext(new ProcObjectChanged(procObject));
                         }
+                        await Console.Out.WriteLineAsync(xLineSb.ToString());
+                        await Console.Out.WriteLineAsync(yLineSb.ToString());
                     }
                 }
                 _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;

@@ -1,20 +1,12 @@
-using MachineClassLibrary.BehaviourTree;
-using MachineClassLibrary.GeometryUtility;
-using MachineClassLibrary.Laser.Entities;
-using MachineClassLibrary.Laser.Parameters;
-using MachineClassLibrary.Machine;
-using MachineClassLibrary.Machine.Machines;
-using netDxf;
-using NewLaserProject.Classes;
-using NewLaserProject.Classes.ProgBlocks;
-using NUnit.Framework;
-using Stateless;
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
+using MachineClassLibrary.GeometryUtility;
+using MachineClassLibrary.Laser.Entities;
+using NewLaserProject.Classes;
+using NUnit.Framework;
+using Stateless;
 
 namespace NewLaserTest
 {
@@ -27,8 +19,9 @@ namespace NewLaserTest
         }
 
         CoorSystem<Place>.ThreePointCoorSystemBuilder _builder;
-
         CoorSystem<Place>.ThreePointCoorSystemBuilder _builder2;
+        CoorSystem<Place>.ThreePointCoorSystemBuilder _builder3;
+
 
         CoorSystem<Place>.ThreePointCoorSystemBuilder _builderPureDeformation;
         //MainCoorSystem<Place>.ThreePointCoorSystemBuilder _builder;
@@ -39,6 +32,8 @@ namespace NewLaserTest
 
             _builder = CoorSystem<Place>.GetThreePointSystemBuilder();
             _builder2 = CoorSystem<Place>.GetThreePointSystemBuilder();
+            _builder3 = CoorSystem<Place>.GetThreePointSystemBuilder();
+
 
 
             //_builder = MainCoorSystem<Place>.GetThreePointSystemBuilder();
@@ -51,12 +46,36 @@ namespace NewLaserTest
                 .SetSecondPointPair(new(20000f, 10000f), new(54.34078f, 42.780718f))
                 .SetThirdPointPair(new(20000f, 0f), new(49.948233f, 31.181165f));
 
+            _builder3.SetFirstPointPair(new(0f, 0f), new(7f, 16f))
+                .SetSecondPointPair(new(48000f, 0f), new(99.728879f, 40.846628f))
+                .SetThirdPointPair(new(48000f, 60000f), new(99.728879f, 165.07977f));
+                
+
+
             _builderPureDeformation = CoorSystem<Place>.GetThreePointSystemBuilder();
 
             _builderPureDeformation.SetFirstPointPair(new PointF(0, 0), new PointF(120, 96))
                                    .SetSecondPointPair(new PointF(120, 96), new PointF(132.900991F, 158.833326F))
                                    .SetThirdPointPair(new PointF(120, 0), new PointF(176.859624F, 115.156805F));
         }
+
+        [TestCase(0f, 0f, 7f, 16f)]
+        [TestCase(48000f, 0f,99.728879f, 40.846628f)]
+        [TestCase(48000f, 60000f, 99.728879f, 165.07977f)]
+        
+        [TestCase(11000f, 10000f, 28.250368f, 42.399543f)]
+        [TestCase(11000f, 20000f, 28.250368f, 63.105066f)]
+        [TestCase(11000f, 33000f, 28.250368f, 90.022247f)]
+        [TestCase(11000f, 50000f, 28.250368f, 125.221637f)]
+
+
+        public void CoorSystemTestMainTransformation3(double x1, double y1, double x2, double y2)
+        {
+            var coorSys = _builder3.FormWorkMatrix(0.001, 0.001).Build();
+            TestAsertion(coorSys.ToGlobal, x1, y1, x2, y2);
+        }
+
+
 
         //[Test]
         public void Test1()
@@ -90,7 +109,7 @@ namespace NewLaserTest
         [TestCase(17560.537, 8666.873, 51.08916, 40.735404)]
         public void CoorSystemTestMainTransformation2(double x1, double y1, double x2, double y2)
         {
-            var coorSys = _builder2.FormWorkMatrix(0.001,0.001).Build();
+            var coorSys = _builder2.FormWorkMatrix(0.001, 0.001).Build();
             var pureCoorSys = _builder2.BuildPure();
             var theMatrix = pureCoorSys.GetMainMatrixElements().GetMatrix3();
 
@@ -99,8 +118,8 @@ namespace NewLaserTest
 
             var coorSys1 = pureCoorSys2.GetTwoPointSystemBuilder()
                 .SetFirstPointPair(new(5010.381f, 1679.401f), new(34.304077f, 30.063347f))
-                .SetSecondPointPair(new(11488f, 4737.625f),new(42.726671f, 34.935628f))
-                .FormWorkMatrix(0.001,0.001)
+                .SetSecondPointPair(new(11488f, 4737.625f), new(42.726671f, 34.935628f))
+                .FormWorkMatrix(0.001, 0.001)
                 .Build();
 
             TestAsertion(coorSys1.ToGlobal, x1, y1, x2, y2);

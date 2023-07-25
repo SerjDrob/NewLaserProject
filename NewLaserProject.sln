@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewLaserProject", "NewLaser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewLaserTest", "NewLaserTest\NewLaserTest.csproj", "{39835C08-3634-4DA8-8B7D-1A0BEF362689}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSwLimit", "TestSwLimit\TestSwLimit.csproj", "{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineClassLibrary", "..\MachineClassLibrary\MachineClassLibrary.csproj", "{6CD86558-A410-40BE-98D5-A67BC2F74CEA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineControlsLibrary", "..\MachineControlsLibrary\MachineControlsLibrary.csproj", "{51EC1BC3-3B44-4AF9-AE00-D211CB3C662C}"
@@ -39,14 +37,6 @@ Global
 		{39835C08-3634-4DA8-8B7D-1A0BEF362689}.Release|Any CPU.Build.0 = Release|Any CPU
 		{39835C08-3634-4DA8-8B7D-1A0BEF362689}.Release|x86.ActiveCfg = Release|x86
 		{39835C08-3634-4DA8-8B7D-1A0BEF362689}.Release|x86.Build.0 = Release|x86
-		{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}.Debug|x86.Build.0 = Debug|Any CPU
-		{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}.Release|x86.ActiveCfg = Release|Any CPU
-		{A22B528B-B4B9-410D-8DE2-DA13CC215FF5}.Release|x86.Build.0 = Release|Any CPU
 		{6CD86558-A410-40BE-98D5-A67BC2F74CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6CD86558-A410-40BE-98D5-A67BC2F74CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CD86558-A410-40BE-98D5-A67BC2F74CEA}.Debug|x86.ActiveCfg = Debug|x86
