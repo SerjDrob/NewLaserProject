@@ -160,7 +160,7 @@ namespace NewLaserProject.Classes.Process
                                 await Task.Delay(1000);
                                 var pointsLine = string.Empty;
                                 var line = $" X: {Math.Round(procObject.X, 3),8} | Y: {Math.Round(procObject.Y, 3),8} | X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8} | X: {Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: {Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
-                                if (HandyControl.Controls.MessageBox.Ask("Good?") == System.Windows.MessageBoxResult.OK)
+                                if (HandyControl.Controls.MessageBox.Ask($" X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8}") == System.Windows.MessageBoxResult.OK)
                                 {
                                     pointsLine = "GOOD" + line;
                                 }
@@ -210,8 +210,12 @@ namespace NewLaserProject.Classes.Process
                             FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
                             _ => throw new InvalidOperationException()
                         };
-                        _matrixAngle = coorSys.GetMatrixAngle();
-                        _entityPreparator.SetEntityAngle(-_pazAngle - _matrixAngle);
+                        //_matrixAngle = coorSys.GetMatrixAngle();
+                        _matrixAngle = coorSys.GetMatrixAngle2();
+
+                        _entityPreparator.SetEntityAngle(-_pazAngle + _matrixAngle);
+                        //_entityPreparator.SetEntityAngle(_pazAngle + _matrixAngle);
+
                         _stateMachine.FireAsync(workingTrigger, coorSys);
                     }
                     else

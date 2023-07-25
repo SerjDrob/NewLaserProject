@@ -240,11 +240,14 @@
                         <TextBlock Text="Подложка" Style="{StaticResource TextBlockDefaultBold}" Margin="0,0,0,3"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
-                            <TextBlock Text="{Binding WaferWidth}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                            <TextBlock Text="X" Style="{StaticResource TextBlockDefaultPrimary}"/>
-                            <TextBlock Text="{Binding WaferHeight}" Style="{StaticResource TextBlockDefaultPrimary}"/>
-                            <TextBlock Text="X" Style="{StaticResource TextBlockDefaultPrimary}"/>
-                            <TextBlock Text="{Binding WaferThickness}" Style="{StaticResource TextBlockDefaultPrimary}"/>
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefaultInfo}"/>
+                            </StackPanel.Resources>
+                            <TextBlock Text="{Binding WaferWidth}"/>
+                            <TextBlock Text="X"/>
+                            <TextBlock Text="{Binding WaferHeight}"/>
+                            <TextBlock Text="X"/>
+                            <TextBlock Text="{Binding WaferThickness}"/>
                         </StackPanel>
                     </StackPanel>
                 </Button>
