@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
@@ -17,9 +18,10 @@ using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Miscellanius;
-using netDxf.Entities;
 using NewLaserProject.ViewModels;
 using Stateless;
+using Newtonsoft.Json;
+using System.Globalization;
 
 namespace NewLaserProject.Classes.Process
 {
@@ -102,13 +104,15 @@ namespace NewLaserProject.Classes.Process
             Denied,
             Exit,
             Loop,
+            LinePreteaching,
             LineTeaching
         }
         enum Trigger
         {
             Next,
             Pause,
-            Deny
+            Deny,
+            Preteach
         }
 
         public void CreateProcess()
@@ -124,7 +128,6 @@ namespace NewLaserProject.Classes.Process
             }, FiringMode.Queued);
 
             var workingTrigger = _stateMachine.SetTriggerParameters<ICoorSystem>(Trigger.Next);
-            var teachLinesTrigger = _stateMachine.SetTriggerParameters<ICoorSystem>(Trigger.Next);
             var waferEnumerator = _wafer.GetEnumerator();
 
             static int properPointsCount(FileAlignment aligning) => aligning switch
@@ -223,7 +226,23 @@ namespace NewLaserProject.Classes.Process
                         _entityPreparator.SetEntityAngle(-_pazAngle + _matrixAngle);
                         //_entityPreparator.SetEntityAngle(_pazAngle + _matrixAngle);
 
-                        _stateMachine.FireAsync(workingTrigger, coorSys);
+                        if (!_underCamera)
+                        {
+                            _stateMachine.FireAsync(workingTrigger, coorSys);
+                        }
+                        else
+                        {
+                            _teachingLinesCoorSystem = coorSys;// new VariableCoorSystem((ICoorSystem<LMPlace>)coorSys, CoorLines.XLines, CoorLines.YLines);
+
+                            var sys = new CoorSystem<LMPlace>
+                            .WorkMatrixCoorSystemBuilder<LMPlace>()
+                            .SetWorkMatrix(new(-1, 0.00066f, 0.0f, -1, coorSys.GetMainMatrixElements()[4], coorSys.GetMainMatrixElements()[5]))
+                            .Build();
+
+                            //_teachingLinesCoorSystem = sys;// new VariableCoorSystem((ICoorSystem<LMPlace>)sys, CoorLines.XLines, CoorLines.YLines);
+
+                            _stateMachine.FireAsync(Trigger.Preteach);
+                        }
                     }
                     else
                     {
@@ -272,24 +291,35 @@ namespace NewLaserProject.Classes.Process
                     _subject.OnNext(new ProcessMessage($"Сопоставьте {(originPoints.Count + 1).ToOrdinalWords(GrammaticalGender.Feminine).ApplyCase(GrammaticalCase.Accusative)} точку ", MsgType.Info));
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < properPointsCount(_fileAlignment))
-                .PermitIf(Trigger.Next, State.Working, () => resultPoints.Count == properPointsCount(_fileAlignment));
+                .PermitIf(Trigger.Next, State.Working, () => resultPoints.Count == properPointsCount(_fileAlignment))
+                .Permit(Trigger.Preteach,State.LinePreteaching);
 
             _stateMachine.Configure(State.Working)
                 .OnEntryFromAsync(workingTrigger, p => ProcessingTheWaferAsync(p))
-                .OnEntryFromAsync(teachLinesTrigger, coorSys =>
-                {
-                    if (waferEnumerator.MoveNext())
-                    {
-                        _subject.OnNext(new ProcessMessage("Нажмите next", MsgType.Info));
-                    }
-                    _teachingLinesCoorSystem = coorSys;
-                    return Task.CompletedTask;
-                })
                 .Permit(Trigger.Next, State.LineTeaching)
                 .Ignore(Trigger.Pause);
-            
+
+            _stateMachine.Configure(State.LinePreteaching)
+               .OnEntryAsync(() =>
+               {
+                   if (waferEnumerator.MoveNext())
+                   {
+                       _subject.OnNext(new ProcessMessage("Нажмите next", MsgType.Info));
+                   }
+                   return Task.CompletedTask;
+               })
+               .Permit(Trigger.Next, State.LineTeaching)
+               .Ignore(Trigger.Pause);
+
             var xLineSb = new StringBuilder();
             var yLineSb = new StringBuilder();
+
+            var xLCollection = new List<(string orig, string deriv)>();
+            var yLCollection = Array.Empty<(string orig, string deriv)>();
+            var cultureInfo = CultureInfo.InvariantCulture;
+            double xl = 0;
+            double yl = 0;
+
             _stateMachine.Configure(State.LineTeaching)
                 .OnEntryAsync(async () =>
                 {
@@ -308,20 +338,48 @@ namespace NewLaserProject.Classes.Process
 
                         _subject.OnNext(new ProcObjectChanged(procObject));
 
-                        xLineSb.Append($"({_xActual},");
-                        yLineSb.Append($"({_yActual},");
-                        
+                        xLineSb.Append($"({_xActual.ToString(cultureInfo)},");
+                        yLineSb.Append($"({_yActual.ToString(cultureInfo)},");
+                        xl = _xActual;
+                        yl = _yActual;
+
                         _subject.OnNext(new ProcessMessage("Скорректируйте и нажмите next", MsgType.Info));
 
                         procObject.IsProcessed = true;
                         _subject.OnNext(new ProcObjectChanged(procObject));
                     }
                 })
-                .PermitReentryIf(Trigger.Next, waferEnumerator.MoveNext)
+                .PermitDynamic(Trigger.Next, () => waferEnumerator.MoveNext() ? State.LineTeaching : State.Exit)
                 .OnExit(() => {
-                    xLineSb.Append($"{_xActual}),");
-                    yLineSb.Append($"{_yActual}),");
+                    _subject.OnNext(new ProcessMessage("", MsgType.Clear));
+                    xLineSb.Append($"{_xActual.ToString(cultureInfo)}),");
+                    yLineSb.Append($"{_yActual.ToString(cultureInfo)}),");
+                    var p = (xl.ToString(cultureInfo), _xActual.ToString(cultureInfo));
+                    xLCollection.Add(p);
+                    yLCollection.Append((yl.ToString(cultureInfo), _yActual.ToString(cultureInfo)));
+
                 });
+
+            _stateMachine.Configure(State.Exit)
+                 .OnEntryAsync(() =>
+                 {
+                     Trace.WriteLine(xLineSb.ToString());
+                     Trace.WriteLine(yLineSb.ToString());
+                     var ser = JsonSerializer.CreateDefault();
+                     var writer = System.IO.TextWriter.Null;
+                     ser.Serialize(writer, xLCollection);
+                     writer.Flush();
+                     var xstr =  writer.ToString();
+                     
+                     writer = System.IO.TextWriter.Null;
+                     ser.Serialize(writer, yLCollection);
+                     writer.Flush();
+                     var ystr = writer.ToString();
+                     
+                     _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+                     _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _teachingLinesCoorSystem));
+                     return Task.CompletedTask;
+                 });
 
             _stateMachine.Configure(State.Denied)
                 .OnEntryAsync(() =>
@@ -354,14 +412,22 @@ namespace NewLaserProject.Classes.Process
         public void IncludeObject(IProcObject procObject) => _excludedObjects.Remove(procObject);
         public async Task Next()
         {
-            throw new NotImplementedException();
+            await _stateMachine.FireAsync(Trigger.Next);
         }
         public async Task StartAsync()
         {
             if (_cancellationTokenSource.Token.IsCancellationRequested) return;
             if (_stateMachine is null)
             {
-                CreateProcess();
+                try
+                {
+                    CreateProcess();
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
                 await _stateMachine.ActivateAsync().ConfigureAwait(false);
             }
         }

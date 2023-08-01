@@ -229,7 +229,7 @@ namespace NewLaserProject.ViewModels
             if (double.TryParse(caps[0], out xRatio) && double.TryParse(caps[2], out yRatio))
             {
                 var k = xRatio / yRatio;
-                var offset = new[] { -e.x * Settings.Default.CameraScale * k, e.y * Settings.Default.CameraScale };
+                var offset = new[] { e.x * Settings.Default.CameraScale * k, -e.y * Settings.Default.CameraScale };
                 _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);//TODO fix it. it smells
             }
         }
@@ -360,7 +360,8 @@ namespace NewLaserProject.ViewModels
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.XAcc,
                 dec = Settings.Default.XDec,
-                ppu = Settings.Default.XPPU*2,
+                ppu = 4005,// Settings.Default.XPPU*2,
+                denominator = 4,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = Settings.Default.XVelLow,
                 homeVelHigh = Settings.Default.XVelService
@@ -375,7 +376,8 @@ namespace NewLaserProject.ViewModels
                 reset = (int)HomeRst.HOME_RESET_EN,
                 acc = Settings.Default.YAcc,
                 dec = Settings.Default.YDec,
-                ppu = Settings.Default.YPPU*2,
+                ppu = 3993,//Settings.Default.YPPU*2,
+                denominator = 4,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = Settings.Default.YVelLow,
                 homeVelHigh = Settings.Default.YVelService

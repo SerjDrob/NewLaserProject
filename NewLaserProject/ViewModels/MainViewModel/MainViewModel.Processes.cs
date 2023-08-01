@@ -145,7 +145,7 @@ namespace NewLaserProject.ViewModels
                     entityPreparator: entityPreparator,
                     subject: _subjMediator,
                     baseCoorSystem: _coorSystem,
-                    underCamera: false,
+                    underCamera: false,//true,
                     aligningPoints: FileAlignment,
                     waferAngle: _waferAngle,
                     scale: DefaultFileScale);
