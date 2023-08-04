@@ -1,11 +1,6 @@
 ﻿using MachineClassLibrary.BehaviourTree;
 using MachineClassLibrary.Laser.Parameters;
-using NewLaserProject;
-using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
-using NewLaserProject.ViewModels;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading;

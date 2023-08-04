@@ -29,7 +29,7 @@ namespace NewLaserProject.ViewModels
 
     internal partial class MainViewModel
     {
-        public ObservableCollection<IProcObject> ProcessingObjects { get; set; } 
+        public ObservableCollection<ProcObjTabView> ProcessingObjects { get; set; } 
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }
         public FileAlignment FileAlignment { get; set; }
@@ -150,14 +150,19 @@ namespace NewLaserProject.ViewModels
                     waferAngle: _waferAngle,
                     scale: DefaultFileScale);
 
-
-                ProcessingObjects = new(wafer);
-                ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
+                
+                //ProcessingObjects = new(wafer);
+                //ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
 
                 _mainProcess.OfType<ProcWaferChanged>()
                     .Subscribe(args =>
                     {
-                        ProcessingObjects = new(args.Wafer);
+                        ProcessingObjects = new();
+                        args.Wafer.Aggregate(1, (ind, p) =>
+                        {
+                            ProcessingObjects.Add(new ProcObjTabView {Index = ind, ProcObject = p });
+                            return ++ind;
+                        });
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
@@ -165,7 +170,7 @@ namespace NewLaserProject.ViewModels
                     .Where(poargs => poargs.ProcObject.IsProcessed)
                     .Subscribe(args =>
                     {
-                        var o = ProcessingObjects.SingleOrDefault(po => po.Id == args.ProcObject.Id);
+                        var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
                         ProcessingObjects.Remove(o);
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
@@ -174,7 +179,7 @@ namespace NewLaserProject.ViewModels
                     .Where(poargs => !poargs.ProcObject.IsProcessed & poargs.ProcObject.IsBeingProcessed)
                     .Subscribe(poargs =>
                     {
-                        IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.Id == poargs.ProcObject.Id);
+                        IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.ProcObject.Id == poargs.ProcObject.Id)?.ProcObject;
                     //IsBeingProcessedIndex = poargs.ProcObject.index + 1;
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
@@ -237,6 +242,7 @@ namespace NewLaserProject.ViewModels
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
                 HideProcessPanel(false);
+                _mainProcess.CreateProcess();
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -246,6 +252,10 @@ namespace NewLaserProject.ViewModels
                     Message = ex.Message,
                     ShowDateTime = false
                 });
+            }
+            catch(FileNotFoundException ex)
+            {
+                Growl.Error($"Файл технологии \"{CurrentTechnology.ProgramName}\" не найден.");
             }
 
         }
@@ -273,7 +283,6 @@ namespace NewLaserProject.ViewModels
                 Trace.WriteLine($"Entity type for processing: {CurrentEntityType}");
                 Trace.Flush();
                 await _mainProcess.StartAsync().ConfigureAwait(false);
-                //await _mainProcess.StartAsync(new System.Threading.CancellationToken());
             }
             catch (Exception ex)
             {
@@ -324,13 +333,13 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void ToProcUnchecked(IProcObject procObject)
         {
-            if (procObject is not null)
-            {
-                procObject.ToProcess = false;
-                var index = ProcessingObjects.IndexOf(ProcessingObjects.SingleOrDefault(o => o.Id == procObject.Id));
-                ProcessingObjects[index] = procObject;
-                _mainProcess?.ExcludeObject(procObject);
-            }
+            //if (procObject is not null)
+            //{
+            //    procObject.ToProcess = false;
+            //    var index = ProcessingObjects.IndexOf(ProcessingObjects.SingleOrDefault(o => o.Id == procObject.Id));
+            //    ProcessingObjects[index] = procObject;
+            //    _mainProcess?.ExcludeObject(procObject);
+            //}
         }
 
         [ICommand]

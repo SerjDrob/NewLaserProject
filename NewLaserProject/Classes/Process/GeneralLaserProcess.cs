@@ -28,6 +28,7 @@ namespace NewLaserProject.Classes.Process
     internal class GeneralLaserProcess : BaseLaserProcess, IProcess
     {
         private bool disposedValue;
+        private IEnumerable<IProcObject> _currentWafer;
         private StateMachine<State, Trigger> _stateMachine;
         private double _xActual;
         private double _yActual;
@@ -120,7 +121,8 @@ namespace NewLaserProject.Classes.Process
             if (disposedValue) throw new ObjectDisposedException($"Object {_procId} has already disposed");
             var resultPoints = new List<PointF>();
             var originPoints = new List<PointF>();
-
+            _currentWafer = (_progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer);//.SplitOnClusters(2, 3);
+            _subject.OnNext(new ProcWaferChanged(_currentWafer));
             _stateMachine = new StateMachine<State, Trigger>(_fileAlignment switch
             {
                 FileAlignment.AlignByCorner => State.InitialCorner,
@@ -139,12 +141,10 @@ namespace NewLaserProject.Classes.Process
             async Task ProcessingTheWaferAsync(ICoorSystem coorSystem)
             {
                 if (_cancellationTokenSource.Token.IsCancellationRequested) return;
-                var currentWafer = _progTreeParser.MainLoopShuffle ? _wafer.Shuffle() : _wafer;
-
                 for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
                 {
                     if (_cancellationTokenSource.Token.IsCancellationRequested) break;
-                    foreach (var procObject in currentWafer)
+                    foreach (var procObject in _currentWafer)
                     {
                         _currentProcObject = procObject;
                         if (_cancellationTokenSource.Token.IsCancellationRequested) break;
@@ -295,7 +295,7 @@ namespace NewLaserProject.Classes.Process
                 .Permit(Trigger.Preteach,State.LinePreteaching);
 
             _stateMachine.Configure(State.Working)
-                .OnEntryFromAsync(workingTrigger, p => ProcessingTheWaferAsync(p))
+                .OnEntryFromAsync(workingTrigger, ProcessingTheWaferAsync)
                 .Permit(Trigger.Next, State.LineTeaching)
                 .Ignore(Trigger.Pause);
 
@@ -419,15 +419,15 @@ namespace NewLaserProject.Classes.Process
             if (_cancellationTokenSource.Token.IsCancellationRequested) return;
             if (_stateMachine is null)
             {
-                try
-                {
-                    CreateProcess();
-                }
-                catch (Exception ex)
-                {
+                //try
+                //{
+                //    CreateProcess();
+                //}
+                //catch (Exception ex)
+                //{
 
-                    throw;
-                }
+                //    throw;
+                //}
                 await _stateMachine.ActivateAsync().ConfigureAwait(false);
             }
         }

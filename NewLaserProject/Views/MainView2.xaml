@@ -673,14 +673,15 @@
                                               Style="{StaticResource DataGrid.Small}"
                                               SelectionMode="Single"     
                                               SelectionChanged="DataGrid_SelectionChanged"
-                                              LoadingRow="DataGrid_LoadingRow"
                                               >
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Слой" Binding="{Binding LayerName}"/>
+										  <DataGridTextColumn IsReadOnly="True" Width="80" CanUserResize="False" Binding="{Binding Index}" Header="№"/>
+
+										  <DataGridTextColumn Header="Слой" Binding="{Binding ProcObject.LayerName}"/>
                                             <DataGridTemplateColumn Header="Тип">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <ContentControl Content="{Binding Converter={StaticResource IProcTypeToEntityConverter}}" 
+                                                        <ContentControl Content="{Binding ProcObject, Converter={StaticResource IProcTypeToEntityConverter}}" 
                                                                             ContentTemplateSelector="{StaticResource EntitySelector}"/>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -689,9 +690,9 @@
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock >
-                                                                <Run Text="{Binding X, StringFormat='{}{0:#.}'}"/>
+                                                                <Run Text="{Binding ProcObject.X, StringFormat='{}{0:#.}'}"/>
                                                                 <Run Text="&#215;"/>
-                                                                <Run Text="{Binding Y, StringFormat='{}{0:#.}'}"/>
+                                                                <Run Text="{Binding ProcObject.Y, StringFormat='{}{0:#.}'}"/>
                                                         </TextBlock>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
