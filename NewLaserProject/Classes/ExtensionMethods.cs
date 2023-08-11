@@ -1,5 +1,6 @@
 ﻿using NewLaserProject.Properties;
 using NewLaserProject.ViewModels;
+using NewLaserProject.ViewModels.DialogVM;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace NewLaserProject.Classes
 {
     internal static class ExtensionMethods
     {
-        internal static void CopyToSettings(this MachineSettingsViewModel machineSettings)
+        internal static void CopyToSettings(this MachineSettingsVM machineSettings)
         {
             Settings.Default.XAcc = machineSettings.XAcc;
             //Settings.Default.XLoad
@@ -42,7 +43,7 @@ namespace NewLaserProject.Classes
             Settings.Default.XRightPoint = machineSettings.XRightPoint;
             Settings.Default.YRightPoint = machineSettings.YRightPoint;
         }
-        internal static void CopyFromSettings(this MachineSettingsViewModel machineSettings)
+        internal static void CopyFromSettings(this MachineSettingsVM machineSettings)
         {
             machineSettings.XAcc = Settings.Default.XAcc;
             //Settings.Default.XLoad

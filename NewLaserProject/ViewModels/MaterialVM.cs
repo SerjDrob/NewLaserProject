@@ -64,5 +64,12 @@ namespace HandyControl.Tools.Extension
             dialog.Initialize(action);
             return dialog;
         }
+
+        public static Dialog SetDataContext<TContext>(this Dialog dialog, TContext instance, Action<TContext> action)
+        {
+            dialog.DataContext = instance;
+            dialog.Initialize(action);
+            return dialog;
+        }
     }
 }

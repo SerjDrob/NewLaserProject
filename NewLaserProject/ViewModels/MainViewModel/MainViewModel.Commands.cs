@@ -9,7 +9,9 @@ using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Machine;
 using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
+using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views.Dialogs;
 
@@ -265,7 +267,20 @@ namespace NewLaserProject.ViewModels
                 });
 
         }
-
+        [ICommand]
+        private void MachineSettings()
+        {
+            Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Настройки приводов")
+                .SetDataContext(new MachineSettingsVM(XAxis.Position, YAxis.Position, ZAxis.Position), vm => vm.CopyFromSettings())
+                .GetResultAsync<MachineSettingsVM>()
+                .ContinueWith(t =>
+                {
+                    t?.Result?.CopyToSettings();
+                    Settings.Default.Save();
+                    ImplementMachineSettings();
+                });
+        }
     }
 }
 

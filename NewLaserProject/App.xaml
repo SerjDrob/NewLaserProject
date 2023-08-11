@@ -32,6 +32,10 @@
                 <views:AppSettingsView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type dialogvm:MachineSettingsVM}">
+                <dialogviews:MachineSettingsView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type dialogvm:FileViewDialogVM}">
                 <dialogviews:FileSettingsView/>
             </DataTemplate>

@@ -327,20 +327,7 @@ namespace NewLaserProject.ViewModels
                 Growl.Warning("Имя файла неверно или файл не существует");
             }
         }
-
-        [ICommand]
-        private void MachineSettings()
-        {
-            var dataContext = new MachineSettingsViewModel(XAxis.Position, YAxis.Position, ZAxis.Position);
-            dataContext.CopyFromSettings();
-            new MachineSettingsView
-            {
-                DataContext = dataContext
-            }.ShowDialog();
-            dataContext.CopyToSettings();
-            Settings.Default.Save();
-            ImplementMachineSettings();
-        }
+        
         private void ImplementMachineSettings()
         {
 #if PCIInserted

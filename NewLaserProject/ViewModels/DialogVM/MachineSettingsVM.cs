@@ -1,37 +1,34 @@
-﻿using FluentValidation;
-using FluentValidation.Validators;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Views;
-using Newtonsoft.Json.Serialization;
-using PropertyChanged;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Input;
+using FluentValidation;
+using FluentValidation.Results;
+using HandyControl.Tools.Extension;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Views;
+using PropertyChanged;
 
-namespace NewLaserProject.ViewModels
+namespace NewLaserProject.ViewModels.DialogVM
 {
     [INotifyPropertyChanged]
-    internal partial class MachineSettingsViewModel : INotifyDataErrorInfo
+    internal partial class MachineSettingsVM : INotifyDataErrorInfo, IDialogResultable<MachineSettingsVM>
     {
-        private readonly double _currentX;
-        private readonly double _currentY;
-        private readonly double _currentZ;
-        private readonly ImplementINotifyDataErrorInfo<MachineSettingsViewModel> _implementINotifyDataErrorInfo;
+        private double _currentX;
+        private double _currentY;
+        private double _currentZ;
+        private readonly ImplementINotifyDataErrorInfo<MachineSettingsVM> _implementINotifyDataErrorInfo;
 
-        public MachineSettingsViewModel(double currentX, double currentY, double currentZ)
+        public MachineSettingsVM(double currentX, double currentY, double currentZ)
         {
             _currentX = currentX;
             _currentY = currentY;
             _currentZ = currentZ;
-            _implementINotifyDataErrorInfo = new ImplementINotifyDataErrorInfo<MachineSettingsViewModel>(this, new MachineSettingsValidator());
+            _implementINotifyDataErrorInfo = new ImplementINotifyDataErrorInfo<MachineSettingsVM>(this, new MachineSettingsValidator());
             _implementINotifyDataErrorInfo.ErrorsChanged += _implementINotifyDataErrorInfo_ErrorsChanged;
 
         }
@@ -47,39 +44,119 @@ namespace NewLaserProject.ViewModels
             _implementINotifyDataErrorInfo.CheckAllErrors();
         }
         [OnChangedMethod(methodName: nameof(CheckErrorsMethod))]
-        public double XVelLow { get; set; }
+        public double XVelLow
+        {
+            get; set;
+        }
 
         [OnChangedMethod(methodName: nameof(CheckErrorsMethod))]
-        public double XVelHigh { get; set; }
-        public double XVelService { get; set; }
-        public double XAcc { get; set; }
+        public double XVelHigh
+        {
+            get; set;
+        }
+        public double XVelService
+        {
+            get; set;
+        }
+        public double XAcc
+        {
+            get; set;
+        }
 
         [OnChangedMethod(methodName: nameof(CheckErrorsMethod))]
-        public double YVelLow { get; set; }
+        public double YVelLow
+        {
+            get; set;
+        }
 
         [OnChangedMethod(methodName: nameof(CheckErrorsMethod))]
-        public double YVelHigh { get; set; }
-        public double YVelService { get; set; }
-        public double YAcc { get; set; }
+        public double YVelHigh
+        {
+            get; set;
+        }
+        public double YVelService
+        {
+            get; set;
+        }
+        public double YAcc
+        {
+            get; set;
+        }
 
         [OnChangedMethod(methodName: nameof(CheckErrorsMethod))]
-        public double ZVelLow { get; set; }
+        public double ZVelLow
+        {
+            get; set;
+        }
 
         [OnChangedMethod(methodName: nameof(CheckErrorsMethod))]
-        public double ZVelHigh { get; set; }
-        public double ZVelService { get; set; }
-        public double ZAcc { get; set; }
-        public double XOffset { get; set; }
-        public double YOffset { get; set; }
-        public double XLeftPoint { get; set; }
-        public double YLeftPoint { get; set; }
-        public double XRightPoint { get; set; }
-        public double YRightPoint { get; set; }
-        public double ZCamera { get; set; }
-        public double ZLaser { get; set; }
-        public double XLoad { get; set; }
-        public double YLoad { get; set; }
+        public double ZVelHigh
+        {
+            get; set;
+        }
+        public double ZVelService
+        {
+            get; set;
+        }
+        public double ZAcc
+        {
+            get; set;
+        }
+        public double XOffset
+        {
+            get; set;
+        }
+        public double YOffset
+        {
+            get; set;
+        }
+        public double XLeftPoint
+        {
+            get; set;
+        }
+        public double YLeftPoint
+        {
+            get; set;
+        }
+        public double XRightPoint
+        {
+            get; set;
+        }
+        public double YRightPoint
+        {
+            get; set;
+        }
+        public double ZCamera
+        {
+            get; set;
+        }
+        public double ZLaser
+        {
+            get; set;
+        }
+        public double XLoad
+        {
+            get; set;
+        }
+        public double YLoad
+        {
+            get; set;
+        }
         public bool HasErrors => _implementINotifyDataErrorInfo.HasErrors;
+
+        public MachineSettingsVM Result
+        {
+            get
+            {
+                return this;
+            }
+            set => throw new NotImplementedException();
+        }
+        public Action CloseAction
+        {
+            get;
+            set;
+        }
 
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
         public IEnumerable GetErrors(string? propertyName) => _implementINotifyDataErrorInfo.GetErrors(propertyName);
@@ -129,14 +206,14 @@ namespace NewLaserProject.ViewModels
         public bool HasErrors => _validator.Validate(_validObject).Errors.Any();
 
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
-        public IEnumerable GetErrors(string? propertyName) => _validator.Validate(_validObject, options => options.IncludeProperties(propertyName)).Errors;
+        public IEnumerable GetErrors(string? propertyName) => propertyName is null ? Enumerable.Empty<ValidationFailure>() : _validator.Validate(_validObject, options => options.IncludeProperties(propertyName)).Errors;
         public void CheckAllErrors()
         {
             _validatableKeys.ForEach(key => ErrorsChanged?.Invoke(_validObject, new DataErrorsChangedEventArgs(key)));
         }
     }
 
-    internal class MachineSettingsValidator : AbstractValidator<MachineSettingsViewModel>
+    internal class MachineSettingsValidator : AbstractValidator<MachineSettingsVM>
     {
         const string LESS_THAN = "Значение должно быть меньше чем";
         const string GREATER_THAN = "Значение должно быть больше чем";
