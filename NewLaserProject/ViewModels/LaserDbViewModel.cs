@@ -1,27 +1,30 @@
-﻿using HandyControl.Controls;
-using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Windows;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Data;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.ViewModels.DbVM;
 using NewLaserProject.Views;
 using NewLaserProject.Views.DbViews;
 using PropertyChanged;
-using System;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Windows;
 
 namespace NewLaserProject.ViewModels
 {
     [AddINotifyPropertyChangedInterface]
     public partial class LaserDbViewModel
     {
-        public ObservableCollection<Technology> Technologies { get; set; }// = new();
-        public ObservableCollection<Material> Materials { get; set; }// = new();
-
+        public ObservableCollection<Technology> Technologies
+        {
+            get; set;
+        }
+        public ObservableCollection<Material> Materials
+        {
+            get; set;
+        }
         public LaserDbViewModel(DbContext db)
         {
             _db = db;
@@ -45,7 +48,7 @@ namespace NewLaserProject.ViewModels
                             .ToObservableCollection();
                     }
                 });
-                //.Load();
+            //.Load();
 
             //Technologies = _db.Set<Technology>()
             //    .Local
@@ -96,7 +99,7 @@ namespace NewLaserProject.ViewModels
             }.ShowDialog();
             if (result ?? false)
             {
-                
+
                 var newTechnology = new Technology();
                 newTechnology.Material = material;
 
@@ -122,9 +125,9 @@ namespace NewLaserProject.ViewModels
 
             if (matEntRule is not null)
             {
-                newRule = matEntRule;  
+                newRule = matEntRule;
             }
-           
+
             var result = new AddToDbContainerView
             {
                 DataContext = newRule
@@ -132,7 +135,7 @@ namespace NewLaserProject.ViewModels
 
             if (result ?? false)
             {
-                if (matEntRule is not null) 
+                if (matEntRule is not null)
                 {
                     _db.Set<MaterialEntRule>()
                         .Update(matEntRule);
@@ -144,9 +147,7 @@ namespace NewLaserProject.ViewModels
                         .Add(newRule);
                     _db.SaveChanges();
                 }
-                
             }
-           
         }
 
         [ICommand]
@@ -177,15 +178,15 @@ namespace NewLaserProject.ViewModels
             new AddToDbContainerView(false)
             {
                 DataContext = techWizard
-            }.ShowDialog();            
+            }.ShowDialog();
         }
         [ICommand]
         private void DeleteTechnology(Technology technology)
-        {            
+        {
             _db.Set<Technology>()
                 .Remove(technology);
             DeleteTechnologyFile(technology);
-            _db.SaveChanges();            
+            _db.SaveChanges();
         }
         private void DeleteTechnologyFile(Technology technology)
         {
@@ -201,7 +202,7 @@ namespace NewLaserProject.ViewModels
                 deletingMaterial
                     .Entity?
                     .Technologies?
-                    .ForEach(t=>DeleteTechnologyFile(t));
+                    .ForEach(t => DeleteTechnologyFile(t));
             }
             _db.SaveChanges();
         }
