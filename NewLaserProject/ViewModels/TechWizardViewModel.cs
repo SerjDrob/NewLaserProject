@@ -46,7 +46,6 @@ namespace NewLaserProject.ViewModels
         public bool MainLoopShuffle { get; set; }
         private IMapper _markParamsToMSVMMapper;
         private ExtendedParams _tempParams;
-
         public TechWizardViewModel()
         {
             ProgBlocks = new()
@@ -146,26 +145,6 @@ namespace NewLaserProject.ViewModels
             item.MarkParams = (ExtendedParams)_tempParams.Clone();
         }
 
-        //[ICommand]
-        //private void SaveListing()
-        //{
-        //    var mainLoop = new MainLoop(MainLoopCount,MainLoopShuffle,Listing);
-            
-        //    var json = JsonConvert.SerializeObject(mainLoop, Formatting.Indented, new JsonSerializerSettings
-        //    {
-        //        TypeNameHandling = TypeNameHandling.Objects,
-        //        SerializationBinder = new TypesBinder
-        //        {
-        //            KnownTypes = _knownBlockTypes
-        //        }
-        //    });
-        //    using var writer = new StreamWriter($"{_projectDirectory}/TechnologyFiles/CircleListing.json", false);
-
-        //    var l = new TextWriterTraceListener(writer);
-        //    l.WriteLine(json);
-        //    l.Flush();
-        //}
-
         /// <summary>
         /// Serializes the MainLoop and saves by the path
         /// </summary>
@@ -191,25 +170,6 @@ namespace NewLaserProject.ViewModels
             return fileName;
         }
 
-        //[ICommand]
-        //private void LoadListing()
-        //{
-        //    //var listing = JsonConvert.DeserializeObject<ObservableCollection<ProgModuleItemVM>>(File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json"));
-        //    //Listing = (ObservableCollection<IProgBlock>)listing;
-        //    //Listing = new(listing);
-
-        //    var listing = JsonConvert.DeserializeObject<IProgBlock>(File.ReadAllText($"{_projectDirectory}/TechnologyFiles/CircleListing.json"), new JsonSerializerSettings
-        //    {
-        //        TypeNameHandling = TypeNameHandling.Objects,
-        //        SerializationBinder = new TypesBinder
-        //        {
-        //            KnownTypes = _knownBlockTypes
-        //        }
-        //    });
-
-        //    //Listing = new ObservableCollection<IProgBlock>(listing);
-        //}
-
         public void LoadListing(string path)
         {
             var mainloop = JsonConvert.DeserializeObject<MainLoop>(File.ReadAllText(path), new JsonSerializerSettings
@@ -231,26 +191,5 @@ namespace NewLaserProject.ViewModels
                 throw new ArgumentNullException(nameof(mainloop));
             }
         }
-
-        //[ICommand]
-        //private void CheckListing()
-        //{
-        //    var json = JsonConvert.SerializeObject(Listing, Formatting.Indented, new JsonSerializerSettings
-        //    {
-        //        TypeNameHandling = TypeNameHandling.Objects,
-        //        SerializationBinder = new TypesBinder
-        //        {
-        //            KnownTypes = _knownBlockTypes
-        //        }
-        //    });
-        //    Trace.WriteLine(json);
-        //    var btb = new BTBuilderX(json);
-        //    var rootSequence = btb.SetModuleAction(typeof(TapperBlock), new FuncProxy<Action<double>>(x => Console.WriteLine(x)))
-        //                          .SetModuleAction(typeof(AddZBlock), new FuncProxy<Action<double>>(z => Console.WriteLine(z)))
-        //                          .SetModuleAction(typeof(DelayBlock), new FuncProxy<Action<int>>(z => Console.WriteLine(z)))
-        //                          .SetModuleAction(typeof(LoopBlock), new FuncProxy<Action<int>>(z => Console.WriteLine(z)))
-        //                          .SetModuleAction(typeof(PierceBlock), new FuncProxy<Action<MarkLaserParams>>(z => Console.WriteLine(z)))
-        //                          .GetSequence();
-        //}
     }
 }

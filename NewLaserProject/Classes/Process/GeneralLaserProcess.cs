@@ -491,6 +491,7 @@ namespace NewLaserProject.Classes.Process
         }
         protected async override Task FuncForPierseBlockAsync(ExtendedParams extendedParams)
         {
+            if (extendedParams.EnableMilling) _entityPreparator.SetEntityContourWidth(0d);
             using var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(_currentProcObject);
             _laserMachine.SetExtMarkParams(new ExtParamsAdapter(extendedParams));
             var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath).ConfigureAwait(false);

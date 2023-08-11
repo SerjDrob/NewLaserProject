@@ -16,7 +16,6 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <!--<hc:PropertyGrid MinTitleWidth="150" MaxTitleWidth="200" MinWidth="280" SelectedObject="{Binding}"/>-->
         <ItemsControl Background="Black">
             <ItemsControl.Resources>
                 <Style TargetType="TextBlock">
@@ -121,7 +120,7 @@
                     </StackPanel>
                 </Border>
             </Expander>
-            <Expander Header="Штриховка" IsExpanded="True">
+            <Expander Header="Штриховка / фрезеровка" IsExpanded="True">
                 <Border CornerRadius="0,0,4,4" 
                         Padding="4"
                         Background="Black"
@@ -130,16 +129,74 @@
                     <StackPanel Background="{DynamicResource DarkMaskBrush}">
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Left" Text="Штриховать"/>
-                            <ToggleButton Style="{StaticResource ToggleButtonSwitch}"
+                            <ToggleButton Name="toggleHatch" Style="{StaticResource ToggleButtonSwitch}"
                                       IsChecked="{Binding EnableHatch}"
                                       DockPanel.Dock="Right"
-                                      />
+                                      >
+                            </ToggleButton>
                         </DockPanel>
                         <DockPanel>
-                            <TextBlock DockPanel.Dock="Left" Text="Ширина контура, мкм"/>
-                            <hc:NumericUpDown Value="{Binding HatchWidth}"
-                                  Increment="1"
-                                  Minimum="20"
+                            <TextBlock DockPanel.Dock="Left" Text="Фрезеровать"/>
+                            <ToggleButton Name="toggleMilling"
+                                      IsChecked="{Binding EnableMilling}"
+                                      DockPanel.Dock="Right"
+                                      >
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonSwitch}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="False">
+                                                <Setter Property="IsChecked" Value="False"/>
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="True">
+                                                <Setter Property="IsEnabled" Value="True"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ToggleButton.Style>
+                            </ToggleButton>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" Text="Не проходить контур"/>
+                            <ToggleButton
+                                      IsChecked="{Binding DisableContour}"
+                                      DockPanel.Dock="Right"
+                                      >
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonSwitch}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="False">
+                                                <Setter Property="IsChecked"  Value="False"/>
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="True">
+                                                <Setter Property="IsEnabled" Value="True"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ToggleButton.Style>
+                            </ToggleButton>
+                        </DockPanel>
+                        <DockPanel>
+                            <DockPanel.Style>
+                                <Style TargetType="DockPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="False">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=toggleMilling, Path=IsChecked}" Value="False">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=toggleMilling, Path=IsChecked}" Value="True">
+                                            <Setter Property="IsEnabled" Value="True"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DockPanel.Style>
+                            <TextBlock DockPanel.Dock="Left" Text="Смещение контура, мкм"/>
+                            <hc:NumericUpDown Value="{Binding ContourOffset}"
+                                  Increment="10"
+                                  Minimum="0"
                                   DockPanel.Dock="Right"
                                   Style="{StaticResource NumericUpDownExtend}"/>
                         </DockPanel>

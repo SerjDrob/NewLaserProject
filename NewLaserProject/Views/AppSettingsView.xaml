@@ -103,10 +103,31 @@
 
                         </hc:ElementGroup>
 
-                        <hc:TagContainer DockPanel.Dock="Top"
+                        <ListBox Margin="10" ItemsSource="{Binding DefLayerFilters}"  Style="{DynamicResource StackPanelVerticalListBox}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" CornerRadius="2" Padding="2" Margin="2">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseEnter">
+                                                <i:ChangePropertyAction PropertyName="Background" Value="{StaticResource PrimaryBrush}"/>
+                                            </i:EventTrigger>
+                                            <i:EventTrigger EventName="MouseLeave">
+                                                <i:ChangePropertyAction PropertyName="Background" Value="{StaticResource DarkOpacityBrush}"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                        <DockPanel LastChildFill="False">
+                                            <TextBlock Text="{Binding Filter}" Margin="5,0" Style="{StaticResource TextBlockBoldBaseStyle}"/>
+                                            <Button Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.RemoveDefLayerFilterCommand}" CommandParameter="{Binding}" Style="{StaticResource ButtonDefault.Small}" DockPanel.Dock="Right" hc:IconElement.Geometry="{StaticResource RemoveGeometry}"/>
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!--<hc:TagContainer DockPanel.Dock="Top"
                                          ItemsSource="{Binding DefLayerFilters}"
                                          ItemContainerStyle="{StaticResource TagCustomerStyle}"
-                                         Background="{StaticResource DefaultBrush}"/>
+                                         Background="{StaticResource DefaultBrush}"/>-->
                     </DockPanel>
                 </GroupBox>
                 <GroupBox Header="Технологии по-умолчанию" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">

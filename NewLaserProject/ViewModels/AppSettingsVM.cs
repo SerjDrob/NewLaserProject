@@ -1,50 +1,91 @@
-﻿using MachineClassLibrary.Laser.Entities;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using AutoMapper;
+using MachineClassLibrary.Laser.Entities;
+using MachineClassLibrary.Laser.Parameters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
-using NewLaserProject.Data;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DTOs;
-using System;
-using System.Collections;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using PropertyChanged;
-using AutoMapper;
-using LaserLib = MachineClassLibrary.Laser;
-using MachineClassLibrary.Laser.Parameters;
-using HandyControl.Controls;
-using System.Windows.Controls;
 
 namespace NewLaserProject.ViewModels
 {
     [INotifyPropertyChanged]
     internal partial class AppSettingsVM
-    {        
-        public LaserEntity DefaultEntityType { get; set; }        
-        public Material DefaultMaterial { get; set; }
-        public int DefaultWidth { get; set; }
-        public int DefaultHeight { get; set; }
-        public bool IsMirrored { get; set; }
-        public bool IsRotated { get; set; }
+    {
+        public LaserEntity DefaultEntityType
+        {
+            get; set;
+        }
+        public Material DefaultMaterial
+        {
+            get; set;
+        }
+        public int DefaultWidth
+        {
+            get; set;
+        }
+        public int DefaultHeight
+        {
+            get; set;
+        }
+        public bool IsMirrored
+        {
+            get; set;
+        }
+        public bool IsRotated
+        {
+            get; set;
+        }
         public ObservableCollection<DefaultLayerEntityTechnology> DefaultTechnologies { get; set; } = new();
-        public MarkLaserParams DefaultLaserParams { get; private set; }
+        public MarkLaserParams DefaultLaserParams
+        {
+            get; private set;
+        }
         public ObservableCollection<DefaultLayerFilter> DefLayerFilters { get; set; } = new();
-        public DefaultTechSelector DefaultTechSelector { get; set; }
-        public ObservableCollection<DefaultTechSelector> DefaultTechSelectors { get; set; }
+        public DefaultTechSelector DefaultTechSelector
+        {
+            get; set;
+        }
+        public ObservableCollection<DefaultTechSelector> DefaultTechSelectors
+        {
+            get; set;
+        }
         public ObservableCollection<object> EntityTypes { get; set; } = new() { LaserEntity.Circle, LaserEntity.Curve };
-        public string AddLayerName { get; set; }
-        public bool AddLayerIsVisible { get; set; }
-        public DefaultLayerFilter CurrentLayerFilter { get; set; }
-        public LaserEntity CurrentEntityType { get; set; }
-        public Technology CurrentTechnology { get; set; }
-        public ObservableCollection<Material> Materials { get; set; }
+        public string AddLayerName
+        {
+            get; set;
+        }
+        public bool AddLayerIsVisible
+        {
+            get; set;
+        }
+        public DefaultLayerFilter CurrentLayerFilter
+        {
+            get; set;
+        }
+        public LaserEntity CurrentEntityType
+        {
+            get; set;
+        }
+        public Technology CurrentTechnology
+        {
+            get; set;
+        }
+        public ObservableCollection<Material> Materials
+        {
+            get; set;
+        }
 
         private readonly DbContext _db;
-        
-        public MarkSettingsViewModel MarkSettingsViewModel { get; set; }
+
+        public MarkSettingsViewModel MarkSettingsViewModel
+        {
+            get; set;
+        }
 
         public AppSettingsVM(DbContext db, MarkLaserParams defaultLaserParams)
         {
@@ -54,13 +95,13 @@ namespace NewLaserProject.ViewModels
                 .Include(m => m.Technologies)
                 .Load();
 
-             _db.Set<DefaultLayerEntityTechnology>()
-                .Include(d=>d.DefaultLayerFilter)
-                .Load();
+            _db.Set<DefaultLayerEntityTechnology>()
+               .Include(d => d.DefaultLayerFilter)
+               .Load();
 
             _db.Set<DefaultLayerFilter>().Load();
-            
-            
+
+
             Materials = _db.Set<Material>()
                 .Local
                 .ToObservableCollection();
@@ -77,7 +118,7 @@ namespace NewLaserProject.ViewModels
             SetDTO();
 
             DefaultTechnologies.CollectionChanged += DefaultTechnologies_CollectionChanged;
-                       
+
             DefaultLaserParams = defaultLaserParams;
 
             var config = new MapperConfiguration(cfg =>
@@ -88,7 +129,7 @@ namespace NewLaserProject.ViewModels
                 cfg.CreateMap<HatchParams, MarkSettingsViewModel>(MemberList.None);
 
             });
-            
+
             var markParamsToMSVMMapper = config.CreateMapper();
 
             MarkSettingsViewModel = markParamsToMSVMMapper.Map<MarkSettingsViewModel>(defaultLaserParams);
@@ -124,15 +165,16 @@ namespace NewLaserProject.ViewModels
                     _db.Add(defaultLayerFilter);
                     _db.SaveChanges();
                     AddLayerName = string.Empty;
-                }                
+                }
             }
         }
+        
         [ICommand]
         private void AddDefaultTechnology()
-        {            
-            if(DefaultTechnologies.Where(d => d.DefaultLayerFilter.Filter == CurrentLayerFilter.Filter 
+        {
+            if (DefaultTechnologies.Where(d => d.DefaultLayerFilter.Filter == CurrentLayerFilter.Filter
             && d.EntityType == CurrentEntityType
-            && d.Technology.Material==CurrentTechnology.Material)
+            && d.Technology.Material == CurrentTechnology.Material)
                 .Any()) return;
 
             var defaultTechnology = new DefaultLayerEntityTechnology
@@ -147,7 +189,7 @@ namespace NewLaserProject.ViewModels
         public void SaveDbChanges()
         {
             _db?.SaveChanges();
-        }       
+        }
         private void SetLayerFilters()
         {
             DefaultTechSelectors = DefaultTechnologies
@@ -157,7 +199,7 @@ namespace NewLaserProject.ViewModels
              .Select(d => new { d.EntityType, d.Technology.Material })
              .GroupBy(g => g.EntityType)
              .ToDictionary(g => g.Key, f => f.Select(c => c.Material))))
-             .ToObservableCollection();            
+             .ToObservableCollection();
         }
         private void SetDTO()
         {

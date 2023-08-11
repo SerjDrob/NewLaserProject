@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="NewLaserProject.Views.Dialogs.FileSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
+             mc:Ignorable="d" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             d:DesignHeight="450" d:DesignWidth="800">
+        <DockPanel>
+            <hc:ElementGroup Orientation="Horizontal" HorizontalAlignment="Stretch" DockPanel.Dock="Bottom">
+
+                <hc:TextBox Text ="{Binding AddLayerName}"
+                                        HorizontalAlignment="Stretch"
+                                        Width="auto"
+                                        MinWidth="300"
+                                hc:TitleElement.Title="Фильтр слоя"
+                                hc:TitleElement.TitlePlacement="Left"
+                                VerticalAlignment="Center"/>
+                <ToggleButton IsChecked="{Binding AddLayerIsVisible}"
+                                          hc:IconSwitchElement.Geometry="{StaticResource EyeCloseGeometry}"
+                                          hc:IconSwitchElement.GeometrySelected="{StaticResource EyeOpenGeometry}"
+                                          Style="{StaticResource ToggleButtonIcon}"
+                                          />
+                <Button Command="{Binding AddLayerCommand}"
+                                Style="{StaticResource ButtonPrimary}" 
+                                hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
+
+
+            </hc:ElementGroup>
+
+            <ListBox Margin="10" ItemsSource="{Binding DefLayerFilters}"  Style="{DynamicResource StackPanelVerticalListBox}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" CornerRadius="2" Padding="2" Margin="2">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseEnter">
+                                    <i:ChangePropertyAction PropertyName="Background" Value="{StaticResource PrimaryBrush}"/>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:ChangePropertyAction PropertyName="Background" Value="{StaticResource DarkOpacityBrush}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <DockPanel LastChildFill="False">
+                                <hc:ToggleBlock IsChecked="{Binding IsVisible, Mode=OneWay}">
+                                    <hc:ToggleBlock.CheckedContent>
+                                        <Path Data="{StaticResource EyeOpenGeometry}" 
+                                                          Stroke="{DynamicResource AccentBrush}" 
+                                                          Fill="{DynamicResource TextIconBrush}">
+                                            <Path.LayoutTransform>
+                                                <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
+                                            </Path.LayoutTransform>
+                                        </Path>
+                                    </hc:ToggleBlock.CheckedContent>
+                                    <hc:ToggleBlock.UnCheckedContent>
+                                        <Path Data="{StaticResource EyeCloseGeometry}" 
+                                                          Stroke="{DynamicResource AccentBrush}" 
+                                                          Fill="{DynamicResource TextIconBrush}">
+                                            <Path.LayoutTransform>
+                                                <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
+                                            </Path.LayoutTransform>
+                                        </Path>
+                                    </hc:ToggleBlock.UnCheckedContent>
+                                </hc:ToggleBlock>
+                                <TextBlock Text="{Binding Filter}" Margin="5,0" Style="{StaticResource TextBlockBoldBaseStyle}"/>
+                                <Button Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.RemoveDefLayerFilterCommand}" CommandParameter="{Binding}" Style="{StaticResource ButtonDefault.Small}" DockPanel.Dock="Right" hc:IconElement.Geometry="{StaticResource RemoveGeometry}"/>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!--<hc:TagContainer DockPanel.Dock="Top"
+                                         ItemsSource="{Binding DefLayerFilters}"
+                                         ItemContainerStyle="{StaticResource TagCustomerStyle}"
+                                         Background="{StaticResource DefaultBrush}"/>-->
+        </DockPanel>
+</UserControl>

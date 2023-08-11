@@ -6,6 +6,8 @@
              xmlns:dbmodels="clr-namespace:NewLaserProject.Data.Models"
              xmlns:viewmodels="clr-namespace:NewLaserProject.ViewModels"
              xmlns:dbviewmodels="clr-namespace:NewLaserProject.ViewModels.DbVM"
+             xmlns:dialogvm="clr-namespace:NewLaserProject.ViewModels.DialogVM"
+             xmlns:dialogviews ="clr-namespace:NewLaserProject.Views.Dialogs"
              xmlns:dd="urn:gong-wpf-dragdrop"
              xmlns:pblocks="clr-namespace:NewLaserProject.Classes.ProgBlocks"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
@@ -28,6 +30,10 @@
 
             <DataTemplate DataType="{x:Type viewmodels:AppSettingsVM}">
                 <views:AppSettingsView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type dialogvm:FileViewDialogVM}">
+                <dialogviews:FileSettingsView/>
             </DataTemplate>
            
             <DataTemplate DataType="{x:Type viewmodels:LayersProcessingModel}">

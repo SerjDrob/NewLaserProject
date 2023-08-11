@@ -24,7 +24,8 @@
   
   
   <ItemGroup>
-    <Compile Remove="Classes\Process\ThreePointProcess.cs" />	  
+    <Compile Remove="Classes\Process\ThreePointProcess.cs" />
+    <Compile Remove="Views\MainView2.xaml.cs" />	  
   </ItemGroup>
   
   <ItemGroup>
@@ -140,6 +141,10 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
+    </ItemGroup>
+  
+    <ItemGroup>
+      <Page Remove="Views\MainView2.xaml" />
     </ItemGroup>
   
     <ItemGroup>
