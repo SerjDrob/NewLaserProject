@@ -5,17 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using MachineClassLibrary.Laser.Entities;
 
-namespace NewLaserProject.Views;
-internal class ProcObjTabView
+namespace NewLaserProject.Views
 {
-    public int Index
+    internal class ProcObjTabView
     {
-        get;
-        set;
-    }
-    public IProcObject ProcObject
-    {
-        get;
-        set;
+        public int Index
+        {
+            get;
+            set;
+        }
+        public IProcObject ProcObject
+        {
+            get;
+            set;
+        }
     }
 }

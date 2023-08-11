@@ -417,7 +417,7 @@ namespace NewLaserProject.Classes.Process
         public async Task StartAsync()
         {
             if (_cancellationTokenSource.Token.IsCancellationRequested) return;
-            if (_stateMachine is null)
+            if (_stateMachine is not null)
             {
                 //try
                 //{
