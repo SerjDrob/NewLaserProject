@@ -7,6 +7,8 @@ using HandyControl.Controls;
 using HandyControl.Properties;
 using System.ComponentModel;
 using HandyControl.Tools.Extension;
+using System.Runtime.CompilerServices;
+using NewLaserProject.Views.Dialogs;
 
 namespace NewLaserProject.ViewModels
 {
@@ -50,9 +52,16 @@ namespace HandyControl.Tools.Extension
 {
     public static class DialogExtensions2
     {
-        public static Dialog SetDataContext<TContext>(this Dialog dialog) where TContext : new()
+        public static Dialog SetDialogTitle(this Dialog dialog, string title)
         {
+            if (dialog.Content is CommonDialog commonDialog) commonDialog.SetTitle(title);
+            return dialog;
+        }
+        public static Dialog SetDataContext<TContext>(this Dialog dialog, Action<TContext> action) where TContext : new()
+        {
+            
             dialog.DataContext = new TContext();
+            dialog.Initialize(action);
             return dialog;
         }
     }

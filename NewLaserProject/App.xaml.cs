@@ -97,7 +97,7 @@ namespace NewLaserProject
             Trace.TraceInformation("The application started");
             Trace.Flush();
 
-            new MainView2()
+            new MainView()
             {
                 DataContext = viewModel
             }.Show();

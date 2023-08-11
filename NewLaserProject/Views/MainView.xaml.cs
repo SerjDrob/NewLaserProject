@@ -8,9 +8,9 @@ namespace NewLaserProject.Views
     /// <summary>
     /// Interaction logic for MainView2.xaml
     /// </summary>
-    public partial class MainView2 : GlowWindow
+    public partial class MainView : GlowWindow
     {
-        public MainView2()
+        public MainView()
         {
             InitializeComponent();
         }

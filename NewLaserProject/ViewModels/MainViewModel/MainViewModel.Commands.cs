@@ -1,29 +1,38 @@
-﻿using HandyControl.Controls;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Machine;
-using NewLaserProject.Properties;
-using NewLaserProject.UserControls;
-using System;
-using System.ComponentModel;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Media.Media3D;
+using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Data.Models;
+using NewLaserProject.ViewModels.DialogVM;
+using NewLaserProject.Views.Dialogs;
 
 namespace NewLaserProject.ViewModels
 {
     internal partial class MainViewModel
     {
-        public ICommand? TestKeyCommand { get; protected set; }
-        public double TestX { get; set; }
-        public double TestY { get; set; }
+        public ICommand? TestKeyCommand
+        {
+            get; protected set;
+        }
+        public double TestX
+        {
+            get; set;
+        }
+        public double TestY
+        {
+            get; set;
+        }
         private void InitCommands()
         {
 
-            TestKeyCommand = new KeyProcessorCommands(parameter => true)
+            TestKeyCommand = new KeyProcessorCommands(parameter => _notPreventingKeyProcessing)
                 .CreateAnyKeyDownCommand(moveAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateAnyKeyUpCommand(stopAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.E, () =>
@@ -39,7 +48,7 @@ namespace NewLaserProject.ViewModels
                     return Task.CompletedTask;
                 }, () => true)
                 .CreateKeyDownCommand(Key.G, () => _laserMachine.GoThereAsync(LMPlace.Loading), () => IsMainTabOpen)
-                .CreateKeyDownCommand(Key.Home, async() =>
+                .CreateKeyDownCommand(Key.Home, async () =>
                 {
                     await moveHomeAsync();
                     Growl.Clear();
@@ -53,7 +62,7 @@ namespace NewLaserProject.ViewModels
                 }, () => IsMainTabOpen)
                 .CreateKeyDownCommand(Key.Multiply, next, () => !IsProcessing)
                 .CreateKeyDownCommand(Key.Escape, deny, () => true)
-                .CreateKeyDownCommand(Key.P, async () => 
+                .CreateKeyDownCommand(Key.P, async () =>
                 {
                     await Task.WhenAll(
                         _laserMachine.MoveAxInPosAsync(Ax.X, TestX, true),
@@ -121,12 +130,12 @@ namespace NewLaserProject.ViewModels
                     });
 
                     return Task.CompletedTask;
-                },()=>true)
-                .CreateKeyDownCommand(Key.F7,()=>
+                }, () => true)
+                .CreateKeyDownCommand(Key.F7, () =>
                 {
                     _laserMachine.InvokeSettings();
                     return Task.CompletedTask;
-                },()=>true);
+                }, () => true);
 
             async Task moveAsync(KeyEventArgs key)
             {
@@ -237,7 +246,26 @@ namespace NewLaserProject.ViewModels
                 return null;
             }
         }
-        
+        private bool _notPreventingKeyProcessing = true;
+        [ICommand]
+        private void OpenFileViewSettingsWindow()
+        {
+            _notPreventingKeyProcessing = false;
+
+            var dialog = Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Фильтры слоёв файла")
+                .SetDataContext<FileViewDialogVM>(vm => vm.DefLayerFilters = _db.Set<DefaultLayerFilter>()
+                .Local
+                .ToObservableCollection())
+                .GetResultAsync<IEnumerable<DefaultLayerFilter>>()
+                .ContinueWith(t =>
+                {
+                    _db.SaveChanges();
+                    _notPreventingKeyProcessing = true;
+                });
+
+        }
+
     }
 }
 
