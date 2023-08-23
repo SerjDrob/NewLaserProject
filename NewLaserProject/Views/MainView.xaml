@@ -165,26 +165,30 @@
                 <hc:SplitButton hc:IconElement.Geometry="{StaticResource SpurGearGeometry}"
                       hc:IconElement.Width="15"
                       HorizontalAlignment="Stretch">
-                <hc:SplitButton.ToolTip>
-                  <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Настройки"/>
-                  </StackPanel>
-                </hc:SplitButton.ToolTip>
+                    <hc:SplitButton.ToolTip>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Настройки"/>
+                        </StackPanel>
+                    </hc:SplitButton.ToolTip>
                     <hc:SplitButton.DropDownContent>
-                        <StackPanel>
+                        <hc:SimpleStackPanel>
                             <MenuItem Command="{Binding MachineSettingsCommand}"
                                       Header="Настройки приводов" InputGestureText="H">
                             </MenuItem>
                             <MenuItem Command="{Binding LasSettingsCommand}"
                                       Header="Настройки лазера"/>
+                            <MenuItem Command="{Binding OpenPenHatchSettingsCommand}"
+                                      Header="Настройки пера и штриховки" InputGestureText="f7"/>
                             <MenuItem Command="{Binding OpenFileViewSettingsWindowCommand}"
                                       Header="Отображение файла"/>
+                            <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}"
+                                      Header="Ориентация подложки"/>
                             <MenuItem 
                                       Header="Настройки видео" InputGestureText="F7">
                             </MenuItem>
-                        </StackPanel>
+                        </hc:SimpleStackPanel>
                     </hc:SplitButton.DropDownContent>
-              </hc:SplitButton>
+                </hc:SplitButton>
                 <hc:SplitButton hc:IconElement.Geometry="{StaticResource AcademicHatGeometry}" HorizontalAlignment="Stretch">
                     <hc:SplitButton.DropDownContent>
                         <StackPanel>

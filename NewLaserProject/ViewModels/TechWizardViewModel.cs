@@ -15,6 +15,7 @@ using System.Windows;
 using System.Windows.Input;
 using AutoMapper;
 using MachineClassLibrary.Laser.Parameters;
+using NewLaserProject.ViewModels.DialogVM;
 
 namespace NewLaserProject.ViewModels
 {
@@ -58,10 +59,10 @@ namespace NewLaserProject.ViewModels
             };
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<MarkLaserParams, MarkSettingsViewModel>()
+                cfg.CreateMap<MarkLaserParams, MarkSettingsVM>()
                 .IncludeMembers(s => s.PenParams, s => s.HatchParams);
-                cfg.CreateMap<PenParams, MarkSettingsViewModel>(MemberList.None);
-                cfg.CreateMap<HatchParams, MarkSettingsViewModel>(MemberList.None);
+                cfg.CreateMap<PenParams, MarkSettingsVM>(MemberList.None);
+                cfg.CreateMap<HatchParams, MarkSettingsVM>(MemberList.None);
 
             });
             _markParamsToMSVMMapper = config.CreateMapper();

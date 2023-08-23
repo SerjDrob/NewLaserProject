@@ -353,20 +353,8 @@ namespace NewLaserProject.ViewModels
             }
             MarkPosition++;
             _openedFileVM?.SetTextPosition(MarkPosition);
-        }
+        }      
         
-        [ICommand]
-        private void ChooseMaterial()
-        {
-            var material = new MaterialVM { Width = WaferWidth, Height = WaferHeight, Thickness = WaferThickness };
-            new MaterialSettingsView
-            {
-                DataContext = material
-            }.ShowDialog();
-            WaferWidth = material.Width;
-            WaferHeight = material.Height;
-            WaferThickness = material.Thickness;
-        }
     }
 
 }

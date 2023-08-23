@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using HandyControl.Tools.Extension;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Data.Models;
@@ -10,9 +9,12 @@ using NewLaserProject.Data.Models;
 namespace NewLaserProject.ViewModels.DialogVM;
 
 [INotifyPropertyChanged]
-internal partial class FileViewDialogVM : IDialogResultable<IEnumerable<DefaultLayerFilter>>
+internal partial class FileViewDialogVM : CommonDialogResultable<IEnumerable<DefaultLayerFilter>>
 {
-    public ObservableCollection<DefaultLayerFilter> DefLayerFilters { get; set; }
+    public ObservableCollection<DefaultLayerFilter> DefLayerFilters
+    {
+        get; set;
+    }
     public string AddLayerName
     {
         get; set;
@@ -21,6 +23,8 @@ internal partial class FileViewDialogVM : IDialogResultable<IEnumerable<DefaultL
     {
         get; set;
     }
+
+    public override void SetResult() => SetResult(DefLayerFilters);
 
     [ICommand]
     private void AddLayer()
@@ -42,16 +46,5 @@ internal partial class FileViewDialogVM : IDialogResultable<IEnumerable<DefaultL
     }
     [ICommand]
     private void RemoveDefLayerFilter(DefaultLayerFilter defaultLayerFilter) => DefLayerFilters?.Remove(defaultLayerFilter);
-    public IEnumerable<DefaultLayerFilter> Result
-    {
-        get => DefLayerFilters;
-        set
-        {
-        }
-    }
-    public Action CloseAction
-    {
-        get;
-        set;
-    }
+
 }

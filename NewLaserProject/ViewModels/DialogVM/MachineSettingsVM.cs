@@ -16,7 +16,7 @@ using PropertyChanged;
 namespace NewLaserProject.ViewModels.DialogVM
 {
     [INotifyPropertyChanged]
-    internal partial class MachineSettingsVM : INotifyDataErrorInfo, IDialogResultable<MachineSettingsVM>
+    internal partial class MachineSettingsVM : CommonDialogResultable<MachineSettingsVM>, INotifyDataErrorInfo
     {
         private double _currentX;
         private double _currentY;
@@ -144,20 +144,6 @@ namespace NewLaserProject.ViewModels.DialogVM
         }
         public bool HasErrors => _implementINotifyDataErrorInfo.HasErrors;
 
-        public MachineSettingsVM Result
-        {
-            get
-            {
-                return this;
-            }
-            set => throw new NotImplementedException();
-        }
-        public Action CloseAction
-        {
-            get;
-            set;
-        }
-
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
         public IEnumerable GetErrors(string? propertyName) => _implementINotifyDataErrorInfo.GetErrors(propertyName);
 
@@ -187,6 +173,7 @@ namespace NewLaserProject.ViewModels.DialogVM
         }
         [ICommand]
         private void TeachLoadPoint() => (XLoad, YLoad) = (_currentX, _currentY);
+        public override void SetResult() => SetResult(this);
     }
 
     internal class ImplementINotifyDataErrorInfo<T> : INotifyDataErrorInfo where T : class, INotifyDataErrorInfo

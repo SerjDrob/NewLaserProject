@@ -28,6 +28,18 @@
                 <ResourceDictionary Source="Geometries.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <DataTemplate DataType="{x:Type dialogvm:MaterialVM}">
+                <dialogviews:MaterialSettingsView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type dialogvm:MarkSettingsVM}">
+                <dialogviews:PenHatchSettingsView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type dialogvm:SpecimenSettingsVM}">
+                <dialogviews:SpecimenSettingsView/>
+            </DataTemplate>
+            
             <DataTemplate DataType="{x:Type viewmodels:AppSettingsVM}">
                 <views:AppSettingsView/>
             </DataTemplate>

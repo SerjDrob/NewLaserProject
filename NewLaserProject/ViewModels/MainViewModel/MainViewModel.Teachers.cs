@@ -371,8 +371,8 @@ namespace NewLaserProject.ViewModels
 
             var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "TeachingDeformation.json"));
 
-            var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
-            buider.SetWorkMatrix(new Matrix3x2(
+            var workMatrixBuilder = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
+            workMatrixBuilder.SetWorkMatrix(new Matrix3x2(
                 matrixElements[0],
                 matrixElements[1],
                 matrixElements[2],
@@ -380,7 +380,7 @@ namespace NewLaserProject.ViewModels
                 matrixElements[4],
                 matrixElements[5]
                 ));
-            var sys = buider.Build();
+            var sys = workMatrixBuilder.Build();
 
 
             using var wafer = new LaserWafer(_dxfReader.GetPoints(), (60, 48));//TODO situation when file isn't  correct or even absent
@@ -390,7 +390,7 @@ namespace NewLaserProject.ViewModels
             Guard.IsEqualTo(points.Count, 3, nameof(points));
             using var pointsEnumerator = points.GetEnumerator();
 
-            var builder = XYOrthTeacher.GetBuilder()
+            var xyOrthBuilder = XYOrthTeacher.GetBuilder()
                 .SetOnGoNextPointAction(() => Task.Run(async () =>
                 {
                     pointsEnumerator.MoveNext();
@@ -475,7 +475,7 @@ namespace NewLaserProject.ViewModels
 
                     _canTeach = false;
                 }));
-            return builder.Build();
+            return xyOrthBuilder.Build();
             //await _currentTeacher.StartTeach();
             //_canTeach = true;
         }

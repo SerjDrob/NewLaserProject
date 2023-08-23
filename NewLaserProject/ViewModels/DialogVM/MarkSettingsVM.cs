@@ -1,12 +1,14 @@
-﻿using MachineClassLibrary.Laser;
+﻿using System.ComponentModel;
+using System.Windows.Input;
 using MachineClassLibrary.Laser.Parameters;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using System.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 
-namespace NewLaserProject.ViewModels
+namespace NewLaserProject.ViewModels.DialogVM
 {
+
     [INotifyPropertyChanged]
-    public partial class MarkSettingsViewModel
+    public partial class MarkSettingsVM : CommonDialogResultable<MarkSettingsVM>
     {
         #region Pen params
         [Category("Параметры пера")]
@@ -33,7 +35,7 @@ namespace NewLaserProject.ViewModels
 
         [Category("Параметры пера")]
         [DisplayName("Модулировать частоту")]
-        public bool IsModulated { get; set; } = false;        
+        public bool IsModulated { get; set; } = false;
 
         [Category("Параметры пера")]
         [DisplayName("Частота модуляции, Гц")]
@@ -123,12 +125,14 @@ namespace NewLaserProject.ViewModels
         [Category("Параметры штриховки")]
         [DisplayName("Угол штриховки")]
         public double HatchRotateAngle { get; set; } = 0;
-        #endregion
 
+
+        #endregion
+        
         public MarkLaserParams GetLaserParams()
         {
-            var pen = new PenParams(PenNo, MarkLoop, MarkSpeed, PowerRatio, Current, Freq, QPulseWidth, IsModulated, ModFreq, 
-                                    ModDutyCycle,StartTC,LaserOnTC, LaserOffTC, EndTC, PolyTC, JumpSpeed, JumpPosTC, JumpDistTC, 
+            var pen = new PenParams(PenNo, MarkLoop, MarkSpeed, PowerRatio, Current, Freq, QPulseWidth, IsModulated, ModFreq,
+                                    ModDutyCycle, StartTC, LaserOnTC, LaserOffTC, EndTC, PolyTC, JumpSpeed, JumpPosTC, JumpDistTC,
                                     EndComp, AccDist, PointTime, PulsePointMode, PulseNum, FlySpeed);
 
             var hatch = new HatchParams(EnableContour, ParamIndex, EnableHatch, PenNo, HatchType, HatchAllCalc,
@@ -138,6 +142,7 @@ namespace NewLaserProject.ViewModels
             return new MarkLaserParams(pen, hatch);
         }
 
+        public override void SetResult() => SetResult(this);
     }
 
 
