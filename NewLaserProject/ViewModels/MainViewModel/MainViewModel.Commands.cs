@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using AutoMapper;
 using HandyControl.Controls;
@@ -42,7 +40,7 @@ namespace NewLaserProject.ViewModels
         private void InitCommands()
         {
 
-            TestKeyCommand = new KeyProcessorCommands(parameter => _notPreventingKeyProcessing)
+            TestKeyCommand = new KeyProcessorCommands(parameter => true, typeof(TextBox))
                 .CreateAnyKeyDownCommand(moveAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateAnyKeyUpCommand(stopAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.E, () =>
@@ -256,27 +254,23 @@ namespace NewLaserProject.ViewModels
                 return null;
             }
         }
-        private bool _notPreventingKeyProcessing = true;
         [ICommand]
-        private void OpenFileViewSettingsWindow()
+        private async Task OpenFileViewSettingsWindow()
         {
-            _notPreventingKeyProcessing = false;
-
-            var dialog = Dialog.Show<CommonDialog>()
-                .SetDialogTitle("Фильтры слоёв файла")
-                .SetDataContext<FileViewDialogVM>(vm => vm.DefLayerFilters = _db.Set<DefaultLayerFilter>().Local.ToObservableCollection())
-                .GetCommonResultAsync<IEnumerable<DefaultLayerFilter>>()
-                .ContinueWith(t =>
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Отображение слоёв и технологии")
+                .SetDataContext<FileViewDialogVM>(vm =>
                 {
-                    if(t.Result.Success) _db.SaveChanges();
-                    _notPreventingKeyProcessing = true;
-                });
+                    vm.DefLayerFilters = _db.Set<DefaultLayerFilter>().Local.ToObservableCollection();
+                    vm.DefaultTechnologies = _db.Set<DefaultLayerEntityTechnology>().Local.ToObservableCollection();
+                    vm.Materials = _db.Set<Material>().Local.ToObservableCollection();
+                })
+                .GetCommonResultAsync<IEnumerable<DefaultLayerFilter>>();
+            if (result.Success) _db.SaveChanges();
         }
         [ICommand]
         private void OpenSpecimenSettingsWindow()
         {
-            _notPreventingKeyProcessing = false;
-
             var dialog = Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Ориентация и технология по-умолчанию")
                 .SetDataContext<SpecimenSettingsVM>(vm => _db.Set<DefaultLayerEntityTechnology>()
@@ -297,7 +291,7 @@ namespace NewLaserProject.ViewModels
                             var defsel = vm.DefaultTechSelectors?.SingleOrDefault(d => d.DefLayerFilter.Id == defLayerProcDTO.LayerFilterId);
                             var defType = (LaserEntity)defLayerProcDTO.EntityType;
 
-                            if (defsel is not null && defsel.Entities.Contains(defType))
+                            if (defsel?.Entities?.Contains(defType) ?? false)
                             {
                                 if (defsel.EntMaterials.TryGetValue(defType, out var materials))
                                 {
@@ -337,13 +331,11 @@ namespace NewLaserProject.ViewModels
                         Settings.Default.WaferAngle90 = defSettings.IsRotated;
                         Settings.Default.Save();
                     }
-                    _notPreventingKeyProcessing = true;
                 });
         }
         [ICommand]
         private void MachineSettings()
         {
-            _notPreventingKeyProcessing = false;
             Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Настройки приводов")
                 .SetDataContext(new MachineSettingsVM(XAxis.Position, YAxis.Position, ZAxis.Position), vm => vm.CopyFromSettings())
@@ -356,33 +348,31 @@ namespace NewLaserProject.ViewModels
                         result.CommonResult.CopyToSettings();
                         Settings.Default.Save();
                         ImplementMachineSettings();
-                    }                    
-                    _notPreventingKeyProcessing = true;
+                    }
                 });
         }
 
         [ICommand]
         private void ChooseMaterial()
         {
-            _notPreventingKeyProcessing = false;
             Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Подложка")
-                .SetDataContext<MaterialVM>(vm =>
+                .SetDataContext<WaferVM>(vm =>
                 {
                     vm.Width = WaferWidth;
                     vm.Height = WaferHeight;
                     vm.Thickness = WaferThickness;
                 })
-                .GetCommonResultAsync<MaterialVM>()
-                .ContinueWith(t=> {
+                .GetCommonResultAsync<WaferVM>()
+                .ContinueWith(t =>
+                {
                     var result = t.Result;
                     if (result.Success)
                     {
                         WaferWidth = result.CommonResult.Width;
                         WaferHeight = result.CommonResult.Height;
                         WaferThickness = result.CommonResult.Thickness;
-                    }                   
-                    _notPreventingKeyProcessing = true;
+                    }
                 });
         }
         [ICommand]
@@ -400,19 +390,18 @@ namespace NewLaserProject.ViewModels
             var markParamsToMSVMMapper = config.CreateMapper();
             var context = markParamsToMSVMMapper.Map<MarkSettingsVM>(defLaserParams);
 
-            _notPreventingKeyProcessing = false;
             Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Настройка пера и штриховки")
                 .SetDataContext(context, vm => { })
                 .GetCommonResultAsync<MarkSettingsVM>()
-                .ContinueWith(t => {
+                .ContinueWith(t =>
+                {
                     var result = t.Result;
                     if (result.Success)
                     {
                         var defLaserParams = result.CommonResult.GetLaserParams();
                         defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
                     }
-                    _notPreventingKeyProcessing = true;
                 });
         }
     }

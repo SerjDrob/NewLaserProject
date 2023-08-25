@@ -24,7 +24,7 @@
         Width="1200" 
         WindowState="Maximized">
 
-    <Window.Resources>
+    <hc:GlowWindow.Resources>
         <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
         <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
         <Localconverters:TextToEntityConverter x:Key="TextToEntityConverter"/>
@@ -76,7 +76,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         </Style>
 
-    </Window.Resources>
+    </hc:GlowWindow.Resources>
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
@@ -373,7 +373,7 @@
                     </Border>
                 </DockPanel>
             </ToolBar>
-            <ToolBar Visibility="Visible">
+            <ToolBar Visibility="Collapsed">
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
@@ -783,7 +783,7 @@
                     </DockPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Мастер технологий" TabIndex="1">
+            <TabItem Header="Технологии и материалы" TabIndex="1">
                 <i:Interaction.Triggers>
                     <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
                                    Value="True">
@@ -798,22 +798,6 @@
                 <DockPanel>
                     <ContentControl Content="{Binding LaserDbVM}"/>
                 </DockPanel>
-            </TabItem>
-            <TabItem Header="Настройки" TabIndex="2">
-                <i:Interaction.Triggers>
-                    <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
-                                   Value="True">
-                        <i:InvokeCommandAction Command="{Binding AppSettingsOpenCommand}"/>
-                    </i:DataTrigger>
-                    <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
-                                   Value="False">
-                        <i:InvokeCommandAction Command="{Binding AppSettingsCloseCommand}"/>
-                    </i:DataTrigger>
-                    <i:EventTrigger EventName="GotFocus">
-                        <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsMainTabOpen" Value="False"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-                <ContentControl Content="{Binding AppSngsVM}"/>
             </TabItem>
         </TabControl>
     </Grid>

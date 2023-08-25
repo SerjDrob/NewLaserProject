@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NewLaserProject.Views
+namespace NewLaserProject.Views.Dialogs
 {
     /// <summary>
-    /// Interaction logic for LayerWizardProgramView.xaml
+    /// Interaction logic for WriteEditTechnologyView.xaml
     /// </summary>
-    public partial class LayerWizardProgramView : UserControl
+    public partial class WriteEditTechnologyView : UserControl
     {
-        public LayerWizardProgramView()
+        public WriteEditTechnologyView()
         {
             InitializeComponent();
         }

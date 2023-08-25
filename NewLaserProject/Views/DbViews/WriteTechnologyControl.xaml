@@ -10,9 +10,7 @@
              >
     <Grid>
         <DockPanel>
-            <StackPanel DockPanel.Dock="Top"
-                        
-                        >
+            <StackPanel DockPanel.Dock="Top">
                 <hc:ElementGroup Orientation="Horizontal">
                     <TextBlock Style="{StaticResource TextBlockSubTitleBold}" Text="Материал"/>
                     <TextBlock Margin="5,0,0,0" Style="{StaticResource TextBlockSubTitle}"                          
@@ -26,10 +24,9 @@
                                Style="{StaticResource TextBlockSubTitle}"
                                />
                 </hc:ElementGroup>
-                <hc:TextBox Text="{Binding TechnologyName}"
-                            hc:TitleElement.Title="Название технологии"
-                            hc:TitleElement.TitlePlacement="Left"
+                <hc:TextBox Text="{Binding TechnologyName}" Margin="0,5,0,5"
                             hc:InfoElement.Necessary="True"
+                            hc:InfoElement.Placeholder="Название технологии"
                             />
             </StackPanel>
             <ContentControl DockPanel.Dock="Top" Content="{Binding TechnologyWizard}"/>

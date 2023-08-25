@@ -2,14 +2,17 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Windows;
+using System.Threading.Tasks;
+using HandyControl.Controls;
+using HandyControl.Tools.Extension;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.ViewModels.DbVM;
-using NewLaserProject.Views;
+using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views.DbViews;
+using NewLaserProject.Views.Dialogs;
 using PropertyChanged;
 
 namespace NewLaserProject.ViewModels
@@ -48,58 +51,41 @@ namespace NewLaserProject.ViewModels
                             .ToObservableCollection();
                     }
                 });
-            //.Load();
-
-            //Technologies = _db.Set<Technology>()
-            //    .Local
-            //    .ToObservableCollection();
-
-            //_db.Set<Material>()
-            //.Load();
-
-            //Materials = _db.Set<Material>()
-            //    .Local
-            //    .ToObservableCollection();
         }
         private readonly DbContext _db;
 
         [ICommand]
-        private void AddMaterial()
+        private async Task AddMaterial()
         {
-            var material = new MaterialDTO();
-            var result = new AddToDbView
-            {
-                Title = "Материал",
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                WindowStyle = WindowStyle.None,
-                AllowsTransparency = false,
-                ShowInTaskbar = false,
-                DataContext = material
-            }.ShowDialog();
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Новый материал")
+                .SetDataContext<MaterialVM>(vm => vm.MaterialDTO = new())
+                .GetCommonResultAsync<MaterialDTO>();
 
-            if (result ?? false)
+            if (result.Success)
             {
-                var newMaterial = new Material(material);
+                var newMaterial = new Material(result.CommonResult);
                 _db.Add(newMaterial);
                 _db.SaveChanges();
             }
         }
 
         [ICommand]
-        private void AssignTechnology(Material material)
+        private async Task AssignTechnology(Material material)
         {
             var writeTechVM = new WriteTechnologyVM
             {
                 MaterialName = material.Name,
                 MaterialThickness = material.Thickness
             };
-            var result = new AddToDbContainerView
-            {
-                DataContext = writeTechVM
-            }.ShowDialog();
-            if (result ?? false)
-            {
 
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Новая технология")
+                .SetDataContext(writeTechVM, vm => { })
+                .GetCommonResultAsync<TechWizardVM>();
+
+            if (result.Success)
+            {
                 var newTechnology = new Technology();
                 newTechnology.Material = material;
 
@@ -107,63 +93,63 @@ namespace NewLaserProject.ViewModels
                 newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(path);
 
                 newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();//TODO if name isn't typed
-                _db.Set<Technology>()
-                          .Add(newTechnology);
+                _db.Add(newTechnology);
                 _db.SaveChanges();
             }
         }
 
         [ICommand]
-        private void AssignRule(Material material)
+        private async void AssignRule(Material material)
         {
             var matEntRule = _db.Set<MaterialEntRule>()
-                   .FirstOrDefault(mer => mer.Material.Id == material.Id);
-            var newRule = new MaterialEntRule
+                    .AsNoTracking()
+                    .SingleOrDefault(mer => mer.Material.Id == material.Id);
+
+            var newRule = matEntRule ?? new MaterialEntRule
             {
                 Material = material,
             };
 
-            if (matEntRule is not null)
-            {
-                newRule = matEntRule;
-            }
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Правило обработки")
+                .SetDataContext<MaterialEntRuleVM>(vm => vm.MaterialEntRule = newRule)
+                .GetCommonResultAsync<MaterialEntRule>();
 
-            var result = new AddToDbContainerView
-            {
-                DataContext = newRule
-            }.ShowDialog();
-
-            if (result ?? false)
+            if (result.Success)
             {
                 if (matEntRule is not null)
                 {
-                    _db.Set<MaterialEntRule>()
-                        .Update(matEntRule);
-                    _db.SaveChanges();
+                    //_db.Set<MaterialEntRule>()
+                    //    .Update(matEntRule);
+
+                    var rule = _db.Set<MaterialEntRule>()
+                    .SingleOrDefault(mer => mer.Material.Id == material.Id);
+                    rule.Offset = matEntRule.Offset;
+                    rule.Width = matEntRule.Width;
                 }
                 else
                 {
                     _db.Set<MaterialEntRule>()
                         .Add(newRule);
-                    _db.SaveChanges();
                 }
+                _db.SaveChanges();
             }
         }
 
         [ICommand]
-        private void EditTechnology(Technology technology)
+        private async Task EditTechnology(Technology technology)
         {
-            var techWizard = new TechWizardViewModel { EditEnable = true };
+            var techWizard = new TechWizardVM { EditEnable = true };
             var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
             techWizard.LoadListing(path);
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Правка программы")
+                .SetDataContext(new WriteEditTechnologyVM(techWizard), vm => { })
+                .GetCommonResultAsync<TechWizardVM>();
 
-            var result = new AddToDbContainerView
+            if (result.Success)
             {
-                DataContext = techWizard
-            }.ShowDialog();
-            if (result ?? false)
-            {
-                technology.ProcessingProgram = techWizard.SaveListingToFolder(ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES));
+                technology.ProcessingProgram = result.CommonResult.SaveListingToFolder(ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES));
                 _db.Set<Technology>().Update(technology);
                 _db.SaveChanges();
                 File.Delete(path);
@@ -172,7 +158,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void ViewTechnology(Technology technology)
         {
-            var techWizard = new TechWizardViewModel { EditEnable = false };
+            var techWizard = new TechWizardVM { EditEnable = false };
             var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
             techWizard.LoadListing(path);
             new AddToDbContainerView(false)

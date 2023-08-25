@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using MachineClassLibrary.Laser.Entities;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Data.Models;
@@ -15,6 +16,10 @@ internal partial class FileViewDialogVM : CommonDialogResultable<IEnumerable<Def
     {
         get; set;
     }
+    public ObservableCollection<Material> Materials
+    {
+        get; set;
+    }
     public string AddLayerName
     {
         get; set;
@@ -23,28 +28,56 @@ internal partial class FileViewDialogVM : CommonDialogResultable<IEnumerable<Def
     {
         get; set;
     }
+    public LaserEntity CurrentEntityType { get; set; } = LaserEntity.Circle;
+    public DefaultLayerFilter CurrentLayerFilter
+    {
+        get; set;
+    }
+    public Technology CurrentTechnology
+    {
+        get; set;
+    }
+    public ObservableCollection<DefaultLayerEntityTechnology> DefaultTechnologies { get; set; } = new();
+
 
     public override void SetResult() => SetResult(DefLayerFilters);
 
     [ICommand]
     private void AddLayer()
     {
-        if (AddLayerName != string.Empty)
+        if (AddLayerName is null or "") return;
+        var filter = AddLayerName.Trim();
+        if (!DefLayerFilters.Where(d => d.Filter.Contains(filter, StringComparison.InvariantCultureIgnoreCase)).Any())
         {
-            var filter = AddLayerName.Trim();
-            if (!DefLayerFilters.Where(d => d.Filter.Contains(filter, StringComparison.InvariantCultureIgnoreCase)).Any())
+            var defaultLayerFilter = new DefaultLayerFilter
             {
-                var defaultLayerFilter = new DefaultLayerFilter
-                {
-                    Filter = filter,
-                    IsVisible = AddLayerIsVisible
-                };
-                DefLayerFilters.Add(defaultLayerFilter);
-                AddLayerName = string.Empty;
-            }
+                Filter = filter,
+                IsVisible = AddLayerIsVisible
+            };
+            DefLayerFilters.Add(defaultLayerFilter);
+            AddLayerName = string.Empty;
         }
     }
     [ICommand]
     private void RemoveDefLayerFilter(DefaultLayerFilter defaultLayerFilter) => DefLayerFilters?.Remove(defaultLayerFilter);
 
+    [ICommand]
+    private void AddDefaultTechnology()
+    {
+        if (DefaultTechnologies.Where(d => d.DefaultLayerFilter.Filter == CurrentLayerFilter.Filter
+               && d.EntityType == CurrentEntityType
+               && d.Technology.Material == CurrentTechnology.Material)
+                   .Any()) return;
+
+        var defaultTechnology = new DefaultLayerEntityTechnology
+        {
+            DefaultLayerFilter = CurrentLayerFilter,
+            Technology = CurrentTechnology,
+            EntityType = CurrentEntityType
+        };
+        
+        DefaultTechnologies.Add(defaultTechnology);
+    }
+    [ICommand]
+    private void RemoveDefTechnology(DefaultLayerEntityTechnology defaultLayerEntityTechnology) => DefaultTechnologies?.Remove(defaultLayerEntityTechnology);
 }

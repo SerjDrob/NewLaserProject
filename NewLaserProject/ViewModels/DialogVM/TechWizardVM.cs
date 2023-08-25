@@ -1,26 +1,30 @@
-﻿using GongSolutions.Wpf.DragDrop;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows;
+//using System.Windows.Forms;
+using System.Windows.Input;
+using AutoMapper;
+using GongSolutions.Wpf.DragDrop;
 using GongSolutions.Wpf.DragDrop.Utilities;
+using HandyControl.Controls;
+using HandyControl.Tools.Extension;
+using MachineClassLibrary.Laser.Parameters;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.Views;
+using NewLaserProject.Views.Dialogs;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Windows;
-using System.Windows.Input;
-using AutoMapper;
-using MachineClassLibrary.Laser.Parameters;
-using NewLaserProject.ViewModels.DialogVM;
 
-namespace NewLaserProject.ViewModels
+namespace NewLaserProject.ViewModels.DialogVM
 {
     [INotifyPropertyChanged]
-    internal partial class TechWizardViewModel : DefaultDropHandler
+    public partial class TechWizardVM : DefaultDropHandler
     {
         private readonly List<Type> _knownBlockTypes = new()
         {
@@ -36,18 +40,33 @@ namespace NewLaserProject.ViewModels
             typeof(ExtendedParams)
         };
 
-        public ObservableCollection<IProgBlock> ProgBlocks { get; set; }
+        public ObservableCollection<IProgBlock> ProgBlocks
+        {
+            get; set;
+        }
         public ObservableCollection<IProgBlock> Listing { get; set; } = new();
         public bool EditEnable { get; set; } = true;
-        public IProgBlock DraggedBlock { get; set; }
+        public IProgBlock DraggedBlock
+        {
+            get; set;
+        }
         public IProgBlock TestBlock { get; set; } = new PierceBlock();
-        public string ObjectsType { get; set; }
-        public string ObjectsCount { get; set; }
+        public string ObjectsType
+        {
+            get; set;
+        }
+        public string ObjectsCount
+        {
+            get; set;
+        }
         public int MainLoopCount { get; set; } = 1;
-        public bool MainLoopShuffle { get; set; }
+        public bool MainLoopShuffle
+        {
+            get; set;
+        }
         private IMapper _markParamsToMSVMMapper;
         private ExtendedParams _tempParams;
-        public TechWizardViewModel()
+        public TechWizardVM()
         {
             ProgBlocks = new()
             {
@@ -63,7 +82,6 @@ namespace NewLaserProject.ViewModels
                 .IncludeMembers(s => s.PenParams, s => s.HatchParams);
                 cfg.CreateMap<PenParams, MarkSettingsVM>(MemberList.None);
                 cfg.CreateMap<HatchParams, MarkSettingsVM>(MemberList.None);
-
             });
             _markParamsToMSVMMapper = config.CreateMapper();
         }
@@ -136,14 +154,25 @@ namespace NewLaserProject.ViewModels
                 Listing = new();
             }
         }
+        
         [ICommand]
-        private void SetPiercingParams(object progModule)
+        private async Task SetPiercingParams(object progModule)
         {
-            _tempParams ??= new ExtendedParams();
-            var item = (PierceBlock)progModule;//TODO use as casting
-            if (item.MarkParams is not null) _tempParams = item.MarkParams;
-            new ExtMarkParamsView { DataContext = _tempParams }.ShowDialog();
-            item.MarkParams = (ExtendedParams)_tempParams.Clone();
+            if (progModule is not PierceBlock item) return;
+            _tempParams = item?.MarkParams?.Clone() as ExtendedParams ?? new ExtendedParams();
+
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Параметры пера")
+                .SetDataContext(new EditExtendedParamsVM(_tempParams), vm => { })
+                .GetCommonResultAsync<ExtendedParams>();
+
+            if (result.Success)
+            {
+                item.MarkParams = (ExtendedParams)_tempParams.Clone();
+            }
+
+            //new ExtMarkParamsView { DataContext = _tempParams }.ShowDialog();
+            //item.MarkParams = (ExtendedParams)_tempParams.Clone();
         }
 
         /// <summary>
@@ -165,15 +194,15 @@ namespace NewLaserProject.ViewModels
             });
             var fileName = Guid.NewGuid().ToString();
             using var writer = new StreamWriter(Path.Combine(path, $"{fileName}.json"), false);
-            var l = new TextWriterTraceListener(writer);
-            l.WriteLine(json);
-            l.Flush();
+            var listener = new TextWriterTraceListener(writer);
+            listener.WriteLine(json);
+            listener.Flush();
             return fileName;
         }
 
         public void LoadListing(string path)
         {
-            var mainloop = JsonConvert.DeserializeObject<MainLoop>(File.ReadAllText(path), new JsonSerializerSettings
+            var mainLoop = JsonConvert.DeserializeObject<MainLoop>(File.ReadAllText(path), new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects,
                 SerializationBinder = new TypesBinder
@@ -181,15 +210,15 @@ namespace NewLaserProject.ViewModels
                     KnownTypes = _knownBlockTypes
                 }
             });
-            if (mainloop is not null)
+            if (mainLoop is not null)
             {
-                MainLoopCount = mainloop.LoopCount;
-                MainLoopShuffle = mainloop.Shuffle;
-                Listing = new ObservableCollection<IProgBlock>(mainloop.Children); 
+                MainLoopCount = mainLoop.LoopCount;
+                MainLoopShuffle = mainLoop.Shuffle;
+                Listing = new ObservableCollection<IProgBlock>(mainLoop.Children);
             }
             else
             {
-                throw new ArgumentNullException(nameof(mainloop));
+                throw new ArgumentNullException(nameof(mainLoop));
             }
         }
     }

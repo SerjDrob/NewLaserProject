@@ -1,32 +1,14 @@
-﻿using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using HandyControl.Tools.Extension;
+﻿using NewLaserProject.Data.Models.DTOs;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {
-    public class MaterialVM:CommonDialogResultable<MaterialVM>
+    public class MaterialVM : CommonDialogResultable<MaterialDTO>
     {
-        [Category("Размеры")]
-        [DisplayName("Ширина")]
-        public double Width
+        public MaterialDTO MaterialDTO
         {
-            get; set;
+            get;
+            set;
         }
-        [Category("Размеры")]
-        [DisplayName("Высота")]
-        public double Height
-        {
-            get; set;
-        }
-        [Category("Размеры")]
-        [DisplayName("Толщина")]
-        public double Thickness
-        {
-            get; set;
-        }
-        [Browsable(false)]
-
-        public override void SetResult() => SetResult(this);
+        public override void SetResult() => SetResult(MaterialDTO);
     }
 }

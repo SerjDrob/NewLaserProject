@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace NewLaserProject.Views.Dialogs
 {
     /// <summary>
-    /// Interaction logic for MaterialSettingsView.xaml
+    /// Interaction logic for MaterialEntRuleView.xaml
     /// </summary>
-    public partial class MaterialSettingsView : UserControl
+    public partial class MaterialEntRuleView : UserControl
     {
-        public MaterialSettingsView()
+        public MaterialEntRuleView()
         {
             InitializeComponent();
         }

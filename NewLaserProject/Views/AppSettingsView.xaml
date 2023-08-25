@@ -80,7 +80,7 @@
         </Grid.Resources>
         <UniformGrid Rows="2">
             <UniformGrid Columns="2">
-                <GroupBox Header="Отображение файла" Margin="4" HorizontalAlignment="Stretch" Width="auto">
+                <!--<GroupBox Header="Отображение файла" Margin="4" HorizontalAlignment="Stretch" Width="auto">
                     <DockPanel>                        
                         <hc:ElementGroup Orientation="Horizontal" HorizontalAlignment="Stretch" DockPanel.Dock="Bottom">
                            
@@ -124,13 +124,13 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <!--<hc:TagContainer DockPanel.Dock="Top"
+                        --><!--<hc:TagContainer DockPanel.Dock="Top"
                                          ItemsSource="{Binding DefLayerFilters}"
                                          ItemContainerStyle="{StaticResource TagCustomerStyle}"
-                                         Background="{StaticResource DefaultBrush}"/>-->
+                                         Background="{StaticResource DefaultBrush}"/>--><!--
                     </DockPanel>
-                </GroupBox>
-                <GroupBox Header="Технологии по-умолчанию" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">
+                </GroupBox>-->
+                <!--<GroupBox Header="Технологии по-умолчанию" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">
                     <DockPanel>
                         <hc:ElementGroup Orientation="Horizontal"                                     
                                      DockPanel.Dock="Bottom"
@@ -195,9 +195,9 @@
                                          Background="{StaticResource DefaultBrush}"
                                          />
                     </DockPanel>
-                </GroupBox>
+                </GroupBox>-->
             </UniformGrid>
-            <UniformGrid Columns="2">
+            <!--<UniformGrid Columns="2">
                 <GroupBox Padding="4" Header="Объект для процесса по-умолчанию" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">
                     <StackPanel>
                         <Grid DataContext="{Binding Source={StaticResource DefTechSels}}">
@@ -235,7 +235,7 @@
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
-                            <!--<hc:ComboBox ItemsSource="{Binding DefLayerFilters}"
+                            --><!--<hc:ComboBox ItemsSource="{Binding DefLayerFilters}"
                                      SelectedIndex="0"
                                      SelectedItem="{Binding DefaultLayerFilter}"
                                      hc:TitleElement.Title="Фильтр слоя" Height="58" VerticalAlignment="Top"
@@ -272,7 +272,7 @@
                                         </StackPanel>
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
-                            </hc:ComboBox>-->
+                            </hc:ComboBox>--><!--
                         </Grid>
                         <hc:Divider Content="Габариты подложки" Orientation="Horizontal"/>
                         <UniformGrid Columns="2" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -302,7 +302,7 @@
                 <GroupBox Padding="4" Header="Настройки пера и штриховки" Margin="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto">
                     <hc:PropertyGrid SelectedObject="{Binding MarkSettingsViewModel}"/>
                 </GroupBox>
-            </UniformGrid>
+            </UniformGrid>-->
         </UniformGrid>
     </Grid>
 </UserControl>
