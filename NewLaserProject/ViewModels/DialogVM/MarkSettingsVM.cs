@@ -47,44 +47,60 @@ namespace NewLaserProject.ViewModels.DialogVM
 
 
         [Category("Параметры пера")]
+        [Browsable(false)]
         public int StartTC { get; set; } = 0;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public int LaserOnTC { get; set; } = 0;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public int LaserOffTC { get; set; } = 0;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public int EndTC { get; set; } = 0;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public int PolyTC { get; set; } = 0;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public double JumpSpeed { get; set; } = 1000;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public int JumpPosTC { get; set; } = 1000;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public int JumpDistTC { get; set; } = 1000;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public double EndComp { get; set; } = 0;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public double AccDist { get; set; } = 1;
         [Category("Параметры пера")]
+        [Browsable(false)]
         public double PointTime { get; set; } = 1;
         [Category("Параметры пера")]
-        public bool PulsePointMode { get; set; } = true;
+        [Browsable(false)]
+        public bool PulsePointMode { get; set; } = false;
         [Category("Параметры пера")]
+        [Browsable(false)]
         int PulseNum { get; set; } = 2;
         [Category("Параметры пера")]
         [DisplayName("Скорость переходов")]
+        [Browsable(false)]
         public double FlySpeed { get; set; } = 1000;
         #endregion
 
 
         #region Hatch Params
         [Category("Параметры штриховки")]
-        [DisplayName("Маркировать контур")]
+        [DisplayName("Проходить контур")]
         public bool EnableContour { get; set; } = true;
         [Category("Параметры штриховки")]
+        [Browsable(false)]
         public int ParamIndex { get; set; } = 1;
         [Category("Параметры штриховки")]
+        [DisplayName("Штриховать")]
         public bool EnableHatch { get; set; } = true;
         [Category("Параметры штриховки")]
         [DisplayName("Перо штриховки")]
@@ -93,6 +109,7 @@ namespace NewLaserProject.ViewModels.DialogVM
         [DisplayName("Тип штриховки")]
         public int HatchType { get; set; } = 3;
         [Category("Параметры штриховки")]
+        [Browsable(false)]
         public bool HatchAllCalc { get; set; } = false;
         [Category("Параметры штриховки")]
         [DisplayName("Штриховать край")]
@@ -113,14 +130,19 @@ namespace NewLaserProject.ViewModels.DialogVM
         [DisplayName("Смещение конца штриховки")]
         public double HatchEndOffset { get; set; } = 0;
         [Category("Параметры штриховки")]
+        [Browsable(false)]
         public double HatchLineReduction { get; set; } = 0.01;
         [Category("Параметры штриховки")]
+        [Browsable(false)]
         public double HatchLoopDist { get; set; } = 1;
         [Category("Параметры штриховки")]
+        [DisplayName("Проходов по контуру")]
         public int EdgeLoop { get; set; } = 3;
         [Category("Параметры штриховки")]
+        [DisplayName("Реверсивная штриховка")]
         public bool HatchLoopRev { get; set; } = true;
         [Category("Параметры штриховки")]
+        [Browsable(false)]
         public bool HatchAutoRotate { get; set; } = false;
         [Category("Параметры штриховки")]
         [DisplayName("Угол штриховки")]
