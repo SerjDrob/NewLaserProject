@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using HandyControl.Controls;
 using HandyControl.Data;
+using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
@@ -207,11 +208,11 @@ namespace NewLaserProject.ViewModels
                         {
                             case CompletionStatus.Success:
                                 if (IsWaferMark) await MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem);
-                                techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
+                                MessageBox.Success("Процесс завершён");
                                 break;
                             case CompletionStatus.Cancelled:
                                 MessageBox.Fatal("Процесс отменён");
-                                techMessager.RealeaseMessage("Процесс отменён", MessageType.Exclamation);
+                                await _laserMachine.GoThereAsync(LMPlace.Loading);
                                 break;
                             default:
                                 break;

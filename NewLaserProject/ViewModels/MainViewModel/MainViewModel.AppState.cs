@@ -30,14 +30,13 @@ namespace NewLaserProject.ViewModels
                     OnProcess = true;
                     HideCentralPanel(false);
                     HideLearningPanel(true);
-                    //HideVideoPanel(false);
                     HideRightPanel(true);
                     ChangeViews(IsVideOnCenter: false);
                     await StartProcessAsync();
                 })
                 .OnExit(() =>
                 {
-                    //CancelProcess();
+                    HideRightPanel(false);
                     _currentProcSubscriptions?.ForEach(subscr => subscr.Dispose());
                     _mainProcess?.Dispose();
                     OnProcess = false;

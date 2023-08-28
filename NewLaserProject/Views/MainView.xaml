@@ -323,16 +323,6 @@
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.CmdPosition}"
                                   />
-                    <!--<TextBlock x:Name="VelText" Text="Быстро">
-                                <i:Interaction.Triggers>
-                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
-                                        <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Быстро"/>
-                                    </i:DataTrigger>
-                                    <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Slow}">
-                                        <i:ChangePropertyAction TargetObject="{Binding ElementName=VelText}" PropertyName="Text" Value="Медленно"/>
-                                    </i:DataTrigger>
-                                </i:Interaction.Triggers>
-                    </TextBlock>-->
                 </StackPanel>
                 <DockPanel>
                     <Border
@@ -544,28 +534,60 @@
                                                 >
                                             <CheckBox IsChecked="{Binding IsWaferMark}" Content="Маркировать"/>
                                         </Border>
-                                        <Button Command="{Binding SetMarkPositionCommand}" Width="36">
+                                        <Button Command="{Binding SetMarkPositionCommand}" Width="36" IsEnabled="{Binding IsWaferMark}">
+                                            <Grid >
+                                                <Path x:Name="grid" Data="{StaticResource DownGeometry}" Stretch="Uniform"  RenderTransformOrigin="0.5 0.5"  Fill="{StaticResource TextIconBrush}"/>
+                                            </Grid>
                                             <i:Interaction.Triggers>
                                                 <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.W}">
-                                                    <i:ChangePropertyAction PropertyName="Content" Value="| "/>
+                                                    <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
+                                                        <i:ChangePropertyAction.Value>
+                                                            <RotateTransform Angle="90"/>
+                                                        </i:ChangePropertyAction.Value>
+                                                    </i:ChangePropertyAction>
                                                 </i:DataTrigger>
                                                 <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.N}">
-                                                    <i:ChangePropertyAction PropertyName="Content" Value="&#175;"/>
+                                                    <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
+                                                        <i:ChangePropertyAction.Value>
+                                                            <RotateTransform Angle="180"/>
+                                                        </i:ChangePropertyAction.Value>
+                                                    </i:ChangePropertyAction>
                                                 </i:DataTrigger>
                                                 <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.E}">
-                                                    <i:ChangePropertyAction PropertyName="Content" Value=" |"/>
+                                                    <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
+                                                        <i:ChangePropertyAction.Value>
+                                                            <RotateTransform Angle="-90"/>
+                                                        </i:ChangePropertyAction.Value>
+                                                    </i:ChangePropertyAction>
                                                 </i:DataTrigger>
                                                 <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.S}">
-                                                    <i:ChangePropertyAction PropertyName="Content" Value="&#95;"/>
+                                                    <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
+                                                        <i:ChangePropertyAction.Value>
+                                                            <RotateTransform Angle="0"/>
+                                                        </i:ChangePropertyAction.Value>
+                                                    </i:ChangePropertyAction>
                                                 </i:DataTrigger>
                                             </i:Interaction.Triggers>
                                         </Button>
-                                        <ToggleButton IsChecked="{Binding CutMode}"
-                                                      hc:IconElement.Geometry="{StaticResource ScissorGeometry}"
-                                                      RenderTransformOrigin="0.5 0.5">
-                                            <ToggleButton.RenderTransform>
-                                                <ScaleTransform ScaleY="-1"/>
-                                            </ToggleButton.RenderTransform>
+
+                                        <ToggleButton IsChecked="{Binding CutMode}">
+                                            <ToggleButton.Resources>
+                                                <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonDefault}">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsChecked" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ToggleButton.Resources>
+
+                                            <Grid>
+                                                <Path Data="{StaticResource ScissorGeometry}" Stretch="Uniform" Fill="{StaticResource TextIconBrush}" RenderTransformOrigin="0.5 0.5">
+                                                    <Path.RenderTransform>
+                                                        <ScaleTransform ScaleY="-1"/>
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                            </Grid>
                                         </ToggleButton>
 
                                         <Button Command="{Binding UndoCutCommand}"
@@ -840,7 +862,6 @@
                     <i:EventTrigger EventName="GotFocus">
                         <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsMainTabOpen" Value="False"/>
                     </i:EventTrigger>
-
                 </i:Interaction.Triggers>
                 <DockPanel>
                     <ContentControl Content="{Binding LaserDbVM}"/>

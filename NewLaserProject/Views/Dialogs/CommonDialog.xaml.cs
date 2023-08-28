@@ -3,15 +3,17 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using HandyControl.Interactivity;
 
-namespace NewLaserProject.Views.Dialogs;
-/// <summary>
-/// Interaction logic for CommonDialog.xaml
-/// </summary>
-public partial class CommonDialog : UserControl
+namespace NewLaserProject.Views.Dialogs
 {
-    public void SetTitle(string title) => Title.Text = title;
-    public CommonDialog()
+    /// <summary>
+    /// Interaction logic for CommonDialog.xaml
+    /// </summary>
+    public partial class CommonDialog : UserControl
     {
-        InitializeComponent();
+        public void SetTitle(string title) => Title.Text = title;
+        public CommonDialog()
+        {
+            InitializeComponent();
+        }
     }
 }

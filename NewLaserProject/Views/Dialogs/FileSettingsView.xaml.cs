@@ -1,13 +1,15 @@
 ﻿using System.Windows.Controls;
 
-namespace NewLaserProject.Views.Dialogs;
-/// <summary>
-/// Interaction logic for FileSettingsView.xaml
-/// </summary>
-public partial class FileSettingsView : UserControl
+namespace NewLaserProject.Views.Dialogs
 {
-    public FileSettingsView()
+    /// <summary>
+    /// Interaction logic for FileSettingsView.xaml
+    /// </summary>
+    public partial class FileSettingsView : UserControl
     {
-        InitializeComponent();
+        public FileSettingsView()
+        {
+            InitializeComponent();
+        }
     }
 }

@@ -13,14 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NewLaserProject.Views.Dialogs;
-/// <summary>
-/// Interaction logic for MachineSettingsView.xaml
-/// </summary>
-public partial class MachineSettingsView : UserControl
+namespace NewLaserProject.Views.Dialogs
 {
-    public MachineSettingsView()
+    /// <summary>
+    /// Interaction logic for MachineSettingsView.xaml
+    /// </summary>
+    public partial class MachineSettingsView : UserControl
     {
-        InitializeComponent();
+        public MachineSettingsView()
+        {
+            InitializeComponent();
+        }
     }
 }
