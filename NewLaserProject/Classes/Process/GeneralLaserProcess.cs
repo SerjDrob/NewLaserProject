@@ -270,7 +270,7 @@ namespace NewLaserProject.Classes.Process
             _stateMachine.Configure(State.InitialCorner)
                 .OnActivateAsync(async () =>
                     {
-                        _entityPreparator.SetEntityAngle(_waferAngle).AddEntityAngle(_pazAngle);
+                        _entityPreparator.SetEntityAngle(_waferAngle).AddEntityAngle(-_pazAngle);
                         await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
                     })
                 .Permit(Trigger.Next, State.Working);
