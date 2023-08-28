@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace NewLaserProject.ViewModels
@@ -12,11 +13,13 @@ namespace NewLaserProject.ViewModels
         private Dictionary<Key, (AsyncRelayCommand command, bool isKeyRepeatProhibited)> DownKeys;
         private Dictionary<Key, AsyncRelayCommand> UpKeys;
         private Func<object?, bool>? _canExecute;
+        private readonly Type[] notProcessingControls;
         AsyncRelayCommand<KeyEventArgs> _anyKeyDownCommand;
         AsyncRelayCommand<KeyEventArgs> _anyKeyUpCommand;
-        public KeyProcessorCommands(Func<object?, bool>? canExecute = null)
+        public KeyProcessorCommands(Func<object?, bool>? canExecute = null, params Type[] notProcessingControls)
         {
             _canExecute = canExecute;
+            this.notProcessingControls = notProcessingControls;
         }
 
         public event EventHandler CanExecuteChanged
@@ -68,6 +71,7 @@ namespace NewLaserProject.ViewModels
             if (!CanExecute(parameter)) return;
             if (parameter is KeyProcessorArgs args)
             {
+                if (notProcessingControls.Any(t=>t.IsEquivalentTo(args.KeyEventArgs.OriginalSource.GetType()))) return;
                 if (args.IsKeyDown)
                 {
                     if (!(DownKeys?.Keys.Any(key => key == args.KeyEventArgs.Key) ?? false) & _anyKeyDownCommand is not null)

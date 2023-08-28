@@ -10,16 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NewLaserProject.Views
+namespace NewLaserProject.Views.Dialogs
 {
     /// <summary>
-    /// Interaction logic for MachineSettingsView.xaml
+    /// Interaction logic for ExtendedMarkParamsView.xaml
     /// </summary>
-    public partial class MachineSettingsView : Window
+    public partial class ExtendedMarkParamsView : UserControl
     {
-        public MachineSettingsView()
+        public ExtendedMarkParamsView()
         {
             InitializeComponent();
         }

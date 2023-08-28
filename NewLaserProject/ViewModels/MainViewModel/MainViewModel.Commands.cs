@@ -1,15 +1,23 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using AutoMapper;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser.Entities;
+using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
+using NewLaserProject.Data.Models.DTOs;
+using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views.Dialogs;
 
@@ -32,7 +40,7 @@ namespace NewLaserProject.ViewModels
         private void InitCommands()
         {
 
-            TestKeyCommand = new KeyProcessorCommands(parameter => _notPreventingKeyProcessing)
+            TestKeyCommand = new KeyProcessorCommands(parameter => true, typeof(TextBox))
                 .CreateAnyKeyDownCommand(moveAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateAnyKeyUpCommand(stopAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.E, () =>
@@ -246,26 +254,156 @@ namespace NewLaserProject.ViewModels
                 return null;
             }
         }
-        private bool _notPreventingKeyProcessing = true;
         [ICommand]
-        private void OpenFileViewSettingsWindow()
+        private async Task OpenFileViewSettingsWindow()
         {
-            _notPreventingKeyProcessing = false;
-
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Отображение слоёв и технологии")
+                .SetDataContext<FileViewDialogVM>(vm =>
+                {
+                    vm.DefLayerFilters = _db.Set<DefaultLayerFilter>().Local.ToObservableCollection();
+                    vm.DefaultTechnologies = _db.Set<DefaultLayerEntityTechnology>().Local.ToObservableCollection();
+                    vm.Materials = _db.Set<Material>().Local.ToObservableCollection();
+                })
+                .GetCommonResultAsync<IEnumerable<DefaultLayerFilter>>();
+            if (result.Success) _db.SaveChanges();
+        }
+        [ICommand]
+        private void OpenSpecimenSettingsWindow()
+        {
             var dialog = Dialog.Show<CommonDialog>()
-                .SetDialogTitle("Фильтры слоёв файла")
-                .SetDataContext<FileViewDialogVM>(vm => vm.DefLayerFilters = _db.Set<DefaultLayerFilter>()
-                .Local
-                .ToObservableCollection())
-                .GetResultAsync<IEnumerable<DefaultLayerFilter>>()
+                .SetDialogTitle("Ориентация и технология по-умолчанию")
+                .SetDataContext<SpecimenSettingsVM>(vm => _db.Set<DefaultLayerEntityTechnology>()
+                    .ToArrayAsync()
+                    .ContinueWith(task =>
+                    {
+                        vm.DefaultTechSelectors = task.Result
+                        .GroupBy(d => d.DefaultLayerFilter, (k, col) =>
+                          new DefaultTechSelector(k, col.GroupBy(g => g.EntityType)
+                          .ToImmutableDictionary(k => k.Key, e => e.Select(g => g.Technology.Material))
+                          )).ToObservableCollection();
+                        var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultProcessFilter.json"));
+                        if (defLayerProcDTO is not null)
+                        {
+                            vm.DefaultHeight = defLayerProcDTO.DefaultHeight;
+                            vm.DefaultWidth = defLayerProcDTO.DefaultWidth;
+
+                            var defsel = vm.DefaultTechSelectors?.SingleOrDefault(d => d.DefLayerFilter.Id == defLayerProcDTO.LayerFilterId);
+                            var defType = (LaserEntity)defLayerProcDTO.EntityType;
+
+                            if (defsel?.Entities?.Contains(defType) ?? false)
+                            {
+                                if (defsel.EntMaterials.TryGetValue(defType, out var materials))
+                                {
+                                    var defmaterial = materials.SingleOrDefault(m => m.Id == defLayerProcDTO.MaterialId);
+                                    if (defmaterial is not null)
+                                    {
+                                        vm.DefaultTechSelector = defsel;
+                                        vm.DefaultEntityType = defType;
+                                        vm.DefaultMaterial = defmaterial;
+                                    }
+                                }
+                            }
+                        }
+                        vm.IsMirrored = Settings.Default.WaferMirrorX;
+                        vm.IsRotated = Settings.Default.WaferAngle90;
+                    })
+                )
+                .GetCommonResultAsync<SpecimenSettingsVM>()
                 .ContinueWith(t =>
                 {
-                    _db.SaveChanges();
-                    _notPreventingKeyProcessing = true;
-                });
+                    var result = t.Result;
+                    if (result.Success)
+                    {
+                        var defSettings = result.CommonResult;
+                        var defProcFilter = new DefaultProcessFilterDTO
+                        {
+                            LayerFilterId = defSettings.DefaultTechSelector.DefLayerFilter.Id,
+                            MaterialId = defSettings.DefaultMaterial.Id,
+                            EntityType = (uint)defSettings.DefaultEntityType,
+                            DefaultWidth = defSettings.DefaultWidth,
+                            DefaultHeight = defSettings.DefaultHeight
+                        };
 
+                        defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultProcessFilter.json"));
+
+                        Settings.Default.WaferMirrorX = defSettings.IsMirrored;
+                        Settings.Default.WaferAngle90 = defSettings.IsRotated;
+                        Settings.Default.Save();
+                    }
+                });
+        }
+        [ICommand]
+        private void MachineSettings()
+        {
+            Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Настройки приводов")
+                .SetDataContext(new MachineSettingsVM(XAxis.Position, YAxis.Position, ZAxis.Position), vm => vm.CopyFromSettings())
+                .GetCommonResultAsync<MachineSettingsVM>()
+                .ContinueWith(t =>
+                {
+                    var result = t.Result;
+                    if (result.Success)
+                    {
+                        result.CommonResult.CopyToSettings();
+                        Settings.Default.Save();
+                        ImplementMachineSettings();
+                    }
+                });
         }
 
+        [ICommand]
+        private void ChooseMaterial()
+        {
+            Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Подложка")
+                .SetDataContext<WaferVM>(vm =>
+                {
+                    vm.Width = WaferWidth;
+                    vm.Height = WaferHeight;
+                    vm.Thickness = WaferThickness;
+                })
+                .GetCommonResultAsync<WaferVM>()
+                .ContinueWith(t =>
+                {
+                    var result = t.Result;
+                    if (result.Success)
+                    {
+                        WaferWidth = result.CommonResult.Width;
+                        WaferHeight = result.CommonResult.Height;
+                        WaferThickness = result.CommonResult.Thickness;
+                    }
+                });
+        }
+        [ICommand]
+        private void OpenPenHatchSettings()
+        {
+            var defLaserParams = ExtensionMethods.DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<MarkLaserParams, MarkSettingsVM>()
+                .IncludeMembers(s => s.PenParams, s => s.HatchParams);
+                cfg.CreateMap<PenParams, MarkSettingsVM>(MemberList.None);
+                cfg.CreateMap<HatchParams, MarkSettingsVM>(MemberList.None);
+            });
+
+            var markParamsToMSVMMapper = config.CreateMapper();
+            var context = markParamsToMSVMMapper.Map<MarkSettingsVM>(defLaserParams);
+
+            Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Настройка пера и штриховки")
+                .SetDataContext(context, vm => { })
+                .GetCommonResultAsync<MarkSettingsVM>()
+                .ContinueWith(t =>
+                {
+                    var result = t.Result;
+                    if (result.Success)
+                    {
+                        var defLaserParams = result.CommonResult.GetLaserParams();
+                        defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+                    }
+                });
+        }
     }
 }
 

@@ -24,7 +24,7 @@
         Width="1200" 
         WindowState="Maximized">
 
-    <Window.Resources>
+    <hc:GlowWindow.Resources>
         <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
         <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
         <Localconverters:TextToEntityConverter x:Key="TextToEntityConverter"/>
@@ -76,7 +76,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         </Style>
 
-    </Window.Resources>
+    </hc:GlowWindow.Resources>
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
@@ -162,29 +162,80 @@
                         </Path>
                     </Border>
                 </Grid>
-                <hc:SplitButton hc:IconElement.Geometry="{StaticResource SpurGearGeometry}"
+                <!--<hc:SplitButton hc:IconElement.Geometry="{StaticResource SpurGearGeometry}"
                       hc:IconElement.Width="15"
                       HorizontalAlignment="Stretch">
-                <hc:SplitButton.ToolTip>
-                  <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Настройки"/>
-                  </StackPanel>
-                </hc:SplitButton.ToolTip>
+                    <hc:SplitButton.ToolTip>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Настройки"/>
+                        </StackPanel>
+                    </hc:SplitButton.ToolTip>
                     <hc:SplitButton.DropDownContent>
-                        <StackPanel>
+                        <hc:SimpleStackPanel>
                             <MenuItem Command="{Binding MachineSettingsCommand}"
                                       Header="Настройки приводов" InputGestureText="H">
                             </MenuItem>
                             <MenuItem Command="{Binding LasSettingsCommand}"
                                       Header="Настройки лазера"/>
+                            <MenuItem Command="{Binding OpenPenHatchSettingsCommand}"
+                                      Header="Настройки пера и штриховки" InputGestureText="f7"/>
                             <MenuItem Command="{Binding OpenFileViewSettingsWindowCommand}"
                                       Header="Отображение файла"/>
+                            <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}"
+                                      Header="Ориентация подложки"/>
                             <MenuItem 
                                       Header="Настройки видео" InputGestureText="F7">
                             </MenuItem>
-                        </StackPanel>
+                        </hc:SimpleStackPanel>
                     </hc:SplitButton.DropDownContent>
-              </hc:SplitButton>
+                </hc:SplitButton>-->
+                <Menu Style="{StaticResource MenuBaseStyle}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <Menu.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </Menu.ItemsPanel>
+                    <MenuItem>
+                        <MenuItem.Header>
+                            <DockPanel LastChildFill="True" Margin="4">
+                                <Path Data="{StaticResource DownGeometry}" 
+                                                      DockPanel.Dock="Right"
+                                                      Fill="{StaticResource PrimaryTextBrush}" 
+                                                      Stretch="Uniform" 
+                                      Margin="20,0,0,0"
+                                                      Width="14"/>
+                                <Path Data="{StaticResource SpurGearGeometry}" 
+                                                      DockPanel.Dock="Left"
+                                      Margin="12,0"
+                                      Stretch="Uniform"
+                                      VerticalAlignment="Center"
+                                                      Fill="{StaticResource PrimaryTextBrush}" 
+                                                      >
+                                    <Path.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="2" ScaleY="2"/>
+                                            <TranslateTransform Y="-5"/>
+                                        </TransformGroup>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </DockPanel>
+                        </MenuItem.Header>
+                        <MenuItem Command="{Binding MachineSettingsCommand}"
+                                  Header="Настройки приводов"/>
+                        <MenuItem Command="{Binding LasSettingsCommand}"
+                                      Header="Настройки лазера"/>
+                        <MenuItem Header="Предпочтения">
+                            <MenuItem Command="{Binding OpenPenHatchSettingsCommand}"
+                                      Header="Настройки пера и штриховки"/>
+                            <MenuItem Command="{Binding OpenFileViewSettingsWindowCommand}"
+                                      Header="Отображение файла"/>
+                            <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}"
+                                      Header="Ориентация подложки"/>
+                            <MenuItem 
+                                      Header="Настройки видео"/>
+                        </MenuItem>
+                    </MenuItem>
+                </Menu>
                 <hc:SplitButton hc:IconElement.Geometry="{StaticResource AcademicHatGeometry}" HorizontalAlignment="Stretch">
                     <hc:SplitButton.DropDownContent>
                         <StackPanel>
@@ -197,29 +248,29 @@
                             </MenuItem>
                             <MenuItem Command="{Binding StartTeachingCommand}" 
                                       CommandParameter="{x:Static vm:Teacher.ScanatorHorizont}"
-                                      Header="Горизонт сканатора" InputGestureText="F3">
+                                      Header="Горизонт сканатора">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/angle.png" Height="20" />
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem Command="{Binding StartTeachingCommand}" 
                                       CommandParameter="{x:Static vm:Teacher.OrthXY}"
-                                      Header="Ортогональность XY" InputGestureText="F4">
+                                      Header="Ортогональность XY">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/orth.png" Height="20"/>
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem Command="{Binding StartTeachingCommand}" 
                                       CommandParameter="{x:Static vm:Teacher.CameraScale}"
-                                      Header="Масштаб видео" InputGestureText="F5">
+                                      Header="Масштаб видео">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/scale.png" Height="20"/>
                                 </MenuItem.Icon>
                             </MenuItem>                            
                         </StackPanel>
                     </hc:SplitButton.DropDownContent>
-                    <!--<Image Source="Sources/learning.png"/>-->
                 </hc:SplitButton>
+                
             </ToolBar>
             <ToolBar>
                 <Button Command="{Binding ChooseMaterialCommand}" HorizontalAlignment="Stretch" MinHeight="50">
@@ -369,7 +420,7 @@
                     </Border>
                 </DockPanel>
             </ToolBar>
-            <ToolBar Visibility="Visible">
+            <ToolBar Visibility="Collapsed">
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
@@ -779,7 +830,7 @@
                     </DockPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Мастер технологий" TabIndex="1">
+            <TabItem Header="Технологии и материалы" TabIndex="1">
                 <i:Interaction.Triggers>
                     <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
                                    Value="True">
@@ -794,22 +845,6 @@
                 <DockPanel>
                     <ContentControl Content="{Binding LaserDbVM}"/>
                 </DockPanel>
-            </TabItem>
-            <TabItem Header="Настройки" TabIndex="2">
-                <i:Interaction.Triggers>
-                    <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
-                                   Value="True">
-                        <i:InvokeCommandAction Command="{Binding AppSettingsOpenCommand}"/>
-                    </i:DataTrigger>
-                    <i:DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=IsSelected}" 
-                                   Value="False">
-                        <i:InvokeCommandAction Command="{Binding AppSettingsCloseCommand}"/>
-                    </i:DataTrigger>
-                    <i:EventTrigger EventName="GotFocus">
-                        <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsMainTabOpen" Value="False"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-                <ContentControl Content="{Binding AppSngsVM}"/>
             </TabItem>
         </TabControl>
     </Grid>

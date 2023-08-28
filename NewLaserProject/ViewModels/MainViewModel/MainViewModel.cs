@@ -163,27 +163,27 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void AppSettingsClose()
         {
-            if (AppSngsVM is not null)
-            {
-                AppSngsVM.SaveDbChanges();
-                var defProcFilter = new DefaultProcessFilterDTO
-                {
-                    LayerFilterId = AppSngsVM.DefaultTechSelector.DefLayerFilter.Id,
-                    MaterialId = AppSngsVM.DefaultMaterial.Id,
-                    EntityType = (uint)AppSngsVM.DefaultEntityType,
-                    DefaultWidth = AppSngsVM.DefaultWidth,
-                    DefaultHeight = AppSngsVM.DefaultHeight
-                };
+            //if (AppSngsVM is not null)
+            //{
+            //    AppSngsVM.SaveDbChanges();
+            //    var defProcFilter = new DefaultProcessFilterDTO
+            //    {
+            //        LayerFilterId = AppSngsVM.DefaultTechSelector.DefLayerFilter.Id,
+            //        MaterialId = AppSngsVM.DefaultMaterial.Id,
+            //        EntityType = (uint)AppSngsVM.DefaultEntityType,
+            //        DefaultWidth = AppSngsVM.DefaultWidth,
+            //        DefaultHeight = AppSngsVM.DefaultHeight
+            //    };
 
-                var defLaserParams = AppSngsVM.MarkSettingsViewModel.GetLaserParams();
+            //    var defLaserParams = AppSngsVM.MarkSettingsViewModel.GetLaserParams();
 
-                defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultProcessFilter.json"));
-                defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+            //    defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultProcessFilter.json"));
+            //    defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
 
-                Settings.Default.WaferMirrorX = AppSngsVM.IsMirrored;
-                Settings.Default.WaferAngle90 = AppSngsVM.IsRotated;
-                Settings.Default.Save();
-            }
+            //    Settings.Default.WaferMirrorX = AppSngsVM.IsMirrored;
+            //    Settings.Default.WaferAngle90 = AppSngsVM.IsRotated;
+            //    Settings.Default.Save();
+            //}
         }
 
         [ICommand]
@@ -327,20 +327,7 @@ namespace NewLaserProject.ViewModels
                 Growl.Warning("Имя файла неверно или файл не существует");
             }
         }
-
-        [ICommand]
-        private void MachineSettings()
-        {
-            var dataContext = new MachineSettingsViewModel(XAxis.Position, YAxis.Position, ZAxis.Position);
-            dataContext.CopyFromSettings();
-            new MachineSettingsView
-            {
-                DataContext = dataContext
-            }.ShowDialog();
-            dataContext.CopyToSettings();
-            Settings.Default.Save();
-            ImplementMachineSettings();
-        }
+        
         private void ImplementMachineSettings()
         {
 #if PCIInserted

@@ -10,19 +10,37 @@
     <Border 
         CornerRadius="10"
         Background="{DynamicResource RegionBrush}">
-        <hc:SimplePanel>
-            <TextBlock x:Name="Title" VerticalAlignment="Top" Style="{StaticResource TextBlockTitleBold}"/>
-            <ContentControl Content="{Binding}" Margin="10,22,10,10"/>
-            <Button Width="22" 
+        <hc:SimpleStackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="Title" HorizontalAlignment="Center" Margin="20,0,20,0" Style="{StaticResource TextBlockTitleBold}"/>
+                <StackPanel Orientation="Horizontal" Grid.Column="1">
+                    <Button Width="22" 
                     Height="22" 
-                    Command="hc:ControlCommands.Close" 
+                        Padding="0"
+                        Margin="0,0,4,0"
+                    Command="hc:ControlCommands.Confirm" 
                     Style="{StaticResource ButtonIcon}" 
-                    Foreground="{DynamicResource PrimaryBrush}" 
+                    Foreground="{DynamicResource SuccessBrush}" 
+                    hc:IconElement.Geometry="{StaticResource SuccessGeometry}" 
+                    />
+                    <Button Width="22" 
+                    Height="22" 
+                        Padding="0"
+                    Command="hc:ControlCommands.Cancel" 
+                    Style="{StaticResource ButtonIcon}" 
+                    Foreground="{DynamicResource DangerBrush}" 
                     hc:IconElement.Geometry="{StaticResource ErrorGeometry}" 
-                    Padding="0" 
-                    HorizontalAlignment="Right" 
-                    VerticalAlignment="Top" 
-                    Margin="0,4,4,0"/>
-        </hc:SimplePanel>
+                    />
+                    
+                </StackPanel>
+            </Grid>
+            <hc:Divider Orientation="Horizontal" Margin="2"/>
+            <ContentControl Content="{Binding}" Margin="10"/>
+
+        </hc:SimpleStackPanel>
     </Border>
 </UserControl>

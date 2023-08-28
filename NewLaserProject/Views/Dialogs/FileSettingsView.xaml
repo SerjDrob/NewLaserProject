@@ -4,76 +4,179 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
+             xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:lib="clr-namespace:MachineClassLibrary.Laser.Entities;assembly=MachineClassLibrary"
              mc:Ignorable="d" 
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:uc="clr-namespace:NewLaserProject.UserControls"
+             xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
              d:DesignHeight="450" d:DesignWidth="800">
-        <DockPanel>
-            <hc:ElementGroup Orientation="Horizontal" HorizontalAlignment="Stretch" DockPanel.Dock="Bottom">
-
-                <hc:TextBox Text ="{Binding AddLayerName}"
-                                        HorizontalAlignment="Stretch"
-                                        Width="auto"
-                                        MinWidth="300"
-                                hc:TitleElement.Title="Фильтр слоя"
-                                hc:TitleElement.TitlePlacement="Left"
-                                VerticalAlignment="Center"/>
-                <ToggleButton IsChecked="{Binding AddLayerIsVisible}"
+    <UserControl.Resources>
+        <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
+        <CollectionViewSource x:Key="MaterialSource" Source="{Binding Materials}"/>
+        <CollectionViewSource x:Key="DefTechnologiesSource" Source="{Binding DefaultTechnologies}"/>
+        <Localconverters:IProcTypeToEntityConverter x:Key="IProcTypeToEntityConverter"/>
+        <Style TargetType="DataGrid" BasedOn="{StaticResource DataGrid.Small}">
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Height" Value="150"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource GroupBoxTab}">
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+    </UserControl.Resources>
+    <hc:SimpleStackPanel>
+        <GroupBox Header="Фильтры слоёв файла">
+            <hc:SimpleStackPanel>
+                <DataGrid ItemsSource="{Binding DefLayerFilters}" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Видимость">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <hc:ToggleBlock IsChecked="{Binding IsVisible, Mode=OneWay}">
+                                        <hc:ToggleBlock.CheckedContent>
+                                            <Path Data="{StaticResource EyeOpenGeometry}" 
+                                                          Stroke="{DynamicResource AccentBrush}" 
+                                                          Fill="{DynamicResource TextIconBrush}">
+                                                <Path.LayoutTransform>
+                                                    <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
+                                                </Path.LayoutTransform>
+                                            </Path>
+                                        </hc:ToggleBlock.CheckedContent>
+                                        <hc:ToggleBlock.UnCheckedContent>
+                                            <Path Data="{StaticResource EyeCloseGeometry}" 
+                                                          Stroke="{DynamicResource AccentBrush}" 
+                                                          Fill="{DynamicResource TextIconBrush}">
+                                                <Path.LayoutTransform>
+                                                    <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
+                                                </Path.LayoutTransform>
+                                            </Path>
+                                        </hc:ToggleBlock.UnCheckedContent>
+                                    </hc:ToggleBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Фильтр слоя" Binding="{Binding Filter}"/>
+                        <DataGridTemplateColumn CellStyle="{StaticResource DataGridCellStyle}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.RemoveDefLayerFilterCommand}" 
+                                    CommandParameter="{Binding}" Style="{StaticResource ButtonIconCircular.Small}" 
+                                    hc:IconElement.Geometry="{StaticResource RemoveGeometry}"/>                                    
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <hc:ElementGroup Orientation="Horizontal" Margin="4,2" HorizontalAlignment="Stretch">
+                    <ToggleButton IsChecked="{Binding AddLayerIsVisible}"
                                           hc:IconSwitchElement.Geometry="{StaticResource EyeCloseGeometry}"
                                           hc:IconSwitchElement.GeometrySelected="{StaticResource EyeOpenGeometry}"
                                           Style="{StaticResource ToggleButtonIcon}"
                                           />
-                <Button Command="{Binding AddLayerCommand}"
-                                Style="{StaticResource ButtonPrimary}" 
+                    <hc:TextBox Text ="{Binding AddLayerName}"
+                                hc:InfoElement.Placeholder="Фильтр слоя"
+                                Width="100"
+                                />
+                    <Button Command="{Binding AddLayerCommand}" Style="{StaticResource ButtonDashedSuccess}"
                                 hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
+                </hc:ElementGroup>
+            </hc:SimpleStackPanel>
+        </GroupBox>
+        <GroupBox Header="Технологии по-умолчанию">
+            <hc:SimpleStackPanel>
+                <DataGrid ItemsSource="{Binding Source={StaticResource DefTechnologiesSource}}" 
+                          AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Тип">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding EntityType}" ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Толщина материала" Binding="{Binding Technology.Material.Thickness}"/>
+                        <DataGridTextColumn Header="Фильтр слоя" Binding="{Binding DefaultLayerFilter.Filter, StringFormat='&quot;{0}&quot;'}"/>
+                        <DataGridTextColumn Header="Программа" Binding="{Binding Technology.ProgramName}"/>
+                        <DataGridTemplateColumn CellStyle="{StaticResource DataGridCellStyle}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                        Path=DataContext.RemoveDefTechnologyCommand}" CommandParameter="{Binding}" 
+                                            Style="{StaticResource ButtonIconCircular.Small}" 
+                                    hc:IconElement.Geometry="{StaticResource RemoveGeometry}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <hc:ElementGroup Orientation="Horizontal"                                     
+                                 Margin="4,2"
+                                 HorizontalAlignment="Stretch">
+                    <hc:ElementGroup.Resources>
+                        <x:Array x:Key="LaserEntities" Type="{x:Type sys:Enum}">
+                            <lib:LaserEntity>Circle</lib:LaserEntity>
+                            <lib:LaserEntity>Curve</lib:LaserEntity>
+                        </x:Array>
+                    </hc:ElementGroup.Resources>
+                    <uc:ItemsButton Items="{Binding Source={StaticResource LaserEntities}}"
+                                    ItemSelector="{StaticResource EntitySelector}"
+                                    SelectedItem="{Binding CurrentEntityType}"
+                                    SetIndex="0"
+                                    Width="35"
+                                    VerticalAlignment="Bottom"   
+                                    />
 
+                    <hc:ComboBox x:Name="Materials" ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
+                                 SelectedIndex="0"
+                                 hc:InfoElement.Placeholder="Материал"
+                                 SelectedItem="{Binding CurrentMaterial}"
+                                 Width="150"
+                                 >
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Width="150">
+                                    <TextBlock Text="{Binding Thickness}" Width="50" DockPanel.Dock="Right"/>
+                                    <TextBlock Text="{Binding Name}" hc:RelativePanel.AlignRightWithPanel="True"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
 
-            </hc:ElementGroup>
+                    <hc:ComboBox ItemsSource="{Binding DefLayerFilters}"
+                                 DisplayMemberPath="Filter"
+                                 hc:InfoElement.Placeholder="Фильтр слоя"
+                                 SelectedIndex="0"
+                                 SelectedItem="{Binding CurrentLayerFilter}"
+                                 hc:TitleElement.TitlePlacement="Top" 
+                                 Width="120"
+                                 />
 
-            <ListBox Margin="10" ItemsSource="{Binding DefLayerFilters}"  Style="{DynamicResource StackPanelVerticalListBox}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" CornerRadius="2" Padding="2" Margin="2">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseEnter">
-                                    <i:ChangePropertyAction PropertyName="Background" Value="{StaticResource PrimaryBrush}"/>
-                                </i:EventTrigger>
-                                <i:EventTrigger EventName="MouseLeave">
-                                    <i:ChangePropertyAction PropertyName="Background" Value="{StaticResource DarkOpacityBrush}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                            <DockPanel LastChildFill="False">
-                                <hc:ToggleBlock IsChecked="{Binding IsVisible, Mode=OneWay}">
-                                    <hc:ToggleBlock.CheckedContent>
-                                        <Path Data="{StaticResource EyeOpenGeometry}" 
-                                                          Stroke="{DynamicResource AccentBrush}" 
-                                                          Fill="{DynamicResource TextIconBrush}">
-                                            <Path.LayoutTransform>
-                                                <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
-                                            </Path.LayoutTransform>
-                                        </Path>
-                                    </hc:ToggleBlock.CheckedContent>
-                                    <hc:ToggleBlock.UnCheckedContent>
-                                        <Path Data="{StaticResource EyeCloseGeometry}" 
-                                                          Stroke="{DynamicResource AccentBrush}" 
-                                                          Fill="{DynamicResource TextIconBrush}">
-                                            <Path.LayoutTransform>
-                                                <ScaleTransform ScaleX="0.015" ScaleY="0.015"/>
-                                            </Path.LayoutTransform>
-                                        </Path>
-                                    </hc:ToggleBlock.UnCheckedContent>
-                                </hc:ToggleBlock>
-                                <TextBlock Text="{Binding Filter}" Margin="5,0" Style="{StaticResource TextBlockBoldBaseStyle}"/>
-                                <Button Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.RemoveDefLayerFilterCommand}" CommandParameter="{Binding}" Style="{StaticResource ButtonDefault.Small}" DockPanel.Dock="Right" hc:IconElement.Geometry="{StaticResource RemoveGeometry}"/>
-                            </DockPanel>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                    <hc:ComboBox ItemsSource="{Binding Source={StaticResource MaterialSource}, Path=Technologies}"
+                                 hc:InfoElement.Placeholder="Технология"
+                                 SelectedIndex="0"
+                                 SelectedItem="{Binding CurrentTechnology}"    
+                                 Width="140"
+                                 >
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
 
-            <!--<hc:TagContainer DockPanel.Dock="Top"
-                                         ItemsSource="{Binding DefLayerFilters}"
-                                         ItemContainerStyle="{StaticResource TagCustomerStyle}"
-                                         Background="{StaticResource DefaultBrush}"/>-->
-        </DockPanel>
+                    <Button hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                Command="{Binding AddDefaultTechnologyCommand}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Bottom"
+                                Style="{StaticResource ButtonDashedSuccess}"
+                                />
+                </hc:ElementGroup>
+            </hc:SimpleStackPanel>
+        </GroupBox>
+    </hc:SimpleStackPanel>
 </UserControl>

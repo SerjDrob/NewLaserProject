@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using AutoMapper;
@@ -10,6 +11,7 @@ using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DTOs;
+using NewLaserProject.ViewModels.DialogVM;
 
 namespace NewLaserProject.ViewModels
 {
@@ -82,7 +84,7 @@ namespace NewLaserProject.ViewModels
 
         private readonly DbContext _db;
 
-        public MarkSettingsViewModel MarkSettingsViewModel
+        public MarkSettingsVM MarkSettingsViewModel
         {
             get; set;
         }
@@ -123,16 +125,15 @@ namespace NewLaserProject.ViewModels
 
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<MarkLaserParams, MarkSettingsViewModel>()
+                cfg.CreateMap<MarkLaserParams, MarkSettingsVM>()
                 .IncludeMembers(s => s.PenParams, s => s.HatchParams);
-                cfg.CreateMap<PenParams, MarkSettingsViewModel>(MemberList.None);
-                cfg.CreateMap<HatchParams, MarkSettingsViewModel>(MemberList.None);
-
+                cfg.CreateMap<PenParams, MarkSettingsVM>(MemberList.None);
+                cfg.CreateMap<HatchParams, MarkSettingsVM>(MemberList.None);
             });
 
             var markParamsToMSVMMapper = config.CreateMapper();
 
-            MarkSettingsViewModel = markParamsToMSVMMapper.Map<MarkSettingsViewModel>(defaultLaserParams);
+            MarkSettingsViewModel = markParamsToMSVMMapper.Map<MarkSettingsVM>(defaultLaserParams);
         }
 
         private void DefaultTechnologies_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -192,14 +193,10 @@ namespace NewLaserProject.ViewModels
         }
         private void SetLayerFilters()
         {
-            DefaultTechSelectors = DefaultTechnologies
-             .DistinctBy(d => d.DefaultLayerFilter.Filter)
-             .Select(f => new DefaultTechSelector(f.DefaultLayerFilter,
-             DefaultTechnologies.Where(t => t.DefaultLayerFilter.Filter == f.DefaultLayerFilter.Filter)
-             .Select(d => new { d.EntityType, d.Technology.Material })
-             .GroupBy(g => g.EntityType)
-             .ToDictionary(g => g.Key, f => f.Select(c => c.Material))))
-             .ToObservableCollection();
+            DefaultTechSelectors = DefaultTechnologies.GroupBy(d => d.DefaultLayerFilter, (k, col) =>
+            new DefaultTechSelector(k, col.GroupBy(g => g.EntityType)
+            .ToImmutableDictionary(k=>k.Key,e=>e.Select(g=>g.Technology.Material))
+            )).ToObservableCollection();
         }
         private void SetDTO()
         {

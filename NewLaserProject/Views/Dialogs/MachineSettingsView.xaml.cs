@@ -1,5 +1,4 @@
-﻿using HandyControl.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,18 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NewLaserProject.Views
+namespace NewLaserProject.Views.Dialogs;
+/// <summary>
+/// Interaction logic for MachineSettingsView.xaml
+/// </summary>
+public partial class MachineSettingsView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for MaterialSettingsView.xaml
-    /// </summary>
-    public partial class MaterialSettingsView : PopupWindow
+    public MachineSettingsView()
     {
-        public MaterialSettingsView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

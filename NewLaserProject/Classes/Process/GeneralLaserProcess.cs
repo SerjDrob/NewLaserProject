@@ -417,19 +417,7 @@ namespace NewLaserProject.Classes.Process
         public async Task StartAsync()
         {
             if (_cancellationTokenSource.Token.IsCancellationRequested) return;
-            if (_stateMachine is not null)
-            {
-                //try
-                //{
-                //    CreateProcess();
-                //}
-                //catch (Exception ex)
-                //{
-
-                //    throw;
-                //}
-                await _stateMachine.ActivateAsync().ConfigureAwait(false);
-            }
+            if (_stateMachine is null) await _stateMachine.ActivateAsync().ConfigureAwait(false);
         }
         public Task StartAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
         public IDisposable Subscribe(IObserver<IProcessNotify> observer)
