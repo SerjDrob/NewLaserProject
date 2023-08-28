@@ -1,8 +1,16 @@
 ﻿#define Snap
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using HandyControl.Controls;
 using HandyControl.Data;
-using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
@@ -13,32 +21,46 @@ using NewLaserProject.Classes.Process;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace NewLaserProject.ViewModels
 {
 
     internal partial class MainViewModel
     {
-        public ObservableCollection<ProcObjTabView> ProcessingObjects { get; set; } 
+        public ObservableCollection<ProcObjTabView> ProcessingObjects
+        {
+            get; set;
+        }
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
-        public IProcObject IsBeingProcessedObject { get; set; }
-        public FileAlignment FileAlignment { get; set; }
-        public ObservableCollection<object> Alignments { get; set; } = new( new(){ FileAlignment.AlignByThreePoint, FileAlignment.AlignByCorner, FileAlignment.AlignByTwoPoint });
-        public Technology CurrentTechnology { get; set; }
-        public string CurrentLayerFilter { get; set; }
-        public LaserEntity CurrentEntityType { get; set; }
-        public bool IsWaferMark { get; set; }
-        public MarkPosition MarkPosition { get; set; }
+        public IProcObject IsBeingProcessedObject
+        {
+            get; set;
+        }
+        public FileAlignment FileAlignment
+        {
+            get; set;
+        }
+        public ObservableCollection<object> Alignments { get; set; } = new(new() { FileAlignment.AlignByThreePoint, FileAlignment.AlignByCorner, FileAlignment.AlignByTwoPoint });
+        public Technology CurrentTechnology
+        {
+            get; set;
+        }
+        public string CurrentLayerFilter
+        {
+            get; set;
+        }
+        public LaserEntity CurrentEntityType
+        {
+            get; set;
+        }
+        public bool IsWaferMark
+        {
+            get; set;
+        }
+        public MarkPosition MarkPosition
+        {
+            get; set;
+        }
         private List<IDisposable> _currentProcSubscriptions;
 
         [ICommand]
@@ -48,18 +70,12 @@ namespace NewLaserProject.ViewModels
             {
                 if ((bool)arg)
                 {
-                    //OnProcess = true;
                     await _appStateMachine.FireAsync(AppTrigger.StartProcess);
-#if PCIInserted
-                    // await _appStateMachine.FireAsync(AppTrigger.EndProcess);
-#endif
                 }
                 else
                 {
                     await _mainProcess.Deny().ConfigureAwait(false);
                     await _appStateMachine.FireAsync(AppTrigger.EndProcess).ConfigureAwait(false);
-
-                    //OnProcess = false;
                 }
             }
             catch (Exception ex)
@@ -129,7 +145,7 @@ namespace NewLaserProject.ViewModels
                     entityPreparator.SetEntityContourWidth(materialEntRule.Width);
                 }
 
-                
+
 
                 _mainProcess = new GeneralLaserProcess(
                     wafer: wafer,
@@ -150,7 +166,7 @@ namespace NewLaserProject.ViewModels
                     waferAngle: _waferAngle,
                     scale: DefaultFileScale);
 
-                
+
                 //ProcessingObjects = new(wafer);
                 //ProcessingObjects.CollectionChanged += ProcessingObjects_CollectionChanged;
 
@@ -160,7 +176,7 @@ namespace NewLaserProject.ViewModels
                         ProcessingObjects = new();
                         args.Wafer.Aggregate(1, (ind, p) =>
                         {
-                            ProcessingObjects.Add(new ProcObjTabView {Index = ind, ProcObject = p });
+                            ProcessingObjects.Add(new ProcObjTabView { Index = ind, ProcObject = p });
                             return ++ind;
                         });
                     })
@@ -180,26 +196,18 @@ namespace NewLaserProject.ViewModels
                     .Subscribe(poargs =>
                     {
                         IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.ProcObject.Id == poargs.ProcObject.Id)?.ProcObject;
-                    //IsBeingProcessedIndex = poargs.ProcObject.index + 1;
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
                 _mainProcess.OfType<ProcCompletionPreview>()
-                    .Subscribe(args =>
+                    .Select(args => Observable.FromAsync(async () =>
                     {
                         var status = args.Status;
                         switch (status)
                         {
                             case CompletionStatus.Success:
-                                if (IsWaferMark)
-                                {
-                                    MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem)
-                                        .ContinueWith(t => techMessager.RealeaseMessage("Процесс завершён", MessageType.Info), TaskScheduler.Default);
-                                }
-                                else
-                                {
-                                    techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
-                                }
+                                if (IsWaferMark) await MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem);
+                                techMessager.RealeaseMessage("Процесс завершён", MessageType.Info);
                                 break;
                             case CompletionStatus.Cancelled:
                                 MessageBox.Fatal("Процесс отменён");
@@ -208,8 +216,10 @@ namespace NewLaserProject.ViewModels
                             default:
                                 break;
                         }
-                        _appStateMachine.Fire(AppTrigger.EndProcess);
-                    })
+                        await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                    }))
+                    .Concat()
+                    .Subscribe()
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
 
@@ -218,9 +228,9 @@ namespace NewLaserProject.ViewModels
                     {
                         switch (args.MessageType)
                         {
-                            case Classes.MsgType.Request:
+                            case MsgType.Request:
                                 break;
-                            case Classes.MsgType.Info:
+                            case MsgType.Info:
                                 Growl.Info(new GrowlInfo()
                                 {
                                     StaysOpen = true,
@@ -253,11 +263,10 @@ namespace NewLaserProject.ViewModels
                     ShowDateTime = false
                 });
             }
-            catch(FileNotFoundException ex)
+            catch (FileNotFoundException ex)
             {
                 Growl.Error($"Файл технологии \"{CurrentTechnology.ProgramName}\" не найден.");
             }
-
         }
 
         private async Task StartProcessAsync()
@@ -353,8 +362,8 @@ namespace NewLaserProject.ViewModels
             }
             MarkPosition++;
             _openedFileVM?.SetTextPosition(MarkPosition);
-        }      
-        
+        }
+
     }
 
 }
