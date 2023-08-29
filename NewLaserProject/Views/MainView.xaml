@@ -749,10 +749,11 @@
                                                     <uclocal:ItemsButton 
                                                                 Items="{Binding ElementName=LayComb, Path=SelectedItem.Entities}"
                                                                 ItemSelector="{StaticResource EntitySelector}"
-                                                                SelectedItem="{Binding LaserEntity}"
+                                                                SelectedItem="{Binding LaserEntity, Mode=TwoWay}"
                                                                 SetIndex="1"
                                                                 MinWidth="30"
                                                                 />
+                                                    
                                                 </hc:ElementGroup>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

@@ -1,11 +1,11 @@
-﻿#define Snap
-
-using MachineClassLibrary.Laser.Entities;
+﻿using MachineClassLibrary.Laser.Entities;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
 
 namespace NewLaserProject.ViewModels
 {
-    internal class ObjsToProcess
+    [INotifyPropertyChanged]
+    public partial class ObjsToProcess
     {
         public IDictionary<string, IEnumerable<(string objType, int count)>> Structure { get; init; }
         public ObjsToProcess(IDictionary<string, IEnumerable<(string objType, int count)>> layersStructure)

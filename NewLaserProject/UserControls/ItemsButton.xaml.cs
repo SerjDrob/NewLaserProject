@@ -19,12 +19,10 @@ namespace NewLaserProject.UserControls
 
         private int _index = 0;
 
-
-
         public int SetIndex
         {
-            get { return (int)GetValue(SetIndexProperty); }
-            set { SetValue(SetIndexProperty, value); }
+            get => (int)GetValue(SetIndexProperty);
+            set => SetValue(SetIndexProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for SetIndex.  This enables animation, styling, binding, etc...
@@ -40,8 +38,8 @@ namespace NewLaserProject.UserControls
 
         public DataTemplateSelector ItemSelector
         {
-            get { return (DataTemplateSelector)GetValue(ItemSelectorProperty); }
-            set { SetValue(ItemSelectorProperty, value); }
+            get => (DataTemplateSelector)GetValue(ItemSelectorProperty);
+            set => SetValue(ItemSelectorProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for ItemSelector.  This enables animation, styling, binding, etc...
@@ -52,8 +50,8 @@ namespace NewLaserProject.UserControls
 
         public IEnumerable<object> Items
         {
-            get { return (IEnumerable<object>)GetValue(ItemsProperty); }
-            set { SetValue(ItemsProperty, value); }
+            get => (IEnumerable<object>)GetValue(ItemsProperty);
+            set => SetValue(ItemsProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for Items.  This enables animation, styling, binding, etc...
@@ -70,8 +68,8 @@ namespace NewLaserProject.UserControls
 
         public object SelectedItem
         {
-            get { return GetValue(SelectedItemProperty); }
-            set { SetValue(SelectedItemProperty, value); }
+            get => GetValue(SelectedItemProperty);
+            set => SetValue(SelectedItemProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for SelectedItem.  This enables animation, styling, binding, etc...
