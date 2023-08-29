@@ -22,7 +22,7 @@ namespace NewLaserProject.ViewModels
 {
 
     [INotifyPropertyChanged]
-    internal partial class FileVM
+    internal partial class FileVM:IDisposable
     {
         private IDxfReader _dxfReader;
         private DxfEditor? _dxfEditor;
@@ -31,6 +31,7 @@ namespace NewLaserProject.ViewModels
         public bool IsFileLoading { get; set; } = false;
 
         private LayGeomsEditor _geomsEditor;
+        private IDisposable _requestSubscription;
         public FileVM(double waferWidth, double waferHeight, ISubject<IProcessNotify> mediator)
         {
             WaferWidth = waferWidth;
@@ -56,11 +57,15 @@ namespace NewLaserProject.ViewModels
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
 
-            _mediator.OfType<ScopedGeomsRequest>()
-                .Subscribe(request => HandleAsync(request).ContinueWith(result =>
+            _requestSubscription?.Dispose();
+            _requestSubscription = _mediator.OfType<ScopedGeomsRequest>()
+                .Select(request=>Observable.FromAsync(async () =>
                 {
-                    _mediator.OnNext(result.Result);
-                }));
+                    var snapshot = await HandleAsync(request);
+                    _mediator.OnNext(snapshot);
+                }))
+                .Concat()
+                .Subscribe();
         }
 
         public void SetWaferDimensions(double width, double height)
@@ -80,15 +85,12 @@ namespace NewLaserProject.ViewModels
             var fileSize = _dxfReader.GetSize();
             FileSizeX = Math.Round(fileSize.width);
             FileSizeY = Math.Round(fileSize.height);
-            //LayGeoms = new LayGeomAdapter(_dxfReader).LayerGeometryCollections;
             LayGeoms = new LayGeomAdapter(new IMGeometryAdapter(_filePath)).LayerGeometryCollections;
             _geomsEditor = new(LayGeoms);
             MirrorX = Settings.Default.WaferMirrorX;
             WaferTurn90 = Settings.Default.WaferAngle90;
             WaferOffsetX = 0;
             WaferOffsetY = 0;
-
-            //GetScopedGeometries();
         }
 
         [ICommand]
@@ -223,11 +225,13 @@ namespace NewLaserProject.ViewModels
 
 
         private string _filePath;
+        private bool disposedValue;
+
         public string FileName { get; set; }
         public double FileSizeX { get; set; }
         public double FileSizeY { get; set; }
-        public double FieldSizeX { get => FileScale * WaferWidth; }
-        public double FieldSizeY { get => FileScale * WaferHeight; }
+        public double FieldSizeX => FileScale * WaferWidth;
+        public double FieldSizeY => FileScale * WaferHeight;
         public double WaferWidth { get; set; } = 48;
         public double WaferHeight { get; set; } = 60;
         public float FileScale { get; set; } = 1000;
@@ -343,6 +347,36 @@ namespace NewLaserProject.ViewModels
             };
 
             return Task.FromResult(snapshot);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _requestSubscription.Dispose();
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~FileVM()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
