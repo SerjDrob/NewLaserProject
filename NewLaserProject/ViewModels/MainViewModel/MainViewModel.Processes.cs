@@ -85,7 +85,19 @@ namespace NewLaserProject.ViewModels
                 throw;
             }
         }
-
+        [ICommand]
+        private void DenyDownloadedProcess()
+        {
+            _currentProcSubscriptions?.ForEach(subscr => subscr.Dispose());
+            _mainProcess?.Dispose();
+            OnProcess = false;
+            Growl.Clear();
+            IsProcessPanelVisible = false;
+            HideRightPanel(false);
+            ChangeViews(false);
+            _cameraVM.SnapShotButtonVisible = false;
+            _cameraVM.SnapshotVisible = false;
+        }
         [ICommand]
         private void AddObjectToProcess() => ObjectsForProcessing.Add(new ObjsToProcess(LayersStructure));
 
@@ -236,7 +248,7 @@ namespace NewLaserProject.ViewModels
                                 {
                                     StaysOpen = true,
                                     Message = args.Message,
-                                    ShowDateTime = false
+                                    ShowDateTime = false,
                                 });
                                 break;
                             case MsgType.Warn:
@@ -264,9 +276,13 @@ namespace NewLaserProject.ViewModels
                     ShowDateTime = false
                 });
             }
-            catch (FileNotFoundException ex)
+            catch (FileNotFoundException)
             {
                 Growl.Error($"Файл технологии \"{CurrentTechnology.ProgramName}\" не найден.");
+            }
+            catch(NullReferenceException)
+            {
+                if (CurrentTechnology is null) Growl.Error($"Файл технологии не выбран.");
             }
         }
 

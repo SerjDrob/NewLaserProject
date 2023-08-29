@@ -1,4 +1,5 @@
 ﻿using System;
+using HandyControl.Controls;
 using Stateless;
 
 
@@ -34,13 +35,7 @@ namespace NewLaserProject.ViewModels
                     ChangeViews(IsVideOnCenter: false);
                     await StartProcessAsync();
                 })
-                .OnExit(() =>
-                {
-                    HideRightPanel(false);
-                    _currentProcSubscriptions?.ForEach(subscr => subscr.Dispose());
-                    _mainProcess?.Dispose();
-                    OnProcess = false;
-                })
+                .OnExit(DenyDownloadedProcess)
                 .Permit(AppTrigger.EndProcess, AppState.Default)
                 .Ignore(AppTrigger.EndLearning)
                 .Ignore(AppTrigger.StartLearning)
