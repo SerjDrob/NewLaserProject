@@ -29,6 +29,7 @@ namespace NewLaserProject.ViewModels
         private readonly ISubject<IProcessNotify> _mediator;
         public bool CanCut { get; set; } = false;
         public bool IsFileLoading { get; set; } = false;
+        public event EventHandler<bool> CanUndoChanged;
 
         private LayGeomsEditor _geomsEditor;
         private IDisposable _requestSubscription;
@@ -47,6 +48,7 @@ namespace NewLaserProject.ViewModels
         {
             _dxfReader = dxfReader;
             _dxfEditor = dxfReader as DxfEditor;
+            if(_dxfEditor is not null) _dxfEditor.CanUndoChanged += _dxfEditor_CanUndoChanged;
             IgnoredLayers = new(ignoredLayers);
             FileScale = fileScale;
             MirrorX = mirrorX;
@@ -68,6 +70,7 @@ namespace NewLaserProject.ViewModels
                 .Subscribe();
         }
 
+        private void _dxfEditor_CanUndoChanged(object? sender, bool e) => CanUndoChanged?.Invoke(this,e);
         public void SetWaferDimensions(double width, double height)
         {
             WaferWidth = width;
@@ -126,7 +129,8 @@ namespace NewLaserProject.ViewModels
             {
                 _erasedGeometries ??= new();
 
-                var entities = _layerGeometryCollections.Where(c => c.LayerEnable)
+                var entities = _layerGeometryCollections
+                    .Where(c => c.LayerEnable)
                     .SelectMany(e => e.Geometries.Where(item => selection.Contains(item.Bounds)), (lgc, g) => new { lgc.LayerName, g })
                     .ToArray();
 

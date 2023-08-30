@@ -491,23 +491,6 @@
                             </i:Interaction.Triggers>
 
                             <hc:SimpleStackPanel>
-                                <!--<Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>-->
-
                                 <WrapPanel>
                                     <hc:ElementGroup x:Name="FileScale" Orientation="Horizontal">
                                         <hc:ComboBox ItemsSource="{Binding Scales}"
@@ -590,6 +573,7 @@
                                             </Grid>
                                         </ToggleButton>
                                         <Button Command="{Binding UndoCutCommand}"
+                                                IsEnabled="{Binding CanUndoCut, Mode=OneWay}"
                                                 hc:IconElement.Geometry="{StaticResource UndoArrowGeometry}"
                                                 RenderTransformOrigin="0.5 0.5">
                                             <Button.RenderTransform>
@@ -760,40 +744,41 @@
                                     </ItemsControl>
                                 </hc:ScrollViewer>
 
-                                <DataGrid x:Name="ProcObjGrid"
+                                <UniformGrid Rows="2" VerticalAlignment="Stretch">
+                                    <DataGrid x:Name="ProcObjGrid"
                                               AutoGenerateColumns="False" 
                                               ItemsSource="{Binding ProcessingObjects}"
                                               Style="{StaticResource DataGrid.Small}"
                                               SelectionMode="Single"     
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                              BorderThickness="1"
                                               MaxHeight="200"
-                                               BorderThickness="1"
                                               >
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn IsReadOnly="True" Width="80" CanUserResize="False" Binding="{Binding Index}" Header="№"/>
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn IsReadOnly="True" Width="80" CanUserResize="False" Binding="{Binding Index}" Header="№"/>
 
-                                        <DataGridTextColumn Header="Слой" Binding="{Binding ProcObject.LayerName}"/>
-                                        <DataGridTemplateColumn Header="Тип">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <ContentControl Content="{Binding ProcObject, Converter={StaticResource IProcTypeToEntityConverter}}" 
+                                            <DataGridTextColumn Header="Слой" Binding="{Binding ProcObject.LayerName}"/>
+                                            <DataGridTemplateColumn Header="Тип">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding ProcObject, Converter={StaticResource IProcTypeToEntityConverter}}" 
                                                                             ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                        <DataGridTemplateColumn Header="Координаты">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock >
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTemplateColumn Header="Координаты">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock >
                                                                 <Run Text="{Binding ProcObject.X, StringFormat='{}{0:#.}'}"/>
                                                                 <Run Text="&#215;"/>
                                                                 <Run Text="{Binding ProcObject.Y, StringFormat='{}{0:#.}'}"/>
-                                                    </TextBlock>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                        <!--<DataGridTemplateColumn Header="Обработка">
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <!--<DataGridTemplateColumn Header="Обработка">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <CheckBox IsChecked="{Binding ToProcess}">
@@ -815,62 +800,43 @@
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>-->
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                                <GroupBox Grid.Row="4" 
-                                             Grid.ColumnSpan="6"
-                                             Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <GroupBox Grid.Row="1"
+                                        Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                               >
-                                    <GroupBox.Header>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding IsBeingProcessedIndex, StringFormat='{}#{0}  '}"/>
-                                            <TextBlock Text="{Binding IsBeingProcessedObject.LayerName, StringFormat='{}{0}  '}"/>
-                                            <ContentControl Content="{Binding IsBeingProcessedObject,
+                                        <GroupBox.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding IsBeingProcessedIndex, StringFormat='{}#{0}  '}"/>
+                                                <TextBlock Text="{Binding IsBeingProcessedObject.LayerName, StringFormat='{}{0}  '}"/>
+                                                <ContentControl Content="{Binding IsBeingProcessedObject,
                                                 Converter={StaticResource IProcTypeToEntityConverter}}" 
                                                 ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                            <TextBlock>
+                                                <TextBlock>
                                                 <Run Text="{Binding IsBeingProcessedObject.X, StringFormat='{}  {0:#.}'}"/>
                                                 <Run Text="&#215;"/>
                                                 <Run Text="{Binding IsBeingProcessedObject.Y, StringFormat='{}{0:#.}'}"/>
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </GroupBox.Header>
-                                    <!--<Border 
-                                             BorderBrush="{DynamicResource BorderBrush}"
-                                             BorderThickness="2"
-                                             Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}" 
-                                             Padding="50">-->
-                                    <Border 
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </GroupBox.Header>
+                                        <Border 
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
                                              Padding="5">
-                                        <Path Data="{Binding IsBeingProcessedObject, Converter={StaticResource IProcToGeometryConverter}}" 
+                                            <Path Data="{Binding IsBeingProcessedObject, Converter={StaticResource IProcToGeometryConverter}}" 
                                               Stretch="Uniform"
                                               Fill="red"
                                               Stroke="White"
                                               StrokeThickness="1"
                                               RenderTransformOrigin="0.5 0.5"
                                               >
-                                            <Path.RenderTransform>
-                                                <ScaleTransform ScaleY="-1"/>
-                                            </Path.RenderTransform>
-                                        </Path>
-                                        <!--<Path Data="{Binding ElementName=ProcObjGrid, 
-                                            Path=SelectedItem, 
-                                            Converter={StaticResource IProcToGeometryConverter}}"
-                                              
-                                              Stretch="Uniform"
-                                              Fill="red"
-                                              Stroke="White"
-                                              StrokeThickness="1"
-                                              RenderTransformOrigin="0.5 0.5"
-                                              >
-                                            <Path.RenderTransform>
-                                                <ScaleTransform ScaleY="-1"/>
-                                            </Path.RenderTransform>
-                                        </Path>-->
-                                    </Border>
-                                </GroupBox>
+                                                <Path.RenderTransform>
+                                                    <ScaleTransform ScaleY="-1"/>
+                                                </Path.RenderTransform>
+                                            </Path>
+                                        </Border>
+                                    </GroupBox>
+                                </UniformGrid>
                             </hc:SimpleStackPanel>
                         </GroupBox>
 

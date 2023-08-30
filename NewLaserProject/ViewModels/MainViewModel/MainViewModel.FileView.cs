@@ -109,7 +109,7 @@ namespace NewLaserProject.ViewModels
         }
 
         private FileVM _openedFileVM;
-
+        public bool CanUndoCut { get; private set; }
         public int DefLayerIndex
         {
             get; set;

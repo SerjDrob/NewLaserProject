@@ -209,6 +209,7 @@ namespace NewLaserProject.ViewModels
         private void InitViews()
         {
             _openedFileVM = new FileVM(48, 60, _subjMediator);
+            _openedFileVM.CanUndoChanged += _openedFileVM_CanUndoChanged;
 
             CentralSideVM = _openedFileVM;
             _cameraVM = new CameraVM(_subjMediator);
@@ -219,6 +220,8 @@ namespace NewLaserProject.ViewModels
             _cameraVM.VideoClicked += _cameraVM_VideoClicked;
 #endif
         }
+
+        private void _openedFileVM_CanUndoChanged(object? sender, bool e) => CanUndoCut = e;
 
         private void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
         {
@@ -310,23 +313,23 @@ namespace NewLaserProject.ViewModels
             //_laserMachine.SetMarkDeviceParams();
         }
 
-        [ICommand]
-        private void OpenLayersProcessing()
-        {
-            if (File.Exists(FileName))
-            {
-                _dxfReader = new IMDxfReader(FileName);
-                new LayersView()
-                {
-                    DataContext = new LayersProcessingModel(_dxfReader)
-                }.Show();
-            }
-            else
-            {
-                //MessageBox.Show("Имя файла неверно или файл не существует", "Внимание", MessageBoxButton.OK, MessageBoxImage.Error);
-                Growl.Warning("Имя файла неверно или файл не существует");
-            }
-        }
+        //[ICommand]
+        //private void OpenLayersProcessing()
+        //{
+        //    if (File.Exists(FileName))
+        //    {
+        //        _dxfReader = new IMDxfReader(FileName);
+        //        new LayersView()
+        //        {
+        //            DataContext = new LayersProcessingModel(_dxfReader)
+        //        }.Show();
+        //    }
+        //    else
+        //    {
+        //        //MessageBox.Show("Имя файла неверно или файл не существует", "Внимание", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        Growl.Warning("Имя файла неверно или файл не существует");
+        //    }
+        //}
         
         private void ImplementMachineSettings()
         {
