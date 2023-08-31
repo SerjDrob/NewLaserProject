@@ -99,7 +99,11 @@
                 </uc:SpecCross>
             </Grid>           
         </uc:GraphWindow>
-        <Grid x:Name="CircleGrid" Opacity="0.2" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+        <Grid x:Name="CircleGrid" 
+              Visibility="{Binding IsCircleButtonVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
+              Opacity="0.2" 
+              VerticalAlignment="Bottom" 
+              HorizontalAlignment="Right">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseEnter">
                     <i:ControlStoryboardAction>

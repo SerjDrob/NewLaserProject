@@ -404,6 +404,47 @@ namespace NewLaserProject.ViewModels
                     }
                 });
         }
+        [ICommand]
+        private async Task GesturePressed(Compass direction)
+        {
+            var coordinates = direction switch
+            {
+                Compass.NE => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, WaferHeight),
+                Compass.NW => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 0, WaferHeight),
+                Compass.SE => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 0, 0),
+                Compass.SW => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, 0),
+                _ => null
+            };
+            if (coordinates is null)
+            {
+                var xy = _coorSystem.FromGlobal(XAxis.Position, YAxis.Position);
+                var x = xy[0];
+                var y = xy[1];
+                coordinates = direction switch
+                {
+                    Compass.W => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 0, y),
+                    Compass.E=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, y),
+                    Compass.N=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, WaferHeight),
+                    Compass.S=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, 0),
+                    _ => null
+                };
+            }
+            if (coordinates != null) await Task.WhenAll(
+                    _laserMachine.MoveAxInPosAsync(Ax.X, coordinates[0]),
+                    _laserMachine.MoveAxInPosAsync(Ax.Y, coordinates[1])
+                );
+        }
+    }
+    public enum Compass
+    {
+        N,
+        S,
+        E,
+        W,
+        NE,
+        NW,
+        SE,
+        SW
     }
 }
 

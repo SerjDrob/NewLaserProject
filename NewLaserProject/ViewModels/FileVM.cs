@@ -269,6 +269,11 @@ namespace NewLaserProject.ViewModels
         public ObservableCollection<LayerGeometryCollection> LayGeoms { get; set; } = new();
         public ObservableCollection<LayerGeometryCollection> ScopedLayGeoms { get; set; } = new();
         public Dictionary<string, bool> IgnoredLayers { get; set; }
+        public bool IsCircleButtonVisible
+        {
+            get;
+            set;
+        } = true;
         [ICommand]
         private void AlignWafer(object obj)
         {

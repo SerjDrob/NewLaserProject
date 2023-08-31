@@ -62,6 +62,12 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
+        public bool IsProcessLoaded
+        {
+            get;
+            private set;
+        }
+
         private List<IDisposable> _currentProcSubscriptions;
 
         [ICommand]
@@ -88,7 +94,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void DenyDownloadedProcess()
         {
-            _currentProcSubscriptions?.ForEach(subscr => subscr.Dispose());
+            _currentProcSubscriptions?.ForEach(s => s.Dispose());
             _mainProcess?.Dispose();
             OnProcess = false;
             Growl.Clear();
@@ -97,6 +103,8 @@ namespace NewLaserProject.ViewModels
             ChangeViews(false);
             _cameraVM.SnapShotButtonVisible = false;
             _cameraVM.SnapshotVisible = false;
+            IsProcessLoaded = false;
+            _openedFileVM.IsCircleButtonVisible = true;
         }
         [ICommand]
         private void AddObjectToProcess() => ObjectsForProcessing.Add(new ObjsToProcess(LayersStructure));
@@ -266,6 +274,8 @@ namespace NewLaserProject.ViewModels
 
                 HideProcessPanel(false);
                 _mainProcess.CreateProcess();
+                IsProcessLoaded = true;
+                _openedFileVM.IsCircleButtonVisible = false;
             }
             catch (ArgumentOutOfRangeException ex)
             {
