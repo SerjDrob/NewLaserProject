@@ -411,13 +411,13 @@ namespace NewLaserProject.ViewModels
             {
                 Compass.NE => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, WaferHeight),
                 Compass.NW => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 0, WaferHeight),
-                Compass.SE => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 0, 0),
-                Compass.SW => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, 0),
+                Compass.SW => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 0, 0),
+                Compass.SE => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, 0),
                 _ => null
             };
             if (coordinates is null)
             {
-                var xy = _coorSystem.FromGlobal(XAxis.Position, YAxis.Position);
+                var xy = _coorSystem.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position);
                 var x = xy[0];
                 var y = xy[1];
                 coordinates = direction switch
@@ -426,6 +426,8 @@ namespace NewLaserProject.ViewModels
                     Compass.E=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, y),
                     Compass.N=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, WaferHeight),
                     Compass.S=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, 0),
+                    Compass.CenterV => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, WaferHeight / 2),
+                    Compass.CenterH => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth / 2, y),
                     _ => null
                 };
             }
@@ -444,7 +446,9 @@ namespace NewLaserProject.ViewModels
         NE,
         NW,
         SE,
-        SW
+        SW,
+        CenterV,
+        CenterH
     }
 }
 

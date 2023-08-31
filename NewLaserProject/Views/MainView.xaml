@@ -28,7 +28,15 @@
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.SE}" Gesture="CTRL+2"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.NW}" Gesture="CTRL+3"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.NE}" Gesture="CTRL+4"/>
+
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.W}" Modifiers="Ctrl" Key="Left"/>
+        <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.E}" Modifiers="Ctrl" Key="Right"/>
+        <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.N}" Modifiers="Ctrl" Key="Up"/>
+        <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.S}" Modifiers="Ctrl" Key="Down"/>
+        
+        <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterV}" Modifiers="Ctrl" Key="V"/>
+        <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterH}" Modifiers="Ctrl" Key="H"/>
+
 
     </hc:GlowWindow.InputBindings>
     <hc:GlowWindow.Resources>
