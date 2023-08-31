@@ -76,7 +76,7 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxInPosAsync(Ax.X, TestX, true),
                         _laserMachine.MoveAxInPosAsync(Ax.Y, TestY, true)
                         );
-                }, () => true)
+                }, () => false)
                 .CreateKeyDownCommand(Key.L, () =>
                 {
                     //Dialog.Show<MaterialDialogControl>()
@@ -143,7 +143,7 @@ namespace NewLaserProject.ViewModels
                 {
                     _laserMachine.InvokeSettings();
                     return Task.CompletedTask;
-                }, () => true);
+                }, () => false);
 
             async Task moveAsync(KeyEventArgs key)
             {
@@ -431,10 +431,16 @@ namespace NewLaserProject.ViewModels
                     _ => null
                 };
             }
-            if (coordinates != null) await Task.WhenAll(
-                    _laserMachine.MoveAxInPosAsync(Ax.X, coordinates[0]),
-                    _laserMachine.MoveAxInPosAsync(Ax.Y, coordinates[1])
-                );
+            if (coordinates != null)
+            {
+                var velTemp = _laserMachine.VelocityRegime;
+                _laserMachine.SetVelocity(Velocity.Service);
+                await Task.WhenAll(
+                      _laserMachine.MoveAxInPosAsync(Ax.X, coordinates[0]),
+                      _laserMachine.MoveAxInPosAsync(Ax.Y, coordinates[1])
+                  );
+                _laserMachine.SetVelocity(velTemp);
+            }
         }
     }
     public enum Compass
