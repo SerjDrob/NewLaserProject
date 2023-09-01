@@ -141,9 +141,6 @@ namespace NewLaserProject.ViewModels
             if (openFileDialog.ShowDialog() ?? false)
             {
                 DefaultFileScale = Scales[0];
-                FileAlignment = (FileAlignment)Alignments[0];
-                //techMessager.RealeaseMessage("Загрузка...", Icon.Loading);
-
                 //Get the path of specified file
                 FileName = openFileDialog.FileName;
                 if (File.Exists(FileName))
@@ -205,15 +202,15 @@ namespace NewLaserProject.ViewModels
             await Task.Run(() =>
             {
                 _db.Set<DefaultLayerFilter>()
-                               .AsNoTracking()
+                               //.AsNoTracking()
                                .ToList().ForEach(d =>
                                {
                                    IgnoredLayers[d.Filter] = d.IsVisible;
                                });
-                AvailableMaterials = _db.Set<Material>()
-                                        .Include(m => m.Technologies)
-                                        .Include(m => m.MaterialEntRule)
-                                        .AsNoTracking()
+                AvailableMaterials = _db.Set<Material>().Local
+                                        //.Include(m => m.Technologies)
+                                        //.Include(m => m.MaterialEntRule)
+                                        //.AsNoTracking()
                                         .ToObservableCollection();
 
 

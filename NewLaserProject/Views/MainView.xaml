@@ -16,7 +16,8 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
         xmlns:classes="clr-namespace:NewLaserProject.Classes"
         xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
-        xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"    
+        xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"        
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="Лазер"         
@@ -503,12 +504,20 @@
                                                  Width="180"/>
                                         </hc:ElementGroup>
                                         <hc:ElementGroup Orientation="Horizontal">
+                                            <hc:ElementGroup.Resources>
+                                                <x:Array x:Key="FileAlignments" Type="{x:Type sys:Enum}">
+                                                    <classes:FileAlignment>AlignByCorner</classes:FileAlignment>
+                                                    <classes:FileAlignment>AlignByThreePoint</classes:FileAlignment>
+                                                    <classes:FileAlignment>AlignByTwoPoint</classes:FileAlignment>
+                                                </x:Array>
+                                            </hc:ElementGroup.Resources>
                                             <uclocal:ItemsButton DockPanel.Dock="Right"
-                                                             Items="{Binding Alignments}"
-                                                             SelectedItem="{Binding FileAlignment, Mode=OneWayToSource}"
-                                                             ItemSelector="{StaticResource AligningSelector}"
-                                                             HorizontalAlignment="Stretch"
-                                                            >
+                                                                 Width="40"
+                                                                 ItemSelector="{StaticResource AligningSelector}"
+                                                                 Items="{StaticResource FileAlignments}"
+                                                                 SelectedItem="{Binding FileAlignment, Mode=TwoWay}"
+                                                                 HorizontalAlignment="Stretch"
+                                                                >
                                             </uclocal:ItemsButton>
                                             <Label Content="Тип совмещения"/>
                                         </hc:ElementGroup>
@@ -607,11 +616,10 @@
                                                         HorizontalAlignment="Stretch"
                                                         />
 
-                                            <ComboBox x:Name="Materials"
-                                        ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
-                                        SelectedIndex="{Binding DefMaterialIndex}"   
-                                              MinWidth="120"
-                                        >
+                                            <ComboBox x:Name="Materials" ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
+                                                                         SelectedIndex="{Binding DefMaterialIndex}"
+                                                                         MinWidth="120"
+                                                                        >
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate>
                                                         <StackPanel Orientation="Horizontal">
@@ -621,13 +629,11 @@
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
-                                            <ComboBox 
-                                          ItemsSource="{Binding Source={StaticResource MaterialSource}, 
-                                          Path=Technologies}"
-                                          SelectedIndex="{Binding DefTechnologyIndex}"
-                                          SelectedItem="{Binding CurrentTechnology}"  
-                                        MinWidth="120"
-                                          >
+                                            <ComboBox ItemsSource="{Binding Source={StaticResource MaterialSource}, Path=Technologies}"
+                                                      SelectedIndex="{Binding DefTechnologyIndex}"
+                                                      SelectedItem="{Binding CurrentTechnology}"  
+                                                      MinWidth="120"
+                                                      >
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate>
                                                         <StackPanel Orientation="Horizontal">
@@ -636,7 +642,6 @@
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
-
                                         </hc:ElementGroup>
                                         <hc:ElementGroup Orientation="Horizontal">
                                             <hc:ToggleBlock IsChecked="{Binding IsProcessPanelVisible}">

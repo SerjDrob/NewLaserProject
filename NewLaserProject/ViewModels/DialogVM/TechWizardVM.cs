@@ -159,20 +159,18 @@ namespace NewLaserProject.ViewModels.DialogVM
         private async Task SetPiercingParams(object progModule)
         {
             if (progModule is not PierceBlock item) return;
-            _tempParams = item?.MarkParams?.Clone() as ExtendedParams ?? new ExtendedParams();
+            var @params = item?.MarkParams?.Clone() as ExtendedParams ?? _tempParams ?? new ExtendedParams();
 
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Параметры пера")
-                .SetDataContext(new EditExtendedParamsVM(_tempParams), vm => { })
+                .SetDataContext(new EditExtendedParamsVM(@params), vm => { })
                 .GetCommonResultAsync<ExtendedParams>();
 
             if (result.Success)
             {
+                _tempParams = result.CommonResult;
                 item.MarkParams = (ExtendedParams)_tempParams.Clone();
             }
-
-            //new ExtMarkParamsView { DataContext = _tempParams }.ShowDialog();
-            //item.MarkParams = (ExtendedParams)_tempParams.Clone();
         }
 
         /// <summary>

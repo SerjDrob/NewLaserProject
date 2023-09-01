@@ -41,7 +41,6 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
-        public ObservableCollection<object> Alignments { get; set; } = new(new() { FileAlignment.AlignByThreePoint, FileAlignment.AlignByCorner, FileAlignment.AlignByTwoPoint });
         public Technology CurrentTechnology
         {
             get; set;
@@ -133,6 +132,8 @@ namespace NewLaserProject.ViewModels
                                 LaserEntity.Curve => _dxfReader.GetAllCurves(o.Layer).Cast<IProcObject>(),
                                 LaserEntity.Circle => _dxfReader.GetCircles(o.Layer).Cast<IProcObject>()
                             })).ToList();
+
+                if (!procObjects.Any()) throw new ArgumentException("Объекты для обработки отсутствуют.");
 
                 var wafer = new LaserWafer(procObjects, topologySize);
                 var serviceWafer = new LaserWafer(topologySize);
@@ -293,6 +294,10 @@ namespace NewLaserProject.ViewModels
             catch(NullReferenceException)
             {
                 if (CurrentTechnology is null) Growl.Error($"Файл технологии не выбран.");
+            }
+            catch(ArgumentException ex)
+            {
+                Growl.Error(ex.Message);
             }
         }
 

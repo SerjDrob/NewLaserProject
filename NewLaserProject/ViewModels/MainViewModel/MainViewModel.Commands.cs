@@ -351,7 +351,6 @@ namespace NewLaserProject.ViewModels
                     }
                 });
         }
-
         [ICommand]
         private void ChooseMaterial()
         {

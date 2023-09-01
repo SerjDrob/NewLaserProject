@@ -22,6 +22,9 @@ using NewLaserProject.ViewModels;
 using Stateless;
 using Newtonsoft.Json;
 using System.Globalization;
+using MachineClassLibrary.Miscellaneous;
+using HandyControl.Expression.Media;
+using IShape = MachineClassLibrary.Laser.Entities.IShape;
 
 namespace NewLaserProject.Classes.Process
 {
@@ -87,6 +90,8 @@ namespace NewLaserProject.Classes.Process
             _fileAlignment = aligningPoints;
             _waferAngle = waferAngle;
             _scale = scale;
+
+            //var result = _wafer.GroupBy(o => o, new ProcObjectByPObjEqComparer());
         }
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
