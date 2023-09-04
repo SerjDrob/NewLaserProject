@@ -770,6 +770,8 @@
                                               >
                                         <GroupBox.Header>
                                             <StackPanel Orientation="Horizontal">
+                                                <hc:Shield Subject="Процесс" Status="{Binding TotalProcessTimer}" Color="{StaticResource LightPrimaryBrush}"/>
+                                                <hc:Shield Subject="Тек. элемент" Status="{Binding CurrentProcObjectTimer}" Color="{StaticResource WarningBrush}"/>
                                                 <TextBlock Text="{Binding IsBeingProcessedIndex, StringFormat='{}#{0}  '}"/>
                                                 <TextBlock Text="{Binding IsBeingProcessedObject.LayerName, StringFormat='{}{0}  '}"/>
                                                 <ContentControl Content="{Binding IsBeingProcessedObject,
@@ -779,7 +781,7 @@
                                                 <Run Text="{Binding IsBeingProcessedObject.X, StringFormat='{}  {0:#.}'}"/>
                                                 <Run Text="&#215;"/>
                                                 <Run Text="{Binding IsBeingProcessedObject.Y, StringFormat='{}{0:#.}'}"/>
-                                                </TextBlock>
+                                                </TextBlock>                                                
                                             </StackPanel>
                                         </GroupBox.Header>
                                         <Border 
