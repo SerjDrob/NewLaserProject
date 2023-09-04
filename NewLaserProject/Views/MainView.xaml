@@ -755,9 +755,9 @@
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock >
-                                                                <Run Text="{Binding ProcObject.X, StringFormat='{}{0:#.}'}"/>
+                                                                <Run Text="{Binding ProcObject.X, StringFormat='{}{0:#.###}'}"/>
                                                                 <Run Text="&#215;"/>
-                                                                <Run Text="{Binding ProcObject.Y, StringFormat='{}{0:#.}'}"/>
+                                                                <Run Text="{Binding ProcObject.Y, StringFormat='{}{0:#.###}'}"/>
                                                         </TextBlock>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>

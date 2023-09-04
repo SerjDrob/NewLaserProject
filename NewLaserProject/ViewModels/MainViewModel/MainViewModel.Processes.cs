@@ -96,7 +96,7 @@ namespace NewLaserProject.ViewModels
             _currentProcSubscriptions?.ForEach(s => s.Dispose());
             _mainProcess?.Dispose();
             OnProcess = false;
-            Growl.Clear();
+            //Growl.Clear();
             IsProcessPanelVisible = false;
             HideRightPanel(false);
             ChangeViews(false);
