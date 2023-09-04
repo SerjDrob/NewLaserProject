@@ -7,10 +7,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Input;
 using HandyControl.Controls;
 using HandyControl.Data;
+using Humanizer;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
@@ -66,6 +69,7 @@ namespace NewLaserProject.ViewModels
             get;
             private set;
         }
+       
 
         private List<IDisposable> _currentProcSubscriptions;
 
@@ -76,20 +80,72 @@ namespace NewLaserProject.ViewModels
             {
                 if ((bool)arg)
                 {
+                    _processTimer = new Timer(1000);
+                    _procStartTime = DateTime.Now;
+                    _processTimer.Elapsed += _processTimer_Elapsed;
+                    _processTimer.Start();
                     await _appStateMachine.FireAsync(AppTrigger.StartProcess);
                 }
                 else
                 {
+                    if (_processTimer is not null)
+                    {
+                        _processTimer.Elapsed -= _processTimer_Elapsed;
+                        _processTimer.Stop();
+                        _processTimer.Close();
+                        _processTimer.Dispose();
+                    }
                     await _mainProcess.Deny().ConfigureAwait(false);
                     await _appStateMachine.FireAsync(AppTrigger.EndProcess).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
-
+                _processTimer?.Dispose();
                 throw;
             }
+            finally
+            {
+                //var current = DateTime.Now;
+                //var dt = new DateTime(0);
+                //var timer = new Timer(1000);
+                //timer.Elapsed += (s, e) =>
+                //{
+                //    dt = dt.AddSeconds(1);
+                //    CurrentProcObjectTimer = dt.ToString("mm:ss");// (e.SignalTime - current).ToString();
+                //};
+                //timer.Start();
+            }
         }
+
+        private void _processTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            TotalProcessTimer = (e.SignalTime - _procStartTime).ToString(@"hh\:mm\:ss");
+            if(_currObjectStarted) _procObjTempTime = _procObjTempTime.AddSeconds(1);
+            CurrentProcObjectTimer = _procObjTempTime.ToString("mm:ss");
+        }
+
+        private DateTime _procStartTime;
+        private DateTime _procObjTempTime = new(0);
+        private Timer _processTimer;
+        private bool _currObjectStarted;
+        public string CurrentProcObjectTimer
+        {
+            get;
+            set;
+        }
+        public string LastProcObjectTimer
+        {
+            get;
+            set;
+        }
+        public string TotalProcessTimer
+        {
+            get;
+            set;
+        }
+
+
         [ICommand]
         private void DenyDownloadedProcess()
         {
@@ -208,6 +264,8 @@ namespace NewLaserProject.ViewModels
                     .Where(poargs => poargs.ProcObject.IsProcessed)
                     .Subscribe(args =>
                     {
+                        _currObjectStarted = false;
+                        _procObjTempTime = new(0);
                         var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
                         ProcessingObjects.Remove(o);
                     })
@@ -217,6 +275,7 @@ namespace NewLaserProject.ViewModels
                     .Where(poargs => !poargs.ProcObject.IsProcessed & poargs.ProcObject.IsBeingProcessed)
                     .Subscribe(poargs =>
                     {
+                        _currObjectStarted = true;
                         IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.ProcObject.Id == poargs.ProcObject.Id)?.ProcObject;
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);

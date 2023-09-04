@@ -91,7 +91,8 @@ namespace NewLaserProject.Classes.Process
             _waferAngle = waferAngle;
             _scale = scale;
 
-            //var result = _wafer.GroupBy(o => o, new ProcObjectByPObjEqComparer());
+            var result = new WaferMetrics(_wafer);
+            //result.CreateProcessingChain();
         }
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
