@@ -769,25 +769,26 @@
                                               Style="{StaticResource GroupBoxTab}"
                                               >
                                         <GroupBox.Header>
-                                            <StackPanel Orientation="Horizontal">
-                                                <hc:Shield Subject="Процесс" Status="{Binding TotalProcessTimer}" Color="{StaticResource LightPrimaryBrush}"/>
-                                                <hc:Shield Subject="Тек. элемент" Status="{Binding CurrentProcObjectTimer}" Color="{StaticResource WarningBrush}"/>
+                                            <hc:SimpleStackPanel Orientation="Horizontal">
+                                                <hc:Shield Subject="Процесс" Status="{Binding TotalProcessTimer}" Color="{StaticResource LightPrimaryBrush}" Margin="0,0,2,0"/>
+                                                <hc:Shield Subject="Пред. элемент" Status="{Binding LastProcObjectTimer, FallbackValue='00:00'}" Color="{StaticResource WarningBrush}"  Margin="0,0,2,0"/>
+                                                <hc:Shield Subject="Тек. элемент" Status="{Binding CurrentProcObjectTimer}" Color="{StaticResource SuccessBrush}"  Margin="0,0,20,0"/>
                                                 <TextBlock Text="{Binding IsBeingProcessedIndex, StringFormat='{}#{0}  '}"/>
                                                 <TextBlock Text="{Binding IsBeingProcessedObject.LayerName, StringFormat='{}{0}  '}"/>
                                                 <ContentControl Content="{Binding IsBeingProcessedObject,
                                                 Converter={StaticResource IProcTypeToEntityConverter}}" 
                                                 ContentTemplateSelector="{StaticResource EntitySelector}"/>
                                                 <TextBlock>
-                                                <Run Text="{Binding IsBeingProcessedObject.X, StringFormat='{}  {0:#.}'}"/>
+                                                <Run Text="{Binding IsBeingProcessedObject.X, StringFormat='{}  {0:#.###}'}"/>
                                                 <Run Text="&#215;"/>
-                                                <Run Text="{Binding IsBeingProcessedObject.Y, StringFormat='{}{0:#.}'}"/>
+                                                <Run Text="{Binding IsBeingProcessedObject.Y, StringFormat='{}{0:#.###}'}"/>
                                                 </TextBlock>                                                
-                                            </StackPanel>
+                                            </hc:SimpleStackPanel>
                                         </GroupBox.Header>
                                         <Border 
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
-                                             Padding="5">
+                                             Padding="20">
                                             <Path Data="{Binding IsBeingProcessedObject, Converter={StaticResource IProcToGeometryConverter}}" 
                                               Stretch="Uniform"
                                               Fill="red"

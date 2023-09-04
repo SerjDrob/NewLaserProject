@@ -265,6 +265,7 @@ namespace NewLaserProject.ViewModels
                     .Subscribe(args =>
                     {
                         _currObjectStarted = false;
+                        LastProcObjectTimer = CurrentProcObjectTimer;
                         _procObjTempTime = new(0);
                         var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
                         ProcessingObjects.Remove(o);
