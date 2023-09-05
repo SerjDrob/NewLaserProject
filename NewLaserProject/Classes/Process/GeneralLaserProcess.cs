@@ -91,7 +91,7 @@ namespace NewLaserProject.Classes.Process
             _waferAngle = waferAngle;
             _scale = scale;
 
-            var result = new WaferMetrics(_wafer);
+            //var result = new WaferMetrics(_wafer);
             //result.CreateProcessingChain();
         }
 

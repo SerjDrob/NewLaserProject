@@ -2,6 +2,7 @@
 using HandyControl.Data;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
+using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
@@ -223,19 +224,30 @@ namespace NewLaserProject.ViewModels
 
         private void _openedFileVM_OnFileClicked(object? sender, System.Windows.Point e)
         {
-            if(XAxis.MotionDone && YAxis.MotionDone && !_appStateMachine.IsInState(AppState.Processing))
-            {
-                var x = e.X;
-                var y = e.Y;
-                var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, y);
-                _laserMachine.SetVelocity(Velocity.Service);
-                Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.X, result[0]),
-                             _laserMachine.MoveAxInPosAsync(Ax.Y, result[1]))
-                    .ContinueWith(t =>
-                    {
-                        _laserMachine.SetVelocity(VelocityRegime);
-                    });
-            }
+            //if(XAxis.MotionDone && YAxis.MotionDone && !_appStateMachine.IsInState(AppState.Processing))
+            //{
+            //    var x = e.X;
+            //    var y = e.Y;
+
+            //    var serviceWafer = new LaserWafer((WaferWidth * 1000,WaferHeight * 1000));
+
+            //    serviceWafer.Scale(1 / DefaultFileScale);
+            //    if (WaferTurn90) serviceWafer.Turn90();
+            //    if (MirrorX) serviceWafer.MirrorX();
+            //    serviceWafer.OffsetX((float)WaferOffsetX);
+            //    serviceWafer.OffsetY((float)WaferOffsetY);
+
+            //    var fromwafer = serviceWafer.GetPointFromWafer(new((float)x,(float)y));
+
+            //    var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, fromwafer.X, fromwafer.Y);
+            //    _laserMachine.SetVelocity(Velocity.Service);
+            //    Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.X, result[0]),
+            //                 _laserMachine.MoveAxInPosAsync(Ax.Y, result[1]))
+            //        .ContinueWith(t =>
+            //        {
+            //            _laserMachine.SetVelocity(VelocityRegime);
+            //        });
+            //}
         }
         private void _openedFileVM_CanUndoChanged(object? sender, bool e) => CanUndoCut = e;
 

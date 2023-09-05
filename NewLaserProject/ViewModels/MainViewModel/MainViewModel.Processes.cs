@@ -255,7 +255,7 @@ namespace NewLaserProject.ViewModels
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
-                _mainProcess.OfType<ProcessingStarted>()
+                _mainProcess.OfType<ProcessingStopped>()
                     .Subscribe(args =>
                     {
                         _processTimer?.Stop();
