@@ -30,7 +30,7 @@ namespace NewLaserProject.ViewModels
         public bool CanCut { get; set; } = false;
         public bool IsFileLoading { get; set; } = false;
         public event EventHandler<bool> CanUndoChanged;
-
+        public event EventHandler<Point> OnFileClicked;
         private LayGeomsEditor _geomsEditor;
         private IDisposable _requestSubscription;
         public FileVM(double waferWidth, double waferHeight, ISubject<IProcessNotify> mediator)
@@ -58,7 +58,7 @@ namespace NewLaserProject.ViewModels
             _filePath = filePath;
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
-
+            _isFileOpened = true;
             _requestSubscription?.Dispose();
             _requestSubscription = _mediator.OfType<ScopedGeomsRequest>()
                 .Select(request=>Observable.FromAsync(async () =>
@@ -108,7 +108,11 @@ namespace NewLaserProject.ViewModels
 
             _dxfEditor?.RemoveBySelection(layers, rect);
         }
-
+        [ICommand]
+        private void GotPointClicked(RoutedPointClickedEventArgs args)
+        {
+            if (_isFileOpened) OnFileClicked(this, args);
+        }
         public void UndoRemoveSelection()
         {
             _geomsEditor?.Undo();
@@ -230,6 +234,7 @@ namespace NewLaserProject.ViewModels
 
         private string _filePath;
         private bool disposedValue;
+        private bool _isFileOpened;
 
         public string FileName { get; set; }
         public double FileSizeX { get; set; }

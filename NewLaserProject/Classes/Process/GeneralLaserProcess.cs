@@ -147,6 +147,7 @@ namespace NewLaserProject.Classes.Process
             async Task ProcessingTheWaferAsync(ICoorSystem coorSystem)
             {
                 if (_cancellationTokenSource.Token.IsCancellationRequested) return;
+                _subject.OnNext(new ProcessingStarted());
                 for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
                 {
                     if (_cancellationTokenSource.Token.IsCancellationRequested) break;
@@ -194,6 +195,7 @@ namespace NewLaserProject.Classes.Process
                 }
                 _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                 var completeStatus = _cancellationTokenSource.Token.IsCancellationRequested ? CompletionStatus.Cancelled : CompletionStatus.Success;
+                _subject.OnNext(new ProcessingStopped());
                 _subject.OnNext(new ProcCompletionPreview(completeStatus, coorSystem));
             }
 

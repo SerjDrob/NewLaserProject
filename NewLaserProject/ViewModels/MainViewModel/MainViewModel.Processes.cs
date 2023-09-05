@@ -79,22 +79,11 @@ namespace NewLaserProject.ViewModels
             try
             {
                 if ((bool)arg)
-                {
-                    _processTimer = new Timer(1000);
-                    _procStartTime = DateTime.Now;
-                    _processTimer.Elapsed += _processTimer_Elapsed;
-                    _processTimer.Start();
+                {                    
                     await _appStateMachine.FireAsync(AppTrigger.StartProcess);
                 }
                 else
                 {
-                    if (_processTimer is not null)
-                    {
-                        _processTimer.Elapsed -= _processTimer_Elapsed;
-                        _processTimer.Stop();
-                        _processTimer.Close();
-                        _processTimer.Dispose();
-                    }
                     await _mainProcess.Deny().ConfigureAwait(false);
                     await _appStateMachine.FireAsync(AppTrigger.EndProcess).ConfigureAwait(false);
                 }
@@ -103,18 +92,6 @@ namespace NewLaserProject.ViewModels
             {
                 _processTimer?.Dispose();
                 throw;
-            }
-            finally
-            {
-                //var current = DateTime.Now;
-                //var dt = new DateTime(0);
-                //var timer = new Timer(1000);
-                //timer.Elapsed += (s, e) =>
-                //{
-                //    dt = dt.AddSeconds(1);
-                //    CurrentProcObjectTimer = dt.ToString("mm:ss");// (e.SignalTime - current).ToString();
-                //};
-                //timer.Start();
             }
         }
 
@@ -151,6 +128,13 @@ namespace NewLaserProject.ViewModels
         {
             _currentProcSubscriptions?.ForEach(s => s.Dispose());
             _mainProcess?.Dispose();
+            if (_processTimer is not null)
+            {
+                _processTimer.Elapsed -= _processTimer_Elapsed;
+                _processTimer.Stop();
+                _processTimer.Close();
+                _processTimer.Dispose();
+            }
             OnProcess = false;
             //Growl.Clear();
             IsProcessPanelVisible = false;
@@ -257,6 +241,24 @@ namespace NewLaserProject.ViewModels
                             ProcessingObjects.Add(new ProcObjTabView { Index = ind, ProcObject = p });
                             return ++ind;
                         });
+                    })
+                    .AddSubscriptionTo(_currentProcSubscriptions);
+
+
+                _mainProcess.OfType<ProcessingStarted>()
+                    .Subscribe(args =>
+                    {
+                        _processTimer = new Timer(1000);
+                        _procStartTime = DateTime.Now;
+                        _processTimer.Elapsed += _processTimer_Elapsed;
+                        _processTimer.Start();
+                    })
+                    .AddSubscriptionTo(_currentProcSubscriptions);
+
+                _mainProcess.OfType<ProcessingStarted>()
+                    .Subscribe(args =>
+                    {
+                        _processTimer?.Stop();
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 

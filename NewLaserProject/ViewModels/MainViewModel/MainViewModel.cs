@@ -140,7 +140,7 @@ namespace NewLaserProject.ViewModels
                 Message = "Необходимо выйти в исходное положение. Клавиша Home",
                 StaysOpen = true,
                 ShowDateTime = false
-            }); ;
+            });
         }
 
         [ICommand]
@@ -210,7 +210,7 @@ namespace NewLaserProject.ViewModels
         {
             _openedFileVM = new FileVM(48, 60, _subjMediator);
             _openedFileVM.CanUndoChanged += _openedFileVM_CanUndoChanged;
-
+            _openedFileVM.OnFileClicked += _openedFileVM_OnFileClicked;
             CentralSideVM = _openedFileVM;
             _cameraVM = new CameraVM(_subjMediator);
 
@@ -221,15 +221,29 @@ namespace NewLaserProject.ViewModels
 #endif
         }
 
+        private void _openedFileVM_OnFileClicked(object? sender, System.Windows.Point e)
+        {
+            if(XAxis.MotionDone && YAxis.MotionDone && !_appStateMachine.IsInState(AppState.Processing))
+            {
+                var x = e.X;
+                var y = e.Y;
+                var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, y);
+                _laserMachine.SetVelocity(Velocity.Service);
+                Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.X, result[0]),
+                             _laserMachine.MoveAxInPosAsync(Ax.Y, result[1]))
+                    .ContinueWith(t =>
+                    {
+                        _laserMachine.SetVelocity(VelocityRegime);
+                    });
+            }
+        }
         private void _openedFileVM_CanUndoChanged(object? sender, bool e) => CanUndoCut = e;
 
         private void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
         {
             var caps = CameraCapabilities[CameraCapabilitiesIndex].Split(" ");
-            var xRatio = 0d;
-            var yRatio = 0d;
 
-            if (double.TryParse(caps[0], out xRatio) && double.TryParse(caps[2], out yRatio))
+            if (double.TryParse(caps[0], out var xRatio) && double.TryParse(caps[2], out var yRatio))
             {
                 var k = xRatio / yRatio;
                 var offset = new[] { e.x * Settings.Default.CameraScale * k, -e.y * Settings.Default.CameraScale };
