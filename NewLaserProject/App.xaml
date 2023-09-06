@@ -40,6 +40,16 @@
                 <dialogviews:MaterialEntRuleView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type dialogvm:AskThicknessVM}">
+                <hc:NumericUpDown hc:TitleElement.Title="Толщина" 
+                                  hc:TitleElement.TitlePlacement="Left" 
+                                  Minimum="0.1"
+                                  Maximum="5"
+                                  Increment="0.1"
+                                  ValueFormat="N3"
+                                  Value="{Binding Thickness}"/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type dialogvm:MarkSettingsVM}">
                 <dialogviews:PenHatchSettingsView/>
             </DataTemplate>

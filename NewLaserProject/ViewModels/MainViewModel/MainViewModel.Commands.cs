@@ -212,7 +212,6 @@ namespace NewLaserProject.ViewModels
                 {
                     throw;
                 }
-                techMessager.EraseMessage();
             }
             Task changeVelocity()
             {

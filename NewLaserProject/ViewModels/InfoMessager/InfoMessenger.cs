@@ -3,7 +3,7 @@ using System.IO;
 
 namespace NewLaserProject.ViewModels
 {
-    public class InfoMessager
+    public class InfoMessenger
     {
         private string DANGERPATH = Path.Combine(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName,"Views", "Sources", "danger.png");
         private string EXCLAMATIONPATH = Path.Combine(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName, "Views", "Sources", "exclamation.png");

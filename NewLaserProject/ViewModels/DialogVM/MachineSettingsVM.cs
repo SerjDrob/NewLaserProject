@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using FluentValidation;
 using FluentValidation.Results;
+using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Views;
+using NewLaserProject.Views.Dialogs;
 using PropertyChanged;
 
 namespace NewLaserProject.ViewModels.DialogVM
@@ -152,24 +155,30 @@ namespace NewLaserProject.ViewModels.DialogVM
         [ICommand]
         private void TeachRightPoint() => (XRightPoint, YRightPoint) = (_currentX, _currentY);
         [ICommand]
-        private void TeachZCamera()
+        private async Task TeachZCamera()
         {
-            var waferThickness = 0.5;
-            var dc = new AskThicknessVM { Thickness = waferThickness };
-            new AskThicknesView { DataContext = dc }.ShowDialog();
-            waferThickness = dc.Thickness;
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Толщина подложки")
+                .SetDataContext<AskThicknessVM>(vm => vm.Thickness = 0.5d)
+                .GetCommonResultAsync<double>();
 
-            ZCamera = _currentZ + waferThickness;
+            if (result.Success)
+            {
+                ZCamera = _currentZ + result.CommonResult;
+            }
         }
         [ICommand]
-        private void TeachZLaser()
+        private async Task TeachZLaser()
         {
-            var waferThickness = 0.5;
-            var dc = new AskThicknessVM { Thickness = waferThickness };
-            new AskThicknesView { DataContext = dc }.ShowDialog();
-            waferThickness = dc.Thickness;
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Толщина подложки")
+                .SetDataContext<AskThicknessVM>(vm => vm.Thickness = 0.5d)
+                .GetCommonResultAsync<double>();
 
-            ZLaser = _currentZ + waferThickness;
+            if (result.Success)
+            {
+                ZLaser = _currentZ + result.CommonResult;
+            }
         }
         [ICommand]
         private void TeachLoadPoint() => (XLoad, YLoad) = (_currentX, _currentY);

@@ -25,7 +25,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _zeroZPiercing;
         private readonly double _zeroZCamera;
         private readonly double _waferThickness;
-        private readonly InfoMessager _infoMessager;
+        private readonly InfoMessenger _infoMessager;
         private double _xActual;
         private double _yActual;
         private readonly double _dX;
@@ -35,7 +35,7 @@ namespace NewLaserProject.Classes.Process
 
         public TestThreePoints(IEnumerable<PPoint> refPoints,
             LaserMachine laserMachine, ICoorSystem<LMPlace> coorSystem,
-            double zeroZCamera, double waferThickness, InfoMessager infoMessager,
+            double zeroZCamera, double waferThickness, InfoMessenger infoMessager,
             double dX, double dY, double pazAngle, double zeroZPiercing)
         {
             Guard.IsEqualTo(refPoints.Count(), 3, nameof(refPoints));

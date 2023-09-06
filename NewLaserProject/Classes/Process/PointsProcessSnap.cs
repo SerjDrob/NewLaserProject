@@ -36,7 +36,7 @@ namespace NewLaserProject.Classes.Process
         private readonly double _zeroZCamera;
         private readonly double _waferThickness;
         private CancellationTokenSource _ctSource;
-        private readonly InfoMessager _infoMessager;
+        private readonly InfoMessenger _infoMessager;
         private double _xActual;
         private double _xCmd;
         private double _yActual;
@@ -56,7 +56,7 @@ namespace NewLaserProject.Classes.Process
 
         public PointsProcessSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
             string jsonPierce, LaserMachine laserMachine, ICoorSystem coorSystem,
-            double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
+            double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessenger infoMessager,
             double dX, double dY, double pazAngle, EntityPreparator entityPreparator, ISubject<IProcessNotify> mediator)
         {
             _underCamera = false;// true;
@@ -80,7 +80,7 @@ namespace NewLaserProject.Classes.Process
 
         public PointsProcessSnap(IEnumerable<IProcObject> wafer, LaserWafer serviceWafer,
            string jsonPierce, LaserMachine laserMachine, ICoorSystem coorSystem,
-           double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessager infoMessager,
+           double zeroZPiercing, double zeroZCamera, double waferThickness, InfoMessenger infoMessager,
            double dX, double dY, double pazAngle, EntityPreparator entityPreparator,
            ISubject<IProcessNotify> mediator, PureCoorSystem<LMPlace> pureCoorSystem)
             : this(wafer, serviceWafer,

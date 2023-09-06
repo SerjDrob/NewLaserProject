@@ -1,4 +1,5 @@
-﻿using HandyControl.Controls;
+﻿using AutoMapper;
+using HandyControl.Controls;
 using HandyControl.Data;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
@@ -16,6 +17,7 @@ using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Properties;
+using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views;
 using PropertyChanged;
 using System;
@@ -36,7 +38,6 @@ namespace NewLaserProject.ViewModels
     {
         const string APP_SETTINGS_FOLDER = "AppSettings";
         
-        private InfoMessager techMessager;
         private readonly LaserMachine _laserMachine;
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
@@ -90,8 +91,6 @@ namespace NewLaserProject.ViewModels
 
             _mediator = mediator;
 
-            techMessager = new();
-            techMessager.PublishMessage += TechMessager_PublishMessage;
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             _coorSystem = GetCoorSystem();
@@ -147,44 +146,22 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void DbLoad()
         {
-            if (LaserDbVM is null) LaserDbVM = new(_db);
-        }
-        [ICommand]
-        private void AppSettingsOpen()
-        {
             var defLaserParams = ExtensionMethods
                 .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
 
-            if (AppSngsVM is null) AppSngsVM = new(_db, defLaserParams)
+            var config = new MapperConfiguration(cfg =>
             {
-                IsMirrored = Settings.Default.WaferMirrorX,
-                IsRotated = Settings.Default.WaferAngle90
-            };
-        }
-        [ICommand]
-        private void AppSettingsClose()
-        {
-            //if (AppSngsVM is not null)
-            //{
-            //    AppSngsVM.SaveDbChanges();
-            //    var defProcFilter = new DefaultProcessFilterDTO
-            //    {
-            //        LayerFilterId = AppSngsVM.DefaultTechSelector.DefLayerFilter.Id,
-            //        MaterialId = AppSngsVM.DefaultMaterial.Id,
-            //        EntityType = (uint)AppSngsVM.DefaultEntityType,
-            //        DefaultWidth = AppSngsVM.DefaultWidth,
-            //        DefaultHeight = AppSngsVM.DefaultHeight
-            //    };
+                cfg.CreateMap<MarkLaserParams, ExtendedParams>()
+                .IncludeMembers(s => s.PenParams, s => s.HatchParams);
+                cfg.CreateMap<PenParams, ExtendedParams>(MemberList.None);
+                cfg.CreateMap<HatchParams, ExtendedParams>(MemberList.None);
+            });
 
-            //    var defLaserParams = AppSngsVM.MarkSettingsViewModel.GetLaserParams();
+            var mapper = config.CreateMapper();
 
-            //    defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultProcessFilter.json"));
-            //    defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+            var defaultParams = mapper.Map<ExtendedParams>(defLaserParams);
 
-            //    Settings.Default.WaferMirrorX = AppSngsVM.IsMirrored;
-            //    Settings.Default.WaferAngle90 = AppSngsVM.IsRotated;
-            //    Settings.Default.Save();
-            //}
+            if (LaserDbVM is null) LaserDbVM = new(_db, defaultParams);
         }
 
         [ICommand]
@@ -276,7 +253,6 @@ namespace NewLaserProject.ViewModels
             _openedFileVM?.UndoRemoveSelection();
         }
 
-
         private void TechMessager_PublishMessage(string message, string iconPath, MessageType icon)
         {
             TechInfo = message;
@@ -339,24 +315,6 @@ namespace NewLaserProject.ViewModels
             //_laserMachine.SetMarkDeviceParams();
         }
 
-        //[ICommand]
-        //private void OpenLayersProcessing()
-        //{
-        //    if (File.Exists(FileName))
-        //    {
-        //        _dxfReader = new IMDxfReader(FileName);
-        //        new LayersView()
-        //        {
-        //            DataContext = new LayersProcessingModel(_dxfReader)
-        //        }.Show();
-        //    }
-        //    else
-        //    {
-        //        //MessageBox.Show("Имя файла неверно или файл не существует", "Внимание", MessageBoxButton.OK, MessageBoxImage.Error);
-        //        Growl.Warning("Имя файла неверно или файл не существует");
-        //    }
-        //}
-        
         private void ImplementMachineSettings()
         {
 #if PCIInserted

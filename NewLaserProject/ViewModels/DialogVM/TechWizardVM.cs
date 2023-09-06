@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 //using System.Windows.Forms;
@@ -64,9 +65,10 @@ namespace NewLaserProject.ViewModels.DialogVM
         {
             get; set;
         }
-        private IMapper _markParamsToMSVMMapper;
         private ExtendedParams _tempParams;
-        public TechWizardVM()
+        private ExtendedParams _defaultParams;
+
+        public TechWizardVM(ExtendedParams defaultParams)
         {
             ProgBlocks = new()
             {
@@ -76,14 +78,7 @@ namespace NewLaserProject.ViewModels.DialogVM
                 new LoopBlock(),
                 new DelayBlock(),
             };
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<MarkLaserParams, MarkSettingsVM>()
-                .IncludeMembers(s => s.PenParams, s => s.HatchParams);
-                cfg.CreateMap<PenParams, MarkSettingsVM>(MemberList.None);
-                cfg.CreateMap<HatchParams, MarkSettingsVM>(MemberList.None);
-            });
-            _markParamsToMSVMMapper = config.CreateMapper();
+            _defaultParams = defaultParams;
         }
         public override void Drop(IDropInfo dropInfo)
         {
@@ -159,7 +154,7 @@ namespace NewLaserProject.ViewModels.DialogVM
         private async Task SetPiercingParams(object progModule)
         {
             if (progModule is not PierceBlock item) return;
-            var @params = item?.MarkParams?.Clone() as ExtendedParams ?? _tempParams ?? new ExtendedParams();
+            var @params = item?.MarkParams?.Clone() as ExtendedParams ?? _tempParams ?? _defaultParams;
 
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Параметры пера")
@@ -180,6 +175,12 @@ namespace NewLaserProject.ViewModels.DialogVM
         /// <returns>generated name of the file</returns>
         public string SaveListingToFolder(string path)
         {
+            foreach (var pierceBlock in Listing.OfType<PierceBlock>())
+            {
+                pierceBlock.MarkParams ??= _defaultParams;
+            }
+
+
             var mainLoop = new MainLoop(MainLoopCount, MainLoopShuffle, Listing);
 
             var json = JsonConvert.SerializeObject(mainLoop, Formatting.Indented, new JsonSerializerSettings

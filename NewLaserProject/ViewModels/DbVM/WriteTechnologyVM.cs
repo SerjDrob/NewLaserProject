@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MachineClassLibrary.Laser.Parameters;
 using NewLaserProject.ViewModels.DialogVM;
 
 namespace NewLaserProject.ViewModels.DbVM
 {
     internal class WriteTechnologyVM : CommonDialogResultable<TechWizardVM>
     {
-        public WriteTechnologyVM()
+        public WriteTechnologyVM(ExtendedParams defaultParams)
         {
-            TechnologyWizard = new();
+           TechnologyWizard = new(defaultParams);
         }
         [Required]
         public string TechnologyName

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
+using MachineClassLibrary.Laser.Parameters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Data.Models;
@@ -28,10 +29,10 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
-        public LaserDbViewModel(DbContext db)
+        public LaserDbViewModel(DbContext db, ExtendedParams defaultParams)
         {
             _db = db;
-
+            _defaultParams = defaultParams;
             _db.Set<Technology>()
                 .Include(t => t.Material)
                 .LoadAsync()
@@ -53,6 +54,7 @@ namespace NewLaserProject.ViewModels
                 });
         }
         private readonly DbContext _db;
+        private readonly ExtendedParams _defaultParams;
 
         [ICommand]
         private async Task AddMaterial()
@@ -73,7 +75,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task AssignTechnology(Material material)
         {
-            var writeTechVM = new WriteTechnologyVM
+            var writeTechVM = new WriteTechnologyVM(_defaultParams)
             {
                 MaterialName = material.Name,
                 MaterialThickness = material.Thickness
@@ -139,7 +141,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task EditTechnology(Technology technology)
         {
-            var techWizard = new TechWizardVM { EditEnable = true };
+            var techWizard = new TechWizardVM(_defaultParams) { EditEnable = true };
             var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
             techWizard.LoadListing(path);
             var result = await Dialog.Show<CommonDialog>()
@@ -158,7 +160,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void ViewTechnology(Technology technology)
         {
-            var techWizard = new TechWizardVM { EditEnable = false };
+            var techWizard = new TechWizardVM(_defaultParams) { EditEnable = false };
             var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
             techWizard.LoadListing(path);
             new AddToDbContainerView(false)
