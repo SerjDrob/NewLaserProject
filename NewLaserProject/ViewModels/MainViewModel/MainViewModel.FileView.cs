@@ -253,12 +253,12 @@ namespace NewLaserProject.ViewModels
                             && d.EntityType == (LaserEntity)defLayerProcDTO.EntityType
                             && d.Technology.MaterialId == defLayerProcDTO.MaterialId)
                             .Select(d => d.Technology)
-                            .Single();
+                            .SingleOrDefault();
 
                         DefTechnologyIndex = AvailableMaterials.Where(m => m.Id == defLayerProcDTO.MaterialId)
                             .SingleOrDefault()?
                             .Technologies?
-                            .FindIndex(t => t.Id == defLayerEntTechnology.Id) ?? -1;
+                            .FindIndex(t => t.Id == defLayerEntTechnology?.Id) ?? -1;
                     }
                 }
             });

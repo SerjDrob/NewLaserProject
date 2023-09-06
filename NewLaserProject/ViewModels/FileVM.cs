@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser.Entities;
 using MachineControlsLibrary.Classes;
 using MachineControlsLibrary.Controls;
 using MachineControlsLibrary.Controls.GraphWin;
@@ -111,7 +112,23 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void GotPointClicked(RoutedPointClickedEventArgs args)
         {
-            if (_isFileOpened) OnFileClicked(this, args);
+            if (_isFileOpened)
+            {
+                Point point = args;
+                var x = point.X;
+                var y = point.Y;
+                var serviceWafer = new LaserWafer((FileSizeX, FileSizeY));
+
+                serviceWafer.Scale(1 / FileScale);
+                if (WaferTurn90) serviceWafer.Turn90();
+                if (MirrorX) serviceWafer.MirrorX();
+                serviceWafer.OffsetX((float)FileOffsetX);
+                serviceWafer.OffsetY((float)FileOffsetY);
+
+                var fromwafer = serviceWafer.GetPointToWafer(new((float)x, (float)y));
+
+                OnFileClicked(this, new Point(fromwafer.X, fromwafer.Y));
+            }
         }
         public void UndoRemoveSelection()
         {

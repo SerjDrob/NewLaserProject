@@ -58,7 +58,6 @@ namespace NewLaserProject.ViewModels
 
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
-        public AppSettingsVM AppSngsVM { get; set; }
         public object RightSideVM { get; set; }
         public object CentralSideVM { get; set; }
         private CameraVM _cameraVM;
@@ -203,20 +202,7 @@ namespace NewLaserProject.ViewModels
         {
             if (XAxis.MotionDone && YAxis.MotionDone && !_appStateMachine.IsInState(AppState.Processing))
             {
-                var x = e.X;
-                var y = e.Y;
-
-                var serviceWafer = new LaserWafer((WaferWidth * DefaultFileScale, WaferHeight * DefaultFileScale));
-
-                serviceWafer.Scale(1 / DefaultFileScale);
-                if (WaferTurn90) serviceWafer.Turn90();
-                if (MirrorX) serviceWafer.MirrorX();
-                serviceWafer.OffsetX((float)WaferOffsetX);
-                serviceWafer.OffsetY((float)WaferOffsetY);
-
-                var fromwafer = serviceWafer.GetPointToWafer(new((float)x, (float)y));
-
-                var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, fromwafer.X, fromwafer.Y);
+                var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, e.X, e.Y);
                 _laserMachine.SetVelocity(Velocity.Service);
                 Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.X, result[0]),
                              _laserMachine.MoveAxInPosAsync(Ax.Y, result[1]))

@@ -57,10 +57,6 @@
             <DataTemplate DataType="{x:Type dialogvm:SpecimenSettingsVM}">
                 <dialogviews:SpecimenSettingsView/>
             </DataTemplate>
-            
-            <DataTemplate DataType="{x:Type viewmodels:AppSettingsVM}">
-                <views:AppSettingsView/>
-            </DataTemplate>
 
             <DataTemplate DataType="{x:Type dialogvm:MachineSettingsVM}">
                 <dialogviews:MachineSettingsView/>
