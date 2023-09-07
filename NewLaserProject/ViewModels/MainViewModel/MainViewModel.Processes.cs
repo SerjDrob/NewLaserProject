@@ -121,7 +121,7 @@ namespace NewLaserProject.ViewModels
             get;
             set;
         }
-
+        private bool _onProcessing = false;
 
         [ICommand]
         private void DenyDownloadedProcess()
@@ -136,6 +136,7 @@ namespace NewLaserProject.ViewModels
                 _processTimer.Dispose();
             }
             OnProcess = false;
+            _onProcessing = false;
             //Growl.Clear();
             IsProcessPanelVisible = false;
             HideRightPanel(false);
@@ -248,6 +249,7 @@ namespace NewLaserProject.ViewModels
                 _mainProcess.OfType<ProcessingStarted>()
                     .Subscribe(args =>
                     {
+                        _onProcessing = true;
                         _processTimer = new Timer(1000);
                         _procStartTime = DateTime.Now;
                         _processTimer.Elapsed += _processTimer_Elapsed;
@@ -258,6 +260,7 @@ namespace NewLaserProject.ViewModels
                 _mainProcess.OfType<ProcessingStopped>()
                     .Subscribe(args =>
                     {
+                        _onProcessing = false;
                         _processTimer?.Stop();
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);

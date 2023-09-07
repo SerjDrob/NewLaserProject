@@ -200,7 +200,7 @@ namespace NewLaserProject.ViewModels
 
         private void _openedFileVM_OnFileClicked(object? sender, System.Windows.Point e)
         {
-            if (XAxis.MotionDone && YAxis.MotionDone && !_appStateMachine.IsInState(AppState.Processing))
+            if (XAxis.MotionDone && YAxis.MotionDone && !_onProcessing)
             {
                 var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, e.X, e.Y);
                 _laserMachine.SetVelocity(Velocity.Service);

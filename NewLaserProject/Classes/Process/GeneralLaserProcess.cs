@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Humanizer;
+﻿using Humanizer;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
@@ -19,12 +8,19 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Miscellanius;
 using NewLaserProject.ViewModels;
-using Stateless;
 using Newtonsoft.Json;
+using Stateless;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
-using MachineClassLibrary.Miscellaneous;
-using HandyControl.Expression.Media;
-using IShape = MachineClassLibrary.Laser.Entities.IShape;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Process
 {
@@ -270,7 +266,7 @@ namespace NewLaserProject.Classes.Process
                 .AddSubscriptionTo(_subscriptions);
 
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
-           
+
 
             _inProcess = true;//TODO is it necessary?
 
@@ -300,7 +296,7 @@ namespace NewLaserProject.Classes.Process
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < properPointsCount(_fileAlignment))
                 .PermitIf(Trigger.Next, State.Working, () => resultPoints.Count == properPointsCount(_fileAlignment))
-                .Permit(Trigger.Preteach,State.LinePreteaching);
+                .Permit(Trigger.Preteach, State.LinePreteaching);
 
             _stateMachine.Configure(State.Working)
                 .OnEntryFromAsync(workingTrigger, ProcessingTheWaferAsync)
@@ -358,7 +354,8 @@ namespace NewLaserProject.Classes.Process
                     }
                 })
                 .PermitDynamic(Trigger.Next, () => waferEnumerator.MoveNext() ? State.LineTeaching : State.Exit)
-                .OnExit(() => {
+                .OnExit(() =>
+                {
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                     xLineSb.Append($"{_xActual.ToString(cultureInfo)}),");
                     yLineSb.Append($"{_yActual.ToString(cultureInfo)}),");
@@ -377,13 +374,13 @@ namespace NewLaserProject.Classes.Process
                      var writer = System.IO.TextWriter.Null;
                      ser.Serialize(writer, xLCollection);
                      writer.Flush();
-                     var xstr =  writer.ToString();
-                     
+                     var xstr = writer.ToString();
+
                      writer = System.IO.TextWriter.Null;
                      ser.Serialize(writer, yLCollection);
                      writer.Flush();
                      var ystr = writer.ToString();
-                     
+
                      _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                      _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _teachingLinesCoorSystem));
                      return Task.CompletedTask;
@@ -467,7 +464,7 @@ namespace NewLaserProject.Classes.Process
         public void Dispose()
         {
             // Никаких Dispose(true) и никаких вызовов GC.SuppressFinalize()
-            DisposeManagedResources(); 
+            DisposeManagedResources();
             disposedValue = true;
         }
 
