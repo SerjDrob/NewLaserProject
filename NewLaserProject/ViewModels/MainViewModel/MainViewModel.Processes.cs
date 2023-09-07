@@ -203,8 +203,8 @@ namespace NewLaserProject.ViewModels
                 var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
                 if (materialEntRule is not null)
                 {
-                    entityPreparator.SetEntityContourOffset(materialEntRule.Offset);
-                    entityPreparator.SetEntityContourWidth(materialEntRule.Width);
+                    entityPreparator.SetEntityContourOffset(materialEntRule.Offset)
+                                    .SetEntityContourWidth(materialEntRule.Width);
                 }
 
 

@@ -1,26 +1,4 @@
-﻿using AutoMapper;
-using HandyControl.Controls;
-using HandyControl.Data;
-using MachineClassLibrary.Classes;
-using MachineClassLibrary.GeometryUtility;
-using MachineClassLibrary.Laser.Entities;
-using MachineClassLibrary.Laser.Parameters;
-using MachineClassLibrary.Machine;
-using MachineClassLibrary.Machine.Machines;
-using MachineClassLibrary.Machine.MotionDevices;
-using MachineClassLibrary.VideoCapture;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Toolkit.Diagnostics;
-using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Classes;
-using NewLaserProject.Data.Models.DTOs;
-using NewLaserProject.Properties;
-using NewLaserProject.ViewModels.DialogVM;
-using NewLaserProject.Views;
-using PropertyChanged;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Numerics;
@@ -28,6 +6,23 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using HandyControl.Controls;
+using HandyControl.Data;
+using MachineClassLibrary.Classes;
+using MachineClassLibrary.GeometryUtility;
+using MachineClassLibrary.Laser.Parameters;
+using MachineClassLibrary.Machine;
+using MachineClassLibrary.Machine.Machines;
+using MachineClassLibrary.Machine.MotionDevices;
+using MachineClassLibrary.VideoCapture;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Diagnostics;
+using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Classes;
+using NewLaserProject.Properties;
+using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
@@ -37,7 +32,7 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         const string APP_SETTINGS_FOLDER = "AppSettings";
-        
+
         private readonly LaserMachine _laserMachine;
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
@@ -45,29 +40,56 @@ namespace NewLaserProject.ViewModels
         public bool IsCentralPanelVisible { get; set; } = false;
         public bool IsLearningPanelVisible { get; set; } = false;
         public bool IsProcessPanelVisible { get; set; } = false;
-        public string TechInfo { get; set; }
-        public string IconPath { get; set; }
+        public string TechInfo
+        {
+            get; set;
+        }
+        public string IconPath
+        {
+            get; set;
+        }
         public bool OnProcess { get; set; } = false;
         public MessageType CurrentMessageType { get; private set; } = MessageType.Empty;
-        public BitmapImage CameraImage { get; set; }
+        public BitmapImage CameraImage
+        {
+            get; set;
+        }
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
-        public double ScaleMarkersRatioSecond { get => 1 - ScaleMarkersRatioFirst; }
+        public double ScaleMarkersRatioSecond
+        {
+            get => 1 - ScaleMarkersRatioFirst;
+        }
 
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
-        public object RightSideVM { get; set; }
-        public object CentralSideVM { get; set; }
+        public object RightSideVM
+        {
+            get; set;
+        }
+        public object CentralSideVM
+        {
+            get; set;
+        }
         private CameraVM _cameraVM;
 
         private readonly DbContext _db;
-        private readonly IMediator _mediator;
+        private readonly IServiceProvider _serviceProvider;
         private ISubject<IProcessNotify> _subjMediator = new Subject<IProcessNotify>();
-        public ObservableCollection<string> CameraCapabilities { get; set; }
-        public int CameraCapabilitiesIndex { get; set; }
-        public bool ShowVideo { get; set; }
+        public ObservableCollection<string> CameraCapabilities
+        {
+            get; set;
+        }
+        public int CameraCapabilitiesIndex
+        {
+            get; set;
+        }
+        public bool ShowVideo
+        {
+            get; set;
+        }
         //---------------------------------------------
         private CoorSystem<LMPlace> _coorSystem;
         private ITeacher _currentTeacher;
@@ -77,31 +99,21 @@ namespace NewLaserProject.ViewModels
         private double _waferAngle;
         private readonly ILogger _logger;
 
-        public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator, ILoggerProvider loggerProvider)
+        public MainViewModel(LaserMachine laserMachine, DbContext db, IServiceProvider serviceProvider, ILoggerProvider loggerProvider)
         {
             _logger = loggerProvider.CreateLogger("MainVM");
-
             _laserMachine = laserMachine;
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _db = db;
-
+            _serviceProvider = serviceProvider;
             _loadingContextTask = LoadContext();
-
-
-            _mediator = mediator;
 
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             _coorSystem = GetCoorSystem();
             ImplementMachineSettings();
-            var count = _laserMachine.AvaliableVideoCaptureDevices.Count;
-            if (count != 0)
-            {
-                CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
-                CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
-                _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-            }
-            
+
+
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
                 .ContinueWith(t =>
                 {
@@ -122,13 +134,9 @@ namespace NewLaserProject.ViewModels
             _laserMachine.SetMarkParams(defLaserParams);
 
             TuneMachineFileView();
-            //techMessager.RealeaseMessage("Необходимо выйти в исходное положение. Клавиша Home", MessageType.Danger);
-
             InitViews();
             InitAppState();
             InitCommands();
-
-            //AppSngsVM = new(_db);
         }
 
 
@@ -143,24 +151,9 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void DbLoad()
+        private void DbLoad()//TODO bad method
         {
-            var defLaserParams = ExtensionMethods
-                .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
-
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<MarkLaserParams, ExtendedParams>()
-                .IncludeMembers(s => s.PenParams, s => s.HatchParams);
-                cfg.CreateMap<PenParams, ExtendedParams>(MemberList.None);
-                cfg.CreateMap<HatchParams, ExtendedParams>(MemberList.None);
-            });
-
-            var mapper = config.CreateMapper();
-
-            var defaultParams = mapper.Map<ExtendedParams>(defLaserParams);
-
-            if (LaserDbVM is null) LaserDbVM = new(_db, defaultParams);
+            LaserDbVM = _serviceProvider.GetService<LaserDbViewModel>();
         }
 
         [ICommand]
@@ -189,6 +182,17 @@ namespace NewLaserProject.ViewModels
             _openedFileVM.CanUndoChanged += _openedFileVM_CanUndoChanged;
             _openedFileVM.OnFileClicked += _openedFileVM_OnFileClicked;
             CentralSideVM = _openedFileVM;
+
+
+            var count = _laserMachine.AvaliableVideoCaptureDevices.Count;
+            if (count != 0)
+            {
+                CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
+                CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
+                _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+            }
+
+
             _cameraVM = new CameraVM(_subjMediator);
 
             RightSideVM = _cameraVM;
@@ -293,7 +297,7 @@ namespace NewLaserProject.ViewModels
             //element.IsBeingProcessed = true;
             //IsBeingProcessedObject = element;
         }
-        
+
         [ICommand]
         private void LasSettings()
         {
@@ -461,7 +465,7 @@ namespace NewLaserProject.ViewModels
             var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
 
             //_waferAngle = Math.Atan2(dy, dx);
-            _waferAngle = Math.Atan(dy/dx);
+            _waferAngle = Math.Atan(dy / dx);
 #if InvertAngles
             _waferAngle = -_waferAngle;
 #endif
