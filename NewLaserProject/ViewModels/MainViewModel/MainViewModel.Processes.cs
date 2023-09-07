@@ -25,6 +25,7 @@ using NewLaserProject.Classes.Process;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
 using NewLaserProject.Views;
+using UnitsNet;
 
 namespace NewLaserProject.ViewModels
 {
@@ -200,12 +201,14 @@ namespace NewLaserProject.ViewModels
 
                 _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder("TechnologyFiles", $"{CurrentTechnology.ProcessingProgram}.json"));
                 var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath("TempFiles"));
-                var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
-                if (materialEntRule is not null)
-                {
-                    entityPreparator.SetEntityContourOffset(materialEntRule.Offset)
-                                    .SetEntityContourWidth(materialEntRule.Width);
-                }
+                //var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
+                //if (materialEntRule is not null)
+                //{
+                //    var offsetum = Length.FromMicrometers(materialEntRule.Offset);
+                //    var widthum = Length.FromMicrometers(materialEntRule.Width);
+                //    entityPreparator.SetEntityContourOffset(offsetum.Millimeters)
+                //                    .SetEntityContourWidth(widthum.Millimeters);
+                //}
 
 
 

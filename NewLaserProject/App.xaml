@@ -270,12 +270,12 @@
 
             <DataTemplate DataType="{x:Type pblocks:AddZBlock}">
                 <ItemsControl Style="{StaticResource CoorBlock}">
-                    <Label Content="Изменить глубину:" Style="{StaticResource BlockLabel}"/>
-                    <hc:NumericUpDown Value="{Binding DeltaZ}"
-                                      Width="80"
+                    <Label Content="Изменить глубину, мм:" Style="{StaticResource BlockLabel}"/>
+                    <hc:NumericUpDown Value="{Binding DeltaZ}" 
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Margin="0,0,5,0"
                                       DecimalPlaces="3" 
                                       Increment="0.01"/>
-                    <Label Content="мм"  Margin="0,0,0,5" Style="{StaticResource BlockLabel}"/>
                 </ItemsControl>
             </DataTemplate>
 
@@ -288,12 +288,14 @@
 
             <DataTemplate DataType="{x:Type pblocks:DelayBlock}">
                 <ItemsControl Style="{StaticResource DelayBlock}">
-                    <Label Content="Пауза: " Style="{StaticResource BlockLabel}"/>
-                    <hc:NumericUpDown Value="{Binding DelayTime}"
+                        <Label Content="Пауза, мс: " Style="{StaticResource BlockLabel}"/>
+                        <hc:NumericUpDown 
+                            Value="{Binding DelayTime}"
+                                      HorizontalAlignment="Right"
+                                      Style="{StaticResource NumericUpDownExtend}"
                                       Width="80"
                                       Minimum="0"
                                       Increment="100"/>
-                    <Label Content="мс" Style="{StaticResource BlockLabel}"/>
                 </ItemsControl>
             </DataTemplate>
 

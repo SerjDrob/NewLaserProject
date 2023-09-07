@@ -49,8 +49,8 @@
     <Color x:Key="SliderTrackDarkColor">#FFC5CBF9</Color>
 
     <Color x:Key="NavButtonFrameColor">#FF3843C4</Color>
-    <System:Double x:Key="LoopWidth">234</System:Double>
-    <System:Double x:Key="BlockWidth">218</System:Double>
+    <System:Double x:Key="LoopWidth">236</System:Double>
+    <System:Double x:Key="BlockWidth">220</System:Double>
 
     <LinearGradientBrush x:Key="MenuPopupBrush" EndPoint="0.5,1" StartPoint="0.5,0">
         <GradientStop Color="{DynamicResource ControlLightColor}" Offset="0" />
@@ -92,7 +92,8 @@
     </Style>
     <Style x:Key="BlockLabel" TargetType="Label">
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Opacity" Value="0.9"/>

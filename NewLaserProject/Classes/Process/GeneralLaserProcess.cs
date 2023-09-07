@@ -25,6 +25,8 @@ using System.Globalization;
 using MachineClassLibrary.Miscellaneous;
 using HandyControl.Expression.Media;
 using IShape = MachineClassLibrary.Laser.Entities.IShape;
+using NewLaserProject.Data.Models;
+using UnitsNet;
 
 namespace NewLaserProject.Classes.Process
 {
@@ -488,6 +490,14 @@ namespace NewLaserProject.Classes.Process
         protected async override Task FuncForPierseBlockAsync(ExtendedParams extendedParams)
         {
             if (extendedParams.EnableMilling) _entityPreparator.SetEntityContourWidth(0d);
+
+            var offsetum = Length.FromMicrometers(extendedParams.ContourOffset);
+            var widthum = Length.FromMicrometers(extendedParams.HatchWidth);
+
+            _entityPreparator.SetEntityContourOffset(offsetum.Millimeters);
+            _entityPreparator.SetEntityContourWidth(extendedParams.EnableMilling ? widthum.Millimeters : 0d);
+
+
             using var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(_currentProcObject);
             _laserMachine.SetExtMarkParams(new ExtParamsAdapter(extendedParams));
             var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath).ConfigureAwait(false);
