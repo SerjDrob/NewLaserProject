@@ -1,5 +1,7 @@
-﻿using MachineClassLibrary.Laser;
+﻿using AutoMapper;
+using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Markers;
+using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
@@ -28,6 +30,7 @@ namespace NewLaserProject
     public partial class App : Application
     {
         public ServiceCollection MainIoC { get; private set; }
+        const string APP_SETTINGS_FOLDER = "AppSettings";
         public App()
         {
             MachineConfiguration machineconfigs = ExtensionMethods
@@ -66,6 +69,17 @@ namespace NewLaserProject
                    {
                        builder.AddFile(ProjectPath.GetFilePathInFolder(ProjectFolders.TEMP_FILES, "app.log"));
                    })
+                   .AddAutoMapper(cfg=>cfg.AddProfile<ParamsProfile>())
+                   .AddTransient<LaserDbViewModel>(sp =>
+                   {
+                       var defLaserParams = ExtensionMethods
+                            .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+
+                       var mapper = sp.GetService<IMapper>();
+                       var context = sp.GetService<LaserDbContext>();
+                       var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
+                       return new(context, defaultParams);
+                   })
                    ;
 
             var listenerName = "myListener";
@@ -88,7 +102,7 @@ namespace NewLaserProject
             var viewModel = provider.GetService<MainViewModel>();
 
 #else
-            var db = provider.GetService<LaserDbContext>();
+            var db = provider.GetService<LaserDb Context>();
             var mediator = provider.GetService<IMediator>();
             var viewModel = new MainViewModel(db,mediator);
 #endif
