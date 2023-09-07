@@ -19,6 +19,7 @@ using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process;
@@ -345,6 +346,8 @@ namespace NewLaserProject.ViewModels
             }
             catch (ArgumentOutOfRangeException ex)
             {
+                _logger.LogInformation(new EventId(2,"Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+
                 Growl.Error(new GrowlInfo()
                 {
                     StaysOpen = false,
@@ -352,16 +355,19 @@ namespace NewLaserProject.ViewModels
                     ShowDateTime = false
                 });
             }
-            catch (FileNotFoundException)
+            catch (FileNotFoundException ex)
             {
+                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 Growl.Error($"Файл технологии \"{CurrentTechnology.ProgramName}\" не найден.");
             }
-            catch(NullReferenceException)
+            catch(NullReferenceException ex)
             {
+                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 if (CurrentTechnology is null) Growl.Error($"Файл технологии не выбран.");
             }
             catch(ArgumentException ex)
             {
+                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 Growl.Error(ex.Message);
             }
         }

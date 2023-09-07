@@ -9,6 +9,7 @@ using HandyControl.Controls;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
 using NewLaserProject.Classes;
@@ -170,6 +171,8 @@ namespace NewLaserProject.ViewModels
                     }
                     catch (DxfReaderException ex)
                     {
+                        _logger.LogInformation(new EventId(1,"Dxf file broken"), ex, $"Swallowed the exception in the {nameof(MainViewModel.OpenFile)} method.");
+
                         Growl.Error(new HandyControl.Data.GrowlInfo()
                         {
                             StaysOpen = true,
