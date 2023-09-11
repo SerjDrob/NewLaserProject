@@ -27,7 +27,7 @@ namespace NewLaserProject.Classes.Process
                .GetTree()
                .GetFunc();
         }
-
+        public CancellationTokenSource GetCancellationTokenSource() => _cancellationTokenSource;
         protected abstract Task FuncForTapperBlockAsync(double tapper);
         protected abstract Task FuncForAddZBlockAsync(double z);
         protected abstract Task FuncForPierseBlockAsync(ExtendedParams extendedParams);

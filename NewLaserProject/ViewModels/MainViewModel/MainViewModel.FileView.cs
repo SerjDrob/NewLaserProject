@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HandyControl.Controls;
+using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,7 @@ using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Properties;
+using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
 
 namespace NewLaserProject.ViewModels
@@ -200,6 +203,12 @@ namespace NewLaserProject.ViewModels
                 );
         }
 
+        public LayersProcessingModel LayersProcessingModel
+        {
+            get;
+            set;
+        }
+
         private async Task LoadDbForFile()
         {
             await Task.Run(() =>
@@ -218,6 +227,44 @@ namespace NewLaserProject.ViewModels
 
 
                 LayersStructure = _dxfReader.GetLayersStructure();
+                LayersProcessingModel?.UnSubscribe();
+                LayersProcessingModel = new(_dxfReader);
+                LayersProcessingModel.Select(args=> Observable.FromAsync(async () =>
+                {
+                    if (!args.isCheck)
+                    {
+                        var item = ChosenProcessingObjects?.SingleOrDefault(o => o.Layer == args.layerName && o.LaserEntity == args.entType);
+                        ChosenProcessingObjects?.Remove(item);
+                    }
+                    else
+                    {
+                        var result = await Dialog.Show<Views.Dialogs.CommonDialog>()
+                            .SetDialogTitle("Выбор технологии обработки")
+                            .SetDataContext<AddProcObjectsVM>(vm =>
+                            {
+                                vm.ObjectForProcessing = new()
+                                {
+                                    Layer = args.layerName,
+                                    LaserEntity = args.entType,
+                                };
+                                vm.Materials = new(AvailableMaterials.Where(m => m.Technologies?.Any() ?? false));
+                            })
+                            .GetCommonResultAsync<ObjectForProcessing>();
+                        if (result.Success)
+                        {
+                            ChosenProcessingObjects ??= new();
+                            ChosenProcessingObjects.Add(result.CommonResult);
+                        }
+                        else
+                        {
+                            var (x,y, _) = args;
+                            LayersProcessingModel.UnCheckItem((x,y));
+                        }
+                    }
+                    
+                }))
+                .Concat()
+                .Subscribe();
 
                 var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(Path.Combine(ProjectPath.GetFolderPath(APP_SETTINGS_FOLDER), "DefaultProcessFilter.json"));
 

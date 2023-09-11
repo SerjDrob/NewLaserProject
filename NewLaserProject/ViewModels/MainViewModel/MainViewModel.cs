@@ -32,6 +32,9 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         const string APP_SETTINGS_FOLDER = "AppSettings";
+        const string TEMP_FILES_FOLDER = "TempFiles";
+        const string TECHNOLOGY_FILES_FOLDER = "TechnologyFiles";
+
 
         private readonly LaserMachine _laserMachine;
         public bool IsLaserInitialized { get; set; } = false;

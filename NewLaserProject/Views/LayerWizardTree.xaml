@@ -5,45 +5,59 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:viewmodels="clr-namespace:NewLaserProject.ViewModels"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Width="250">
     <Grid>
         <Grid.Resources>
             <CollectionViewSource x:Key="MyLayers" Source="{Binding Layers}"/>
         </Grid.Resources>
-        <GroupBox Header="Объекты к обработке">
-            <TreeView x:Name="LayersList" ItemsSource="{Binding Source={StaticResource MyLayers}}">
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="{x:Type TreeViewItem}">
-                        <Setter Property="IsExpanded" Value="True" />
-                    </Style>
-                </TreeView.ItemContainerStyle>
-                <TreeView.Resources>
-                    <HierarchicalDataTemplate DataType="{x:Type viewmodels:Layer}" ItemsSource="{Binding Objects}">
-                        <CheckBox Content="{Binding Name}"/>
-                    </HierarchicalDataTemplate>
-                    <DataTemplate DataType="{x:Type viewmodels:Text}">
-                        <StackPanel Orientation="Horizontal">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDown">
-                                    <i:InvokeCommandAction 
+        <GroupBox Header="Объекты к обработке" Style="{StaticResource GroupBoxTab}">
+            <hc:ScrollViewer Height="150" Style="{StaticResource ScrollViewerUpDown}">
+                <TreeView x:Name="LayersList" ItemsSource="{Binding Source={StaticResource MyLayers}}" Style="{StaticResource TreeView.Small}">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="{x:Type TreeViewItem}">
+                            <Setter Property="IsExpanded" Value="False"/>
+                            <Setter Property="Focusable" Value="False"/>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type viewmodels:Layer}" ItemsSource="{Binding Objects}">
+                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextIconBrush}" Style="{StaticResource TextBlockDefaultBold}" FontSize="10"/>
+                        </HierarchicalDataTemplate>
+                        <DataTemplate DataType="{x:Type viewmodels:Text}">
+                            <StackPanel Orientation="Horizontal">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDown">
+                                        <i:InvokeCommandAction 
                                         Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.ChooseObjectCommand}"
                                         CommandParameter="{Binding}" 
                                         PassEventArgsToCommand="True"
                                         />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                            <CheckBox Content="{Binding Value}" 
-                                      Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.CheckObjectCommand}" 
-                                      CommandParameter="{Binding}"
-                                      IsChecked="{Binding IsProcessed}" VerticalContentAlignment="Top"/>
-                            <TextBlock Text=" [ " Foreground="Blue" />
-                            <TextBlock Text="{Binding Count}" Foreground="Blue"/>
-                            <TextBlock Text=" ]" Foreground="Blue" />
-                        </StackPanel>
-                    </DataTemplate>
-                </TreeView.Resources>
-            </TreeView>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <ContentControl Content="{Binding Value, Converter={StaticResource TextToEntityConverter}}" ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                <TextBlock Text="{Binding Count, StringFormat='[ {0} ]'}" Margin="5,0" Style="{StaticResource TextBlockDefaultPrimary}"/>
+                                <ToggleButton IsChecked="{Binding IsProcessed}" 
+                                              Style="{StaticResource ToggleButtonCustom}"  
+                                              hc:StatusSwitchElement.HideUncheckedElement="True"
+                                              Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.CheckObjectCommand}" 
+                                              CommandParameter="{Binding}"
+                                              >
+                                    <hc:StatusSwitchElement.CheckedElement>
+                                        <Border Width="8" Height="8">
+                                            <Path Data="{StaticResource RemoveGeometry}" Stretch="Uniform" Fill="{StaticResource DangerBrush}"/>
+                                        </Border>
+                                    </hc:StatusSwitchElement.CheckedElement>
+                                    <Border Width="9" Height="9">
+                                        <Path Data="{StaticResource AddGeometry}" Stretch="Uniform" Fill="{StaticResource SuccessBrush}"/>
+                                    </Border>
+                                </ToggleButton>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+            </hc:ScrollViewer>
         </GroupBox>
     </Grid>
 </UserControl>

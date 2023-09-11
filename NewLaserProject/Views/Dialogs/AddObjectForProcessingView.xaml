@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="NewLaserProject.Views.Dialogs.AddObjectForProcessingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.Resources>
+            <CollectionViewSource x:Key="MaterialsSource" Source="{Binding Materials}"/>
+            <Style TargetType="ComboBox" BasedOn="{StaticResource ComboBoxExtend}">
+                <Setter Property="hc:TitleElement.TitleWidth" Value="80"/>
+            </Style> 
+        </Grid.Resources>
+        <hc:ElementGroup>
+            <ComboBox x:Name="Materials" 
+                      ItemsSource="{Binding Source={StaticResource MaterialsSource}}" 
+                      MinWidth="120"
+                      hc:TitleElement.Title="Материал"
+                      hc:TitleElement.TitlePlacement="Left"
+                      >
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding Thickness}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:ChangePropertyAction TargetObject="{Binding ElementName=TechCombo}" PropertyName="SelectedIndex" Value="0"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ComboBox>
+            <ComboBox ItemsSource="{Binding Source={StaticResource MaterialsSource}, Path=Technologies}"
+                      SelectedItem="{Binding ObjectForProcessing.Technology, Mode=OneWayToSource}"  
+                      SelectedIndex="0"
+                      MinWidth="120"
+                      hc:TitleElement.Title="Технология"
+                      hc:TitleElement.TitlePlacement="Left"
+                      x:Name="TechCombo"
+                      >
+                
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </hc:ElementGroup>
+    </Grid>
+</UserControl>
