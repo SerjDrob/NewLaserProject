@@ -6,9 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-//using System.Windows.Forms;
 using System.Windows.Input;
-using AutoMapper;
 using GongSolutions.Wpf.DragDrop;
 using GongSolutions.Wpf.DragDrop.Utilities;
 using HandyControl.Controls;
@@ -18,7 +16,6 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
-using NewLaserProject.Views;
 using NewLaserProject.Views.Dialogs;
 using Newtonsoft.Json;
 
@@ -72,11 +69,11 @@ namespace NewLaserProject.ViewModels.DialogVM
         {
             ProgBlocks = new()
             {
-                new TaperBlock(),
+                //new TaperBlock(),
                 new PierceBlock(),
                 new AddZBlock(),
-                new LoopBlock(),
                 new DelayBlock(),
+                new LoopBlock(),
             };
             _defaultParams = defaultParams;
         }
@@ -149,7 +146,7 @@ namespace NewLaserProject.ViewModels.DialogVM
                 Listing = new();
             }
         }
-        
+
         [ICommand]
         private async Task SetPiercingParams(object progModule)
         {

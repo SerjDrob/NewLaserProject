@@ -10,7 +10,7 @@ namespace NewLaserProject.ViewModels
         public Layer(string name, IEnumerable<(string objType, int objCount)> objects)
         {
             Name = name;
-            Objects = objects.Select(obj=>new Text { Value=obj.objType, Count=obj.objCount }).ToList(); 
+            Objects = objects.Select(obj=>new Text { Value=obj.objType, Count=obj.objCount, LayerName = name }).ToList(); 
         }
     }
 }

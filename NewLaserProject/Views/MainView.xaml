@@ -34,20 +34,13 @@
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.E}" Modifiers="Ctrl" Key="Right"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.N}" Modifiers="Ctrl" Key="Up"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.S}" Modifiers="Ctrl" Key="Down"/>
-        
+
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterV}" Modifiers="Ctrl" Key="V"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterH}" Modifiers="Ctrl" Key="H"/>
 
 
     </hc:GlowWindow.InputBindings>
-    <hc:GlowWindow.Resources>
-        <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
-        <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
-        <Localconverters:TextToEntityConverter x:Key="TextToEntityConverter"/>
-        <Localconverters:IProcTypeToEntityConverter x:Key="IProcTypeToEntityConverter"/>
-        <Localconverters:GetLayerNameConverter x:Key="GetLayerNameConverter"/>
-        <Localconverters:FileAlignmentConverter x:Key="FileAlignmentConverter"/>
-        <Localconverters:KeyProcessorArgsConverter x:Key="KeyProcessorArgsConverter"/>
+    <hc:GlowWindow.Resources>        
         <CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>
         <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
         <CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>
@@ -64,8 +57,7 @@
         <clr:Boolean x:Key="TRUE">True</clr:Boolean>
         <clr:Boolean x:Key="FALSE">False</clr:Boolean>
 
-        <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
-        <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
+        
 
         <Storyboard x:Key="DangerMessage">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
@@ -255,11 +247,11 @@
                                 <MenuItem.Icon>
                                     <Image Source="Sources/scale.png" Height="20"/>
                                 </MenuItem.Icon>
-                            </MenuItem>                            
+                            </MenuItem>
                         </StackPanel>
                     </hc:SplitButton.DropDownContent>
                 </hc:SplitButton>
-                
+
             </ToolBar>
             <ToolBar>
                 <Button Command="{Binding ChooseMaterialCommand}" HorizontalAlignment="Stretch" MinHeight="50">
@@ -355,7 +347,7 @@
                                 </Path>
                             </Grid>
                             <Grid Margin="8">
-                                
+
                                 <i:Interaction.Triggers>
                                     <i:DataTrigger Binding="{Binding VelocityRegime}" Value="{x:Static mcl:Velocity.Fast}">
                                         <i:ChangePropertyAction PropertyName="Visibility" Value="Hidden"/>
@@ -601,11 +593,11 @@
                                         />
 
                                             <ComboBox ItemsSource="{Binding Source={StaticResource FileStructure}}"
-                                        SelectedIndex="{Binding DefLayerIndex}"
-                                        SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
-                                        DisplayMemberPath="LayerName" Grid.Column="1"
-                                              MinWidth="100"
-                                        />
+                                                      SelectedIndex="{Binding DefLayerIndex}"
+                                                      SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
+                                                      DisplayMemberPath="LayerName" Grid.Column="1"
+                                                      MinWidth="100"
+                                                       />
 
                                             <uclocal:ItemsButton x:Name="testname" 
                                                                  Width="32"
@@ -692,6 +684,23 @@
                                             </hc:ToggleBlock>
                                         </hc:ElementGroup>
                                     </hc:SimpleStackPanel>
+                                    <hc:ElementGroup Orientation="Horizontal">
+                                        <ContentControl Content="{Binding LayersProcessingModel}"/>
+                                        <DataGrid ItemsSource="{Binding ChosenProcessingObjects}" IsEnabled="False" Style="{StaticResource DataGrid.Small}" AutoGenerateColumns="False">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Слой" Binding="{Binding Layer}"/>
+                                                <DataGridTemplateColumn Header="Тип">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <ContentControl Content="{Binding LaserEntity}" ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTextColumn Header="Материал" Binding="{Binding Technology.Material.Name}"/>
+                                                <DataGridTextColumn Header="Технология" Binding="{Binding Technology.ProgramName}"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </hc:ElementGroup>
                                     <hc:ScrollViewer Padding="5" MaxHeight="120" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <ItemsControl ItemsSource="{Binding ObjectsForProcessing}" >
                                             <ItemsControl.ItemTemplate>
@@ -726,7 +735,7 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
-                                    </hc:ScrollViewer>                                    
+                                    </hc:ScrollViewer>
                                 </hc:SimpleStackPanel>
                                 <UniformGrid Rows="2" Grid.Row="1">
                                     <DataGrid x:Name="ProcObjGrid"
@@ -782,7 +791,7 @@
                                                 <Run Text="{Binding IsBeingProcessedObject.X, StringFormat='{}  {0:#.###}'}"/>
                                                 <Run Text="&#215;"/>
                                                 <Run Text="{Binding IsBeingProcessedObject.Y, StringFormat='{}{0:#.###}'}"/>
-                                                </TextBlock>                                                
+                                                </TextBlock>
                                             </hc:SimpleStackPanel>
                                         </GroupBox.Header>
                                         <Border 

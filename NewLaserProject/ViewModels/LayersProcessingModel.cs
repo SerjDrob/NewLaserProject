@@ -1,17 +1,22 @@
 ﻿using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser.Entities;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace NewLaserProject.ViewModels
 {
     [INotifyPropertyChanged]
-    public partial class LayersProcessingModel
+    public partial class LayersProcessingModel:IObservable<(string layerName, LaserEntity entType, bool isCheck)>
     {
-        //private readonly string _fileName;
         private readonly IDxfReader _dxfReader;
+        private List<IDisposable> _subscriptions;
+        private ISubject<(string , LaserEntity, bool)> _subject;
         public ObservableCollection<Layer> Layers { get; private set; }
 
         public LayersProcessingModel(IDxfReader dxfReader)
@@ -19,25 +24,51 @@ namespace NewLaserProject.ViewModels
             _dxfReader = dxfReader;
             var structure = _dxfReader.GetLayersStructure();
 
+            var predicate = (LaserEntity entity) => entity switch
+                {
+                    LaserEntity.Circle => true,
+                    LaserEntity.Curve => true,
+                    _ => false
+                };
+            
+
+
             var layers = structure
-                .Where(obj=>obj.Value.Any())
-                .Select(obj => new Layer(obj.Key, obj.Value));
+                .Where(obj=>obj.Value.Any(v=> predicate(LaserEntDxfTypeAdapter.GetLaserEntity(v.objType))))
+                .Select(obj => new Layer(obj.Key, obj.Value
+                .Where(o => predicate(LaserEntDxfTypeAdapter.GetLaserEntity(o.objType)))));
+
             Layers = new(layers);
         }
         [ICommand]
         private void CheckObject(Text text)
         {
-            foreach (var item in Layers.SelectMany(l => l.Objects).Where(o => o.Value != text.Value))
-            {
-                item.IsProcessed = false;
-            }
+            var entType = LaserEntDxfTypeAdapter.GetLaserEntity(text.Value);
+            _subject?.OnNext((text.LayerName, entType, text.IsProcessed));
         }
+
+        public void UnCheckItem((string layerName, LaserEntity entType) item)
+        {
+            var dxfEntName = LaserEntDxfTypeAdapter.GetEntityName(item.entType);
+            var text = Layers.SelectMany(l=>l.Objects).SingleOrDefault(t=>t.LayerName == item.layerName && t.Value == dxfEntName);
+            if (text is not null) text.IsProcessed = false;
+        }
+
         [ICommand]
         private void ChooseObject(object param)
         {
-            var p = param as Text;
-            ObjectChosenEvent(this, new string[] { p.Value, p.Count.ToString() });
+           
         }
-        public event EventHandler<string[]> ObjectChosenEvent;
+
+        public IDisposable Subscribe(IObserver<(string, LaserEntity, bool)> observer)
+        {
+            _subject ??= new Subject<(string, LaserEntity, bool)>();
+            _subscriptions ??= new();
+            var subscription = _subject.Subscribe(observer);
+            _subscriptions.Add(subscription);
+            return subscription;
+        }
+        public void UnSubscribe() => _subscriptions.Clear();
+        public event EventHandler<(string,LaserEntity)> ObjectChosenEvent;
     }
 }

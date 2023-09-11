@@ -8,6 +8,7 @@ using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.ViewModels.DbVM;
@@ -75,7 +76,10 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task AssignTechnology(Material material)
         {
-            var writeTechVM = new WriteTechnologyVM(_defaultParams)
+            var defParams = (ExtendedParams)_defaultParams.Clone();
+            defParams.ContourOffset = material.MaterialEntRule?.Offset ?? 0;
+            defParams.HatchWidth = material.MaterialEntRule?.Width ?? 0;
+            var writeTechVM = new WriteTechnologyVM(defParams)
             {
                 MaterialName = material.Name,
                 MaterialThickness = material.Thickness
@@ -88,6 +92,11 @@ namespace NewLaserProject.ViewModels
 
             if (result.Success)
             {
+                if (!result.CommonResult.Listing.OfType<PierceBlock>().Any())
+                {
+                    MessageBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
+                    return;
+                }
                 var newTechnology = new Technology();
                 newTechnology.Material = material;
 
@@ -141,7 +150,12 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task EditTechnology(Technology technology)
         {
-            var techWizard = new TechWizardVM(_defaultParams) { EditEnable = true };
+            var defParams = (ExtendedParams)_defaultParams.Clone();
+            defParams.ContourOffset =  technology.Material.MaterialEntRule?.Offset ?? 0;
+            defParams.HatchWidth = technology.Material.MaterialEntRule?.Width ?? 0;
+
+
+            var techWizard = new TechWizardVM(defParams) { EditEnable = true };
             var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
             techWizard.LoadListing(path);
             var result = await Dialog.Show<CommonDialog>()
@@ -151,6 +165,11 @@ namespace NewLaserProject.ViewModels
 
             if (result.Success)
             {
+                if (!result.CommonResult.Listing.OfType<PierceBlock>().Any())
+                {
+                    MessageBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
+                    return;
+                }
                 technology.ProcessingProgram = result.CommonResult.SaveListingToFolder(ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES));
                 _db.Set<Technology>().Update(technology);
                 _db.SaveChanges();

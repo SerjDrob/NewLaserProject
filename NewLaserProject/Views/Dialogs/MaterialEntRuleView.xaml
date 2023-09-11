@@ -9,26 +9,24 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <hc:SimpleStackPanel DataContext="{Binding MaterialEntRule}">
         <hc:NumericUpDown Value="{Binding Offset}"
-                                      ValueFormat="N3" 
-                                      Maximum="2" 
-                                      Minimum="-2"
-                                      Increment="0.01"
+                                      Maximum="1000" 
+                                      Minimum="-1000"
+                                      Increment="10"
                                       hc:InfoElement.TitleWidth="160" 
                                       hc:InfoElement.Placeholder="Please enter the content" 
                                       hc:InfoElement.TitlePlacement="Left" 
-                                      hc:InfoElement.Title="Смещение от контура, мм" 
+                                      hc:InfoElement.Title="Смещение от контура, мкм" 
                                       Style="{StaticResource NumericUpDownExtend}" 
                                       Margin="0,3,0,0"/>
 
         <hc:NumericUpDown Value="{Binding Width}"
-                                      ValueFormat="N3" 
-                                      Maximum="2"
+                                      Maximum="500"
                                       Minimum="0"
-                                      Increment="0.01"
+                                      Increment="10"
                                       hc:InfoElement.TitleWidth="160" 
                                       hc:InfoElement.Placeholder="Please enter the content" 
                                       hc:InfoElement.TitlePlacement="Left" 
-                                      hc:InfoElement.Title="Ширина контура, мм" 
+                                      hc:InfoElement.Title="Ширина контура, мкм" 
                                       Style="{StaticResource NumericUpDownExtend}" 
                                       Margin="0,3,0,0"/>
     </hc:SimpleStackPanel>

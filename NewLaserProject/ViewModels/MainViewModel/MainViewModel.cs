@@ -32,6 +32,9 @@ namespace NewLaserProject.ViewModels
     internal partial class MainViewModel
     {
         const string APP_SETTINGS_FOLDER = "AppSettings";
+        const string TEMP_FILES_FOLDER = "TempFiles";
+        const string TECHNOLOGY_FILES_FOLDER = "TechnologyFiles";
+
 
         private readonly LaserMachine _laserMachine;
         public bool IsLaserInitialized { get; set; } = false;
@@ -77,7 +80,7 @@ namespace NewLaserProject.ViewModels
 
         private readonly DbContext _db;
         private readonly IServiceProvider _serviceProvider;
-        private ISubject<IProcessNotify> _subjMediator = new Subject<IProcessNotify>();
+        private readonly ISubject<IProcessNotify> _subjMediator;
         public ObservableCollection<string> CameraCapabilities
         {
             get; set;
@@ -99,12 +102,13 @@ namespace NewLaserProject.ViewModels
         private double _waferAngle;
         private readonly ILogger _logger;
 
-        public MainViewModel(LaserMachine laserMachine, DbContext db, IServiceProvider serviceProvider, ILoggerProvider loggerProvider)
+        public MainViewModel(LaserMachine laserMachine, DbContext db, IServiceProvider serviceProvider, ILoggerProvider loggerProvider, ISubject<IProcessNotify> subjMediator)
         {
             _logger = loggerProvider.CreateLogger("MainVM");
             _laserMachine = laserMachine;
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _db = db;
+            _subjMediator = subjMediator;
             _serviceProvider = serviceProvider;
             _loadingContextTask = LoadContext();
 
@@ -137,6 +141,7 @@ namespace NewLaserProject.ViewModels
             InitViews();
             InitAppState();
             InitCommands();
+            _logger.Log(LogLevel.Information, "App started");
         }
 
 
@@ -270,8 +275,9 @@ namespace NewLaserProject.ViewModels
                         break;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, $"Swallowed the exception in {nameof(_laserMachine_OnAxisMotionStateChanged)}");
                 //throw;
             }
         }
@@ -426,6 +432,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Swallowed the exception in the {nameof(ImplementMachineSettings)} method.");
                 throw;
             }
 
@@ -435,7 +442,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, $"Swallowed the exception in the {nameof(ImplementMachineSettings)} method when setting a velocity regime.");
                 throw;
             }
 #endif

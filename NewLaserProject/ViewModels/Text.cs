@@ -1,7 +1,14 @@
-﻿namespace NewLaserProject.ViewModels
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+
+namespace NewLaserProject.ViewModels
 {
-    public class Text
+    [INotifyPropertyChanged]
+    public partial class Text
     {
+        public string LayerName
+        {
+            get;set;
+        }
         public string Value { get; set; }
         public bool IsProcessed { get; set; }
         public int Count { get; set; }

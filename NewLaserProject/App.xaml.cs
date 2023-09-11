@@ -14,10 +14,13 @@ using Microsoft.Extensions.Logging;
 using NewLaserProject.Classes;
 using NewLaserProject.Data;
 using NewLaserProject.ViewModels;
+using NewLaserProject.ViewModels.DialogVM;
+using NewLaserProject.ViewModels.DialogVM.Profiles;
 using NewLaserProject.Views;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive.Subjects;
 using System.Reflection;
 using System.Windows;
 
@@ -39,8 +42,8 @@ namespace NewLaserProject
 
             MainIoC = new ServiceCollection();
 
-            MainIoC.AddMediatR(Assembly.GetExecutingAssembly())
-                   //.AddSingleton<ISubject, Subject>()
+            _ = MainIoC//.AddMediatR(Assembly.GetExecutingAssembly())
+                   .AddSingleton<ISubject<IProcessNotify>, Subject<IProcessNotify>>()
                    .AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
                    .AddScoped<MotionDevicePCI1245E>()
@@ -69,7 +72,11 @@ namespace NewLaserProject
                    {
                        builder.AddFile(ProjectPath.GetFilePathInFolder(ProjectFolders.TEMP_FILES, "app.log"));
                    })
-                   .AddAutoMapper(cfg=>cfg.AddProfile<ParamsProfile>())
+                   .AddAutoMapper(cfg =>
+                   {
+                       cfg.AddProfile<ParamsProfile>();
+                       cfg.AddProfile<MarkParamsProfile>();
+                   })
                    .AddTransient<LaserDbViewModel>(sp =>
                    {
                        var defLaserParams = ExtensionMethods
@@ -80,17 +87,26 @@ namespace NewLaserProject
                        var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
                        return new(context, defaultParams);
                    })
+                   .AddTransient<MarkSettingsVM>(sp =>
+                   {
+                       var defLaserParams = ExtensionMethods
+                            .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+
+                       var mapper = sp.GetService<IMapper>();
+                       var vm = mapper?.Map<MarkSettingsVM>(defLaserParams);
+                       return vm;
+                   })
                    ;
 
-            var listenerName = "myListener";
-            Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));
+            //var listenerName = "myListener";
+            //Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));
 
-            //Trace.Listeners.Add(new MyTraceListener("MyLog.log", listenerName));
+            ////Trace.Listeners.Add(new MyTraceListener("MyLog.log", listenerName));
 
-            Trace.Listeners[listenerName].TraceOutputOptions |= TraceOptions.DateTime;
+            //Trace.Listeners[listenerName].TraceOutputOptions |= TraceOptions.DateTime;
 
 
-            Trace.Write("Start", "Header");
+            //Trace.Write("Start", "Header");
         }
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -121,48 +137,30 @@ namespace NewLaserProject
     }
 
 
-    internal static partial class LogExtensions
-    {
-        [LoggerMessage(EventId = 23,
-            Level = LogLevel.Error,
-            Message = "Motion failed with '{message}'")]
-        public static partial void LogMotionException(this ILogger logger, string message);
-        [LoggerMessage(12, LogLevel.Warning, "Fuck '{message}'")]
-        public static partial void LogAppException(this ILogger logger, string message);
-    }
+    //internal static partial class LogExtensions
+    //{
+    //    [LoggerMessage(EventId = 23,
+    //        Level = LogLevel.Error,
+    //        Message = "Motion failed with '{message}'")]
+    //    public static partial void LogMotionException(this ILogger logger, string message);
+    //    [LoggerMessage(12, LogLevel.Warning, "Fuck '{message}'")]
+    //    public static partial void LogAppException(this ILogger logger, string message);
+    //}
 
-    class MyTraceListener : TextWriterTraceListener
-    {
-        public MyTraceListener(string? fileName, string? name) : base(fileName, name)
-        {
-        }
+    //class MyTraceListener : TextWriterTraceListener
+    //{
+    //    public MyTraceListener(string? fileName, string? name) : base(fileName, name)
+    //    {
+    //    }
 
-        public override void Write(string? message, string? category)
-        {
-            base.Write(message, category);
-        }
+    //    public override void Write(string? message, string? category)
+    //    {
+    //        base.Write(message, category);
+    //    }
 
-        public override void Flush()
-        {
-            base.Flush();
-        }
-    }
-
-    class FileLogger : ILogger
-    {
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    public override void Flush()
+    //    {
+    //        base.Flush();
+    //    }
+    //}
 }

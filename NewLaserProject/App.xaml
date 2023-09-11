@@ -14,7 +14,9 @@
              xmlns:hc="https://handyorg.github.io/handycontrol" 
              xmlns:Controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary" 
              xmlns:entities ="clr-namespace:MachineClassLibrary.Laser.Entities;assembly=MachineClassLibrary"
+             xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
              xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
+             xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              >
     <Application.Resources>
@@ -27,11 +29,24 @@
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
                 <ResourceDictionary Source="Geometries.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
+            <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
+            <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
+            <Localconverters:TextToEntityConverter x:Key="TextToEntityConverter"/>
+            <Localconverters:IProcTypeToEntityConverter x:Key="IProcTypeToEntityConverter"/>
+            <Localconverters:GetLayerNameConverter x:Key="GetLayerNameConverter"/>
+            <Localconverters:FileAlignmentConverter x:Key="FileAlignmentConverter"/>
+            <Localconverters:KeyProcessorArgsConverter x:Key="KeyProcessorArgsConverter"/>
+            <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
+            <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
+            
             <DataTemplate DataType="{x:Type dialogvm:WaferVM}">
                 <dialogviews:WaferSettingsView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type dialogvm:AddProcObjectsVM}">
+                <dialogviews:AddObjectForProcessingView/>
+            </DataTemplate>
+            
             <DataTemplate DataType="{x:Type dialogvm:MaterialVM}">
                 <dialogviews:MaterialSettingsView/>
             </DataTemplate>
@@ -270,12 +285,12 @@
 
             <DataTemplate DataType="{x:Type pblocks:AddZBlock}">
                 <ItemsControl Style="{StaticResource CoorBlock}">
-                    <Label Content="Изменить глубину:" Style="{StaticResource BlockLabel}"/>
-                    <hc:NumericUpDown Value="{Binding DeltaZ}"
-                                      Width="80"
+                    <Label Content="Изменить глубину, мм:" Style="{StaticResource BlockLabel}"/>
+                    <hc:NumericUpDown Value="{Binding DeltaZ}" 
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Margin="0,0,5,0"
                                       DecimalPlaces="3" 
                                       Increment="0.01"/>
-                    <Label Content="мм"  Margin="0,0,0,5" Style="{StaticResource BlockLabel}"/>
                 </ItemsControl>
             </DataTemplate>
 
@@ -288,12 +303,14 @@
 
             <DataTemplate DataType="{x:Type pblocks:DelayBlock}">
                 <ItemsControl Style="{StaticResource DelayBlock}">
-                    <Label Content="Пауза: " Style="{StaticResource BlockLabel}"/>
-                    <hc:NumericUpDown Value="{Binding DelayTime}"
+                        <Label Content="Пауза, мс: " Style="{StaticResource BlockLabel}"/>
+                        <hc:NumericUpDown 
+                            Value="{Binding DelayTime}"
+                                      HorizontalAlignment="Right"
+                                      Style="{StaticResource NumericUpDownExtend}"
                                       Width="80"
                                       Minimum="0"
                                       Increment="100"/>
-                    <Label Content="мс" Style="{StaticResource BlockLabel}"/>
                 </ItemsControl>
             </DataTemplate>
 

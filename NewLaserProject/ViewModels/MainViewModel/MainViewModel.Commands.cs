@@ -5,14 +5,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using AutoMapper;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
-using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
@@ -171,12 +171,14 @@ namespace NewLaserProject.ViewModels
                     }
                     key.Handled = true;
                 }
-                catch (SwitchExpressionException)
+                catch (SwitchExpressionException ex)
                 {
+                    _logger.LogError(ex, $"Swallowed the exception in the {nameof(moveAsync)} method.");
                     return;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    _logger.LogError(ex, $"Throwed the exception in the {nameof(moveAsync)} method.");
                     throw;
                 }
             }
@@ -192,12 +194,14 @@ namespace NewLaserProject.ViewModels
                     };
                     _laserMachine.Stop(axis);
                 }
-                catch (SwitchExpressionException)
+                catch (SwitchExpressionException ex)
                 {
+                    _logger.LogError(ex, $"Swallowed the exception in the {nameof(stopAsync)} method.");
                     return Task.CompletedTask;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    _logger.LogError(ex, $"Throwed the exception in the {nameof(stopAsync)} method.");
                     throw;
                 }
                 return Task.CompletedTask;
@@ -210,6 +214,7 @@ namespace NewLaserProject.ViewModels
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, $"Throwed the exception in the {nameof(moveHomeAsync)} method.");
                     throw;
                 }
             }
@@ -268,9 +273,9 @@ namespace NewLaserProject.ViewModels
             if (result.Success) _db.SaveChanges();
         }
         [ICommand]
-        private void OpenSpecimenSettingsWindow()
+        private async Task OpenSpecimenSettingsWindow()
         {
-            var dialog = Dialog.Show<CommonDialog>()
+            var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Ориентация и технология по-умолчанию")
                 .SetDataContext<SpecimenSettingsVM>(vm => _db.Set<DefaultLayerEntityTechnology>()
                     .ToArrayAsync()
@@ -308,52 +313,44 @@ namespace NewLaserProject.ViewModels
                         vm.IsRotated = Settings.Default.WaferAngle90;
                     })
                 )
-                .GetCommonResultAsync<SpecimenSettingsVM>()
-                .ContinueWith(t =>
+                .GetCommonResultAsync<SpecimenSettingsVM>();
+            if (result.Success)
+            {
+                var defSettings = result.CommonResult;
+                var defProcFilter = new DefaultProcessFilterDTO
                 {
-                    var result = t.Result;
-                    if (result.Success)
-                    {
-                        var defSettings = result.CommonResult;
-                        var defProcFilter = new DefaultProcessFilterDTO
-                        {
-                            LayerFilterId = defSettings.DefaultTechSelector.DefLayerFilter.Id,
-                            MaterialId = defSettings.DefaultMaterial.Id,
-                            EntityType = (uint)defSettings.DefaultEntityType,
-                            DefaultWidth = defSettings.DefaultWidth,
-                            DefaultHeight = defSettings.DefaultHeight
-                        };
+                    LayerFilterId = defSettings.DefaultTechSelector.DefLayerFilter.Id,
+                    MaterialId = defSettings.DefaultMaterial.Id,
+                    EntityType = (uint)defSettings.DefaultEntityType,
+                    DefaultWidth = defSettings.DefaultWidth,
+                    DefaultHeight = defSettings.DefaultHeight
+                };
 
-                        defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultProcessFilter.json"));
+                defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultProcessFilter.json"));
 
-                        Settings.Default.WaferMirrorX = defSettings.IsMirrored;
-                        Settings.Default.WaferAngle90 = defSettings.IsRotated;
-                        Settings.Default.Save();
-                    }
-                });
+                Settings.Default.WaferMirrorX = defSettings.IsMirrored;
+                Settings.Default.WaferAngle90 = defSettings.IsRotated;
+                Settings.Default.Save();
+            }
         }
         [ICommand]
-        private void MachineSettings()
+        private async Task MachineSettings()
         {
-            Dialog.Show<CommonDialog>()
+            var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Настройки приводов")
                 .SetDataContext(new MachineSettingsVM(XAxis.Position, YAxis.Position, ZAxis.Position), vm => vm.CopyFromSettings())
-                .GetCommonResultAsync<MachineSettingsVM>()
-                .ContinueWith(t =>
-                {
-                    var result = t.Result;
-                    if (result.Success)
-                    {
-                        result.CommonResult.CopyToSettings();
-                        Settings.Default.Save();
-                        ImplementMachineSettings();
-                    }
-                });
+                .GetCommonResultAsync<MachineSettingsVM>();
+            if (result.Success)
+            {
+                result.CommonResult.CopyToSettings();
+                Settings.Default.Save();
+                ImplementMachineSettings();
+            }
         }
         [ICommand]
-        private void ChooseMaterial()
+        private async Task ChooseMaterial()
         {
-            Dialog.Show<CommonDialog>()
+            var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Подложка")
                 .SetDataContext<WaferVM>(vm =>
                 {
@@ -361,46 +358,29 @@ namespace NewLaserProject.ViewModels
                     vm.Height = WaferHeight;
                     vm.Thickness = WaferThickness;
                 })
-                .GetCommonResultAsync<WaferVM>()
-                .ContinueWith(t =>
-                {
-                    var result = t.Result;
-                    if (result.Success)
-                    {
-                        WaferWidth = result.CommonResult.Width;
-                        WaferHeight = result.CommonResult.Height;
-                        WaferThickness = result.CommonResult.Thickness;
-                    }
-                });
+                .GetCommonResultAsync<WaferVM>();
+            if (result.Success)
+            {
+                WaferWidth = result.CommonResult.Width;
+                WaferHeight = result.CommonResult.Height;
+                WaferThickness = result.CommonResult.Thickness;
+            }
         }
         [ICommand]
-        private void OpenPenHatchSettings()
+        private async Task OpenPenHatchSettings()
         {
-            var defLaserParams = ExtensionMethods.DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<MarkLaserParams, MarkSettingsVM>()
-                .IncludeMembers(s => s.PenParams, s => s.HatchParams);
-                cfg.CreateMap<PenParams, MarkSettingsVM>(MemberList.None);
-                cfg.CreateMap<HatchParams, MarkSettingsVM>(MemberList.None);
-            });
+            var msVM = _serviceProvider.GetService<MarkSettingsVM>();
 
-            var markParamsToMSVMMapper = config.CreateMapper();
-            var context = markParamsToMSVMMapper.Map<MarkSettingsVM>(defLaserParams);
-
-            Dialog.Show<CommonDialog>()
+            var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Настройка пера и штриховки")
-                .SetDataContext(context, vm => { })
-                .GetCommonResultAsync<MarkSettingsVM>()
-                .ContinueWith(t =>
-                {
-                    var result = t.Result;
-                    if (result.Success)
-                    {
-                        var defLaserParams = result.CommonResult.GetLaserParams();
-                        defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
-                    }
-                });
+                .SetDataContext(msVM, vm => { })
+                .GetCommonResultAsync<MarkSettingsVM>();
+
+            if (result.Success)
+            {
+                var defLaserParams = result.CommonResult.GetLaserParams();
+                defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+            }
         }
         [ICommand]
         private async Task GesturePressed(Compass direction)
@@ -421,9 +401,9 @@ namespace NewLaserProject.ViewModels
                 coordinates = direction switch
                 {
                     Compass.W => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 0, y),
-                    Compass.E=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, y),
-                    Compass.N=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, WaferHeight),
-                    Compass.S=> _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, 0),
+                    Compass.E => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, y),
+                    Compass.N => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, WaferHeight),
+                    Compass.S => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, 0),
                     Compass.CenterV => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, WaferHeight / 2),
                     Compass.CenterH => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth / 2, y),
                     _ => null
