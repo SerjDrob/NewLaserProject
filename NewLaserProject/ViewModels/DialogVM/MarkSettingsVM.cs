@@ -118,16 +118,16 @@ namespace NewLaserProject.ViewModels.DialogVM
         [DisplayName("Штриховать среднюю линию")]
         public bool HatchAverageLine { get; set; } = true;
         [Category("Параметры штриховки")]
-        [DisplayName("Шаг штриховки")]
+        [DisplayName("Шаг штриховки, мм")]
         public double HatchLineDist { get; set; } = 0.05;
         [Category("Параметры штриховки")]
-        [DisplayName("Отступ от края")]
+        [DisplayName("Отступ от края, мм")]
         public double HatchEdgeDist { get; set; } = 0.015;
         [Category("Параметры штриховки")]
-        [DisplayName("Смещение начала штриховки")]
+        [DisplayName("Смещение начала штриховки, мм")]
         public double HatchStartOffset { get; set; } = 0;
         [Category("Параметры штриховки")]
-        [DisplayName("Смещение конца штриховки")]
+        [DisplayName("Смещение конца штриховки, мм")]
         public double HatchEndOffset { get; set; } = 0;
         [Category("Параметры штриховки")]
         [Browsable(false)]

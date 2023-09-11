@@ -24,7 +24,7 @@ namespace NewLaserProject.ViewModels
             _dxfReader = dxfReader;
             var structure = _dxfReader.GetLayersStructure();
 
-            var predicate = (LaserEntity entity) => entity switch
+            Func<LaserEntity,bool> predicate = (LaserEntity entity) => entity switch
                 {
                     LaserEntity.Circle => true,
                     LaserEntity.Curve => true,

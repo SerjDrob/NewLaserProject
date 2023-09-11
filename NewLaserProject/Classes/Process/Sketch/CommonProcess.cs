@@ -150,15 +150,15 @@ namespace NewLaserProject.Classes.Process.Sketch
                     {
                         var currentObjects = item.microProcess.IsLoopShuffle ? item.procObjects.Shuffle() : item.procObjects;
                         if (_mainCancellationToken.IsCancellationRequested) break;
-                        foreach (var procObject in currentObjects)
+                        foreach (var pObject in currentObjects)
                         {
+                            var procObject = _procWafer.GetProcObjectToWafer(pObject);
                             if (_mainCancellationToken.IsCancellationRequested) break;
                             _subject.OnNext(new ProcObjectChanged(procObject));
 
                             if (!_excludedObjects?.Any(o => o.Id == procObject.Id) ?? true)
                             {
-                                var coors = _procWafer.GetPointToWafer(new((float)procObject.X, (float)procObject.Y));
-                                var position = coorSystem.ToGlobal(coors.X, coors.Y);
+                                var position = coorSystem.ToGlobal(procObject.X, procObject.Y);
                                 _laserMachine.SetVelocity(Velocity.Fast);
                                 await Task.WhenAll(
                                      _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),

@@ -21,6 +21,8 @@ using System.Reactive.Subjects;
 using NewLaserProject.Data.Models;
 using UnitsNet;
 using System.Threading.Tasks;
+using System.Threading;
+using System.Text;
 
 namespace NewLaserProject.Classes.Process
 {

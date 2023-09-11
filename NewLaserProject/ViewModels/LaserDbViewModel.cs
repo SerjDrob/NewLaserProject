@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -73,6 +75,14 @@ namespace NewLaserProject.ViewModels
             }
         }
 
+        private bool SearchPierceBlock(IEnumerable<IProgBlock> blocks)
+        {
+            if (blocks.OfType<PierceBlock>().Any()) return true;
+            foreach(var block in  blocks.OfType<LoopBlock>()) if(SearchPierceBlock(block.Children)) return true;
+            return false;
+        }
+
+
         [ICommand]
         private async Task AssignTechnology(Material material)
         {
@@ -92,7 +102,7 @@ namespace NewLaserProject.ViewModels
 
             if (result.Success)
             {
-                if (!result.CommonResult.Listing.OfType<PierceBlock>().Any())
+                if (!SearchPierceBlock(result.CommonResult.Listing))
                 {
                     MessageBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
                     return;
@@ -165,7 +175,7 @@ namespace NewLaserProject.ViewModels
 
             if (result.Success)
             {
-                if (!result.CommonResult.Listing.OfType<PierceBlock>().Any())
+                if (!SearchPierceBlock(result.CommonResult.Listing))
                 {
                     MessageBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
                     return;

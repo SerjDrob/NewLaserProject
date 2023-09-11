@@ -586,11 +586,11 @@
                                         </hc:ElementGroup>
                                     </WrapPanel>
                                     <hc:SimpleStackPanel Orientation="Horizontal">
-                                        <hc:ElementGroup Orientation="Horizontal" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                        <hc:ElementGroup Orientation="Horizontal" Visibility="Collapsed" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                             <Button hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                        Command="{Binding AddObjectToProcessCommand}"
-                                        Style="{StaticResource ButtonSuccess}"
-                                        />
+                                                    Command="{Binding AddObjectToProcessCommand}"
+                                                    Style="{StaticResource ButtonSuccess}"
+                                                    />
 
                                             <ComboBox ItemsSource="{Binding Source={StaticResource FileStructure}}"
                                                       SelectedIndex="{Binding DefLayerIndex}"
@@ -684,7 +684,7 @@
                                             </hc:ToggleBlock>
                                         </hc:ElementGroup>
                                     </hc:SimpleStackPanel>
-                                    <hc:ElementGroup Orientation="Horizontal">
+                                    <hc:ElementGroup Orientation="Horizontal" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <ContentControl Content="{Binding LayersProcessingModel}"/>
                                         <DataGrid ItemsSource="{Binding ChosenProcessingObjects}" IsEnabled="False" Style="{StaticResource DataGrid.Small}" AutoGenerateColumns="False">
                                             <DataGrid.Columns>

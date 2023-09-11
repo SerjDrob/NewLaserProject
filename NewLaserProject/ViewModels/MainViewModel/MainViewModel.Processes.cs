@@ -30,6 +30,7 @@ using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views;
 using NewLaserProject.Views.Dialogs;
+using Newtonsoft.Json;
 using UnitsNet;
 
 namespace NewLaserProject.ViewModels
@@ -169,7 +170,7 @@ namespace NewLaserProject.ViewModels
         private void RemoveObjectFromProcess(ObjsToProcess @object) => ObjectsForProcessing.Remove(@object);
 
         [ICommand]
-        private void DownloadProcess()
+        private void DownloadProcess2()
         {
             //TODO determine size by specified layer
             try
@@ -392,12 +393,12 @@ namespace NewLaserProject.ViewModels
 
 
         [ICommand]
-        private void DownloadProcess2()
+        private void DownloadProcess()
         {
             //TODO determine size by specified layer
             try
             {
-                if (!ChosenProcessingObjects.Any()) throw new ArgumentException("Объекты для обработки отсутствуют.");
+                if (!ChosenProcessingObjects?.Any() ?? true) throw new ArgumentException("Объекты для обработки отсутствуют.");
                 _currentProcSubscriptions = new();
                 var topologySize = _dxfReader.GetSize();               
 
@@ -411,10 +412,10 @@ namespace NewLaserProject.ViewModels
                 wafer.OffsetY((float)WaferOffsetY);
 
 
-                var getObjects = (LaserEntity entityType) => entityType switch
+                Func<LaserEntity, string,IEnumerable<IProcObject>> getObjects = (LaserEntity entityType, string layer) => entityType switch
                 {
-                    LaserEntity.Curve => _dxfReader.GetAllCurves(CurrentLayerFilter).Cast<IProcObject>(),
-                    LaserEntity.Circle => _dxfReader.GetCircles(CurrentLayerFilter).Cast<IProcObject>(),
+                    LaserEntity.Curve => _dxfReader.GetAllCurves(layer).Cast<IProcObject>(),
+                    LaserEntity.Circle => _dxfReader.GetCircles(layer).Cast<IProcObject>(),
                     _ => throw new ArgumentOutOfRangeException($"{CurrentEntityType} is not valid entity type for processing")
                 };
 
@@ -422,7 +423,7 @@ namespace NewLaserProject.ViewModels
                 var processing = new List<(IEnumerable<IProcObject>, MicroProcess)>();
                 foreach (var ofp in ChosenProcessingObjects)
                 {
-                    var objects = getObjects(ofp.LaserEntity);
+                    var objects = getObjects(ofp.LaserEntity, ofp.Layer).ToList();
                     var json = File.ReadAllText(ProjectPath.GetFilePathInFolder(TECHNOLOGY_FILES_FOLDER, $"{ofp.Technology?.ProcessingProgram}.json"));
                     var preparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath(TEMP_FILES_FOLDER));
                     //preparator.SetEntityAngle(Settings.Default.PazAngle); in case to take out the paz angle from the commonprocess ctor
@@ -499,7 +500,7 @@ namespace NewLaserProject.ViewModels
                     .Subscribe(poargs =>
                     {
                         _currObjectStarted = true;
-                        IsBeingProcessedObject = ProcessingObjects.SingleOrDefault(o => o.ProcObject.Id == poargs.ProcObject.Id)?.ProcObject;
+                        IsBeingProcessedObject = poargs.ProcObject;//ProcessingObjects.SingleOrDefault(o => o.ProcObject.Id == poargs.ProcObject.Id)?.ProcObject;
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
@@ -566,7 +567,6 @@ namespace NewLaserProject.ViewModels
 
                 Growl.Error(new GrowlInfo()
                 {
-                    StaysOpen = false,
                     Message = ex.Message,
                     ShowDateTime = false
                 });
@@ -584,7 +584,25 @@ namespace NewLaserProject.ViewModels
             catch (ArgumentException ex)
             {
                 _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
-                Growl.Error(ex.Message);
+                Growl.Error(new GrowlInfo()
+                {
+                    Message = ex.Message,
+                    ShowDateTime = false,
+                });
+            }
+            catch(JsonSerializationException ex)
+            {
+                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                Growl.Error(new GrowlInfo()
+                {
+                    Message = "В одной из заданных программ присутствует ошибка параметра.",
+                    ShowDateTime = false,
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Throwed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                throw;
             }
         }
 
@@ -613,7 +631,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Throwed the exception in the {StartProcessAsync} method.");
+                _logger.LogError(ex, $"Throwed the exception in the {nameof(StartProcessAsync)} method.");
                 throw;
             }
 #endif

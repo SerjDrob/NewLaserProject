@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Humanizer;
+﻿using Humanizer;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
@@ -19,9 +8,27 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Miscellanius;
 using NewLaserProject.ViewModels;
-using Stateless;
 using Newtonsoft.Json;
+using Stateless;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
+<<<<<<< HEAD
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+=======
+using MachineClassLibrary.Miscellaneous;
+using HandyControl.Expression.Media;
+using IShape = MachineClassLibrary.Laser.Entities.IShape;
+using NewLaserProject.Data.Models;
+using UnitsNet;
+>>>>>>> 6a0f6bf662a33d28981a604d8afb21d88fce9e55
 
 namespace NewLaserProject.Classes.Process
 {
@@ -87,6 +94,9 @@ namespace NewLaserProject.Classes.Process
             _fileAlignment = aligningPoints;
             _waferAngle = waferAngle;
             _scale = scale;
+
+            //var result = new WaferMetrics(_wafer);
+            //result.CreateProcessingChain();
         }
 
         public event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
@@ -141,6 +151,7 @@ namespace NewLaserProject.Classes.Process
             async Task ProcessingTheWaferAsync(ICoorSystem coorSystem)
             {
                 if (_cancellationTokenSource.Token.IsCancellationRequested) return;
+                _subject.OnNext(new ProcessingStarted());
                 for (var i = 0; i < _progTreeParser.MainLoopCount; i++)
                 {
                     if (_cancellationTokenSource.Token.IsCancellationRequested) break;
@@ -188,6 +199,7 @@ namespace NewLaserProject.Classes.Process
                 }
                 _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                 var completeStatus = _cancellationTokenSource.Token.IsCancellationRequested ? CompletionStatus.Cancelled : CompletionStatus.Success;
+                _subject.OnNext(new ProcessingStopped());
                 _subject.OnNext(new ProcCompletionPreview(completeStatus, coorSystem));
             }
 
@@ -262,7 +274,7 @@ namespace NewLaserProject.Classes.Process
                 .AddSubscriptionTo(_subscriptions);
 
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
-           
+
 
             _inProcess = true;//TODO is it necessary?
 
@@ -292,7 +304,7 @@ namespace NewLaserProject.Classes.Process
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < properPointsCount(_fileAlignment))
                 .PermitIf(Trigger.Next, State.Working, () => resultPoints.Count == properPointsCount(_fileAlignment))
-                .Permit(Trigger.Preteach,State.LinePreteaching);
+                .Permit(Trigger.Preteach, State.LinePreteaching);
 
             _stateMachine.Configure(State.Working)
                 .OnEntryFromAsync(workingTrigger, ProcessingTheWaferAsync)
@@ -350,7 +362,8 @@ namespace NewLaserProject.Classes.Process
                     }
                 })
                 .PermitDynamic(Trigger.Next, () => waferEnumerator.MoveNext() ? State.LineTeaching : State.Exit)
-                .OnExit(() => {
+                .OnExit(() =>
+                {
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                     xLineSb.Append($"{_xActual.ToString(cultureInfo)}),");
                     yLineSb.Append($"{_yActual.ToString(cultureInfo)}),");
@@ -369,13 +382,13 @@ namespace NewLaserProject.Classes.Process
                      var writer = System.IO.TextWriter.Null;
                      ser.Serialize(writer, xLCollection);
                      writer.Flush();
-                     var xstr =  writer.ToString();
-                     
+                     var xstr = writer.ToString();
+
                      writer = System.IO.TextWriter.Null;
                      ser.Serialize(writer, yLCollection);
                      writer.Flush();
                      var ystr = writer.ToString();
-                     
+
                      _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                      _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _teachingLinesCoorSystem));
                      return Task.CompletedTask;
@@ -417,23 +430,7 @@ namespace NewLaserProject.Classes.Process
         public async Task StartAsync()
         {
             if (_cancellationTokenSource.Token.IsCancellationRequested) return;
-<<<<<<< HEAD
-            if (_stateMachine is not null)
-            {
-                //try
-                //{
-                //    CreateProcess();
-                //}
-                //catch (Exception ex)
-                //{
-
-                //    throw;
-                //}
-                await _stateMachine.ActivateAsync().ConfigureAwait(false);
-            }
-=======
-            if (_stateMachine is null) await _stateMachine.ActivateAsync().ConfigureAwait(false);
->>>>>>> 44c940cc2c54ce6dc7ef8b11818211d317f81b8e
+            if (_stateMachine is not null) await _stateMachine.ActivateAsync().ConfigureAwait(false);
         }
         public Task StartAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
         public IDisposable Subscribe(IObserver<IProcessNotify> observer)
@@ -475,7 +472,7 @@ namespace NewLaserProject.Classes.Process
         public void Dispose()
         {
             // Никаких Dispose(true) и никаких вызовов GC.SuppressFinalize()
-            DisposeManagedResources(); 
+            DisposeManagedResources();
             disposedValue = true;
         }
 
@@ -496,6 +493,14 @@ namespace NewLaserProject.Classes.Process
         protected async override Task FuncForPierseBlockAsync(ExtendedParams extendedParams)
         {
             if (extendedParams.EnableMilling) _entityPreparator.SetEntityContourWidth(0d);
+
+            var offsetum = Length.FromMicrometers(extendedParams.ContourOffset);
+            var widthum = Length.FromMicrometers(extendedParams.HatchWidth);
+
+            _entityPreparator.SetEntityContourOffset(offsetum.Millimeters);
+            _entityPreparator.SetEntityContourWidth(extendedParams.EnableMilling ? widthum.Millimeters : 0d);
+
+
             using var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(_currentProcObject);
             _laserMachine.SetExtMarkParams(new ExtParamsAdapter(extendedParams));
             var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath).ConfigureAwait(false);
