@@ -8,7 +8,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DesignHeight="450" d:DesignWidth="800">
     <Border 
-        CornerRadius="10"
+        CornerRadius="12"
         Background="{DynamicResource RegionBrush}">
         <hc:SimpleStackPanel>
             <Grid>
@@ -19,21 +19,22 @@
                 <TextBlock x:Name="Title" HorizontalAlignment="Center" Margin="20,0,20,0" Style="{StaticResource TextBlockTitleBold}"/>
                 <StackPanel Orientation="Horizontal" Grid.Column="1">
                     <Button Width="22" 
-                    Height="22" 
-                        Padding="0"
-                        Margin="0,0,4,0"
-                    Command="hc:ControlCommands.Confirm" 
-                    Style="{StaticResource ButtonIcon}" 
-                    Foreground="{DynamicResource SuccessBrush}" 
-                    hc:IconElement.Geometry="{StaticResource SuccessGeometry}" 
+                            Height="22" 
+                            Padding="0"
+                            Margin="0,0,4,0"
+                            Command="hc:ControlCommands.Confirm" 
+                            Style="{StaticResource ButtonIcon}" 
+                            Foreground="{DynamicResource SuccessBrush}" 
+                            hc:IconElement.Geometry="{StaticResource SuccessGeometry}" 
                     />
                     <Button Width="22" 
-                    Height="22" 
-                        Padding="0"
-                    Command="hc:ControlCommands.Cancel" 
-                    Style="{StaticResource ButtonIcon}" 
-                    Foreground="{DynamicResource DangerBrush}" 
-                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}" 
+                            Height="22" 
+                            Padding="0"
+                            Margin="0,0,2,0"
+                            Command="hc:ControlCommands.Cancel" 
+                            Style="{StaticResource ButtonIcon}" 
+                            Foreground="{DynamicResource DangerBrush}" 
+                            hc:IconElement.Geometry="{StaticResource ErrorGeometry}" 
                     />
                     
                 </StackPanel>

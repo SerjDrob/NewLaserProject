@@ -25,7 +25,6 @@
                 <ResourceDictionary Source="WizardDictionary.xaml"/>
                 <!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinViolet.xaml"/>-->
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDark.xaml"/>
-
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
                 <ResourceDictionary Source="Geometries.xaml"/>
             </ResourceDictionary.MergedDictionaries>

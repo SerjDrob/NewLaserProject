@@ -25,7 +25,6 @@ namespace NewLaserProject.ViewModels
 {
     internal partial class MainViewModel
     {
-        //public int FileScale { get; set; } = 1000;
         public ObservableCollection<Scale> Scales { get; set; } = new(new() { new Scale(1000, 1), new Scale(100, 1), new Scale(1, 1) });
         public Scale DefaultFileScale
         {
@@ -42,10 +41,10 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
-        [OnChangedMethod(nameof(WiferDimensionChanged))]
+        [OnChangedMethod(nameof(WaferDimensionChanged))]
         public double WaferWidth { get; set; } = 48;
 
-        [OnChangedMethod(nameof(WiferDimensionChanged))]
+        [OnChangedMethod(nameof(WaferDimensionChanged))]
         public double WaferHeight { get; set; } = 60;
         public double WaferThickness { get; set; } = 0.5;
 
@@ -214,21 +213,18 @@ namespace NewLaserProject.ViewModels
             await Task.Run(() =>
             {
                 _db.Set<DefaultLayerFilter>()
-                               //.AsNoTracking()
                                .ToList().ForEach(d =>
                                {
                                    IgnoredLayers[d.Filter] = d.IsVisible;
                                });
                 AvailableMaterials = _db.Set<Material>().Local
-                                        //.Include(m => m.Technologies)
-                                        //.Include(m => m.MaterialEntRule)
-                                        //.AsNoTracking()
                                         .ToObservableCollection();
 
 
                 LayersStructure = _dxfReader.GetLayersStructure();
                 LayersProcessingModel?.UnSubscribe();
                 LayersProcessingModel = new(_dxfReader);
+                ChosenProcessingObjects = new();
                 LayersProcessingModel.Select(args=> Observable.FromAsync(async () =>
                 {
                     if (!args.isCheck)
@@ -252,7 +248,6 @@ namespace NewLaserProject.ViewModels
                             .GetCommonResultAsync<ObjectForProcessing>();
                         if (result.Success)
                         {
-                            ChosenProcessingObjects ??= new();
                             ChosenProcessingObjects.Add(result.CommonResult);
                         }
                         else
@@ -338,7 +333,7 @@ namespace NewLaserProject.ViewModels
         {
             _openedFileVM?.UndoRemoveSelection();
         }
-        private void WiferDimensionChanged()
+        private void WaferDimensionChanged()
         {
             var fileVM = _openedFileVM as FileVM;
             fileVM?.SetWaferDimensions(WaferWidth, WaferHeight);
