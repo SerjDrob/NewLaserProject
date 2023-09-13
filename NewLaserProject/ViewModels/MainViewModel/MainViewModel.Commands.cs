@@ -138,7 +138,7 @@ namespace NewLaserProject.ViewModels
                     });
 
                     return Task.CompletedTask;
-                }, () => true)
+                }, () => false)
                 .CreateKeyDownCommand(Key.F7, () =>
                 {
                     _laserMachine.InvokeSettings();
@@ -255,7 +255,7 @@ namespace NewLaserProject.ViewModels
                     Growl.Clear();
                     return _currentTeacher?.Deny();
                 }
-                return null;
+                return Task.CompletedTask;
             }
         }
         [ICommand]
