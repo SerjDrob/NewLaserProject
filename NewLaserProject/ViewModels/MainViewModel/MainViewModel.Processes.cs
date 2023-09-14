@@ -3,18 +3,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
+using System.Windows.Markup;
 using HandyControl.Controls;
 using HandyControl.Data;
-using HandyControl.Tools.Extension;
-using Humanizer;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
@@ -27,11 +24,8 @@ using NewLaserProject.Classes.Process;
 using NewLaserProject.Classes.Process.Sketch;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
-using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views;
-using NewLaserProject.Views.Dialogs;
 using Newtonsoft.Json;
-using UnitsNet;
 
 namespace NewLaserProject.ViewModels
 {
@@ -66,7 +60,11 @@ namespace NewLaserProject.ViewModels
         }
         public bool IsWaferMark
         {
-            get; set;
+            get => _openedFileVM?.IsMarkTextVisible ?? false;
+            set
+            {
+                if (_openedFileVM is not null) _openedFileVM.IsMarkTextVisible = value;
+            }
         }
         public MarkPosition MarkPosition
         {
@@ -77,7 +75,7 @@ namespace NewLaserProject.ViewModels
             get;
             private set;
         }
-       
+
 
         private List<IDisposable> _currentProcSubscriptions;
 
@@ -87,7 +85,7 @@ namespace NewLaserProject.ViewModels
             try
             {
                 if ((bool)arg)
-                {                    
+                {
                     await _appStateMachine.FireAsync(AppTrigger.StartProcess);
                 }
                 else
@@ -98,6 +96,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Throwed the exception in the method {nameof(StartStopProcess)}.");
                 _processTimer?.Dispose();
                 throw;
             }
@@ -106,7 +105,7 @@ namespace NewLaserProject.ViewModels
         private void _processTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             TotalProcessTimer = (e.SignalTime - _procStartTime).ToString(@"hh\:mm\:ss");
-            if(_currObjectStarted) _procObjTempTime = _procObjTempTime.AddSeconds(1);
+            if (_currObjectStarted) _procObjTempTime = _procObjTempTime.AddSeconds(1);
             CurrentProcObjectTimer = _procObjTempTime.ToString("mm:ss");
         }
 
@@ -154,20 +153,11 @@ namespace NewLaserProject.ViewModels
             IsProcessLoaded = false;
             _openedFileVM.IsCircleButtonVisible = true;
         }
-        [ICommand]
-        private async Task AddObjectToProcess()
-        {
-            ObjectsForProcessing.Add(new ObjsToProcess(LayersStructure));
-        }
-       
         public ObservableCollection<ObjectForProcessing> ChosenProcessingObjects
         {
             get;
             set;
         }
-
-        [ICommand]
-        private void RemoveObjectFromProcess(ObjsToProcess @object) => ObjectsForProcessing.Remove(@object);
 
         [ICommand]
         private void DownloadProcess2()
@@ -218,7 +208,7 @@ namespace NewLaserProject.ViewModels
 
                 _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder(TECHNOLOGY_FILES_FOLDER, $"{CurrentTechnology.ProcessingProgram}.json"));
                 var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath(TEMP_FILES_FOLDER));
-               
+
                 //var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
                 //if (materialEntRule is not null)
                 //{
@@ -365,7 +355,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (ArgumentOutOfRangeException ex)
             {
-                _logger.LogInformation(new EventId(2,"Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
 
                 Growl.Error(new GrowlInfo()
                 {
@@ -379,18 +369,22 @@ namespace NewLaserProject.ViewModels
                 _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 Growl.Error($"Файл технологии \"{CurrentTechnology.ProgramName}\" не найден.");
             }
-            catch(NullReferenceException ex)
+            catch (NullReferenceException ex)
             {
                 _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 if (CurrentTechnology is null) Growl.Error($"Файл технологии не выбран.");
             }
-            catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
-                Growl.Error(ex.Message);
+                Growl.Error(new GrowlInfo()
+                {
+                    StaysOpen = false,
+                    Message = ex.Message,
+                    ShowDateTime = false
+                });
             }
         }
-
 
         [ICommand]
         private void DownloadProcess()
@@ -400,7 +394,7 @@ namespace NewLaserProject.ViewModels
             {
                 if (!ChosenProcessingObjects?.Any() ?? true) throw new ArgumentException("Объекты для обработки отсутствуют.");
                 _currentProcSubscriptions = new();
-                var topologySize = _dxfReader.GetSize();               
+                var topologySize = _dxfReader.GetSize();
 
                 var wafer = new LaserWafer(topologySize);
 
@@ -412,7 +406,7 @@ namespace NewLaserProject.ViewModels
                 wafer.OffsetY((float)WaferOffsetY);
 
 
-                Func<LaserEntity, string,IEnumerable<IProcObject>> getObjects = (LaserEntity entityType, string layer) => entityType switch
+                Func<LaserEntity, string, IEnumerable<IProcObject>> getObjects = (LaserEntity entityType, string layer) => entityType switch
                 {
                     LaserEntity.Curve => _dxfReader.GetAllCurves(layer).Cast<IProcObject>(),
                     LaserEntity.Circle => _dxfReader.GetCircles(layer).Cast<IProcObject>(),
@@ -586,11 +580,12 @@ namespace NewLaserProject.ViewModels
                 _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 Growl.Error(new GrowlInfo()
                 {
+                    WaitTime = 2,
                     Message = ex.Message,
                     ShowDateTime = false,
                 });
             }
-            catch(JsonSerializationException ex)
+            catch (JsonSerializationException ex)
             {
                 _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 Growl.Error(new GrowlInfo()
@@ -651,41 +646,6 @@ namespace NewLaserProject.ViewModels
             var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Today.Date;
             await _laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, position, true);
             await _laserMachine.MarkTextAsync(markingText, 0.8, angle + theta);
-        }
-
-        private void ProcessingObjects_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            //var oldItem = e?.OldItems?[0] as IProcObject;
-            //var newItem = e?.NewItems?[0] as IProcObject;
-            //if (oldItem is not null && newItem is not null)
-            //{
-            //    if (newItem.IsBeingProcessed & !oldItem.IsBeingProcessed)
-            //    {
-            //        IsBeingProcessedObject = newItem;
-            //    }
-            //}
-        }
-
-        [ICommand]
-        private void ToProcChecked(IProcObject procObject)
-        {
-            if (procObject is not null)
-            {
-                procObject.ToProcess = true;
-                _mainProcess?.IncludeObject(procObject);
-            }
-        }
-
-        [ICommand]
-        private void ToProcUnchecked(IProcObject procObject)
-        {
-            //if (procObject is not null)
-            //{
-            //    procObject.ToProcess = false;
-            //    var index = ProcessingObjects.IndexOf(ProcessingObjects.SingleOrDefault(o => o.Id == procObject.Id));
-            //    ProcessingObjects[index] = procObject;
-            //    _mainProcess?.ExcludeObject(procObject);
-            //}
         }
 
         [ICommand]

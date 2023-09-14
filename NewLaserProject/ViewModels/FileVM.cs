@@ -60,6 +60,7 @@ namespace NewLaserProject.ViewModels
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
             _isFileOpened = true;
+            
             _requestSubscription?.Dispose();
             _requestSubscription = _mediator.OfType<ScopedGeomsRequest>()
                 .Select(request=>Observable.FromAsync(async () =>
@@ -281,6 +282,11 @@ namespace NewLaserProject.ViewModels
         public double LaserViewfinderX { get; set; }
         public double LaserViewfinderY { get; set; }
         public TextPosition TextPosition { get; set; } = TextPosition.W;
+        public bool IsMarkTextVisible
+        {
+            get;
+            set;
+        }
 
         public event EventHandler TransformationChanged;
 

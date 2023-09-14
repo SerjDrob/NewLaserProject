@@ -41,9 +41,9 @@
 
     </hc:GlowWindow.InputBindings>
     <hc:GlowWindow.Resources>        
-        <CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>
+        <!--<CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>-->
         <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
-        <CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>
+        <!--<CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>-->
         <CollectionViewSource x:Key="ProcObjects" Source="{Binding ProcessingObjects}"/>
 
 
@@ -487,12 +487,20 @@
                                 <hc:SimpleStackPanel>                                    
                                     <WrapPanel IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <hc:ElementGroup x:Name="FileScale" Orientation="Horizontal">
-                                            <hc:ComboBox ItemsSource="{Binding Scales}"
-                                                 SelectedItem="{Binding DefaultFileScale}"
-                                                 hc:TitleElement.Title="Масштаб файла"
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.Background="Black"
-                                                 Width="180"/>
+                                            <hc:ElementGroup.Resources>
+                                                <x:Array x:Key="Scales" Type="{x:Type classes:Scale}">
+                                                    <classes:Scale Numerator="1000" Denominator="1"/>
+                                                    <classes:Scale Numerator="100" Denominator="1"/>
+                                                    <classes:Scale Numerator="1" Denominator="1"/>
+                                                </x:Array>
+                                            </hc:ElementGroup.Resources>
+                                            <hc:ComboBox ItemsSource="{Binding Source={StaticResource Scales}}" 
+                                                         SelectedItem="{Binding DefaultFileScale}"
+                                                         SelectedIndex="0"
+                                                         hc:TitleElement.Title="Масштаб файла"
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         hc:TitleElement.Background="Black"
+                                                         Width="180"/>
                                         </hc:ElementGroup>
                                         <hc:ElementGroup Orientation="Horizontal">
                                             <hc:ElementGroup.Resources>
@@ -513,7 +521,7 @@
                                             <Label Content="Тип совмещения"/>
                                         </hc:ElementGroup>
                                         <hc:ElementGroup Orientation="Horizontal">
-                                            <CheckBox IsChecked="{Binding IsWaferMark}"
+                                            <CheckBox IsChecked="{Binding IsWaferMark, Mode=OneWayToSource}"
                                                   Content="Маркировать"
                                                   Margin="5,0,5,0"
                                                   />
@@ -584,7 +592,7 @@
                                             </Button>
                                         </hc:ElementGroup>
                                     </WrapPanel>
-                                    <hc:SimpleStackPanel Orientation="Horizontal">
+                                    <!--<hc:SimpleStackPanel Orientation="Horizontal">
                                         <hc:ElementGroup Orientation="Horizontal" Visibility="Collapsed" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                             <Button hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                                     Command="{Binding AddObjectToProcessCommand}"
@@ -634,7 +642,7 @@
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
                                         </hc:ElementGroup>                                        
-                                    </hc:SimpleStackPanel>
+                                    </hc:SimpleStackPanel>-->
                                     <hc:ElementGroup Orientation="Horizontal" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <ContentControl Content="{Binding LayersProcessingModel}"/>
                                         <DataGrid ItemsSource="{Binding ChosenProcessingObjects}" IsEnabled="False" Style="{StaticResource DataGrid.Small}" AutoGenerateColumns="False">

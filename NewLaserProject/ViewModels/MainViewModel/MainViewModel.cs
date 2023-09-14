@@ -137,7 +137,6 @@ namespace NewLaserProject.ViewModels
 
             _laserMachine.SetMarkParams(defLaserParams);
 
-            TuneMachineFileView();
             InitViews();
             InitAppState();
             InitCommands();
