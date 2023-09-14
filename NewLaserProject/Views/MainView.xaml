@@ -402,26 +402,13 @@
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
         </ToolBarTray>
-        <TabControl Margin="1" Grid.Column="1">
-            <TabItem>
+        <TabControl Margin="1" Grid.Column="1" Style="{StaticResource TabControlCapsule}">
+            <TabItem Header="Процесс">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="GotFocus">
                         <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsMainTabOpen" Value="True"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <TabItem.Header>
-                    <Border BorderBrush="CadetBlue" Margin="0,0,10,0" CornerRadius="4" BorderThickness="1" DockPanel.Dock="Top" HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                            <TextBlock Text="{Binding DataContext.FileName, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
-                                           hc:InfoElement.Placeholder="Open file"
-                                           Width="100" 
-                                           Margin="2" 
-                                           Background="LightYellow"/>
-                            <Button Command="{Binding OpenFileCommand}" Content="Файл" Style="{StaticResource ButtonPrimary.Small}" />
-                        </StackPanel>
-                    </Border>
-                </TabItem.Header>
-
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
@@ -437,10 +424,11 @@
                     <Grid Grid.Column="1" VerticalAlignment="Stretch">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <hc:SimpleStackPanel>
-                            <Border x:Name="ImportantMessage"
+                            <!--<Border x:Name="ImportantMessage"
                                 BorderThickness="2" 
                                 BorderBrush="Blue"
                                 Padding="2"
@@ -458,17 +446,28 @@
                                     </i:Interaction.Triggers>
                                     </TextBlock>
                                 </DockPanel>
-                            </Border>
+                            </Border>-->
 
                             <ContentControl Content="{Binding RightSideVM}" 
                                         MinHeight="300"
                                         Visibility="{Binding IsRightPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
                             </ContentControl>
                         </hc:SimpleStackPanel>
-
+                        <hc:SimpleStackPanel Grid.Row="1">
+                            <hc:Divider Orientation="Horizontal" Style="{StaticResource DividerBaseStyle}"/>
+                            <Border BorderBrush="{StaticResource PrimaryBrush}" CornerRadius="5" BorderThickness="1">
+                                <hc:ElementGroup Orientation="Horizontal">
+                                    <Button Command="{Binding OpenFileCommand}" Content="Файл" Style="{StaticResource ButtonPrimary.Small}" />
+                                    <TextBlock Text="{Binding DataContext.FileName, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
+                                           Margin="5,0"
+                                           Style="{StaticResource TextBlockDefault}"
+                                           />
+                                </hc:ElementGroup>
+                            </Border>
+                        </hc:SimpleStackPanel>
                         <GroupBox x:Name="ProcessPanel"
                                   Header="Текущий процесс" 
-                                  Grid.Row="1"
+                                  Grid.Row="2"
                                   Style="{StaticResource GroupBoxTab}"
                                   >
                             <i:Interaction.Triggers>
@@ -485,7 +484,7 @@
                                     <RowDefinition Height="auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <hc:SimpleStackPanel>
+                                <hc:SimpleStackPanel>                                    
                                     <WrapPanel IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <hc:ElementGroup x:Name="FileScale" Orientation="Horizontal">
                                             <hc:ComboBox ItemsSource="{Binding Scales}"
@@ -634,55 +633,7 @@
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
-                                        </hc:ElementGroup>
-                                        <hc:ElementGroup Orientation="Horizontal">
-                                            <hc:ToggleBlock IsChecked="{Binding IsProcessPanelVisible}">
-                                                <hc:ToggleBlock.UnCheckedContent>
-                                                    <Button hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                    Command="{Binding DownloadProcessCommand}"/>
-                                                </hc:ToggleBlock.UnCheckedContent>
-                                                <hc:ToggleBlock.CheckedContent>
-                                                    <hc:ToggleBlock IsChecked="{Binding OnProcess}">
-                                                        <hc:ToggleBlock.UnCheckedContent>
-                                                            <hc:ElementGroup Orientation="Horizontal">
-                                                                <ToggleButton Command="{Binding StartStopProcessCommand}"
-                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
-                                                                      IsChecked="{Binding OnProcess}"
-                                                                      hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
-                                                                      hc:IconSwitchElement.GeometrySelected="{StaticResource StopSignGeometry}"
-                                                                      RenderTransformOrigin="0,0.5"
-                                                                      Style="{StaticResource ToggleButtonIcon}"
-                                                                      >
-                                                                    <ToggleButton.RenderTransform>
-                                                                        <ScaleTransform ScaleY="-1"/>
-                                                                    </ToggleButton.RenderTransform>
-                                                                </ToggleButton>
-                                                                <Button hc:IconElement.Geometry="{StaticResource RemoveGeometry}"
-                                                                Command="{Binding DenyDownloadedProcessCommand}"
-                                                                Style="{StaticResource ButtonDashedDanger.Small}"
-                                                                ToolTip="Отменить"
-                                                                hc:TipElement.Placement="TopLeft"
-                                                                />
-                                                            </hc:ElementGroup>
-                                                        </hc:ToggleBlock.UnCheckedContent>
-                                                        <hc:ToggleBlock.CheckedContent>
-                                                            <ToggleButton Command="{Binding StartStopProcessCommand}"
-                                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
-                                                          IsChecked="{Binding OnProcess}"
-                                                          hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
-                                                          hc:IconSwitchElement.GeometrySelected="{StaticResource StopSignGeometry}"
-                                                          RenderTransformOrigin="0,0.5"
-                                                          Style="{StaticResource ToggleButtonIcon}"
-                                                          >
-                                                                <ToggleButton.RenderTransform>
-                                                                    <ScaleTransform ScaleY="-1"/>
-                                                                </ToggleButton.RenderTransform>
-                                                            </ToggleButton>
-                                                        </hc:ToggleBlock.CheckedContent>
-                                                    </hc:ToggleBlock>
-                                                </hc:ToggleBlock.CheckedContent>
-                                            </hc:ToggleBlock>
-                                        </hc:ElementGroup>
+                                        </hc:ElementGroup>                                        
                                     </hc:SimpleStackPanel>
                                     <hc:ElementGroup Orientation="Horizontal" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <ContentControl Content="{Binding LayersProcessingModel}"/>
@@ -701,41 +652,54 @@
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </hc:ElementGroup>
-                                    <hc:ScrollViewer Padding="5" MaxHeight="120" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                        <ItemsControl ItemsSource="{Binding ObjectsForProcessing}" >
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <hc:ElementGroup Orientation="Horizontal">
-                                                        <Button 
-                                                      hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                      Command="{Binding RelativeSource={RelativeSource AncestorType=Window},Path=DataContext.RemoveObjectFromProcessCommand}"
-                                                      CommandParameter="{Binding}"
-                                                      Style="{StaticResource ButtonDashedDanger}"
-                                                      />
-
-                                                        <ComboBox 
-                                                      x:Name="LayComb"
-                                                      ItemsSource="{Binding Structure, Converter={StaticResource LStructureConvereter}}"            
-                                                      SelectedValuePath="LayerName"
-                                                      SelectedValue="{Binding Layer, Mode=OneWayToSource}"
-                                                      DisplayMemberPath="LayerName"
-                                                        MinWidth="120"
-                                                      >
-                                                        </ComboBox>
-
-                                                        <uclocal:ItemsButton 
-                                                                Items="{Binding ElementName=LayComb, Path=SelectedItem.Entities}"
-                                                                ItemSelector="{StaticResource EntitySelector}"
-                                                                SelectedItem="{Binding LaserEntity, Mode=TwoWay}"
-                                                                SetIndex="1"
-                                                                MinWidth="30"
+                                    <hc:ElementGroup Orientation="Horizontal">
+                                        <hc:ToggleBlock IsChecked="{Binding IsProcessPanelVisible}">
+                                            <hc:ToggleBlock.UnCheckedContent>
+                                                <Button hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                    Command="{Binding DownloadProcessCommand}"/>
+                                            </hc:ToggleBlock.UnCheckedContent>
+                                            <hc:ToggleBlock.CheckedContent>
+                                                <hc:ToggleBlock IsChecked="{Binding OnProcess}">
+                                                    <hc:ToggleBlock.UnCheckedContent>
+                                                        <hc:ElementGroup Orientation="Horizontal">
+                                                            <ToggleButton Command="{Binding StartStopProcessCommand}"
+                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
+                                                                      IsChecked="{Binding OnProcess}"
+                                                                      hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
+                                                                      hc:IconSwitchElement.GeometrySelected="{StaticResource StopSignGeometry}"
+                                                                      RenderTransformOrigin="0,0.5"
+                                                                      Style="{StaticResource ToggleButtonIcon}"
+                                                                      >
+                                                                <ToggleButton.RenderTransform>
+                                                                    <ScaleTransform ScaleY="-1"/>
+                                                                </ToggleButton.RenderTransform>
+                                                            </ToggleButton>
+                                                            <Button hc:IconElement.Geometry="{StaticResource RemoveGeometry}"
+                                                                Command="{Binding DenyDownloadedProcessCommand}"
+                                                                Style="{StaticResource ButtonDashedDanger.Small}"
+                                                                ToolTip="Отменить"
+                                                                hc:TipElement.Placement="TopLeft"
                                                                 />
-
-                                                    </hc:ElementGroup>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </hc:ScrollViewer>
+                                                        </hc:ElementGroup>
+                                                    </hc:ToggleBlock.UnCheckedContent>
+                                                    <hc:ToggleBlock.CheckedContent>
+                                                        <ToggleButton Command="{Binding StartStopProcessCommand}"
+                                                          CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
+                                                          IsChecked="{Binding OnProcess}"
+                                                          hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
+                                                          hc:IconSwitchElement.GeometrySelected="{StaticResource StopSignGeometry}"
+                                                          RenderTransformOrigin="0,0.5"
+                                                          Style="{StaticResource ToggleButtonIcon}"
+                                                          >
+                                                            <ToggleButton.RenderTransform>
+                                                                <ScaleTransform ScaleY="-1"/>
+                                                            </ToggleButton.RenderTransform>
+                                                        </ToggleButton>
+                                                    </hc:ToggleBlock.CheckedContent>
+                                                </hc:ToggleBlock>
+                                            </hc:ToggleBlock.CheckedContent>
+                                        </hc:ToggleBlock>
+                                    </hc:ElementGroup>
                                 </hc:SimpleStackPanel>
                                 <UniformGrid Rows="2" Grid.Row="1">
                                     <DataGrid x:Name="ProcObjGrid"

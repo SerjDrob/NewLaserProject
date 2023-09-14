@@ -95,7 +95,7 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
-        public string FileName { get; set; } = "Open the file";
+        public string FileName { get; set; } 
 
         public Dictionary<string, bool> IgnoredLayers
         {
