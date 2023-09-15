@@ -18,6 +18,7 @@
         <hc:ElementGroup>
             <ComboBox x:Name="Materials" 
                       ItemsSource="{Binding Source={StaticResource MaterialsSource}}" 
+                      SelectedItem="{Binding Material, Mode=TwoWay}"
                       MinWidth="120"
                       hc:TitleElement.Title="Материал"
                       hc:TitleElement.TitlePlacement="Left"
@@ -30,15 +31,14 @@
                         </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
-                <i:Interaction.Triggers>
+                <!--<i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
                         <i:ChangePropertyAction TargetObject="{Binding ElementName=TechCombo}" PropertyName="SelectedIndex" Value="0"/>
                     </i:EventTrigger>
-                </i:Interaction.Triggers>
+                </i:Interaction.Triggers>-->
             </ComboBox>
             <ComboBox ItemsSource="{Binding Source={StaticResource MaterialsSource}, Path=Technologies}"
-                      SelectedItem="{Binding ObjectForProcessing.Technology, Mode=OneWayToSource}"  
-                      SelectedIndex="0"
+                      SelectedItem="{Binding ObjectForProcessing.Technology, Mode=TwoWay}"  
                       MinWidth="120"
                       hc:TitleElement.Title="Технология"
                       hc:TitleElement.TitlePlacement="Left"

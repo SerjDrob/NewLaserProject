@@ -184,6 +184,7 @@ namespace NewLaserProject.ViewModels
                     }
                     else
                     {
+                        var tempTechnology = ChosenProcessingObjects.LastOrDefault()?.Technology ?? availableMaterials?.First()?.Technologies?.First();
                         var result = await Dialog.Show<Views.Dialogs.CommonDialog>()
                             .SetDialogTitle("Выбор технологии обработки")
                             .SetDataContext<AddProcObjectsVM>(vm =>
@@ -192,7 +193,9 @@ namespace NewLaserProject.ViewModels
                                 {
                                     Layer = args.layerName,
                                     LaserEntity = args.entType,
+                                    Technology = tempTechnology
                                 };
+                                vm.Material = tempTechnology?.Material;
                                 vm.Materials = new(availableMaterials);
                             })
                             .GetCommonResultAsync<ObjectForProcessing>();
@@ -212,7 +215,6 @@ namespace NewLaserProject.ViewModels
                 .Subscribe();
             });
         }
-
         private void MainViewModel_TransformationChanged(object? sender, EventArgs e)
         {
             var fileVM = _openedFileVM as FileVM;

@@ -10,6 +10,11 @@ namespace NewLaserProject.ViewModels.DialogVM
             get;
             set;
         }
+        public Material Material
+        {
+            get;
+            set;
+        }
         public ObservableCollection<Material> Materials
         {
             get;
