@@ -10,7 +10,8 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <CollectionViewSource x:Key="TechnologyBase"
-                              Source="{Binding Technologies}"/>
+                              Source="{Binding Technologies}"
+                              />
         <CollectionViewSource x:Key="MaterialBase"
                               Source="{Binding Materials}"/>
     </UserControl.Resources>
@@ -38,8 +39,8 @@
                   >                    
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Программа" Binding="{Binding ProgramName}"/>
-                        <DataGridTextColumn Header="Материал" Binding="{Binding Material.Name}"/>
-                        <DataGridTextColumn Header="Толщина" Binding="{Binding Material.Thickness}"/>
+                        <DataGridTextColumn Header="Материал" IsReadOnly="True" Binding="{Binding Material.Name}"/>
+                        <DataGridTextColumn Header="Толщина" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
                         <DataGridTemplateColumn>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -89,7 +90,7 @@
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Название" Binding="{Binding Name}"/>
-                        <DataGridTextColumn Header="Толщина"  Binding="{Binding Thickness}"/>
+                        <DataGridTextColumn Header="Толщина" IsReadOnly="True" Binding="{Binding Thickness}"/>
                         <DataGridTemplateColumn>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
