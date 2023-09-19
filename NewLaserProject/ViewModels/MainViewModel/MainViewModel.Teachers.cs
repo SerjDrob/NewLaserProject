@@ -196,7 +196,8 @@ namespace NewLaserProject.ViewModels
                         StaysOpen = false
                     });
                     //---Set new coordinate system
-                    _coorSystem = GetCoorSystem();
+                    _coorSystem = GetCoorSystem(PUREDEFORMATION_FILE);
+                    TuneCoorSystem();
                     //StopVideoCapture();
                     TeachingSteps = new();
                     _canTeach = false;
@@ -458,8 +459,8 @@ namespace NewLaserProject.ViewModels
                     WaferTurn90 = _tempWaferTurn90;
 
                     //---Set new coordinate system
-                    _coorSystem = GetCoorSystem();
-
+                    _coorSystem = GetCoorSystem(PUREDEFORMATION_FILE);
+                    TuneCoorSystem();
                     _canTeach = false;
                 }));
             return xyOrthBuilder.Build();

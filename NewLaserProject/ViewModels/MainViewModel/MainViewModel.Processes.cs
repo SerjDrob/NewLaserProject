@@ -206,8 +206,8 @@ namespace NewLaserProject.ViewModels
                 serviceWafer.OffsetY((float)WaferOffsetY);
 
 
-                _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder(TECHNOLOGY_FILES_FOLDER, $"{CurrentTechnology.ProcessingProgram}.json"));
-                var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath(TEMP_FILES_FOLDER));
+                _pierceSequenceJson = File.ReadAllText(ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{CurrentTechnology.ProcessingProgram}.json"));
+                var entityPreparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath(ProjectFolders.TEMP_FILES));
 
                 //var materialEntRule = CurrentTechnology.Material.MaterialEntRule;
                 //if (materialEntRule is not null)
@@ -418,8 +418,8 @@ namespace NewLaserProject.ViewModels
                 foreach (var ofp in ChosenProcessingObjects)
                 {
                     var objects = getObjects(ofp.LaserEntity, ofp.Layer).ToList();
-                    var json = File.ReadAllText(ProjectPath.GetFilePathInFolder(TECHNOLOGY_FILES_FOLDER, $"{ofp.Technology?.ProcessingProgram}.json"));
-                    var preparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath(TEMP_FILES_FOLDER));
+                    var json = File.ReadAllText(ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{ofp.Technology?.ProcessingProgram}.json"));
+                    var preparator = new EntityPreparator(_dxfReader, ProjectPath.GetFolderPath(ProjectFolders.TEMP_FILES));
                     //preparator.SetEntityAngle(Settings.Default.PazAngle); in case to take out the paz angle from the commonprocess ctor
                     var mp = new MicroProcess(json, preparator, _laserMachine, z =>
                     {

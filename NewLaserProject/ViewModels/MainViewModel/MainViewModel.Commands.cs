@@ -326,7 +326,7 @@ namespace NewLaserProject.ViewModels
                     DefaultHeight = defSettings.DefaultHeight
                 };
 
-                defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultProcessFilter.json"));
+                defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultProcessFilter.json"));
 
                 Settings.Default.WaferMirrorX = defSettings.IsMirrored;
                 Settings.Default.WaferAngle90 = defSettings.IsRotated;
@@ -345,6 +345,7 @@ namespace NewLaserProject.ViewModels
                 result.CommonResult.CopyToSettings();
                 Settings.Default.Save();
                 ImplementMachineSettings();
+                TuneCoorSystem();
             }
         }
         [ICommand]
@@ -379,7 +380,7 @@ namespace NewLaserProject.ViewModels
             if (result.Success)
             {
                 var defLaserParams = result.CommonResult.GetLaserParams();
-                defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+                defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultLaserParams.json"));
             }
         }
         [ICommand]

@@ -31,9 +31,7 @@ namespace NewLaserProject.ViewModels
     [AddINotifyPropertyChangedInterface]
     internal partial class MainViewModel
     {
-        const string APP_SETTINGS_FOLDER = "AppSettings";
-        const string TEMP_FILES_FOLDER = "TempFiles";
-        const string TECHNOLOGY_FILES_FOLDER = "TechnologyFiles";
+        readonly string PUREDEFORMATION_FILE = ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "PureDeformation.json");
 
 
         private readonly LaserMachine _laserMachine;
@@ -114,7 +112,8 @@ namespace NewLaserProject.ViewModels
 
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
-            _coorSystem = GetCoorSystem();
+            _coorSystem = GetCoorSystem(PUREDEFORMATION_FILE);
+            TuneCoorSystem();
             ImplementMachineSettings();
 
 
@@ -133,7 +132,7 @@ namespace NewLaserProject.ViewModels
                 });
 
             var defLaserParams = ExtensionMethods
-                .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+                .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultLaserParams.json"));
 
             _laserMachine.SetMarkParams(defLaserParams);
 
@@ -315,7 +314,7 @@ namespace NewLaserProject.ViewModels
 #if PCIInserted
 
             var axesConfigs = ExtensionMethods
-                .DeserilizeObject<LaserAxesConfiguration>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "AxesConfigs.json"));
+                .DeserilizeObject<LaserAxesConfiguration>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "AxesConfigs.json"));
 
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
 
@@ -446,26 +445,15 @@ namespace NewLaserProject.ViewModels
             }
 #endif
         }
-        private CoorSystem<LMPlace> GetCoorSystem()
+        private static CoorSystem<LMPlace> GetCoorSystem(string path)
         {
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "PureDeformation.json")
-                ?? throw new NullReferenceException("CoorSystem in the file is invalid"));
-
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(path) ?? throw new NullReferenceException("CoorSystem in the file is invalid");
             var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
-            buider.SetWorkMatrix(new Matrix3x2(
-                matrixElements[0],
-                matrixElements[1],
-                matrixElements[2],
-                matrixElements[3],
-                matrixElements[4],
-                matrixElements[5]
-                ));
-
+            buider.SetWorkMatrix(matrixElements);
             var sys = buider.Build();
-            TuneCoorSystem(sys);
             return sys;
         }
-        private void TuneCoorSystem(CoorSystem<LMPlace> coorSystem)
+        private void TuneCoorSystem()
         {
             var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
             var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
@@ -476,21 +464,21 @@ namespace NewLaserProject.ViewModels
             _waferAngle = -_waferAngle;
 #endif
 
-            coorSystem.BuildRelatedSystem()
+            _coorSystem.BuildRelatedSystem()
                       .Rotate(_waferAngle)
                       .Translate(Settings.Default.XLeftPoint, Settings.Default.YLeftPoint)
                       .Build(LMPlace.FileOnWaferUnderCamera);
 
-            coorSystem.BuildRelatedSystem()
+            _coorSystem.BuildRelatedSystem()
                       .Rotate(_waferAngle)
                       .Translate(Settings.Default.XLeftPoint + Settings.Default.XOffset, Settings.Default.YLeftPoint + Settings.Default.YOffset)
                       .Build(LMPlace.FileOnWaferUnderLaser);
 
 
-            coorSystem.SetRelatedSystem(LMPlace.Loading, 50, 20);
-            coorSystem.SetRelatedSystem(LMPlace.UnderLaser, 1, 2);
-            coorSystem.SetRelatedSystem(LMPlace.LeftCorner, Settings.Default.XLeftPoint, Settings.Default.YLeftPoint);
-            coorSystem.SetRelatedSystem(LMPlace.RightCorner, 1, 2);
+            _coorSystem.SetRelatedSystem(LMPlace.Loading, 50, 20);
+            _coorSystem.SetRelatedSystem(LMPlace.UnderLaser, 1, 2);
+            _coorSystem.SetRelatedSystem(LMPlace.LeftCorner, Settings.Default.XLeftPoint, Settings.Default.YLeftPoint);
+            _coorSystem.SetRelatedSystem(LMPlace.RightCorner, 1, 2);
         }
     }
 

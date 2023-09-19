@@ -242,7 +242,7 @@ namespace NewLaserProject.Classes.Process
 
                             var sys = new CoorSystem<LMPlace>
                             .WorkMatrixCoorSystemBuilder<LMPlace>()
-                            .SetWorkMatrix(new(-1, 0.00066f, 0.0f, -1, coorSys.GetMainMatrixElements()[4], coorSys.GetMainMatrixElements()[5]))
+                            .SetWorkMatrix(new System.Numerics.Matrix3x2(-1, 0.00066f, 0.0f, -1, coorSys.GetMainMatrixElements()[4], coorSys.GetMainMatrixElements()[5]))
                             .Build();
 
                             //_teachingLinesCoorSystem = sys;// new VariableCoorSystem((ICoorSystem<LMPlace>)sys, CoorLines.XLines, CoorLines.YLines);
