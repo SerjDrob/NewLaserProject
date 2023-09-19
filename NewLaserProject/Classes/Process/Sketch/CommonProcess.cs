@@ -86,7 +86,6 @@ namespace NewLaserProject.Classes.Process.Sketch
             _teachingPointsCoorSystem = baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
             _underCamera = underCamera;
             _zPiercing = _underCamera ? _zeroZCamera : _zeroZPiercing;//TODO use it outside of the constructor
-            _underCamera = underCamera;
             _fileAlignment = aligningPoints;
             _waferAngle = waferAngle;
             _scale = scale;
@@ -233,20 +232,20 @@ namespace NewLaserProject.Classes.Process.Sketch
                             item.SetEntityAngle(-_pazAngle + _matrixAngle);
                         }
 
-                        if (!_underCamera)
-                        {
+                        //if (!_underCamera)
+                        //{
                             _stateMachine.FireAsync(workingTrigger, coorSys);
-                        }
-                        else
-                        {
-                            _teachingLinesCoorSystem = coorSys;
+                        //}
+                        //else
+                        //{
+                        //    _teachingLinesCoorSystem = coorSys;
 
-                            var sys = new CoorSystem<LMPlace>
-                            .WorkMatrixCoorSystemBuilder<LMPlace>()
-                            .SetWorkMatrix(new(-1, 0.00066f, 0.0f, -1, coorSys.GetMainMatrixElements()[4], coorSys.GetMainMatrixElements()[5]))
-                            .Build();
-                            _stateMachine.FireAsync(Trigger.Preteach);
-                        }
+                        //    var sys = new CoorSystem<LMPlace>
+                        //    .WorkMatrixCoorSystemBuilder<LMPlace>()
+                        //    .SetWorkMatrix(new(-1, 0.00066f, 0.0f, -1, coorSys.GetMainMatrixElements()[4], coorSys.GetMainMatrixElements()[5]))
+                        //    .Build();
+                        //    _stateMachine.FireAsync(Trigger.Preteach);
+                        //}
                     }
                     else
                     {
