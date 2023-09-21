@@ -8,16 +8,20 @@ using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 //using Microsoft.Extensions.Logging;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data;
+using NewLaserProject.Repositories;
 using NewLaserProject.ViewModels;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.ViewModels.DialogVM.Profiles;
 using NewLaserProject.Views;
 using System;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Reactive.Subjects;
@@ -42,7 +46,15 @@ namespace NewLaserProject
 
             MainIoC = new ServiceCollection();
 
-            _ = MainIoC//.AddMediatR(Assembly.GetExecutingAssembly())
+            _ = MainIoC.AddMediatR(Assembly.GetExecutingAssembly())
+                   .AddDbContext<DbContext, LaserDbContext>(options =>
+                   {
+                       options.UseSqlite(new SqlConnectionStringBuilder()
+                       {
+                           DataSource = Path.Join(ProjectPath.GetFolderPath("Data"), "laserDatabase.db")
+                       }.ToString());
+                   })
+                   .AddTransient(typeof(IRepository<>), typeof(LaserRepository<>))
                    .AddSingleton<ISubject<IProcessNotify>, Subject<IProcessNotify>>()
                    .AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
@@ -67,7 +79,6 @@ namespace NewLaserProject
                    .AddScoped<IVideoCapture, USBCamera>()
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
-                   .AddDbContext<DbContext, LaserDbContext>()
                    .AddLogging(builder =>
                    {
                        builder.AddFile(ProjectPath.GetFilePathInFolder(ProjectFolders.TEMP_FILES, "app.log"));
@@ -83,9 +94,10 @@ namespace NewLaserProject
                             .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
 
                        var mapper = sp.GetService<IMapper>();
+                       var mediator = sp.GetService<IMediator>();
                        var context = sp.GetService<LaserDbContext>();
                        var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
-                       return new(context, defaultParams);
+                       return new(context, mediator, defaultParams);
                    })
                    .AddTransient<MarkSettingsVM>(sp =>
                    {

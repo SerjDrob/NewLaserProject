@@ -1,7 +1,7 @@
 ﻿using MachineClassLibrary.VideoCapture;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Classes;
+using NewLaserProject.Classes.Process.ProcessFeatures;
 using System;
 using System.Linq;
 using System.Reactive.Linq;

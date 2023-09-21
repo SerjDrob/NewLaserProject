@@ -14,6 +14,8 @@ using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
 using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
+using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
+using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
@@ -143,16 +145,16 @@ namespace NewLaserProject.ViewModels
 
         }
         private Task _loadingContextTask;
-        private Task LoadContext()
-        {
-            return Task.WhenAll(
-                    _db.Set<DefaultLayerFilter>().LoadAsync(),
-                    _db.Set<Material>().LoadAsync(),
-                    _db.Set<Technology>().LoadAsync(),
-                    _db.Set<MaterialEntRule>().LoadAsync(),
-                    _db.Set<DefaultLayerEntityTechnology>().LoadAsync()
-                );
-        }
+        //private Task LoadContext()
+        //{
+        //    return Task.WhenAll(
+        //            _db.Set<DefaultLayerFilter>().LoadAsync(),
+        //            _db.Set<Material>().LoadAsync(),
+        //            _db.Set<Technology>().LoadAsync(),
+        //            _db.Set<MaterialEntRule>().LoadAsync(),
+        //            _db.Set<DefaultLayerEntityTechnology>().LoadAsync()
+        //        );
+        //}
 
         public LayersProcessingModel LayersProcessingModel
         {
@@ -162,15 +164,16 @@ namespace NewLaserProject.ViewModels
 
         private async Task LoadDbForFile()
         {
+            var response = await _mediator.Send(new GetFullMaterialHasTechnologyRequest());
+            var availableMaterials = response.Materials;
+            var defLayerResponse = await _mediator.Send(new GetDefaultLayerFiltersFullRequest());
+            var defLayerFilters = defLayerResponse.DefaultLayerFilters;
             await Task.Run(() =>
             {
-                _db.Set<DefaultLayerFilter>()
-                               .ToList().ForEach(d =>
+                defLayerFilters.ToList().ForEach(d =>
                                {
                                    IgnoredLayers[d.Filter] = d.IsVisible;
                                });
-
-                var availableMaterials = _db.Set<Material>().ToArray().Where(m => m.Technologies?.Any() ?? false);
 
                 LayersProcessingModel?.UnSubscribe();
                 LayersProcessingModel = new(_dxfReader);

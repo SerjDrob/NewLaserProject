@@ -1,5 +1,6 @@
 ﻿using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
+using NewLaserProject.Classes.Process.ProcessFeatures;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -9,9 +10,6 @@ namespace NewLaserProject.Classes
 {
     public interface IProcess: IObservable<IProcessNotify>, IDisposable
     {
-        //event EventHandler<IEnumerable<IProcObject>> CurrentWaferChanged;
-        //event EventHandler<(IProcObject,int)> ProcessingObjectChanged;
-        //event EventHandler<ProcessCompletedEventArgs> ProcessingCompleted;
         void ExcludeObject(IProcObject procObject);
         void IncludeObject(IProcObject procObject);
         void CreateProcess();

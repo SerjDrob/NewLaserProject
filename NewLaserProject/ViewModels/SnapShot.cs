@@ -1,12 +1,12 @@
 ﻿using MachineControlsLibrary.Classes;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Classes;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 using System.Reactive.Subjects;
 using MachineControlsLibrary.Controls;
 using Point = System.Windows.Point;
+using NewLaserProject.Classes.Process.ProcessFeatures;
 
 namespace NewLaserProject.ViewModels
 {

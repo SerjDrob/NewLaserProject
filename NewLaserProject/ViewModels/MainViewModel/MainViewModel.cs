@@ -15,12 +15,14 @@ using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
 using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
@@ -77,6 +79,7 @@ namespace NewLaserProject.ViewModels
         private CameraVM _cameraVM;
 
         private readonly DbContext _db;
+        private readonly IMediator _mediator;
         private readonly IServiceProvider _serviceProvider;
         private readonly ISubject<IProcessNotify> _subjMediator;
         public ObservableCollection<string> CameraCapabilities
@@ -100,15 +103,18 @@ namespace NewLaserProject.ViewModels
         private double _waferAngle;
         private readonly ILogger _logger;
 
-        public MainViewModel(LaserMachine laserMachine, DbContext db, IServiceProvider serviceProvider, ILoggerProvider loggerProvider, ISubject<IProcessNotify> subjMediator)
+        public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator, 
+            IServiceProvider serviceProvider, ILoggerProvider loggerProvider, 
+            ISubject<IProcessNotify> subjMediator)
         {
             _logger = loggerProvider.CreateLogger("MainVM");
             _laserMachine = laserMachine;
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _db = db;
+            _mediator = mediator;
             _subjMediator = subjMediator;
             _serviceProvider = serviceProvider;
-            _loadingContextTask = LoadContext();
+            //_loadingContextTask = LoadContext();
 
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;

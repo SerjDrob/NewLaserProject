@@ -6,6 +6,7 @@ using MachineControlsLibrary.Controls.GraphWin;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
 using PropertyChanged;
 using System;

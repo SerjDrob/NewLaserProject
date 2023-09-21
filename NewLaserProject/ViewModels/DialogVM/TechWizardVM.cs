@@ -16,6 +16,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
+using NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures;
 using NewLaserProject.Views.Dialogs;
 using Newtonsoft.Json;
 
@@ -83,7 +84,7 @@ namespace NewLaserProject.ViewModels.DialogVM
             {
                 IProgBlock sourceItem = BlockFactory.GetProgBlock(dropInfo.Data);
                 var sourceCollection = dropInfo.DragInfo.SourceCollection;
-                if ((sourceCollection.Equals(Listing) | sourceCollection is ChildrenObservCollection<IProgBlock>) && dropInfo.TargetCollection.TryGetList().Equals(ProgBlocks))
+                if ((sourceCollection.Equals(Listing) | sourceCollection is ChildrenObservableCollection<IProgBlock>) && dropInfo.TargetCollection.TryGetList().Equals(ProgBlocks))
                 {
                     ((ObservableCollection<IProgBlock>)sourceCollection).Remove(sourceItem);
                 }
@@ -104,7 +105,7 @@ namespace NewLaserProject.ViewModels.DialogVM
 
             DraggedBlock = BlockFactory.BlockTypeSelector(dropInfo.DragInfo.SourceItem);
 
-            if ((dropInfo.TargetCollection is ChildrenObservCollection<IProgBlock> collection &&
+            if ((dropInfo.TargetCollection is ChildrenObservableCollection<IProgBlock> collection &&
                 BlockFactory.GetProgBlock(collection.MyParent).Equals(BlockFactory.GetProgBlock(dropInfo.Data)))
                 | (dropInfo.TargetCollection.TryGetList().Equals(ProgBlocks) && dropInfo.DragInfo.SourceCollection.Equals(ProgBlocks)))
             {

@@ -16,7 +16,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
+using NewLaserProject.Data.Models.DefaultLayerEntityTechnologyFeatures.Get;
+using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.DTOs;
+using NewLaserProject.Data.Models.MaterialFeatures.Create;
+using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views.Dialogs;
@@ -261,16 +265,20 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task OpenFileViewSettingsWindow()
         {
+            var materialResponse = await _mediator.Send(new GetFullMaterialRequest());
+            var defLayerResponse = await _mediator.Send(new GetDefaultLayerFiltersFullRequest());
+            var defEntTechResponse = await _mediator.Send(new GetFullDefaultLayerEntityTechnologyRequest());
+
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Отображение слоёв и технологии")
                 .SetDataContext<FileViewDialogVM>(vm =>
                 {
-                    vm.DefLayerFilters = _db.Set<DefaultLayerFilter>().Local.ToObservableCollection();
-                    vm.DefaultTechnologies = _db.Set<DefaultLayerEntityTechnology>().Local.ToObservableCollection();
-                    vm.Materials = _db.Set<Material>().Local.ToObservableCollection();
+                    vm.DefLayerFilters = defLayerResponse.DefaultLayerFilters.ToObservableCollection();
+                    vm.DefaultTechnologies = defEntTechResponse.DefaultLayerEntityTechnologies.ToObservableCollection();
+                    vm.Materials = materialResponse.Materials.ToObservableCollection();
                 })
                 .GetCommonResultAsync<IEnumerable<DefaultLayerFilter>>();
-            if (result.Success) _db.SaveChanges();
+            //if (result.Success) _db.SaveChanges();//UNDONE this dialog doesn't save db
         }
         [ICommand]
         private async Task OpenSpecimenSettingsWindow()

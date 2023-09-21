@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures;
 
 namespace NewLaserProject.Classes.ProgBlocks
 {
@@ -12,7 +13,7 @@ namespace NewLaserProject.Classes.ProgBlocks
         {
             LoopCount = loopCount;
             Shuffle = shuffle;
-            Children = new ChildrenObservCollection<IProgBlock>(this,listing);
+            Children = new ChildrenObservableCollection<IProgBlock>(this,listing);
         }
         public bool Shuffle { get; set; } = false;
     }

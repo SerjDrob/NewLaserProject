@@ -2,7 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MachineClassLibrary.Laser.Parameters;
+using NewLaserProject.Classes.Process.Utility;
 using NewLaserProject.Classes.ProgBlocks;
+using NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures;
 
 namespace NewLaserProject.Classes.Process
 {

@@ -1,4 +1,4 @@
-﻿using NewLaserProject.Classes;
+﻿using NewLaserProject.Classes.Process.ProcessFeatures;
 using System.Drawing;
 using Point = System.Windows.Point;
 

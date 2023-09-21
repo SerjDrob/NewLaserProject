@@ -11,6 +11,6 @@ namespace NewLaserProject.Data.Models
     {
         public string Filter { get; set; }
         public bool IsVisible { get; set; }
-        public List<DefaultLayerEntityTechnology>? defaultLayerEntityTechnologies { get; set; }
+        public List<DefaultLayerEntityTechnology>? DefaultLayerEntityTechnologies { get; set; }
     }
 }
