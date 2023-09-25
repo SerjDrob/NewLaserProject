@@ -3,29 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
              xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:lib="clr-namespace:MachineClassLibrary.Laser.Entities;assembly=MachineClassLibrary"
              mc:Ignorable="d" 
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:uc="clr-namespace:NewLaserProject.UserControls"
-             xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
+             xmlns:controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
         <CollectionViewSource x:Key="MaterialSource" Source="{Binding Materials}"/>
         <CollectionViewSource x:Key="DefTechnologiesSource" Source="{Binding DefaultTechnologies}"/>
-        <Localconverters:IProcTypeToEntityConverter x:Key="IProcTypeToEntityConverter"/>
-        <Style TargetType="DataGrid" BasedOn="{StaticResource DataGrid.Small}">
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="Height" Value="150"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style TargetType="GroupBox" BasedOn="{StaticResource GroupBoxTab}">
-            <Setter Property="Margin" Value="3"/>
-        </Style>
     </UserControl.Resources>
     <hc:SimpleStackPanel>
         <GroupBox Header="Фильтры слоёв файла">
@@ -121,7 +108,7 @@
                             <lib:LaserEntity>Curve</lib:LaserEntity>
                         </x:Array>
                     </hc:ElementGroup.Resources>
-                    <uc:ItemsButton Items="{Binding Source={StaticResource LaserEntities}}"
+                    <controls:ItemsButton Items="{Binding Source={StaticResource LaserEntities}}"
                                     ItemSelector="{StaticResource EntitySelector}"
                                     SelectedItem="{Binding CurrentEntityType}"
                                     SetIndex="0"

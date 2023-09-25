@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Numerics;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -16,7 +15,6 @@ using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Diagnostics;
@@ -78,7 +76,6 @@ namespace NewLaserProject.ViewModels
         }
         private CameraVM _cameraVM;
 
-        private readonly DbContext _db;
         private readonly IMediator _mediator;
         private readonly IServiceProvider _serviceProvider;
         private readonly ISubject<IProcessNotify> _subjMediator;
@@ -103,19 +100,16 @@ namespace NewLaserProject.ViewModels
         private double _waferAngle;
         private readonly ILogger _logger;
 
-        public MainViewModel(LaserMachine laserMachine, DbContext db, IMediator mediator, 
-            IServiceProvider serviceProvider, ILoggerProvider loggerProvider, 
+        public MainViewModel(LaserMachine laserMachine, IMediator mediator,
+            IServiceProvider serviceProvider, ILoggerProvider loggerProvider,
             ISubject<IProcessNotify> subjMediator)
         {
             _logger = loggerProvider.CreateLogger("MainVM");
             _laserMachine = laserMachine;
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
-            _db = db;
             _mediator = mediator;
             _subjMediator = subjMediator;
             _serviceProvider = serviceProvider;
-            //_loadingContextTask = LoadContext();
-
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             _coorSystem = GetCoorSystem(PUREDEFORMATION_FILE);
@@ -309,18 +303,14 @@ namespace NewLaserProject.ViewModels
         }
 
         [ICommand]
-        private void LasSettings()
-        {
-            _laserMachine.SetDevConfig();
-            //_laserMachine.SetMarkDeviceParams();
-        }
+        private void LasSettings() => _laserMachine.SetDevConfig();
 
         private void ImplementMachineSettings()
         {
 #if PCIInserted
 
             var axesConfigs = ExtensionMethods
-                .DeserilizeObject<LaserAxesConfiguration>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "AxesConfigs.json"));
+                .DeserilizeObject<LaserMachineAxesConfiguration>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "AxesConfigs.json"));
 
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
 
@@ -454,9 +444,9 @@ namespace NewLaserProject.ViewModels
         private static CoorSystem<LMPlace> GetCoorSystem(string path)
         {
             var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(path) ?? throw new NullReferenceException("CoorSystem in the file is invalid");
-            var buider = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
-            buider.SetWorkMatrix(matrixElements);
-            var sys = buider.Build();
+            var builder = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
+            builder.SetWorkMatrix(matrixElements);
+            var sys = builder.Build();
             return sys;
         }
         private void TuneCoorSystem()

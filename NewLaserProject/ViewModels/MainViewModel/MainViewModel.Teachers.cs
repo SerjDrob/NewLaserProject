@@ -8,11 +8,9 @@ using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Teachers;
 using NewLaserProject.Properties;
-using NewLaserProject.Views;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -21,11 +19,9 @@ using System.Windows.Input;
 using MsgBox = HandyControl.Controls.MessageBox;
 using Growl = HandyControl.Controls.Growl;
 using HandyControl.Data;
-using NewLaserProject.UserControls;
 using Dialog = HandyControl.Controls.Dialog;
 using HandyControl.Tools.Extension;
 using NewLaserProject.ViewModels.DialogVM;
-using System.Windows.Media.Media3D;
 using NewLaserProject.Views.Dialogs;
 
 namespace NewLaserProject.ViewModels

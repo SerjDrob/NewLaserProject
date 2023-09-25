@@ -28,6 +28,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Remove="LaserSplash.png" />
     <None Remove="Views\Sources\angle.png" />
     <None Remove="Views\Sources\distance-32.png" />
     <None Remove="Views\Sources\flipvert.png" />
@@ -133,6 +134,7 @@
   <ItemGroup>
     <Folder Include="Data\Models\MaterialFeatures\Update\" />
     <Folder Include="Migrations\" />
+    <Folder Include="Themes\" />
   </ItemGroup>
   
     <ItemGroup>
@@ -143,12 +145,23 @@
     </ItemGroup>
   
     <ItemGroup>
+      <Page Remove="Views\Dictionaries\Styles.xaml" />
       <Page Remove="Views\MainView2.xaml" />
     </ItemGroup>
   
     <ItemGroup>
       <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
       <ProjectReference Include="..\..\MachineControlsLibrary\MachineControlsLibrary.csproj" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <Resource Include="Views\Dictionaries\Styles.xaml" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <SplashScreen Include="LaserSplash.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </SplashScreen>
     </ItemGroup>
   
     <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

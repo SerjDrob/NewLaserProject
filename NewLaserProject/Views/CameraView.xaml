@@ -3,32 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NewLaserProject.Views"
-             xmlns:mcl="clr-namespace:MachineClassLibrary.Machine;assembly=MachineClassLibrary"    
-             xmlns:hc="https://handyorg.github.io/handycontrol" 
-             xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"         
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
-             xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
-             xmlns:clr="clr-namespace:System;assembly=mscorlib"
-             xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
-             xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
-             xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
-             xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"  
-             xmlns:dd="urn:gong-wpf-dragdrop"             
              xmlns:s="clr-namespace:NewLaserProject.Views.Misc"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <cnvrt:DivideConverter x:Key="DivideConverter"/>
-        <cnvrt:MulConvereter x:Key="MulConvereter"/>
-        <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
-        <Localconverters:MouseEventArgsConverter x:Key="MouseEventArgsConverter"/>
-        <Localconverters:PointSpecWinConverter x:Key="PointSpecWinConverter"/>
-        <Localconverters:MarkPositionConverter x:Key="MarkPositionConverter"/>
         <ScaleTransform x:Key="ImageScale" ScaleX="-1" ScaleY="-1"/>
-
-
         <ControlTemplate x:Key="ResizeDecoratorTemplate" TargetType="{x:Type Control}">
             <Grid>
                 <s:ResizeThumb Height="3" Width="7" Cursor="SizeNS" Opacity="0"
@@ -116,7 +96,7 @@
                     </ContentControl>
                 </Canvas>
                 <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
-                        Visibility="{Binding Converter={StaticResource BoolToVisibleConvereter}, 
+                        Visibility="{Binding Converter={StaticResource Boolean2VisibilityConverter}, 
                         Path=TeachScaleMarkerEnable}"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"

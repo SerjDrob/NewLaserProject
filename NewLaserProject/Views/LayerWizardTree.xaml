@@ -7,14 +7,14 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Width="250">
+             d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.Resources>
             <CollectionViewSource x:Key="MyLayers" Source="{Binding Layers}"/>
         </Grid.Resources>
-        <GroupBox Header="Объекты к обработке" Style="{StaticResource GroupBoxTab}">
+        <GroupBox Header="Объекты к обработке">
             <hc:ScrollViewer Height="150" Style="{StaticResource ScrollViewerUpDown}">
-                <TreeView x:Name="LayersList" ItemsSource="{Binding Source={StaticResource MyLayers}}" Style="{StaticResource TreeView.Small}">
+                <TreeView x:Name="LayersList" ItemsSource="{Binding Source={StaticResource MyLayers}}">
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="{x:Type TreeViewItem}">
                             <Setter Property="IsExpanded" Value="False"/>
@@ -23,7 +23,7 @@
                     </TreeView.ItemContainerStyle>
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type viewmodels:Layer}" ItemsSource="{Binding Objects}">
-                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextIconBrush}" Style="{StaticResource TextBlockDefaultBold}" FontSize="10"/>
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource TextBlockDefaultBold}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="10"/>
                         </HierarchicalDataTemplate>
                         <DataTemplate DataType="{x:Type viewmodels:Text}">
                             <StackPanel Orientation="Horizontal">

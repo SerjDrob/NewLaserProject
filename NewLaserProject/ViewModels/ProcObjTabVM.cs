@@ -1,8 +1,8 @@
 ﻿using MachineClassLibrary.Laser.Entities;
 
-namespace NewLaserProject.Views
+namespace NewLaserProject.ViewModels
 {
-    internal class ProcObjTabView
+    internal class ProcObjTabVM
     {
         public int Index
         {

@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -18,7 +17,7 @@
             </Style>
         </Grid.Resources>
         <StackPanel>
-            <GroupBox Header="Настройки приводов" Margin="0,10,0,0" Style="{StaticResource GroupBoxTab}">
+            <GroupBox Header="Настройки приводов" Margin="0,10,0,0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -57,7 +56,7 @@
                 </Grid>
             </GroupBox>
             <StackPanel Orientation="Horizontal">
-                <GroupBox Margin="5" Style="{StaticResource GroupBoxTab}">
+                <GroupBox Margin="5">
                     <GroupBox.Header>
                         <TextBlock>
                         <Run Text="Смещение камеры "/>
@@ -70,7 +69,7 @@
                         <hc:TextBox hc:TitleElement.Title="dY" hc:TitleElement.HorizontalAlignment="Center" Text="{Binding YOffset, StringFormat=F3}" Grid.Row="1" Grid.Column="1"/>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox VerticalAlignment="Bottom" Margin="5" Style="{StaticResource GroupBoxTab}">
+                <GroupBox VerticalAlignment="Bottom" Margin="5">
                     <GroupBox.Header>
                         <TextBlock>
                         <Run Text="Координаты загрузки"/>
@@ -84,7 +83,7 @@
                     </StackPanel>
                 </GroupBox>
             </StackPanel>
-            <GroupBox Header="Точки обучения пластины" Margin="5" Style="{StaticResource GroupBoxTab}" HorizontalAlignment="Left">
+            <GroupBox Header="Точки обучения пластины" Margin="5" HorizontalAlignment="Left">
                 <DockPanel LastChildFill="True">
                         <StackPanel Orientation="Horizontal" Margin="2">
                             <Button Command="{Binding TeachLeftPointCommand}" hc:IconElement.Geometry="{StaticResource RightGeometry}" Content="T1" Style="{StaticResource ButtonSuccess.Small}"/>
@@ -100,13 +99,13 @@
                 </DockPanel>
             </GroupBox>
             <StackPanel Orientation="Horizontal">
-                <GroupBox Header="Точка 0 фокусировки" Margin="5" Style="{StaticResource GroupBoxTab}">
+                <GroupBox Header="Точка 0 фокусировки" Margin="5">
                     <StackPanel Orientation="Horizontal">
                         <hc:TextBox  hc:TitleElement.Title="Z" hc:TitleElement.TitlePlacement="Left" IsEnabled="False" Text="{Binding ZCamera, StringFormat=F3}" Grid.Column="1"/>
                         <Button Command="{Binding TeachZCameraCommand}" hc:IconElement.Geometry="{StaticResource LeftGeometry}" Style="{StaticResource ButtonSuccess.Small}"/>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Header="Точка 0 прошивки" Margin="5" Style="{StaticResource GroupBoxTab}">
+                <GroupBox Header="Точка 0 прошивки" Margin="5">
                     <StackPanel Orientation="Horizontal">
                         <hc:TextBox hc:TitleElement.Title="Z" hc:TitleElement.TitlePlacement="Left"  IsEnabled="False" Text="{Binding ZLaser, StringFormat=F3}"/>
                         <Button Command="{Binding TeachZLaserCommand}" hc:IconElement.Geometry="{StaticResource LeftGeometry}" Style="{StaticResource ButtonSuccess.Small}"/>

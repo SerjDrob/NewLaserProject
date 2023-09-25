@@ -18,3 +18,4 @@ public class GetDefaultLayerFiltersFullHandler : BaseRequestHandler<DefaultLayer
         return new GetDefaultLayerFiltersFullResponse(response);
     }
 }
+

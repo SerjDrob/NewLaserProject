@@ -1,14 +1,6 @@
-﻿using Microsoft;
+﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic.ApplicationServices;
 using NewLaserProject.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NewLaserProject.Data
 {
@@ -20,12 +12,38 @@ namespace NewLaserProject.Data
         public LaserDbContext()
         {
         }
+        public DbSet<Material> Material
+        {
+            get; set;
+        }
+        public DbSet<Technology> Technology
+        {
+            get; set;
+        }
+        public DbSet<MaterialEntRule> MaterialEntRule
+        {
+            get; set;
+        }
+        public DbSet<DefaultLayerEntityTechnology> DefaultLayerEntityTechnology
+        {
+            get; set;
+        }
+        public DbSet<DefaultLayerFilter> DefaultLayerFilter
+        {
+            get; set;
+        }
 
-        public DbSet<Material> Material { get; set; }
-        public DbSet<Technology> Technology { get; set; }
-        public DbSet<MaterialEntRule> MaterialEntRule { get; set; }
-        public DbSet<DefaultLayerEntityTechnology> DefaultLayerEntityTechnology { get; set; }
-        public DbSet<DefaultLayerFilter> DefaultLayerFilter { get; set; }
+        public async Task LoadSetsAsync()
+        {
+            await Task.WhenAll(
+                    Material.LoadAsync(),
+                    Technology.LoadAsync(),
+                    MaterialEntRule.LoadAsync(),
+                    DefaultLayerEntityTechnology.LoadAsync(),
+                    DefaultLayerFilter.LoadAsync()
+                );
+        }
+
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
         //    var connectionstring = new SqlConnectionStringBuilder()

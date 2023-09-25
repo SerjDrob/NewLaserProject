@@ -11,9 +11,6 @@
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
-                <ResourceDictionary.MergedDictionaries>
-                    <ResourceDictionary Source="../WizardDictionary.xaml"/>
-                </ResourceDictionary.MergedDictionaries>
                 <DataTemplate x:Key="DraggedBlock">
                     <ContentControl Content="{Binding DraggedBlock}"/>
                 </DataTemplate>

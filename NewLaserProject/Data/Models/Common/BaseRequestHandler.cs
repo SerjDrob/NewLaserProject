@@ -16,3 +16,5 @@ public abstract class BaseRequestHandler<TEntity, TRequest, TResponse>
 
     public abstract Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken = default);
 }
+
+

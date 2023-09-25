@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -10,7 +9,6 @@ using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
@@ -44,9 +42,8 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
-        public LaserDbViewModel(DbContext db, IMediator mediator, ExtendedParams defaultParams)
+        public LaserDbViewModel(IMediator mediator, ExtendedParams defaultParams)
         {
-            _db = db;
             _mediator = mediator;
             _defaultParams = defaultParams;
             _mediator.Send(new GetFullMaterialRequest())
@@ -57,33 +54,11 @@ namespace NewLaserProject.ViewModels
                     ReviseTechnologies();
                 }, TaskScheduler.Default)
                 .ConfigureAwait(false);
-                
-            //_db.Set<Technology>()
-            //    .Include(t => t.Material)
-            //    .LoadAsync()
-            //    .ContinueWith(t =>
-            //    {
-            //        if (t.IsCompletedSuccessfully)
-            //        {
-            //            Technologies = _db.Set<Technology>()
-            //                .Local
-            //                .ToObservableCollection();
-
-            //            //_db.Set<Material>()
-            //            //    .Load();
-
-            //            //Materials = _db.Set<Material>()
-            //            //    .Local
-            //            //    .ToObservableCollection();
-            //        }
-            //    });
         }
-        private readonly DbContext _db;
         private readonly IMediator _mediator;
         private readonly ExtendedParams _defaultParams;
 
         private void ReviseTechnologies() => Technologies = Materials.SelectMany(m => m.Technologies).ToObservableCollection();
-
 
         [ICommand]
         private async Task AddMaterial()
@@ -100,19 +75,15 @@ namespace NewLaserProject.ViewModels
                 var request = new CreateGetMaterialRequest(newMaterial);
                 var response = await _mediator.Send(request);
                 Materials = response.Materials.ToObservableCollection();
-                //_db.Add(newMaterial);
-                //_db.SaveChanges();
             }
         }
 
         private bool SearchPierceBlock(IEnumerable<IProgBlock> blocks)
         {
             if (blocks.OfType<PierceBlock>().Any()) return true;
-            foreach(var block in  blocks.OfType<LoopBlock>()) if(SearchPierceBlock(block.Children)) return true;
+            foreach (var block in blocks.OfType<LoopBlock>()) if (SearchPierceBlock(block.Children)) return true;
             return false;
         }
-
-
         [ICommand]
         private async Task AssignTechnology(Material material)
         {
@@ -143,21 +114,14 @@ namespace NewLaserProject.ViewModels
                 var path = ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES);
                 newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(path);
 
-                newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();//TODO if name isn't typed
-                //_db.Add(newTechnology);
-                //_db.SaveChanges();
+                newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();
                 var response = await _mediator.Send(new CreateTechnologyRequest(newTechnology));
                 ReviseTechnologies();
             }
         }
-
         [ICommand]
         private async void AssignRule(Material material)
         {
-            //var matEntRule = _db.Set<MaterialEntRule>()
-            //        .AsNoTracking()
-            //        .SingleOrDefault(mer => mer.Material.Id == material.Id);
-
             var response = await _mediator.Send(new GetRuleByMaterialIdRequest(material.Id));
             var matEntRule = response.MaterialEntRule;
 
@@ -173,30 +137,20 @@ namespace NewLaserProject.ViewModels
             {
                 if (matEntRule is not null)
                 {
-                    //var rule = _db.Set<MaterialEntRule>()
-                    //.SingleOrDefault(mer => mer.Material.Id == material.Id);
-                    //rule.Offset = matEntRule.Offset;
-                    //rule.Width = matEntRule.Width;
-
                     await _mediator.Send(new UpdateMaterialEntRuleRequest(result.CommonResult)).ConfigureAwait(false);
                 }
                 else
                 {
-                    //_db.Set<MaterialEntRule>()
-                    //    .Add(result.CommonResult);
                     await _mediator.Send(new CreateMaterialEntRuleRequest(result.CommonResult)).ConfigureAwait(false);
                 }
-                //_db.SaveChanges();
             }
         }
-
         [ICommand]
         private async Task EditTechnology(Technology technology)
         {
             var defParams = (ExtendedParams)_defaultParams.Clone();
-            defParams.ContourOffset =  technology.Material.MaterialEntRule?.Offset ?? 0;
+            defParams.ContourOffset = technology.Material.MaterialEntRule?.Offset ?? 0;
             defParams.HatchWidth = technology.Material.MaterialEntRule?.Width ?? 0;
-
 
             var techWizard = new TechWizardVM(defParams) { EditEnable = true };
             var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
@@ -214,32 +168,17 @@ namespace NewLaserProject.ViewModels
                     return;
                 }
                 technology.ProcessingProgram = result.CommonResult.SaveListingToFolder(ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES));
-                //_db.Set<Technology>().Update(technology);
-                //_db.SaveChanges();
                 var response = await _mediator.Send(new UpdateTechnologyRequest(technology));
                 File.Delete(path);
             }
         }
-        [ICommand]
-        private void ViewTechnology(Technology technology)
-        {
-            var techWizard = new TechWizardVM(_defaultParams) { EditEnable = false };
-            var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
-            techWizard.LoadListing(path);
-            new AddToDbContainerView(false)
-            {
-                DataContext = techWizard
-            }.ShowDialog();
-        }
+        
         [ICommand]
         private async void DeleteTechnology(Technology technology)
         {
-            //_db.Set<Technology>()
-            //    .Remove(technology);
             var response = await _mediator.Send(new DeleteTechnologyRequest(technology));
-            if(response.IsDeleted) DeleteTechnologyFile(technology);
+            if (response.IsDeleted) DeleteTechnologyFile(technology);
             ReviseTechnologies();
-            //_db.SaveChanges();
         }
         private void DeleteTechnologyFile(Technology technology)
         {
@@ -252,17 +191,8 @@ namespace NewLaserProject.ViewModels
             var request = new DeleteGetMaterialRequest(material);
             var response = await _mediator.Send(request);
             Materials = response.Materials.ToObservableCollection();
-            Technologies = Materials.SelectMany(m=>m.Technologies).ToObservableCollection();
+            Technologies = Materials.SelectMany(m => m.Technologies).ToObservableCollection();
             material.Technologies?.ForEach(DeleteTechnologyFile);
-            //var deletingMaterial = _db.Remove(material);
-            //if (deletingMaterial is not null)
-            //{
-            //    deletingMaterial
-            //        .Entity?
-            //        .Technologies?
-            //        .ForEach(t => DeleteTechnologyFile(t));
-            //}
-           // _db.SaveChanges();
         }
     }
 }

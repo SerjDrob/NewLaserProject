@@ -6,20 +6,12 @@
              xmlns:hc="https://handyorg.github.io/handycontrol" 
              xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"         
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
-             xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
-             xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
              xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="UCntrl"
              MinHeight="300"
              >
-    <UserControl.Resources>
-        <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
-        <cnvrt:DivideConverter x:Key="DivideConverter"/>
-        <Localconverters:MarkPositionConverter x:Key="MarkPositionConverter"/>
-        <Localconverters:PointSpecWinConverter x:Key="PointSpecWinConverter"/>
-    </UserControl.Resources>
     <Grid>        
         <uc:GraphWindow                         
                            x:Name="GraphWin"

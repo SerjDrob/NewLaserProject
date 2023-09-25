@@ -5,85 +5,35 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mcl="clr-namespace:MachineClassLibrary.Machine;assembly=MachineClassLibrary"    
-        xmlns:local="clr-namespace:NewLaserProject.Views"
         xmlns:hc="https://handyorg.github.io/handycontrol" 
-        xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"         
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
-        xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
-        xmlns:clr="clr-namespace:System;assembly=mscorlib"
-        xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
-        xmlns:vm="clr-namespace:NewLaserProject.ViewModels"    
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
+        xmlns:vm="clr-namespace:NewLaserProject.ViewModels"  
         xmlns:classes="clr-namespace:NewLaserProject.Classes"
-        xmlns:uclocal="clr-namespace:NewLaserProject.UserControls"
-        xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
+        xmlns:controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        mc:Ignorable="d"        
+        mc:Ignorable="d"   
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
-        Title="Лазер"         
+        Title="ТЕМП-ЛР50"    
         Height="800" 
         Width="1200" 
         WindowState="Maximized">
+    
     <hc:GlowWindow.InputBindings>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.SW}" Gesture="CTRL+1"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.SE}" Gesture="CTRL+2"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.NW}" Gesture="CTRL+3"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.NE}" Gesture="CTRL+4"/>
-
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.W}" Modifiers="Ctrl" Key="Left"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.E}" Modifiers="Ctrl" Key="Right"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.N}" Modifiers="Ctrl" Key="Up"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.S}" Modifiers="Ctrl" Key="Down"/>
-
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterV}" Modifiers="Ctrl" Key="V"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterH}" Modifiers="Ctrl" Key="H"/>
-
-
     </hc:GlowWindow.InputBindings>
+    
     <hc:GlowWindow.Resources>        
-        <!--<CollectionViewSource x:Key="MaterialSource" Source="{Binding AvailableMaterials}"/>-->
         <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
-        <!--<CollectionViewSource x:Key="FileStructure" Source="{Binding LayersStructure, Converter={StaticResource LStructureConvereter}}"/>-->
-        <CollectionViewSource x:Key="ProcObjects" Source="{Binding ProcessingObjects}"/>
-
-
-        <cnvrt:DivideConverter x:Key="DivideConverter"/>
-        <cnvrt:MulConvereter x:Key="MulConvereter"/>
-        <cnvrt:BoolToVisibleConvereter x:Key="BoolToVisibleConvereter"/>
-
-        <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
-        <Localconverters:IProcToGeometryConverter x:Key="IProcToGeometryConverter"/>
-
-        <clr:Boolean x:Key="TRUE">True</clr:Boolean>
-        <clr:Boolean x:Key="FALSE">False</clr:Boolean>
-
-        
-
-        <Storyboard x:Key="DangerMessage">
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantIcon"
-                                           Storyboard.TargetProperty="Visibility"                                           
-                                           Duration="0:0:1" RepeatBehavior="5x" FillBehavior="Stop"
-                                           >
-                <ObjectAnimationUsingKeyFrames.KeyFrames>
-                    <DiscreteObjectKeyFrame KeyTime="0:0:0.8" Value="{x:Static Visibility.Hidden}"/>
-                </ObjectAnimationUsingKeyFrames.KeyFrames>
-            </ObjectAnimationUsingKeyFrames>
-        </Storyboard>
-        <Storyboard x:Key="ExclaimMessage">
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ImportantMessage"  Storyboard.TargetProperty="Visibility">
-                <DiscreteObjectKeyFrame Value="{x:Static Visibility.Visible}" />
-            </ObjectAnimationUsingKeyFrames>
-            <DoubleAnimation Storyboard.TargetName="ImportantMessage" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
-        </Storyboard>
-
-        <Style x:Key="ToolBorder" TargetType="Border">
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="Background" Value="{DynamicResource DarkMaskBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        </Style>
-
+        <CollectionViewSource x:Key="ProcObjects" Source="{Binding ProcessingObjects}"/>        
     </hc:GlowWindow.Resources>
 
     <i:Interaction.Triggers>
@@ -125,7 +75,7 @@
                     <Border Style="{StaticResource ToolBorder}">
                         <Path Data="{StaticResource MotionDeviceGeometry}"
                               RenderTransformOrigin="0.5,0.5"
-                              Stretch="UniformToFill"                              
+                              Stretch="Uniform"                              
                               >
                             <Path.RenderTransform>
                                 <ScaleTransform ScaleY="-1"/>
@@ -149,7 +99,7 @@
                         <Path x:Name="InitLaserIcon"
                               Data="{StaticResource LaserGeometry}"                              
                               RenderTransformOrigin="0.5,0.5"
-                              Stretch="UniformToFill"
+                              Stretch="Uniform"
                               >
                             <Path.RenderTransform>
                                 <ScaleTransform ScaleY="-1"/>
@@ -274,35 +224,21 @@
                     </StackPanel>
                 </Button>
                 <StackPanel DockPanel.Dock="Bottom" >
-                    <StackPanel.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="CornerRadius" Value="4"/>
-                            <Setter Property="Padding" Value="5"/>
-                            <Setter Property="Background" Value="{DynamicResource DarkMaskBrush}"/>
-                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                        </Style>
-                        <Style TargetType="uc:AxisState">
-                            <Setter Property="NegColor" Value="{DynamicResource DarkDangerBrush}"/>
-                            <Setter Property="PosColor" Value="{DynamicResource DarkSuccessBrush}"/>
-                            <Setter Property="Background" Value="{DynamicResource DarkMaskBrush}"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <uc:AxisState CoordinateName="X"                                  
+                    <controls:AxisState CoordinateName="X"                                  
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.Position}"  
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.MotionDone}" 
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.CmdPosition}"
                                   />
-                    <uc:AxisState CoordinateName="Y"
+                    <controls:AxisState CoordinateName="Y"
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.Position}"
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.CmdPosition}"
                                   />
-                    <uc:AxisState CoordinateName="Z"
+                    <controls:AxisState CoordinateName="Z"
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.Position}"
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.PLmt}"
@@ -468,7 +404,6 @@
                         <GroupBox x:Name="ProcessPanel"
                                   Header="Текущий процесс" 
                                   Grid.Row="2"
-                                  Style="{StaticResource GroupBoxTab}"
                                   >
                             <i:Interaction.Triggers>
                                 <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
@@ -510,14 +445,14 @@
                                                     <classes:FileAlignment>AlignByTwoPoint</classes:FileAlignment>
                                                 </x:Array>
                                             </hc:ElementGroup.Resources>
-                                            <uclocal:ItemsButton DockPanel.Dock="Right"
+                                            <controls:ItemsButton DockPanel.Dock="Right"
                                                                  Width="40"
                                                                  ItemSelector="{StaticResource AligningSelector}"
                                                                  Items="{StaticResource FileAlignments}"
                                                                  SelectedItem="{Binding FileAlignment, Mode=TwoWay}"
                                                                  HorizontalAlignment="Stretch"
                                                                 >
-                                            </uclocal:ItemsButton>
+                                            </controls:ItemsButton>
                                             <Label Content="Тип совмещения"/>
                                         </hc:ElementGroup>
                                         <hc:ElementGroup Orientation="Horizontal">
@@ -575,7 +510,9 @@
                                                 </ToggleButton.Resources>
 
                                                 <Grid>
-                                                    <Path Data="{StaticResource ScissorGeometry}" Stretch="Uniform" Fill="{StaticResource TextIconBrush}" RenderTransformOrigin="0.5 0.5">
+                                                    <Path Data="{StaticResource ScissorGeometry}" Stretch="Uniform" 
+                                                          Fill="{StaticResource PrimaryTextBrush}" 
+                                                          RenderTransformOrigin="0.5 0.5">
                                                         <Path.RenderTransform>
                                                             <ScaleTransform ScaleY="-1"/>
                                                         </Path.RenderTransform>
@@ -643,9 +580,11 @@
                                             </ComboBox>
                                         </hc:ElementGroup>                                        
                                     </hc:SimpleStackPanel>-->
-                                    <hc:ElementGroup Orientation="Horizontal" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                    <UniformGrid Columns="2" 
+                                                     IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <ContentControl Content="{Binding LayersProcessingModel}"/>
-                                        <DataGrid ItemsSource="{Binding ChosenProcessingObjects}" IsEnabled="False" Style="{StaticResource DataGrid.Small}" AutoGenerateColumns="False">
+                                        <DataGrid ItemsSource="{Binding ChosenProcessingObjects}" 
+                                                  IsEnabled="False">
                                             <DataGrid.Columns>
                                                 <DataGridTextColumn Header="Слой" Binding="{Binding Layer}"/>
                                                 <DataGridTemplateColumn Header="Тип">
@@ -659,7 +598,7 @@
                                                 <DataGridTextColumn Header="Технология" Binding="{Binding Technology.ProgramName}"/>
                                             </DataGrid.Columns>
                                         </DataGrid>
-                                    </hc:ElementGroup>
+                                    </UniformGrid>
                                     <hc:ElementGroup Orientation="Horizontal">
                                         <hc:ToggleBlock IsChecked="{Binding IsProcessPanelVisible}">
                                             <hc:ToggleBlock.UnCheckedContent>
@@ -711,14 +650,10 @@
                                 </hc:SimpleStackPanel>
                                 <UniformGrid Rows="2" Grid.Row="1">
                                     <DataGrid x:Name="ProcObjGrid"
-                                              AutoGenerateColumns="False" 
-                                              VerticalScrollBarVisibility="Auto"
                                               ItemsSource="{Binding ProcessingObjects}"
-                                              Style="{StaticResource DataGrid.Small}"
                                               SelectionMode="Single"     
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                              BorderThickness="1"
                                               >
                                         <DataGrid.Columns>
                                             <DataGridTextColumn IsReadOnly="True" Width="80" CanUserResize="False" Binding="{Binding Index}" Header="№"/>
@@ -747,7 +682,6 @@
                                     </DataGrid>
                                     <GroupBox Grid.Row="1"
                                         Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                              Style="{StaticResource GroupBoxTab}"
                                               >
                                         <GroupBox.Header>
                                             <hc:SimpleStackPanel Orientation="Horizontal">

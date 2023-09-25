@@ -8,10 +8,8 @@ using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Logging;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data;
@@ -53,7 +51,7 @@ namespace NewLaserProject
                        {
                            DataSource = Path.Join(ProjectPath.GetFolderPath("Data"), "laserDatabase.db")
                        }.ToString());
-                   })
+                   }, ServiceLifetime.Singleton)
                    .AddTransient(typeof(IRepository<>), typeof(LaserRepository<>))
                    .AddSingleton<ISubject<IProcessNotify>, Subject<IProcessNotify>>()
                    .AddScoped<MotDevMock>()
@@ -95,9 +93,8 @@ namespace NewLaserProject
 
                        var mapper = sp.GetService<IMapper>();
                        var mediator = sp.GetService<IMediator>();
-                       var context = sp.GetService<LaserDbContext>();
                        var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
-                       return new(context, mediator, defaultParams);
+                       return new(mediator, defaultParams);
                    })
                    .AddTransient<MarkSettingsVM>(sp =>
                    {
@@ -128,7 +125,8 @@ namespace NewLaserProject
 
 
             var viewModel = provider.GetService<MainViewModel>();
-
+            var context = provider.GetService<DbContext>() as LaserDbContext;
+            context?.LoadSetsAsync();
 #else
             var db = provider.GetService<LaserDb Context>();
             var mediator = provider.GetService<IMediator>();

@@ -277,50 +277,49 @@ namespace NewLaserProject.ViewModels
                     vm.DefaultTechnologies = defEntTechResponse.DefaultLayerEntityTechnologies.ToObservableCollection();
                     vm.Materials = materialResponse.Materials.ToObservableCollection();
                 })
-                .GetCommonResultAsync<IEnumerable<DefaultLayerFilter>>();
-            //if (result.Success) _db.SaveChanges();//UNDONE this dialog doesn't save db
+                .GetCommonResultAsync<IEnumerable<DefaultLayerFilter>>();//UNDONE this dialog doesn't save db
+            //if (result.Success) _db.SaveChanges();
         }
         [ICommand]
         private async Task OpenSpecimenSettingsWindow()
         {
+            var response = await _mediator.Send(new GetFullDefaultLayerEntityTechnologyRequest());
+            var defLayerEntTechnologies = response.DefaultLayerEntityTechnologies;
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Ориентация и технология по-умолчанию")
-                .SetDataContext<SpecimenSettingsVM>(vm => _db.Set<DefaultLayerEntityTechnology>()
-                    .ToArrayAsync()
-                    .ContinueWith(task =>
+                .SetDataContext<SpecimenSettingsVM>(vm =>
+                {
+                    vm.DefaultTechSelectors = defLayerEntTechnologies
+                    .GroupBy(d => d.DefaultLayerFilter, (k, col) =>
+                      new DefaultTechSelector(k, col.GroupBy(g => g.EntityType)
+                      .ToImmutableDictionary(k => k.Key, e => e.Select(g => g.Technology.Material))
+                      )).ToObservableCollection();
+                    var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultProcessFilter.json"));
+                    if (defLayerProcDTO is not null)
                     {
-                        vm.DefaultTechSelectors = task.Result
-                        .GroupBy(d => d.DefaultLayerFilter, (k, col) =>
-                          new DefaultTechSelector(k, col.GroupBy(g => g.EntityType)
-                          .ToImmutableDictionary(k => k.Key, e => e.Select(g => g.Technology.Material))
-                          )).ToObservableCollection();
-                        var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultProcessFilter.json"));
-                        if (defLayerProcDTO is not null)
+                        vm.DefaultHeight = defLayerProcDTO.DefaultHeight;
+                        vm.DefaultWidth = defLayerProcDTO.DefaultWidth;
+
+                        var defsel = vm.DefaultTechSelectors?.SingleOrDefault(d => d.DefLayerFilter.Id == defLayerProcDTO.LayerFilterId);
+                        var defType = (LaserEntity)defLayerProcDTO.EntityType;
+
+                        if (defsel?.Entities?.Contains(defType) ?? false)
                         {
-                            vm.DefaultHeight = defLayerProcDTO.DefaultHeight;
-                            vm.DefaultWidth = defLayerProcDTO.DefaultWidth;
-
-                            var defsel = vm.DefaultTechSelectors?.SingleOrDefault(d => d.DefLayerFilter.Id == defLayerProcDTO.LayerFilterId);
-                            var defType = (LaserEntity)defLayerProcDTO.EntityType;
-
-                            if (defsel?.Entities?.Contains(defType) ?? false)
+                            if (defsel.EntMaterials.TryGetValue(defType, out var materials))
                             {
-                                if (defsel.EntMaterials.TryGetValue(defType, out var materials))
+                                var defmaterial = materials.SingleOrDefault(m => m.Id == defLayerProcDTO.MaterialId);
+                                if (defmaterial is not null)
                                 {
-                                    var defmaterial = materials.SingleOrDefault(m => m.Id == defLayerProcDTO.MaterialId);
-                                    if (defmaterial is not null)
-                                    {
-                                        vm.DefaultTechSelector = defsel;
-                                        vm.DefaultEntityType = defType;
-                                        vm.DefaultMaterial = defmaterial;
-                                    }
+                                    vm.DefaultTechSelector = defsel;
+                                    vm.DefaultEntityType = defType;
+                                    vm.DefaultMaterial = defmaterial;
                                 }
                             }
                         }
-                        vm.IsMirrored = Settings.Default.WaferMirrorX;
-                        vm.IsRotated = Settings.Default.WaferAngle90;
-                    })
-                )
+                    }
+                    vm.IsMirrored = Settings.Default.WaferMirrorX;
+                    vm.IsRotated = Settings.Default.WaferAngle90;
+                })
                 .GetCommonResultAsync<SpecimenSettingsVM>();
             if (result.Success)
             {

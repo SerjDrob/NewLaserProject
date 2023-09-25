@@ -7,27 +7,30 @@
              xmlns:viewmodels="clr-namespace:NewLaserProject.ViewModels"
              xmlns:dbviewmodels="clr-namespace:NewLaserProject.ViewModels.DbVM"
              xmlns:dialogvm="clr-namespace:NewLaserProject.ViewModels.DialogVM"
-             xmlns:dialogviews ="clr-namespace:NewLaserProject.Views.Dialogs"
-             xmlns:dd="urn:gong-wpf-dragdrop"
-             xmlns:pblocks="clr-namespace:NewLaserProject.Classes.ProgBlocks"
+             xmlns:dialogviews ="clr-namespace:NewLaserProject.Views.Dialogs"            
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol" 
-             xmlns:Controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary" 
              xmlns:entities ="clr-namespace:MachineClassLibrary.Laser.Entities;assembly=MachineClassLibrary"
              xmlns:selectors ="clr-namespace:NewLaserProject.Views.Selectors"
              xmlns:uc="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
              xmlns:Localconverters="clr-namespace:NewLaserProject.Views.Converters"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:clr="clr-namespace:System;assembly=mscorlib"
+             xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
              >
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="WizardDictionary.xaml"/>
+            <ResourceDictionary.MergedDictionaries>                
                 <!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinViolet.xaml"/>-->
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDark.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
-                <ResourceDictionary Source="Geometries.xaml"/>
+                <ResourceDictionary Source="/Views/Dictionaries/Geometries.xaml"/>
+                <ResourceDictionary Source="/Views/Dictionaries/Styles.xaml"/>
+                <ResourceDictionary Source="/Views/Dictionaries/ProgBlockTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
+            <Localconverters:IProcToGeometryConverter x:Key="IProcToGeometryConverter"/>
             <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
             <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>
             <Localconverters:TextToEntityConverter x:Key="TextToEntityConverter"/>
@@ -35,6 +38,16 @@
             <Localconverters:GetLayerNameConverter x:Key="GetLayerNameConverter"/>
             <Localconverters:FileAlignmentConverter x:Key="FileAlignmentConverter"/>
             <Localconverters:KeyProcessorArgsConverter x:Key="KeyProcessorArgsConverter"/>
+            <Localconverters:MouseEventArgsConverter x:Key="MouseEventArgsConverter"/>
+            <Localconverters:PointSpecWinConverter x:Key="PointSpecWinConverter"/>
+            <Localconverters:MarkPositionConverter x:Key="MarkPositionConverter"/>
+            <Localconverters:GetDictValueConverter x:Key="GetDictValueConverter"/>
+            <cnvrt:DivideConverter x:Key="DivideConverter"/>
+            <cnvrt:MulConvereter x:Key="MulConvereter"/>
+            <clr:Boolean x:Key="TRUE">True</clr:Boolean>
+            <clr:Boolean x:Key="FALSE">False</clr:Boolean>
+
+
             <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
             <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
             
@@ -171,164 +184,7 @@
                 </Path>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type pblocks:LoopBlock}">
-                <GroupBox Style="{StaticResource LoopBox}" DataContext="{Binding}">
-                    <GroupBox.Header>
-                        <DockPanel>
-                            <Label Content="Цикл " Style="{StaticResource BlockLabel}"/>
-                            <hc:NumericUpDown Value="{Binding LoopCount, FallbackValue=2}" 
-                                              Minimum="1"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Width="80"
-                                              />                            
-                        </DockPanel>
-                    </GroupBox.Header>
-                    <ItemsControl                           
-                          ItemsSource="{Binding Children}"
-                          Background="Transparent" 
-                          HorizontalAlignment="Stretch" 
-                          VerticalAlignment="Stretch"                             
-                          MinHeight="50"
-                          dd:DragDrop.IsDragSource="{Binding CanAcceptChildren}"  
-                          dd:DragDrop.IsDropTarget="{Binding CanAcceptChildren}"
-                          dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext}"                              
-                          >                        
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ContentControl Content="{Binding}"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </GroupBox>
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type pblocks:MainLoop}">
-                <GroupBox Style="{StaticResource MainLoop}" 
-                          VerticalAlignment="Stretch"
-                          DataContext="{Binding}">
-                    <GroupBox.Header>
-                        <DockPanel>
-                            <Label Content="Основной цикл" Style="{StaticResource BlockLabel}"/>
-                            <hc:NumericUpDown Value="{Binding LoopCount, FallbackValue=2}" 
-                                              Minimum="1"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Width="80"
-                                              />
-
-                            <ToggleButton IsChecked="{Binding Shuffle}" 
-                                          hc:Poptip.Content="Порядок обхода"
-                                          hc:Poptip.Placement="RightTop"
-                                          Style="{StaticResource ToggleButtonFlip}"
-                                          Background="{StaticResource SuccessBrush}"
-                                          HorizontalAlignment="Right"
-                                          Margin="0,0,5,0"
-                                          Padding="3"
-                                          >
-                                <hc:StatusSwitchElement.CheckedElement>
-                                    <Path Data="{StaticResource ShuffleGeometry}" 
-                                      Stroke="{StaticResource LightSuccessBrush}" 
-                                      StrokeThickness="1"
-                                      RenderTransformOrigin="0.5 0.5">
-                                        <Path.RenderTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform ScaleY="-1"/>
-
-                                            </TransformGroup>
-                                        </Path.RenderTransform>
-                                    </Path>
-                                </hc:StatusSwitchElement.CheckedElement>
-                                <Path Data="{StaticResource SequntelyGeometry}" 
-                                      Stroke="{StaticResource LightSuccessBrush}" 
-                                      StrokeThickness="1"
-                                      RenderTransformOrigin="0.5 0.5">
-                                    <Path.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleY="-1"/>
-
-                                        </TransformGroup>
-                                    </Path.RenderTransform>
-                                </Path>
-                            </ToggleButton>
-                        </DockPanel>
-
-                    </GroupBox.Header>
-                    <ItemsControl                           
-                          ItemsSource="{Binding Children}"
-                          Background="Transparent" 
-                          HorizontalAlignment="Stretch" 
-                          VerticalAlignment="Stretch"                             
-                          MinHeight="50"
-                          dd:DragDrop.IsDragSource="{Binding CanAcceptChildren}"  
-                          dd:DragDrop.IsDropTarget="{Binding CanAcceptChildren}"
-                          dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext}"                              
-                          >
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ContentControl Content="{Binding}"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </GroupBox>
-            </DataTemplate>
             
-            <DataTemplate DataType="{x:Type pblocks:TaperBlock}">
-                <ItemsControl Style="{StaticResource SizeBlock}">
-                    <Label Content="Изменить &#216;:" Style="{StaticResource BlockLabel}"/>                   
-                    <hc:NumericUpDown Value="{Binding Tapper}"
-                                      Width="80"
-                                      DecimalPlaces="3"
-                                      Increment="0.01"/>
-                    <Label Content="мм" Style="{StaticResource BlockLabel}"/>
-                </ItemsControl>
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type pblocks:AddZBlock}">
-                <ItemsControl Style="{StaticResource CoorBlock}">
-                    <Label Content="Изменить глубину, мм:" Style="{StaticResource BlockLabel}"/>
-                    <hc:NumericUpDown Value="{Binding DeltaZ}" 
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Margin="0,0,5,0"
-                                      DecimalPlaces="3" 
-                                      Increment="0.01"/>
-                </ItemsControl>
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type pblocks:RepairZBlock}">
-                <ItemsControl Style="{StaticResource CoorBlock}">
-                    <Label Content="На исходную глубину" Style="{StaticResource BlockLabel}"/>                    
-                </ItemsControl>
-            </DataTemplate>
-
-
-            <DataTemplate DataType="{x:Type pblocks:DelayBlock}">
-                <ItemsControl Style="{StaticResource DelayBlock}">
-                        <Label Content="Пауза, мс: " Style="{StaticResource BlockLabel}"/>
-                        <hc:NumericUpDown 
-                            Value="{Binding DelayTime}"
-                                      HorizontalAlignment="Right"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Width="80"
-                                      Minimum="0"
-                                      Increment="100"/>
-                </ItemsControl>
-            </DataTemplate>
-
-            <DataTemplate DataType="{x:Type pblocks:PierceBlock}">
-                <ItemsControl Style="{StaticResource PierceBlock}">
-                    <Label Content="Прошивка" Style="{StaticResource BlockLabel}"/>
-                    <Button Content="Параметры" 
-                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, 
-                        Path=DataContext.SetPiercingParamsCommand}" 
-                            CommandParameter="{Binding}"
-                            Style="{StaticResource ButtonPrimary.Small}">
-                        <Button.Resources>
-                            <Style TargetType="{x:Type Border}">
-                                <Setter Property="CornerRadius" Value="2"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
-                </ItemsControl>
-            </DataTemplate>
 
 
             <DataTemplate DataType="{x:Type viewmodels:SnapShot}">
@@ -381,10 +237,6 @@
                 </Border>
             </DataTemplate>
 
-            <!--<DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
-                <hc:PropertyGrid SelectedObject="{Binding}"/>
-            </DataTemplate>-->
-
             <DataTemplate DataType="{x:Type dbmodels:MaterialEntRule}">
                 <StackPanel>
                     <hc:NumericUpDown Value="{Binding Offset}"
@@ -431,17 +283,6 @@
                             </BeginStoryboard>
                         </DataTrigger.EnterActions>
                     </DataTrigger>
-                    <!--<EventTrigger RoutedEvent="Click">
-                        <EventTrigger.Actions>
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <ColorAnimation 
-                                        Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                         From="Orange" To="White" Duration="0:0:0.5" AutoReverse="True" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger.Actions>
-                    </EventTrigger>-->
                 </Style.Triggers>
             </Style>
             <Style x:Key="CirclePanelButton" BasedOn="{StaticResource ButtonCustom}" TargetType="Button">

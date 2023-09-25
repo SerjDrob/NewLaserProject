@@ -24,7 +24,6 @@ using NewLaserProject.Classes.Process;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
-using NewLaserProject.Views;
 using Newtonsoft.Json;
 
 namespace NewLaserProject.ViewModels
@@ -32,7 +31,7 @@ namespace NewLaserProject.ViewModels
 
     internal partial class MainViewModel
     {
-        public ObservableCollection<ProcObjTabView> ProcessingObjects
+        public ObservableCollection<ProcObjTabVM> ProcessingObjects
         {
             get; set;
         }
@@ -226,7 +225,7 @@ namespace NewLaserProject.ViewModels
                         ProcessingObjects = new();
                         args.Wafer.Aggregate(1, (ind, p) =>
                         {
-                            ProcessingObjects.Add(new ProcObjTabView { Index = ind, ProcObject = p });
+                            ProcessingObjects.Add(new ProcObjTabVM { Index = ind, ProcObject = p });
                             return ++ind;
                         });
                     })

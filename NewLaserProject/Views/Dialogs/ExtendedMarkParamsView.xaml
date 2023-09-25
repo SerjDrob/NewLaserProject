@@ -10,61 +10,61 @@
 
     <hc:SimpleStackPanel Width="300" DataContext="{Binding ExtendedParams}" Background="Black">
         <hc:SimpleStackPanel.Resources>
-                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
-                    <Setter Property="Margin" Value="5,2"/>
-                    <Setter Property="hc:TitleElement.TitleWidth" Value="200"/>
-                    <Setter Property="hc:TitleElement.TitlePlacement" Value="Left"/>
-                </Style>
-                <Style TargetType="DockPanel">
-                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                    <Setter Property="LastChildFill" Value="True"/>
-                    <Setter Property="Margin" Value="5,2"/>
-                </Style>
-            </hc:SimpleStackPanel.Resources>
-            <Expander Header="Луч" IsExpanded="True">
-                <hc:SimpleStackPanel>
-                    <hc:NumericUpDown Value="{Binding MarkLoop}"  hc:TitleElement.Title="Количество проходов" 
+            <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                <Setter Property="Margin" Value="5,2"/>
+                <Setter Property="hc:TitleElement.TitleWidth" Value="200"/>
+                <Setter Property="hc:TitleElement.TitlePlacement" Value="Left"/>
+            </Style>
+            <Style TargetType="DockPanel">
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="LastChildFill" Value="True"/>
+                <Setter Property="Margin" Value="5,2"/>
+            </Style>
+        </hc:SimpleStackPanel.Resources>
+        <Expander Header="Луч" IsExpanded="True">
+            <hc:SimpleStackPanel>
+                <hc:NumericUpDown Value="{Binding MarkLoop}"  hc:TitleElement.Title="Количество проходов" 
                                   Increment="1"
                                   Minimum="1"                  
                                   />
-                    <hc:NumericUpDown Value="{Binding MarkSpeed}" hc:TitleElement.Title="Скорость, мм/с"
+                <hc:NumericUpDown Value="{Binding MarkSpeed}" hc:TitleElement.Title="Скорость, мм/с"
                                   Increment="1"
                                   Minimum="1"
                                   />
-                    <hc:NumericUpDown Value="{Binding PowerRatio}" hc:TitleElement.Title="Мощность, %"
+                <hc:NumericUpDown Value="{Binding PowerRatio}" hc:TitleElement.Title="Мощность, %"
                                   Increment="1"
                                   Minimum="1"
                                   />
-                    <hc:NumericUpDown Value="{Binding Freq}" hc:TitleElement.Title="Частота, Гц"
+                <hc:NumericUpDown Value="{Binding Freq}" hc:TitleElement.Title="Частота, Гц"
                                   Increment="1000"
                                   Minimum="10000"
                                   />
-                    <hc:NumericUpDown Value="{Binding QPulseWidth}" hc:TitleElement.Title="Ширина импульса, мкс"
+                <hc:NumericUpDown Value="{Binding QPulseWidth}" hc:TitleElement.Title="Ширина импульса, мкс"
                                   Increment="1"    
                                   Minimum="0"
                                  />
-                </hc:SimpleStackPanel>
-            </Expander>
-            <Expander Header="Модуляция ШИМ" IsExpanded="True">
-                <hc:SimpleStackPanel>
-                    <DockPanel>
-                        <ToggleButton Style="{StaticResource ToggleButtonSwitch}"                                         
+            </hc:SimpleStackPanel>
+        </Expander>
+        <Expander Header="Модуляция ШИМ" IsExpanded="True">
+            <hc:SimpleStackPanel>
+                <DockPanel>
+                    <ToggleButton Style="{StaticResource ToggleButtonSwitch}"                                         
                                       IsChecked="{Binding EnablePWM}"
                                       DockPanel.Dock="Right"
                                       />
-                        <TextBlock DockPanel.Dock="Left" Text="Применить модуляцию"/>
-                    </DockPanel>
-                    <hc:NumericUpDown Value="{Binding PWMFrequency}" hc:TitleElement.Title="Частота модуляции, Гц" 
+                    <TextBlock DockPanel.Dock="Left" Text="Применить модуляцию"/>
+                </DockPanel>
+                <hc:NumericUpDown Value="{Binding PWMFrequency}" hc:TitleElement.Title="Частота модуляции, Гц" 
                                   Increment="10"
                                   Minimum="50"
                                  />
-                    <hc:NumericUpDown Value="{Binding PWMDutyCycle}" hc:TitleElement.Title="Скважность, %"
+                <hc:NumericUpDown Value="{Binding PWMDutyCycle}" hc:TitleElement.Title="Скважность, %"
                                   Increment="1"
                                   Minimum="1"
                                  />
-                </hc:SimpleStackPanel>
-            </Expander>
-            <Expander Header="Штриховка / фрезеровка" IsExpanded="True">
+            </hc:SimpleStackPanel>
+        </Expander>
+        <Expander Header="Штриховка / фрезеровка" IsExpanded="True">
             <hc:SimpleStackPanel>
                 <DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
                     <ToggleButton Name="toggleHatch" Style="{StaticResource ToggleButtonSwitch}"
@@ -93,13 +93,13 @@
                                   Minimum="-1000"
                                   Maximum="1000"
                                   />
-                        <DockPanel>
-                            <CheckBox Name="toggleMilling"
+                    <DockPanel>
+                        <CheckBox Name="toggleMilling"
                                       IsChecked="{Binding EnableMilling}"
                                       DockPanel.Dock="Left"
                                       />
 
-                            <hc:NumericUpDown Value="{Binding HatchWidth}" 
+                        <hc:NumericUpDown Value="{Binding HatchWidth}" 
                                       DockPanel.Dock="Right"
                                               IsEnabled="{Binding ElementName=toggleMilling, Path=IsChecked}"
                                   hc:TitleElement.Title="Ширина контура, мкм"
@@ -110,94 +110,9 @@
                                   Maximum="500"
                                   />
 
-                        </DockPanel>
+                    </DockPanel>
                 </hc:SimpleStackPanel>
-
             </hc:SimpleStackPanel>
-                
-                
-                <!--<hc:SimpleStackPanel>
-                    <DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
-                        <ToggleButton Name="toggleHatch" Style="{StaticResource ToggleButtonSwitch}"
-                                      IsChecked="{Binding EnableHatch}"
-                                      DockPanel.Dock="Right"
-                                      >
-                        </ToggleButton>
-                        <TextBlock DockPanel.Dock="Left" Text="Штриховать"/>
-                    </DockPanel>
-                    <DockPanel>
-                        <ToggleButton Name="toggleMilling"
-                                      IsChecked="{Binding EnableMilling}"
-                                      DockPanel.Dock="Right"
-                                      >
-                            <ToggleButton.Style>
-                                <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonSwitch}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="False">
-                                            <Setter Property="IsChecked" Value="False"/>
-                                            <Setter Property="IsEnabled" Value="False"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="True">
-                                            <Setter Property="IsEnabled" Value="True"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ToggleButton.Style>
-                        </ToggleButton>
-                        <TextBlock DockPanel.Dock="Left" Text="Фрезеровать"/>
-                    </DockPanel>
-                    <DockPanel>
-                        <ToggleButton
-                                      IsChecked="{Binding DisableContour}"
-                                      DockPanel.Dock="Right"
-                                      >
-                            <ToggleButton.Style>
-                                <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonSwitch}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="False">
-                                            <Setter Property="IsChecked"  Value="False"/>
-                                            <Setter Property="IsEnabled" Value="False"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="True">
-                                            <Setter Property="IsEnabled" Value="True"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ToggleButton.Style>
-                        </ToggleButton>
-                        <TextBlock DockPanel.Dock="Left" Text="Не проходить контур"/>
-                    </DockPanel>
-
-                    <hc:NumericUpDown Value="{Binding ContourOffset}" hc:TitleElement.Title="Смещение контура, мкм"
-                                  Increment="10"
-                                  Minimum="0"
-                                  >
-                        <hc:NumericUpDown.Style>
-                            <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
-                                <Setter Property="Width" Value="100"/>
-                                <Setter Property="hc:TitleElement.TitleWidth" Value="200"/>
-                                <Setter Property="Margin" Value="5,2"/>
-                                <Setter Property="hc:TitleElement.TitlePlacement" Value="Left"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ElementName=toggleHatch, Path=IsChecked}" Value="False">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding ElementName=toggleMilling, Path=IsChecked}" Value="False">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding ElementName=toggleMilling, Path=IsChecked}" Value="True">
-                                        <Setter Property="IsEnabled" Value="True"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
-
-                    <hc:NumericUpDown Value="{Binding HatchLineDistance}" hc:TitleElement.Title="Шаг, мкм"
-                                  Increment="1"
-                                  Minimum="1"
-                                  />
-                </hc:SimpleStackPanel>-->
-            </Expander>
-        </hc:SimpleStackPanel>
+        </Expander>
+    </hc:SimpleStackPanel>
 </UserControl>

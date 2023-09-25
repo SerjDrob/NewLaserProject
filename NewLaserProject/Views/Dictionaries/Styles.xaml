@@ -1,0 +1,38 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
+                    xmlns:hc="https://handyorg.github.io/handycontrol"
+                    >
+   
+    <Style x:Key="ToolBorder" TargetType="Border">
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+    </Style>
+    <Style TargetType="controls:AxisState">
+        <Setter Property="NegColor" Value="{DynamicResource DarkDangerBrush}"/>
+        <Setter Property="PosColor" Value="{DynamicResource DarkSuccessBrush}"/>
+        <Style.Resources>
+            <Style TargetType="Border">
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            </Style>
+        </Style.Resources>
+    </Style>
+    <Style TargetType="DataGrid" BasedOn="{StaticResource DataGrid.Small}">
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="VerticalScrollBarVisibility" Value="Visible"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="hc:ScrollViewerAttach.AutoHide" Value="False"/>
+    </Style>
+    <Style TargetType="GroupBox" BasedOn="{StaticResource GroupBoxTab}">
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}"/>
+    <Style TargetType="TreeView" BasedOn="{StaticResource TreeView.Small}"/>
+</ResourceDictionary>

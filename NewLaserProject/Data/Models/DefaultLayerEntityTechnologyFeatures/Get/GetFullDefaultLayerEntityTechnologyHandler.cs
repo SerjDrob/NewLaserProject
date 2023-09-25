@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Ardalis.Specification;
 using NewLaserProject.Data.Models.Common;
 using NewLaserProject.Repositories;
 
@@ -13,7 +14,18 @@ public class GetFullDefaultLayerEntityTechnologyHandler : BaseRequestHandler<Def
 
     public async override Task<GetFullDefaultLayerEntityTechnologyResponse> Handle(GetFullDefaultLayerEntityTechnologyRequest request, CancellationToken cancellationToken = default)
     {
-        var result = await _repository.ListAsync(cancellationToken).ConfigureAwait(false);
+        var spec = new GetFullDefaultLayerEntityTechnologySpec();
+        var result = await _repository.ListAsync(spec, cancellationToken).ConfigureAwait(false);
         return new GetFullDefaultLayerEntityTechnologyResponse(result);
+    }
+}
+
+public class GetFullDefaultLayerEntityTechnologySpec : Specification<DefaultLayerEntityTechnology>
+{
+    public GetFullDefaultLayerEntityTechnologySpec()
+    {
+        Query.Include(d => d.DefaultLayerFilter)
+            .Include(d => d.Technology)
+            .ThenInclude(t=>t.Material);
     }
 }
