@@ -5,11 +5,12 @@
     
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
+	<Platforms>AnyCPU;x86</Platforms>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <UseWPF>true</UseWPF>
-    <DefineConstants>TRACE;PCIInserted;<!--InvertAngles--></DefineConstants>
+    <DefineConstants>TRACE;PCIInserted;DEBUGGING<!--InvertAngles--></DefineConstants>
     <StartupObject></StartupObject>
     <ApplicationIcon>Views\Sources\Laser.ico</ApplicationIcon>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -17,6 +18,11 @@
    
   </PropertyGroup>
   
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+	<Optimize>false</Optimize>
+	<PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>true</Prefer32Bit>
@@ -122,6 +128,18 @@
     <None Update="EZCAD\MarkEzd.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+	<None Update="AppSettings\*">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Data\*">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="TechnologyFiles\*">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="TempFiles\*">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -7,9 +7,13 @@ namespace NewLaserProject
     {
         public static string GetFolderPath(string folder)
         {
+#if DEBUGGING
             var workingDirectory = Environment.CurrentDirectory;
             var projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
             return Path.Combine(projectDirectory, folder);
+#else
+            return folder;
+#endif
         }
 
         public static string GetFilePathInFolder(string folder, string filename)

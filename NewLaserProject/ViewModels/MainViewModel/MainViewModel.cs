@@ -246,12 +246,12 @@ namespace NewLaserProject.ViewModels
             _openedFileVM?.UndoRemoveSelection();
         }
 
-        private void TechMessager_PublishMessage(string message, string iconPath, MessageType icon)
-        {
-            TechInfo = message;
-            IconPath = iconPath;
-            CurrentMessageType = icon;
-        }
+        //private void TechMessager_PublishMessage(string message, string iconPath, MessageType icon)
+        //{
+        //    TechInfo = message;
+        //    IconPath = iconPath;
+        //    CurrentMessageType = icon;
+        //}
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
             try
@@ -294,16 +294,19 @@ namespace NewLaserProject.ViewModels
             ShowVideo = false;
         }
 
-        [ICommand]
-        private async Task Test()
-        {
-            //var element = ProcessingObjects.ElementAt(15);
-            //element.IsBeingProcessed = true;
-            //IsBeingProcessedObject = element;
-        }
+        //[ICommand]
+        //private async Task Test()
+        //{
+        //    //var element = ProcessingObjects.ElementAt(15);
+        //    //element.IsBeingProcessed = true;
+        //    //IsBeingProcessedObject = element;
+        //}
 
         [ICommand]
         private void LasSettings() => _laserMachine.SetDevConfig();
+
+        [ICommand]
+        private void CameraSettings() => _laserMachine.InvokeSettings();
 
         private void ImplementMachineSettings()
         {
@@ -321,7 +324,7 @@ namespace NewLaserProject.ViewModels
                 maxVel = 30,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
-                reset = (int)HomeRst.HOME_RESET_EN,
+                reset = axesConfigs.XHomeReset,
                 acc = Settings.Default.XAcc,
                 dec = Settings.Default.XDec,
                 ppu = 4005,// Settings.Default.XPPU*2,
@@ -337,7 +340,7 @@ namespace NewLaserProject.ViewModels
                 maxVel = 30,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.YRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
-                reset = (int)HomeRst.HOME_RESET_EN,
+                reset = axesConfigs.YHomeReset,
                 acc = Settings.Default.YAcc,
                 dec = Settings.Default.YDec,
                 ppu = 3993,//Settings.Default.YPPU*2,
@@ -353,14 +356,13 @@ namespace NewLaserProject.ViewModels
                 maxVel = 8,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.ZRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
-                reset = (int)HomeRst.HOME_RESET_EN,
+                reset = axesConfigs.ZHomeReset,
                 acc = Settings.Default.ZAcc,
                 dec = Settings.Default.ZDec,
                 ppu = Settings.Default.ZPPU,
                 homeVelLow = Settings.Default.ZVelLow,
                 homeVelHigh = Settings.Default.ZVelService
             };
-            var gpXYpar = xpar;
 
             try
             {
@@ -387,32 +389,28 @@ namespace NewLaserProject.ViewModels
 
 
                 _laserMachine.AddGroup(Groups.XY, Ax.X, Ax.Y);
-                //_laserMachine.SetGroupConfig(0, gpXYpar);
 
                 _laserMachine.ConfigureGeometryFor(LMPlace.Loading)
                     .SetCoordinateForPlace(Ax.X, Settings.Default.XLoad)
                     .SetCoordinateForPlace(Ax.Y, Settings.Default.YLoad)
                     .Build();
 
-                //TODO put it to JSON
                 _laserMachine.ConfigureHomingForAxis(Ax.X)
-                    .SetHomingDirection(AxDir.Neg)
-                    //.SetHomingMode(HmMode.MODE6_Lmt_Ref)
-                    .SetHomingMode(HmMode.MODE7_AbsSearch)
+                    .SetHomingDirection((AxDir)axesConfigs.XHomeDirection)
+                    .SetHomingMode((HmMode)axesConfigs.XHomeMode)
                     .SetPositionAfterHoming(Settings.Default.XLeftPoint)
                     .SetHomingVelocity(Settings.Default.XVelService)
                     .Configure();
 
                 _laserMachine.ConfigureHomingForAxis(Ax.Y)
-                    .SetHomingDirection(AxDir.Neg)
-                    //.SetHomingMode(HmMode.MODE6_Lmt_Ref)
-                    .SetHomingMode(HmMode.MODE7_AbsSearch)
+                    .SetHomingDirection((AxDir)axesConfigs.YHomeDirection)
+                    .SetHomingMode((HmMode)axesConfigs.YHomeMode)
                     .SetPositionAfterHoming(Settings.Default.YLeftPoint)
                     .SetHomingVelocity(Settings.Default.YVelService)
                     .Configure();
 
                 _laserMachine.ConfigureHomingForAxis(Ax.Z)
-                    .SetHomingDirection(AxDir.Neg)
+                    .SetHomingDirection((AxDir)axesConfigs.ZHomeDirection)
                     .SetHomingVelocity(Settings.Default.ZVelService)
                     .SetPositionAfterHoming(Settings.Default.ZeroFocusPoint - WaferThickness)
                     .Configure();

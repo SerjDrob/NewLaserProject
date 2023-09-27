@@ -162,7 +162,7 @@
                                       Header="Отображение файла"/>
                             <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}"
                                       Header="Ориентация подложки"/>
-                            <MenuItem 
+                            <MenuItem Command="{Binding CameraSettingsCommand}"
                                       Header="Настройки видео"/>
                         </MenuItem>
                     </MenuItem>

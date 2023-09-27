@@ -110,10 +110,7 @@ namespace NewLaserProject.ViewModels
                 }
                 var newTechnology = new Technology();
                 newTechnology.Material = material;
-
-                var path = ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES);
-                newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(path);
-
+                newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES));
                 newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();
                 var response = await _mediator.Send(new CreateTechnologyRequest(newTechnology));
                 ReviseTechnologies();

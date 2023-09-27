@@ -35,11 +35,10 @@ namespace NewLaserProject
     public partial class App : Application
     {
         public ServiceCollection MainIoC { get; private set; }
-        const string APP_SETTINGS_FOLDER = "AppSettings";
         public App()
         {
             MachineConfiguration machineconfigs = ExtensionMethods
-                .DeserilizeObject<MachineConfiguration>(Path.Combine(ProjectPath.GetFolderPath("AppSettings"), "MachineConfigs.json"))
+                .DeserilizeObject<MachineConfiguration>(Path.Combine(ProjectFolders.APP_SETTINGS, "MachineConfigs.json"))
                 ?? throw new NullReferenceException("The machine configs are null");
 
             MainIoC = new ServiceCollection();
@@ -49,7 +48,7 @@ namespace NewLaserProject
                    {
                        options.UseSqlite(new SqlConnectionStringBuilder()
                        {
-                           DataSource = Path.Join(ProjectPath.GetFolderPath("Data"), "laserDatabase.db")
+                           DataSource = Path.Join(ProjectFolders.DATA, "laserDatabase.db")
                        }.ToString());
                    }, ServiceLifetime.Singleton)
                    .AddTransient(typeof(IRepository<>), typeof(LaserRepository<>))
@@ -80,6 +79,8 @@ namespace NewLaserProject
                    .AddLogging(builder =>
                    {
                        builder.AddFile(ProjectPath.GetFilePathInFolder(ProjectFolders.TEMP_FILES, "app.log"));
+                       builder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+                       builder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Error);
                    })
                    .AddAutoMapper(cfg =>
                    {
@@ -89,7 +90,7 @@ namespace NewLaserProject
                    .AddTransient<LaserDbViewModel>(sp =>
                    {
                        var defLaserParams = ExtensionMethods
-                            .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+                            .DeserilizeObject<MarkLaserParams>(Path.Combine(ProjectFolders.APP_SETTINGS, "DefaultLaserParams.json"));
 
                        var mapper = sp.GetService<IMapper>();
                        var mediator = sp.GetService<IMediator>();
@@ -99,27 +100,25 @@ namespace NewLaserProject
                    .AddTransient<MarkSettingsVM>(sp =>
                    {
                        var defLaserParams = ExtensionMethods
-                            .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(APP_SETTINGS_FOLDER, "DefaultLaserParams.json"));
+                            .DeserilizeObject<MarkLaserParams>(Path.Combine(ProjectFolders.APP_SETTINGS, "DefaultLaserParams.json"));
 
                        var mapper = sp.GetService<IMapper>();
                        var vm = mapper?.Map<MarkSettingsVM>(defLaserParams);
                        return vm;
-                   })
-                   ;
-
-            //var listenerName = "myListener";
-            //Trace.Listeners.Add(new TextWriterTraceListener("MyLog.log", listenerName));
-
-            ////Trace.Listeners.Add(new MyTraceListener("MyLog.log", listenerName));
-
-            //Trace.Listeners[listenerName].TraceOutputOptions |= TraceOptions.DateTime;
-
-
-            //Trace.Write("Start", "Header");
+                   });
         }
+
+        private void Dispatcher_UnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            _principleLogger.LogError(e.Exception, "An unhandled Exception was thrown");
+        }
+        private ILogger _principleLogger;
         protected override void OnStartup(StartupEventArgs e)
         {
             var provider = MainIoC.BuildServiceProvider();
+            var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
+            _principleLogger = loggerProvider.CreateLogger("AppLogger");
+            Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
 #if PCIInserted
 
@@ -145,32 +144,4 @@ namespace NewLaserProject
             viewModel?.OnInitialized();
         }
     }
-
-
-    //internal static partial class LogExtensions
-    //{
-    //    [LoggerMessage(EventId = 23,
-    //        Level = LogLevel.Error,
-    //        Message = "Motion failed with '{message}'")]
-    //    public static partial void LogMotionException(this ILogger logger, string message);
-    //    [LoggerMessage(12, LogLevel.Warning, "Fuck '{message}'")]
-    //    public static partial void LogAppException(this ILogger logger, string message);
-    //}
-
-    //class MyTraceListener : TextWriterTraceListener
-    //{
-    //    public MyTraceListener(string? fileName, string? name) : base(fileName, name)
-    //    {
-    //    }
-
-    //    public override void Write(string? message, string? category)
-    //    {
-    //        base.Write(message, category);
-    //    }
-
-    //    public override void Flush()
-    //    {
-    //        base.Flush();
-    //    }
-    //}
 }
