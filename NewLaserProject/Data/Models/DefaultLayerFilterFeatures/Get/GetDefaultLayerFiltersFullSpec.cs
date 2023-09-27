@@ -1,11 +1,13 @@
 ﻿using Ardalis.Specification;
 
-namespace NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
-
-public class GetDefaultLayerFiltersFullSpec : Specification<DefaultLayerFilter>
+namespace NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get
 {
-    public GetDefaultLayerFiltersFullSpec()
+
+    public class GetDefaultLayerFiltersFullSpec : Specification<DefaultLayerFilter>
     {
-        Query.Include(f => f.DefaultLayerEntityTechnologies);
+        public GetDefaultLayerFiltersFullSpec()
+        {
+            Query.Include(f => f.DefaultLayerEntityTechnologies);
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
-namespace NewLaserProject.Data.Models.MaterialFeatures.Get;
+namespace NewLaserProject.Data.Models.MaterialFeatures.Get
+{
 
-public record GetFullMaterialResponse(IEnumerable<Material> Materials);
+    public record GetFullMaterialResponse(IEnumerable<Material> Materials);
+}

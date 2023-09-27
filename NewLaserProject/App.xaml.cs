@@ -43,7 +43,7 @@ namespace NewLaserProject
 
             MainIoC = new ServiceCollection();
 
-            _ = MainIoC.AddMediatR(Assembly.GetExecutingAssembly())
+            _ = MainIoC.AddMediatR(cfg=>cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()))
                    .AddDbContext<DbContext, LaserDbContext>(options =>
                    {
                        options.UseSqlite(new SqlConnectionStringBuilder()

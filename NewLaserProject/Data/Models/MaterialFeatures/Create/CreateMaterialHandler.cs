@@ -3,20 +3,22 @@ using System.Threading.Tasks;
 using MediatR;
 using NewLaserProject.Repositories;
 
-namespace NewLaserProject.Data.Models.MaterialFeatures.Create;
-public class CreateMaterialHandler : IRequestHandler<CreateMaterialRequest, CreateMaterialResponse>
+namespace NewLaserProject.Data.Models.MaterialFeatures.Create
 {
-    private readonly IRepository<Material> _repository;
-
-    public CreateMaterialHandler(IRepository<Material> repository)
+    public class CreateMaterialHandler : IRequestHandler<CreateMaterialRequest, CreateMaterialResponse>
     {
-        _repository = repository;
-    }
+        private readonly IRepository<Material> _repository;
 
-    public async Task<CreateMaterialResponse> Handle(CreateMaterialRequest request, CancellationToken cancellationToken = default)
-    {
-        var result = await _repository.AddAsync(request.Material, cancellationToken);
-        var response = new CreateMaterialResponse(result.Id);
-        return response;
+        public CreateMaterialHandler(IRepository<Material> repository)
+        {
+            _repository = repository;
+        }
+
+        public async Task<CreateMaterialResponse> Handle(CreateMaterialRequest request, CancellationToken cancellationToken = default)
+        {
+            var result = await _repository.AddAsync(request.Material, cancellationToken);
+            var response = new CreateMaterialResponse(result.Id);
+            return response;
+        }
     }
 }

@@ -1,3 +1,5 @@
-﻿namespace NewLaserProject.Data.Models.MaterialFeatures.Create;
+﻿namespace NewLaserProject.Data.Models.MaterialFeatures.Create
+{
 
-public record CreateMaterialResponse(int Id);
+    public record CreateMaterialResponse(int Id);
+}

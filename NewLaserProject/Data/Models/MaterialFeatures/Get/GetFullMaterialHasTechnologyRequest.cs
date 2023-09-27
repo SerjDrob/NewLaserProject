@@ -1,5 +1,7 @@
 ﻿using MediatR;
 
-namespace NewLaserProject.Data.Models.MaterialFeatures.Get;
+namespace NewLaserProject.Data.Models.MaterialFeatures.Get
+{
 
-public record GetFullMaterialHasTechnologyRequest() : IRequest<GetFullMaterialResponse>;
+    public record GetFullMaterialHasTechnologyRequest() : IRequest<GetFullMaterialResponse>;
+}

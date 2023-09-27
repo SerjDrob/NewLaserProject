@@ -214,7 +214,7 @@ namespace NewLaserProject.ViewModels
                     pazAngle: Settings.Default.PazAngle,
                     subject: _subjMediator,
                     baseCoorSystem: _coorSystem,
-                    underCamera: true,
+                    underCamera: false,
                     aligningPoints: FileAlignment,
                     waferAngle: _waferAngle,
                     scale: DefaultFileScale);
