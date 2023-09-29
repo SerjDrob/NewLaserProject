@@ -1,0 +1,28 @@
+﻿<UserControl x:Class="NewLaserProject.Views.MechanicView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Canvas>
+            <Image Panel.ZIndex="1" Opacity="0.8" Source="/Views/HuarayBlock.png"/>
+            <Image Panel.ZIndex="0" 
+                   Source="/Views/WorkpieceTable.png" 
+                   Canvas.Left="{Binding DataContext.CameraViewfinderX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, AncestorLevel=2, Mode=FindAncestor}}" 
+                   Canvas.Bottom="{Binding DataContext.CameraViewfinderY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, AncestorLevel=2, Mode=FindAncestor}}"
+                   />
+            <Canvas.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleX="0.2" ScaleY="0.2"/>
+                    <TranslateTransform X="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=ActualWidth, ConverterParameter=2, Converter={StaticResource DivideConverter} }"/>
+                    <TranslateTransform Y="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter} }"/>
+                    <TranslateTransform Y="-200"/>
+                    <TranslateTransform X="-100"/>
+                </TransformGroup>
+            </Canvas.RenderTransform>
+        </Canvas>    
+    </Grid>
+</UserControl>

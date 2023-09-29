@@ -117,7 +117,8 @@
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewmodels:FileVM}">
-                <views:FileView/>
+                <!--<views:FileView/>-->
+                <views:MechanicView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewmodels:CameraVM}">

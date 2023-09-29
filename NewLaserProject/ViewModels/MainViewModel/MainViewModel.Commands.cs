@@ -10,7 +10,6 @@ using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -19,7 +18,6 @@ using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DefaultLayerEntityTechnologyFeatures.Get;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.DTOs;
-using NewLaserProject.Data.Models.MaterialFeatures.Create;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
@@ -294,7 +292,7 @@ namespace NewLaserProject.ViewModels
                       new DefaultTechSelector(k, col.GroupBy(g => g.EntityType)
                       .ToImmutableDictionary(k => k.Key, e => e.Select(g => g.Technology.Material))
                       )).ToObservableCollection();
-                    var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultProcessFilter.json"));
+                    var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(AppPaths.DefaultProcessFilter);
                     if (defLayerProcDTO is not null)
                     {
                         vm.DefaultHeight = defLayerProcDTO.DefaultHeight;
@@ -333,7 +331,7 @@ namespace NewLaserProject.ViewModels
                     DefaultHeight = defSettings.DefaultHeight
                 };
 
-                defProcFilter.SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultProcessFilter.json"));
+                defProcFilter.SerializeObject(AppPaths.DefaultProcessFilter);
 
                 Settings.Default.WaferMirrorX = defSettings.IsMirrored;
                 Settings.Default.WaferAngle90 = defSettings.IsRotated;
@@ -387,7 +385,7 @@ namespace NewLaserProject.ViewModels
             if (result.Success)
             {
                 var defLaserParams = result.CommonResult.GetLaserParams();
-                defLaserParams.SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultLaserParams.json"));
+                defLaserParams.SerializeObject(AppPaths.DefaultLaserParams);
             }
         }
         [ICommand]

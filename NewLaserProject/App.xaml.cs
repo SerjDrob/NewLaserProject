@@ -19,6 +19,7 @@ using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.ViewModels.DialogVM.Profiles;
 using NewLaserProject.Views;
 using System;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
@@ -38,7 +39,7 @@ namespace NewLaserProject
         public App()
         {
             MachineConfiguration machineconfigs = ExtensionMethods
-                .DeserilizeObject<MachineConfiguration>(Path.Combine(ProjectFolders.APP_SETTINGS, "MachineConfigs.json"))
+                .DeserilizeObject<MachineConfiguration>(AppPaths.MachineConfigs)
                 ?? throw new NullReferenceException("The machine configs are null");
 
             MainIoC = new ServiceCollection();
@@ -46,10 +47,8 @@ namespace NewLaserProject
             _ = MainIoC.AddMediatR(cfg=>cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()))
                    .AddDbContext<DbContext, LaserDbContext>(options =>
                    {
-                       options.UseSqlite(new SqlConnectionStringBuilder()
-                       {
-                           DataSource = Path.Join(ProjectFolders.DATA, "laserDatabase.db")
-                       }.ToString());
+                       var connectionString = ConfigurationManager.ConnectionStrings["myDb"].ToString();
+                       options.UseSqlite(connectionString);
                    }, ServiceLifetime.Singleton)
                    .AddTransient(typeof(IRepository<>), typeof(LaserRepository<>))
                    .AddSingleton<ISubject<IProcessNotify>, Subject<IProcessNotify>>()
@@ -78,7 +77,7 @@ namespace NewLaserProject
                    .AddSingleton<MainViewModel>()
                    .AddLogging(builder =>
                    {
-                       builder.AddFile(ProjectPath.GetFilePathInFolder(ProjectFolders.TEMP_FILES, "app.log"));
+                       builder.AddFile(AppPaths.Applog);
                        builder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
                        builder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Error);
                    })
@@ -90,7 +89,7 @@ namespace NewLaserProject
                    .AddTransient<LaserDbViewModel>(sp =>
                    {
                        var defLaserParams = ExtensionMethods
-                            .DeserilizeObject<MarkLaserParams>(Path.Combine(ProjectFolders.APP_SETTINGS, "DefaultLaserParams.json"));
+                            .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
 
                        var mapper = sp.GetService<IMapper>();
                        var mediator = sp.GetService<IMediator>();
@@ -100,7 +99,7 @@ namespace NewLaserProject
                    .AddTransient<MarkSettingsVM>(sp =>
                    {
                        var defLaserParams = ExtensionMethods
-                            .DeserilizeObject<MarkLaserParams>(Path.Combine(ProjectFolders.APP_SETTINGS, "DefaultLaserParams.json"));
+                            .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
 
                        var mapper = sp.GetService<IMapper>();
                        var vm = mapper?.Map<MarkSettingsVM>(defLaserParams);

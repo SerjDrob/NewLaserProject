@@ -35,6 +35,7 @@
   
   <ItemGroup>
     <None Remove="LaserSplash.png" />
+    <None Remove="Views\HuarayBlock.png" />
     <None Remove="Views\Sources\angle.png" />
     <None Remove="Views\Sources\distance-32.png" />
     <None Remove="Views\Sources\flipvert.png" />
@@ -44,6 +45,7 @@
     <None Remove="Views\Sources\rotate.png" />
     <None Remove="Views\Sources\scale.png" />
     <None Remove="Views\Sources\settings.png" />
+    <None Remove="Views\WorkpieceTable.png" />
   </ItemGroup>
   
   <ItemGroup>
@@ -131,7 +133,7 @@
 	<None Update="AppSettings\*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-	<None Update="Data\*">
+	<None Update="Database\*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
 	<None Update="TechnologyFiles\*">
@@ -143,9 +145,6 @@
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Update="TechnologyFiles\CircleListing.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -180,6 +179,8 @@
   
     <ItemGroup>
       <Resource Include="Views\Dictionaries\Styles.xaml" />
+      <Resource Include="Views\HuarayBlock.png" />
+      <Resource Include="Views\WorkpieceTable.png" />
     </ItemGroup>
   
     <ItemGroup>

@@ -192,7 +192,7 @@ namespace NewLaserProject.ViewModels
                         StaysOpen = false
                     });
                     //---Set new coordinate system
-                    _coorSystem = GetCoorSystem(PUREDEFORMATION_FILE);
+                    _coorSystem = GetCoorSystem(AppPaths.PureDeformation);
                     TuneCoorSystem();
                     //StopVideoCapture();
                     TeachingSteps = new();
@@ -354,7 +354,7 @@ namespace NewLaserProject.ViewModels
                 waferThickness = result.CommonResult;
             }
 
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "TeachingDeformation.json"));
+            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(AppPaths.TeachingDeformation);
 
             var workMatrixBuilder = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             workMatrixBuilder.SetWorkMatrix(new Matrix3x2(
@@ -447,15 +447,15 @@ namespace NewLaserProject.ViewModels
                     var pureSystem = builder.FormWorkMatrix(0.001, -0.001).BuildPure();
                     var teachSystem = builder.FormWorkMatrix(1, 1).Build();
 
-                    pureSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "PureDeformation.json"));
-                    teachSystem.GetMainMatrixElements().SerializeObject(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "TeachingDeformation.json"));
+                    pureSystem.GetMainMatrixElements().SerializeObject(AppPaths.PureDeformation);
+                    teachSystem.GetMainMatrixElements().SerializeObject(AppPaths.TeachingDeformation);
 
                     MsgBox.Info("Новое значение установлено", "Обучение");
                     MirrorX = _tempMirrorX;
                     WaferTurn90 = _tempWaferTurn90;
 
                     //---Set new coordinate system
-                    _coorSystem = GetCoorSystem(PUREDEFORMATION_FILE);
+                    _coorSystem = GetCoorSystem(AppPaths.PureDeformation);
                     TuneCoorSystem();
                     _canTeach = false;
                 }));

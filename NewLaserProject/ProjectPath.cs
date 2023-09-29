@@ -3,30 +3,32 @@ using System.IO;
 
 namespace NewLaserProject
 {
-    internal static class ProjectPath
+
+    internal static class AppPaths
     {
-        public static string GetFolderPath(string folder)
+        private static readonly string _directoryPrefix;
+        private static string SettingsFolder => Path.Combine(_directoryPrefix, "AppSettings");
+
+        static AppPaths()
         {
-#if DEBUGGING
             var workingDirectory = Environment.CurrentDirectory;
-            var projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-            return Path.Combine(projectDirectory, folder);
+#if DEBUGGING
+            _directoryPrefix = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
 #else
-            return folder;
+            _directoryPrefix = string.Empty;
 #endif
         }
 
-        public static string GetFilePathInFolder(string folder, string filename)
-        {
-            return Path.Combine(Path.Combine(GetFolderPath(folder), filename));
-        }
-    }
+        public static string TempFolder => Path.Combine(_directoryPrefix, "TempFiles");
+        public static string TechnologyFolder => Path.Combine(_directoryPrefix, "TechnologyFiles");
 
-    internal static class ProjectFolders
-    {
-        public const string DATA = "Data";
-        public const string APP_SETTINGS = "AppSettings";
-        public const string TECHNOLOGY_FILES = "TechnologyFiles";
-        public const string TEMP_FILES = "TempFiles";
+
+        public static string AxesConfigs => Path.Combine(SettingsFolder, "AxesConfigs.json");
+        public static string DefaultLaserParams => Path.Combine(SettingsFolder, "DefaultLaserParams.json");
+        public static string DefaultProcessFilter => Path.Combine(SettingsFolder, "DefaultProcessFilter.json");
+        public static string MachineConfigs => Path.Combine(SettingsFolder, "MachineConfigs.json");
+        public static string PureDeformation => Path.Combine(SettingsFolder, "PureDeformation.json");
+        public static string TeachingDeformation => Path.Combine(SettingsFolder, "TeachingDeformation.json");
+        public static string Applog => Path.Combine(TempFolder, "app.log");
     }
 }

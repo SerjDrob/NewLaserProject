@@ -110,7 +110,7 @@ namespace NewLaserProject.ViewModels
                 }
                 var newTechnology = new Technology();
                 newTechnology.Material = material;
-                newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES));
+                newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(AppPaths.TechnologyFolder);
                 newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();
                 var response = await _mediator.Send(new CreateTechnologyRequest(newTechnology));
                 ReviseTechnologies();
@@ -150,7 +150,7 @@ namespace NewLaserProject.ViewModels
             defParams.HatchWidth = technology.Material.MaterialEntRule?.Width ?? 0;
 
             var techWizard = new TechWizardVM(defParams) { EditEnable = true };
-            var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
+            var path = Path.Combine(AppPaths.TechnologyFolder, $"{technology.ProcessingProgram}.json");
             techWizard.LoadListing(path);
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Правка программы")
@@ -164,7 +164,7 @@ namespace NewLaserProject.ViewModels
                     MessageBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
                     return;
                 }
-                technology.ProcessingProgram = result.CommonResult.SaveListingToFolder(ProjectPath.GetFolderPath(ProjectFolders.TECHNOLOGY_FILES));
+                technology.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
                 var response = await _mediator.Send(new UpdateTechnologyRequest(technology));
                 File.Delete(path);
             }
@@ -179,7 +179,7 @@ namespace NewLaserProject.ViewModels
         }
         private void DeleteTechnologyFile(Technology technology)
         {
-            var path = ProjectPath.GetFilePathInFolder(ProjectFolders.TECHNOLOGY_FILES, $"{technology.ProcessingProgram}.json");
+            var path = Path.Combine(AppPaths.TechnologyFolder, $"{technology.ProcessingProgram}.json");
             File.Delete(path);
         }
         [ICommand]

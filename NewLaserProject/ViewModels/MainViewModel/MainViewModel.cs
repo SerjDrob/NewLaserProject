@@ -31,9 +31,6 @@ namespace NewLaserProject.ViewModels
     [AddINotifyPropertyChangedInterface]
     internal partial class MainViewModel
     {
-        readonly string PUREDEFORMATION_FILE = ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "PureDeformation.json");
-
-
         private readonly LaserMachine _laserMachine;
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
@@ -112,7 +109,7 @@ namespace NewLaserProject.ViewModels
             _serviceProvider = serviceProvider;
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
-            _coorSystem = GetCoorSystem(PUREDEFORMATION_FILE);
+            _coorSystem = GetCoorSystem(AppPaths.PureDeformation);
             TuneCoorSystem();
             ImplementMachineSettings();
 
@@ -132,7 +129,7 @@ namespace NewLaserProject.ViewModels
                 });
 
             var defLaserParams = ExtensionMethods
-                .DeserilizeObject<MarkLaserParams>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "DefaultLaserParams.json"));
+                .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
 
             _laserMachine.SetMarkParams(defLaserParams);
 
@@ -313,7 +310,7 @@ namespace NewLaserProject.ViewModels
 #if PCIInserted
 
             var axesConfigs = ExtensionMethods
-                .DeserilizeObject<LaserMachineAxesConfiguration>(ProjectPath.GetFilePathInFolder(ProjectFolders.APP_SETTINGS, "AxesConfigs.json"));
+                .DeserilizeObject<LaserMachineAxesConfiguration>(AppPaths.AxesConfigs);
 
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
 
