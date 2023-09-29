@@ -71,6 +71,9 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
+
+        public MechanicVM MechTableVM { get; set; }
+
         private CameraVM _cameraVM;
 
         private readonly IMediator _mediator;
@@ -136,10 +139,24 @@ namespace NewLaserProject.ViewModels
             InitViews();
             InitAppState();
             InitCommands();
+            MechTableVM = new();
             _logger.Log(LogLevel.Information, "App started");
         }
 
-
+        private object _tempVM;
+        [ICommand]
+        private void ChangeMechView()
+        {
+            if (CentralSideVM is not MechanicVM)
+            {
+                _tempVM = CentralSideVM; 
+                CentralSideVM = MechTableVM;
+            }
+            else if(_tempVM is not null)
+            {
+                CentralSideVM = _tempVM;
+            }
+        }
         public void OnInitialized()
         {
             Growl.Warning(new GrowlInfo
@@ -269,6 +286,7 @@ namespace NewLaserProject.ViewModels
                         ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
                         break;
                 }
+                MechTableVM?.SetCoordinates(XAxis.Position, YAxis.Position);
             }
             catch (Exception ex)
             {

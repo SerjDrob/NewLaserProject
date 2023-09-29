@@ -6,14 +6,44 @@
              xmlns:local="clr-namespace:NewLaserProject.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid ClipToBounds="True">
         <Canvas>
-            <Image Panel.ZIndex="1" Opacity="0.8" Source="/Views/HuarayBlock.png"/>
+            <Canvas Panel.ZIndex="1" >
+                <Grid Canvas.Left="440" Canvas.Bottom="-1070"
+                Panel.ZIndex="2" Width="100" Height="100">
+                    <Rectangle VerticalAlignment="Center" HorizontalAlignment="Stretch" Fill="Red" Height="5"/>
+                    <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Center" Fill="Red" Width="5"/>
+                </Grid>
+                <Image Opacity="0.8" RenderTransformOrigin="0.5 0.5" Source="/Views/HuarayBlock.png"/>
+                <Canvas.RenderTransform>
+                    <TransformGroup>
+                        <TranslateTransform X="150" Y="-400"/>
+                    </TransformGroup>
+                </Canvas.RenderTransform>
+            </Canvas>
             <Image Panel.ZIndex="0" 
                    Source="/Views/WorkpieceTable.png" 
-                   Canvas.Left="{Binding DataContext.CameraViewfinderX, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, AncestorLevel=2, Mode=FindAncestor}}" 
-                   Canvas.Bottom="{Binding DataContext.CameraViewfinderY, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, AncestorLevel=2, Mode=FindAncestor}}"
-                   />
+                   >
+                <Canvas.Left>
+                    <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                        <Binding RelativeSource="{RelativeSource Mode=Self}" Path="ActualWidth"/>
+                        <Binding Path="TableX"/>
+                        <Binding Path="TableWidth"/>
+                    </MultiBinding>
+                </Canvas.Left>
+                <Canvas.Bottom>
+                    <MultiBinding Converter="{StaticResource AligningArgsConverters}">
+                        <Binding RelativeSource="{RelativeSource Mode=Self}" Path="ActualWidth"/>
+                        <Binding Path="TableY"/>
+                        <Binding Path="TableWidth"/>
+                    </MultiBinding>
+                </Canvas.Bottom>
+                <Image.RenderTransform>
+                    <TransformGroup>
+                        <TranslateTransform X="87.1" Y="82.6"/>
+                    </TransformGroup>
+                </Image.RenderTransform>
+            </Image>
             <Canvas.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleX="0.2" ScaleY="0.2"/>

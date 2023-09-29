@@ -50,6 +50,10 @@
 
             <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
             <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
+
+            <DataTemplate DataType="{x:Type viewmodels:MechanicVM}">
+                <views:MechanicView/>
+            </DataTemplate>
             
             <DataTemplate DataType="{x:Type dialogvm:WaferVM}">
                 <dialogviews:WaferSettingsView/>
@@ -117,8 +121,7 @@
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewmodels:FileVM}">
-                <!--<views:FileView/>-->
-                <views:MechanicView/>
+                <views:FileView/>                
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewmodels:CameraVM}">

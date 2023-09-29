@@ -333,6 +333,15 @@
                     </Border>
                 </DockPanel>
             </ToolBar>
+            <ToolBar>
+                <ToggleButton Content="Вид">
+                    <i:Interaction.Triggers>
+                        <i:PropertyChangedTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=IsChecked}">
+                            <i:InvokeCommandAction Command="{Binding ChangeMechViewCommand}"/>
+                        </i:PropertyChangedTrigger>
+                    </i:Interaction.Triggers>
+                </ToggleButton>
+            </ToolBar>
             <ToolBar Visibility="Collapsed">
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
