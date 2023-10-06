@@ -57,14 +57,14 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Image>
-                <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1">
-                    <Line Stroke="Red" Fill="Red" 
+                <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1" UseLayoutRounding="True">
+                    <Line Stroke="Red" Fill="Red" SnapsToDevicePixels="True"
                                               StrokeThickness="1" 
                                               X1="-25" X2="25" Y1="0" Y2="0" 
                                               Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                               Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                               />
-                    <Line Stroke="Red" Fill="Red" 
+                    <Line Stroke="Red" Fill="Red" SnapsToDevicePixels="True"
                                               StrokeThickness="1" 
                                               X1="0" X2="0" Y1="-25" Y2="25" 
                                               Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
@@ -72,20 +72,21 @@
                                               >
                     </Line>
                 </Canvas>
-                <Canvas Panel.ZIndex="1">
+                <Canvas Panel.ZIndex="1" UseLayoutRounding="True">
                     <ContentControl 
                         Width="25"
                         MinWidth="20"
                         Height="25"
                         MinHeight="20"
+                        SnapsToDevicePixels="True"
                         Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                         Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                         Template="{StaticResource DesignerItemTemplate}">
 
                         <Grid>
-                            <Ellipse Stroke="Red" StrokeThickness="1" IsHitTestVisible="False"/>
-                            <Rectangle Width="1" Stroke="Yellow" Fill="Yellow" VerticalAlignment="Stretch"/>
-                            <Rectangle Height="1" Stroke="Yellow" Fill="Yellow" HorizontalAlignment="Stretch"/>
+                            <Ellipse Stroke="Red" StrokeThickness="1" SnapsToDevicePixels="True" IsHitTestVisible="False"/>
+                            <Rectangle Width="1" Stroke="Yellow" Fill="Yellow" SnapsToDevicePixels="True" VerticalAlignment="Stretch"/>
+                            <Rectangle Height="1" Stroke="Yellow" Fill="Yellow" SnapsToDevicePixels="True" HorizontalAlignment="Stretch"/>
                         </Grid>
                         <ContentControl.RenderTransform>
                             <TranslateTransform

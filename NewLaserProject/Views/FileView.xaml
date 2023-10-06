@@ -164,7 +164,6 @@
                             HorizontalAlignment="Right"
                             Margin="20"
                             >
-
                 <hc:CirclePanel.LayoutTransform>
                     <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
                 </hc:CirclePanel.LayoutTransform>

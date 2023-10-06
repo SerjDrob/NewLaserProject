@@ -30,6 +30,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <Localconverters:AligningArgsConverter x:Key="AligningArgsConverters"/>
+            <Localconverters:MechanicScaleConverter x:Key="MechanicScaleConverter"/>
             <Localconverters:IProcToGeometryConverter x:Key="IProcToGeometryConverter"/>
             <Localconverters:LayersTreeStructureConvereter x:Key="LTreeStructureConverter"/>
             <Localconverters:LayersStructureConvereter x:Key="LStructureConvereter"/>

@@ -119,17 +119,10 @@ namespace NewLaserProject
             _principleLogger = loggerProvider.CreateLogger("AppLogger");
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
-#if PCIInserted
-
-
             var viewModel = provider.GetService<MainViewModel>();
             var context = provider.GetService<DbContext>() as LaserDbContext;
             context?.LoadSetsAsync();
-#else
-            var db = provider.GetService<LaserDb Context>();
-            var mediator = provider.GetService<IMediator>();
-            var viewModel = new MainViewModel(db,mediator);
-#endif
+            
             base.OnStartup(e);
 
             Trace.TraceInformation("The application started");

@@ -147,14 +147,15 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void ChangeMechView()
         {
-            if (CentralSideVM is not MechanicVM)
+            if (_tempVM is null)
             {
-                _tempVM = CentralSideVM; 
-                CentralSideVM = MechTableVM;
+                if (CentralSideVM is FileVM) (CentralSideVM, _tempVM) = (MechTableVM, CentralSideVM);
+                else if (RightSideVM is FileVM) (RightSideVM, _tempVM) = (MechTableVM, RightSideVM);
             }
-            else if(_tempVM is not null)
+            else
             {
-                CentralSideVM = _tempVM;
+                if (CentralSideVM is CameraVM) (RightSideVM, _tempVM) = (_tempVM, null);
+                else if (RightSideVM is CameraVM) (CentralSideVM, _tempVM) = (_tempVM, null);
             }
         }
         public void OnInitialized()
@@ -286,7 +287,8 @@ namespace NewLaserProject.ViewModels
                         ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
                         break;
                 }
-                MechTableVM?.SetCoordinates(XAxis.Position, YAxis.Position);
+                MechTableVM?.SetCoordinates(XAxis.Position - 85.876, YAxis.Position - 51.945);
+                //MechTableVM?.SetCoordinates(XAxis.Position, YAxis.Position);
             }
             catch (Exception ex)
             {
@@ -488,6 +490,7 @@ namespace NewLaserProject.ViewModels
             _coorSystem.SetRelatedSystem(LMPlace.UnderLaser, 1, 2);
             _coorSystem.SetRelatedSystem(LMPlace.LeftCorner, Settings.Default.XLeftPoint, Settings.Default.YLeftPoint);
             _coorSystem.SetRelatedSystem(LMPlace.RightCorner, 1, 2);
+            MechTableVM?.SetOffsets(Settings.Default.XOffset, Settings.Default.YOffset);
         }
     }
 

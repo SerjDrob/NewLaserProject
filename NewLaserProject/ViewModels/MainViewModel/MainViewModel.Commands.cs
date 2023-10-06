@@ -193,8 +193,9 @@ namespace NewLaserProject.ViewModels
                         Key.A or Key.Z => Ax.Y,
                         Key.X or Key.C => Ax.X,
                         Key.V or Key.B => Ax.Z,
+                        _ => Ax.None
                     };
-                    _laserMachine.Stop(axis);
+                    if(axis!=Ax.None) _laserMachine.Stop(axis);
                 }
                 catch (SwitchExpressionException ex)
                 {

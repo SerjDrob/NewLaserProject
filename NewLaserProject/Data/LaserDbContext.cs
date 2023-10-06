@@ -44,15 +44,7 @@ namespace NewLaserProject.Data
                 );
         }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    var connectionstring = new SqlConnectionStringBuilder()
-        //    {
-        //        DataSource = Path.Join( ProjectPath.GetFolderPath("Data"), "laserDatabase.db")
-        //    }.ToString();
-
-        //    optionsBuilder.UseSqlite(connectionstring);
-        //}
+        
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
         //    base.OnModelCreating(modelBuilder);

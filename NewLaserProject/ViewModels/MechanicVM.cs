@@ -1,18 +1,16 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NewLaserProject.ViewModels
 {
     [INotifyPropertyChanged]
     public partial class MechanicVM
     {
-        public  double TableX { get; set; }
+        public double TableX { get; set; }
         public double TableY { get; set; }
+        public double CameraLaserOffsetX { get; set; } = -69.443;
+        public double CameraLaserOffsetY { get; set; } = 3.797;
         public double TableWidth => 130;
+        public double TableHeight => 120;
         public double TableOriginX => 3.3;
         public double TableOriginY => 80.59;
         public double LaserOriginX => 0;
@@ -22,6 +20,11 @@ namespace NewLaserProject.ViewModels
         {
             TableX = x;
             TableY = y;
+        }
+        public void SetOffsets(double dx, double dy)
+        {
+            CameraLaserOffsetX = dx;
+            CameraLaserOffsetY = dy;
         }
     }
 }
