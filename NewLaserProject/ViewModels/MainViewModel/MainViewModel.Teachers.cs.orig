@@ -23,8 +23,11 @@ using Dialog = HandyControl.Controls.Dialog;
 using HandyControl.Tools.Extension;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views.Dialogs;
+<<<<<<< HEAD
 using MachineControlsLibrary.CommonDialog;
+=======
 using MachineClassLibrary.Laser.Parameters;
+>>>>>>> a69ff14d4b9b0b73371d39a506acd63e5cb4c226
 
 namespace NewLaserProject.ViewModels
 {

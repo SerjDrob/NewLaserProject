@@ -114,7 +114,6 @@ namespace NewLaserProject.ViewModels
             TuneCoorSystem();
             ImplementMachineSettings();
 
-
             _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
                 .ContinueWith(t =>
                 {

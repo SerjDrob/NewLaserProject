@@ -211,7 +211,7 @@ namespace NewLaserProject.ViewModels
                     waferThickness: WaferThickness,
                     dX: Settings.Default.XOffset,
                     dY: Settings.Default.YOffset,
-                    pazAngle: Settings.Default.PazAngle,
+                    pazAngle: 0,//Settings.Default.PazAngle,
                     subject: _subjMediator,
                     baseCoorSystem: _coorSystem,
                     underCamera: false,
