@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NewLaserProject.Data.Models
 {
-    public class Technology:BaseEntity
+    public class Technology:BaseEntity, ICloneable
     {
         [Required]
         public string ProcessingProgram { get; set; }
@@ -12,5 +13,6 @@ namespace NewLaserProject.Data.Models
         public int MaterialId { get; set; }
         public Material Material { get; set; }
         public List<DefaultLayerEntityTechnology> DefaultLayerEntityTechnologies  { get; set; }
+        public object Clone() => MemberwiseClone();
     }
 }

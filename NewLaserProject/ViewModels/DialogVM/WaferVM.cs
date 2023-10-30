@@ -1,11 +1,9 @@
-﻿using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using HandyControl.Tools.Extension;
+﻿using System.ComponentModel;
+using MachineControlsLibrary.CommonDialog;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {
-    public class WaferVM:CommonDialogResultable<WaferVM>
+    public class WaferVM : CommonDialogResultable<WaferVM>
     {
         [Category("Размеры")]
         [DisplayName("Ширина")]

@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel;
-using System.Windows.Input;
 using MachineClassLibrary.Laser.Parameters;
+using MachineControlsLibrary.CommonDialog;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {
@@ -150,7 +149,7 @@ namespace NewLaserProject.ViewModels.DialogVM
 
 
         #endregion
-        
+
         public MarkLaserParams GetLaserParams()
         {
             var pen = new PenParams(PenNo, MarkLoop, MarkSpeed, PowerRatio, Current, Freq, QPulseWidth, IsModulated, ModFreq,

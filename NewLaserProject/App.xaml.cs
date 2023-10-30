@@ -38,8 +38,8 @@ namespace NewLaserProject
         public ServiceCollection MainIoC { get; private set; }
         public App()
         {
-            MachineConfiguration machineconfigs = ExtensionMethods
-                .DeserilizeObject<MachineConfiguration>(AppPaths.MachineConfigs)
+            var machineconfigs = ExtensionMethods
+                .DeserilizeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs)
                 ?? throw new NullReferenceException("The machine configs are null");
 
             MainIoC = new ServiceCollection();
@@ -100,7 +100,6 @@ namespace NewLaserProject
                    {
                        var defLaserParams = ExtensionMethods
                             .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
-
                        var mapper = sp.GetService<IMapper>();
                        var vm = mapper?.Map<MarkSettingsVM>(defLaserParams);
                        return vm;
@@ -117,6 +116,7 @@ namespace NewLaserProject
             var provider = MainIoC.BuildServiceProvider();
             var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
             _principleLogger = loggerProvider.CreateLogger("AppLogger");
+            _principleLogger.Log(LogLevel.Information, "I'm OnStartup");
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
             var viewModel = provider.GetService<MainViewModel>();

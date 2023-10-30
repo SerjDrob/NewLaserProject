@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MachineClassLibrary.Laser.Parameters;
+using MachineControlsLibrary.CommonDialog;
 using NewLaserProject.ViewModels.DialogVM;
 
 namespace NewLaserProject.ViewModels.DbVM

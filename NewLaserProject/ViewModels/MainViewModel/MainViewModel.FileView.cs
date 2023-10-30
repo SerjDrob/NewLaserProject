@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
+using MachineControlsLibrary.CommonDialog;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -19,6 +20,7 @@ using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
+using CommonDialog = MachineControlsLibrary.CommonDialog.CommonDialog;
 
 namespace NewLaserProject.ViewModels
 {
@@ -188,7 +190,7 @@ namespace NewLaserProject.ViewModels
                     else
                     {
                         var tempTechnology = ChosenProcessingObjects.LastOrDefault()?.Technology ?? availableMaterials?.First()?.Technologies?.First();
-                        var result = await Dialog.Show<Views.Dialogs.CommonDialog>()
+                        var result = await Dialog.Show<CommonDialog>()
                             .SetDialogTitle("Выбор технологии обработки")
                             .SetDataContext<AddProcObjectsVM>(vm =>
                             {

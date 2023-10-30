@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MachineControlsLibrary.CommonDialog;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace NewLaserProject.ViewModels.DialogVM

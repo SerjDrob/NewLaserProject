@@ -29,6 +29,7 @@
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.S}" Modifiers="Ctrl" Key="Down"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterV}" Modifiers="Ctrl" Key="V"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterH}" Modifiers="Ctrl" Key="H"/>
+        <KeyBinding Command="{Binding ChangeMechViewCommand}" Key="W"/>
     </hc:GlowWindow.InputBindings>
     
     <hc:GlowWindow.Resources>        
@@ -162,8 +163,24 @@
                                       Header="Отображение файла"/>
                             <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}"
                                       Header="Ориентация подложки"/>
-                            <MenuItem Command="{Binding CameraSettingsCommand}"
-                                      Header="Настройки видео"/>
+                            <MenuItem Command="{Binding CameraSettingsCommand}">
+                                <MenuItem.Header>
+                                    <hc:ComboBox ItemsSource="{Binding CameraCapabilities}"
+                                                 SelectedIndex="{Binding CameraCapabilitiesIndex}"
+                                                 hc:InfoElement.Placeholder="Камера не подключена"
+                                                 Width="260"
+                                                 hc:TitleElement.Title="Настройки видео" 
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="120"
+                                                 Style="{StaticResource ComboBoxExtend}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="SelectionChanged">
+                                                <i:InvokeCommandAction Command="{Binding CameraCapabilitiesChangedCommand}"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </hc:ComboBox>
+                                </MenuItem.Header>
+                            </MenuItem>
                         </MenuItem>
                     </MenuItem>
                 </Menu>
@@ -334,13 +351,30 @@
                 </DockPanel>
             </ToolBar>
             <ToolBar>
-                <ToggleButton Content="Вид">
+                <ToggleButton HorizontalAlignment="Stretch" Height="70">
+                    <DockPanel LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Top" Text="Вид" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                        <hc:ToggleBlock DockPanel.Dock="Bottom" IsChecked="{Binding IsMechViewChecked, Mode=OneWay}">
+                            <hc:ToggleBlock.UnCheckedContent>
+                                <hc:SimpleStackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource CadView2Geometry}" Stretch="Uniform" Stroke="{StaticResource SuccessBrush}" StrokeThickness="1.5" Margin="2"/>
+                                    <Path Data="{StaticResource Equipment2Geometry}" Stretch="Uniform" Stroke="White" StrokeThickness="1" Margin="5"/>
+                                </hc:SimpleStackPanel>
+                            </hc:ToggleBlock.UnCheckedContent>
+                            <hc:ToggleBlock.CheckedContent>
+                                <hc:SimpleStackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource CadView2Geometry}" Stretch="Uniform" Stroke="White" StrokeThickness="1" Margin="5"/>
+                                    <Path Data="{StaticResource Equipment2Geometry}" Stretch="Uniform" Stroke="{StaticResource SuccessBrush}" StrokeThickness="1.5" Margin="2"/>
+                                </hc:SimpleStackPanel>
+                            </hc:ToggleBlock.CheckedContent>
+                        </hc:ToggleBlock>
+                    </DockPanel>
                     <i:Interaction.Triggers>
                         <i:PropertyChangedTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=IsChecked}">
                             <i:InvokeCommandAction Command="{Binding ChangeMechViewCommand}"/>
                         </i:PropertyChangedTrigger>
                     </i:Interaction.Triggers>
-                </ToggleButton>
+                </ToggleButton>                
             </ToolBar>
             <ToolBar Visibility="Collapsed">
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>

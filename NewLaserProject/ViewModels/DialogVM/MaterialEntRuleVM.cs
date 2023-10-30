@@ -1,4 +1,5 @@
-﻿using NewLaserProject.Data.Models;
+﻿using MachineControlsLibrary.CommonDialog;
+using NewLaserProject.Data.Models;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {

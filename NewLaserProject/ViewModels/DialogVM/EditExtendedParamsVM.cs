@@ -1,4 +1,5 @@
 ﻿using MachineClassLibrary.Laser.Parameters;
+using MachineControlsLibrary.CommonDialog;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {

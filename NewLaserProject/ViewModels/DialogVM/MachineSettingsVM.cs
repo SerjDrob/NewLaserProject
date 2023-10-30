@@ -10,6 +10,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
+using MachineControlsLibrary.CommonDialog;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Views;

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
+using MachineControlsLibrary.CommonDialog;
 using MediatR;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -143,18 +144,30 @@ namespace NewLaserProject.ViewModels
             }
         }
         [ICommand]
-        private async Task EditTechnology(Technology technology)
+        private async Task EditTechnology(Technology technology) => EditCopyTechnology(technology);
+        
+        private async Task EditCopyTechnology(Technology technology, bool copy = false)
         {
+            var tech = copy? (Technology)technology.Clone() : technology;
             var defParams = (ExtendedParams)_defaultParams.Clone();
-            defParams.ContourOffset = technology.Material.MaterialEntRule?.Offset ?? 0;
-            defParams.HatchWidth = technology.Material.MaterialEntRule?.Width ?? 0;
+            defParams.ContourOffset = tech.Material.MaterialEntRule?.Offset ?? 0;
+            defParams.HatchWidth = tech.Material.MaterialEntRule?.Width ?? 0;
 
             var techWizard = new TechWizardVM(defParams) { EditEnable = true };
-            var path = Path.Combine(AppPaths.TechnologyFolder, $"{technology.ProcessingProgram}.json");
+            var path = Path.Combine(AppPaths.TechnologyFolder, $"{tech.ProcessingProgram}.json");
             techWizard.LoadListing(path);
+           
+            var writeTechVM = new WriteTechnologyVM(defParams)
+            {
+                TechnologyName = copy ? string.Empty : tech.ProgramName,
+                MaterialName = tech.Material.Name,
+                MaterialThickness = tech.Material.Thickness,
+                TechnologyWizard = techWizard
+            };
+
             var result = await Dialog.Show<CommonDialog>()
-                .SetDialogTitle("Правка программы")
-                .SetDataContext(new WriteEditTechnologyVM(techWizard), vm => { })
+                .SetDialogTitle( copy ? "Создать из копии" : "Правка программы")
+                .SetDataContext(writeTechVM, vm => { })
                 .GetCommonResultAsync<TechWizardVM>();
 
             if (result.Success)
@@ -164,9 +177,12 @@ namespace NewLaserProject.ViewModels
                     MessageBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
                     return;
                 }
-                technology.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
-                var response = await _mediator.Send(new UpdateTechnologyRequest(technology));
-                File.Delete(path);
+                if (copy) tech.Id = 0;
+                tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
+                tech.ProgramName = writeTechVM.TechnologyName;
+                var response = copy? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
+                if(!copy) File.Delete(path);
+                ReviseTechnologies();
             }
         }
         
@@ -177,6 +193,9 @@ namespace NewLaserProject.ViewModels
             if (response.IsDeleted) DeleteTechnologyFile(technology);
             ReviseTechnologies();
         }
+        [ICommand]
+        private async void CopyTechnology(Technology technology) => EditCopyTechnology(technology, true);
+       
         private void DeleteTechnologyFile(Technology technology)
         {
             var path = Path.Combine(AppPaths.TechnologyFolder, $"{technology.ProcessingProgram}.json");

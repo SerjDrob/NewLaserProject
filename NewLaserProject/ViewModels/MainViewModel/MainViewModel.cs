@@ -56,10 +56,7 @@ namespace NewLaserProject.ViewModels
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
-        public double ScaleMarkersRatioSecond
-        {
-            get => 1 - ScaleMarkersRatioFirst;
-        }
+        public double ScaleMarkersRatioSecond => 1 - ScaleMarkersRatioFirst;
 
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
@@ -112,6 +109,7 @@ namespace NewLaserProject.ViewModels
             _serviceProvider = serviceProvider;
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
+            _laserMachine.CameraPlugged += _laserMachine_CameraPlugged;
             _coorSystem = GetCoorSystem(AppPaths.PureDeformation);
             TuneCoorSystem();
             ImplementMachineSettings();
@@ -143,7 +141,20 @@ namespace NewLaserProject.ViewModels
             _logger.Log(LogLevel.Information, "App started");
         }
 
+        private void _laserMachine_CameraPlugged(object? sender, EventArgs e)
+        {
+            //_laserMachine.StopCamera();
+            CameraCapabilities = new(_laserMachine.AvailableVideoCaptureDevices[0].Item2);
+            CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
+            _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+        }
+
         private object _tempVM;
+        public bool IsMechViewChecked
+        {
+            get;
+            set;
+        }
         [ICommand]
         private void ChangeMechView()
         {
@@ -157,6 +168,7 @@ namespace NewLaserProject.ViewModels
                 if (CentralSideVM is CameraVM) (RightSideVM, _tempVM) = (_tempVM, null);
                 else if (RightSideVM is CameraVM) (CentralSideVM, _tempVM) = (_tempVM, null);
             }
+            IsMechViewChecked ^= true;
         }
         public void OnInitialized()
         {
@@ -202,10 +214,10 @@ namespace NewLaserProject.ViewModels
             CentralSideVM = _openedFileVM;
 
 
-            var count = _laserMachine.AvaliableVideoCaptureDevices.Count;
+            var count = _laserMachine.AvailableVideoCaptureDevices.Count;
             if (count != 0)
             {
-                CameraCapabilities = new(_laserMachine.AvaliableVideoCaptureDevices[0].Item2);
+                CameraCapabilities = new(_laserMachine.AvailableVideoCaptureDevices[0].Item2);
                 CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
                 _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
             }
@@ -247,13 +259,7 @@ namespace NewLaserProject.ViewModels
                 _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);//TODO fix it. it smells
             }
         }
-
-        [ICommand]
-        private void CameraCapabilitiesChanged()
-        {
-            _laserMachine.StopCamera();
-            _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-        }
+        
 
         [ICommand]
         private void UndoRemoveSelection()

@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HandyControl.Tools.Extension;
+﻿using System.Collections.ObjectModel;
 using MachineClassLibrary.Laser.Entities;
+using MachineControlsLibrary.CommonDialog;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {
     [INotifyPropertyChanged]
     public partial class SpecimenSettingsVM : CommonDialogResultable<SpecimenSettingsVM>
-    {       
+    {
         public ObservableCollection<DefaultTechSelector> DefaultTechSelectors
         {
             get; set;

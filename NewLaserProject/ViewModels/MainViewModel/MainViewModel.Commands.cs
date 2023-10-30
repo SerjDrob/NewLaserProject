@@ -4,12 +4,14 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+//using System.Windows.Controls;
 using System.Windows.Input;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Machine;
+using MachineControlsLibrary.CommonDialog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -21,7 +23,6 @@ using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
-using NewLaserProject.Views.Dialogs;
 
 namespace NewLaserProject.ViewModels
 {
@@ -195,7 +196,7 @@ namespace NewLaserProject.ViewModels
                         Key.V or Key.B => Ax.Z,
                         _ => Ax.None
                     };
-                    if(axis!=Ax.None) _laserMachine.Stop(axis);
+                    if (axis != Ax.None) _laserMachine.Stop(axis);
                 }
                 catch (SwitchExpressionException ex)
                 {
@@ -427,6 +428,15 @@ namespace NewLaserProject.ViewModels
                 _laserMachine.SetVelocity(velTemp);
             }
         }
+        [ICommand]
+        private void CameraCapabilitiesChanged()
+        {
+            _laserMachine.StopCamera();
+            _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+            Settings.Default.PreferedCameraCapabilities = CameraCapabilitiesIndex;
+            Settings.Default.Save();
+        }
+        
     }
     public enum Compass
     {
