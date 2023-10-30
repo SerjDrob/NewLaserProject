@@ -23,6 +23,7 @@ using Dialog = HandyControl.Controls.Dialog;
 using HandyControl.Tools.Extension;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.Views.Dialogs;
+using MachineClassLibrary.Laser.Parameters;
 
 namespace NewLaserProject.ViewModels
 {
@@ -111,7 +112,8 @@ namespace NewLaserProject.ViewModels
                             _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
                             _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - waferThickness)
                             );
-                    //await _laserMachine.PiercePointAsync();
+
+
                     for (int i = 0; i < 2; i++)
                     {
                         await _laserMachine.PierceLineAsync(-0.5, 0, 0.5, 0);
@@ -124,9 +126,12 @@ namespace NewLaserProject.ViewModels
                     await _laserMachine.PierceLineAsync(-0.4, -0.4, -0.4, 0.4);
                     await _laserMachine.PierceLineAsync(0.4, -0.4, 0.4, 0.4);
 
+                    //var defLaserParams = ExtensionMethods
+                    //       .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
 
-                    //await _laserMachine.PierceLineAsync(0, 0, 0, 0.4);
-                    //await _laserMachine.PierceLineAsync(0, 0, 0.2, 0);
+                    //_laserMachine.SetMarkParams(defLaserParams);
+                    //for(var i=0; i<25; i++) await _laserMachine.PierceCircleAsync(0.05);
+
 
                     _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
                     await Task.WhenAll(
@@ -312,7 +317,7 @@ namespace NewLaserProject.ViewModels
                     {
                         _currentTeacher.Deny();
                     }
-                    Growl.Clear();
+                   // Growl.Clear();
                 }))
                 .SetOnLaserHorizontToughtAction(() => Task.Run(() =>
                 {
@@ -329,7 +334,8 @@ namespace NewLaserProject.ViewModels
 
                     double AC = second[0] - first[0];
                     double CB = second[1] - first[1];
-                    Settings.Default.PazAngle = Math.Atan2(CB, AC);
+                    var angle =  Math.Atan2(CB, AC);
+                    Settings.Default.PazAngle = angle;
                     Settings.Default.Save();
                     MsgBox.Info("Новое значение установленно", "Обучение");
                     _canTeach = false;
