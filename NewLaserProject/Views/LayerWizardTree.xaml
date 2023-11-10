@@ -7,7 +7,8 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             >
     <Grid>
         <Grid.Resources>
             <CollectionViewSource x:Key="MyLayers" Source="{Binding Layers}"/>

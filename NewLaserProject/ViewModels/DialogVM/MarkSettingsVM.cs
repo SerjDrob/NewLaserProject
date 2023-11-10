@@ -1,7 +1,11 @@
 ﻿using System.ComponentModel;
+using HandyControl.Controls;
+using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Parameters;
 using MachineControlsLibrary.CommonDialog;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using NewLaserProject.Views.Converters;
+using NewLaserProject.Views.Misc;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {
@@ -12,25 +16,29 @@ namespace NewLaserProject.ViewModels.DialogVM
         #region Pen params
         [Category("Параметры пера")]
         [DisplayName("Номер пера")]
+        [Browsable(false)]
         public int PenNo { get; set; } = 0;
         [Category("Параметры пера")]
         [DisplayName("Количество проходов")]
         public int MarkLoop { get; set; } = 7;
         [Category("Параметры пера")]
-        [DisplayName("Скорость маркировки")]
+        [DisplayName("Скорость маркировки, мм/с")]
         public double MarkSpeed { get; set; } = 53;
         [Category("Параметры пера")]
         [DisplayName("Мощность")]
+        [Browsable(false)]
         public double PowerRatio { get; set; } = 100;
         [Category("Параметры пера")]
         [DisplayName("Ток")]
+        [Browsable(false)]
         public double Current { get; set; } = 3;
         [Category("Параметры пера")]
-        [DisplayName("Частота")]
-        public int Freq { get; set; } = 30000;
+        [DisplayName("Частота, Гц")]
+        public int Freq { get; set; } = 80000;
         [Category("Параметры пера")]
-        [DisplayName("Ширина импульса")]
-        public int QPulseWidth { get; set; } = 15;
+        [DisplayName("Ширина импульса, мкс")]
+        [ReadOnly(true)]
+        public int QPulseWidth { get; set; } = 1;
 
         [Category("Параметры пера")]
         [DisplayName("Модулировать частоту")]
@@ -90,63 +98,117 @@ namespace NewLaserProject.ViewModels.DialogVM
         public double FlySpeed { get; set; } = 1000;
         #endregion
 
-
         #region Hatch Params
         [Category("Параметры штриховки")]
         [DisplayName("Проходить контур")]
         public bool EnableContour { get; set; } = true;
+        
         [Category("Параметры штриховки")]
         [Browsable(false)]
         public int ParamIndex { get; set; } = 1;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Штриховать")]
+        [Browsable(false)]
         public bool EnableHatch { get; set; } = true;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Перо штриховки")]
+        [Browsable(false)]
         public int HatchPenNo { get; set; } = 0;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Тип штриховки")]
+        [Browsable(false)]
         public int HatchType { get; set; } = 3;
+        
         [Category("Параметры штриховки")]
         [Browsable(false)]
         public bool HatchAllCalc { get; set; } = false;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Штриховать край")]
+        [Browsable(false)]
         public bool HatchEdge { get; set; } = true;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Штриховать среднюю линию")]
+        [Browsable(false)]
         public bool HatchAverageLine { get; set; } = true;
+        
         [Category("Параметры штриховки")]
-        [DisplayName("Шаг штриховки, мм")]
+        [DisplayName("Шаг штриховки, мкм")]
+        [Editor(typeof(NumberPropertyEditor2),typeof(PropertyEditorBase))]
         public double HatchLineDist { get; set; } = 0.05;
+        
         [Category("Параметры штриховки")]
-        [DisplayName("Отступ от края, мм")]
+        [DisplayName("Отступ от края, мкм")]
+        [Editor(typeof(NumberPropertyEditor2), typeof(PropertyEditorBase))]
         public double HatchEdgeDist { get; set; } = 0.015;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Смещение начала штриховки, мм")]
+        [Browsable(false)]
         public double HatchStartOffset { get; set; } = 0;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Смещение конца штриховки, мм")]
+        [Browsable(false)]
         public double HatchEndOffset { get; set; } = 0;
+        
         [Category("Параметры штриховки")]
         [Browsable(false)]
         public double HatchLineReduction { get; set; } = 0.01;
+        
         [Category("Параметры штриховки")]
         [Browsable(false)]
         public double HatchLoopDist { get; set; } = 1;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Проходов по контуру")]
+        [Browsable(false)]
         public int EdgeLoop { get; set; } = 3;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Реверсивная штриховка")]
+        [Browsable (false)]
         public bool HatchLoopRev { get; set; } = true;
+        
         [Category("Параметры штриховки")]
         [Browsable(false)]
         public bool HatchAutoRotate { get; set; } = false;
+        
         [Category("Параметры штриховки")]
         [DisplayName("Угол штриховки")]
+        [Browsable(false)]
         public double HatchRotateAngle { get; set; } = 0;
 
+
+        private bool _hatchContourFirst;
+        [Category("Параметры штриховки")]
+        [DisplayName("Проходить сначала контур")]
+        public bool HatchContourFirst
+        {
+            get => _hatchContourFirst & EnableContour;
+            set => _hatchContourFirst = value;
+        }
+
+        [Category("Параметры штриховки")]
+        [DisplayName("Направление штриховки")]
+        [Editor(typeof(PicEnumPropertyEditor), typeof(PropertyEditorBase))]
+        [Browsable(true)]
+        public HatchLoopDirection HatchLoopDirection
+        {
+            get; 
+            set;
+        }
+
+        [Browsable(false)]
+        public int HatchAttribute
+        {
+            get => (int)HatchLoopDirection;
+            set => HatchLoopDirection = (HatchLoopDirection)value;
+        }
 
         #endregion
 
@@ -158,13 +220,12 @@ namespace NewLaserProject.ViewModels.DialogVM
 
             var hatch = new HatchParams(EnableContour, ParamIndex, EnableHatch, PenNo, HatchType, HatchAllCalc,
                                         HatchEdge, HatchAverageLine, HatchLineDist, HatchEdgeDist, HatchStartOffset, HatchEndOffset,
-                                        HatchLineReduction, HatchLoopDist, EdgeLoop, HatchLoopRev, HatchAutoRotate, HatchRotateAngle);
+                                        HatchLineReduction, HatchLoopDist, EdgeLoop, HatchLoopRev, HatchAutoRotate, HatchRotateAngle, 
+                                        HatchAttribute, HatchContourFirst);
 
             return new MarkLaserParams(pen, hatch);
         }
 
         public override void SetResult() => SetResult(this);
     }
-
-
 }

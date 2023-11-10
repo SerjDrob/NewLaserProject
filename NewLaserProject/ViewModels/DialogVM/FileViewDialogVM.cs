@@ -12,7 +12,7 @@ namespace NewLaserProject.ViewModels.DialogVM
 {
 
     [INotifyPropertyChanged]
-    internal partial class FileViewDialogVM : CommonDialogResultable<IEnumerable<DefaultLayerFilter>>
+    internal partial class FileViewDialogVM : CommonDialogResultable<FileViewDialogVM>
     {
         public ObservableCollection<DefaultLayerFilter> DefLayerFilters
         {
@@ -39,10 +39,26 @@ namespace NewLaserProject.ViewModels.DialogVM
         {
             get; set;
         }
+        public int DefaultWidth
+        {
+            get; set;
+        }
+        public int DefaultHeight
+        {
+            get; set;
+        }
+        public bool IsMirrored
+        {
+            get; set;
+        }
+        public bool IsRotated
+        {
+            get; set;
+        }
         public ObservableCollection<DefaultLayerEntityTechnology> DefaultTechnologies { get; set; } = new();
 
 
-        public override void SetResult() => SetResult(DefLayerFilters);
+        public override void SetResult() => SetResult(this);
 
         [ICommand]
         private void AddLayer()

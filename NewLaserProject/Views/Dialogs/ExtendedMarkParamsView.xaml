@@ -3,7 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
+             xmlns:selectors="clr-namespace:NewLaserProject.Views.Selectors"
+             xmlns:converters="clr-namespace:NewLaserProject.Views.Converters"
+             xmlns:vm="clr-namespace:NewLaserProject.ViewModels.DialogVM"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
              mc:Ignorable="d" 
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DesignHeight="600" d:DesignWidth="800">
@@ -20,6 +24,8 @@
                 <Setter Property="LastChildFill" Value="True"/>
                 <Setter Property="Margin" Value="5,2"/>
             </Style>
+            <selectors:HatchLoopDirectionDataSelector x:Key="LoopDirSelector"/>
+            <converters:HatchLoopDirIntConverter x:Key="HatchAttrIntConverter"/>
         </hc:SimpleStackPanel.Resources>
         <Expander Header="Луч" IsExpanded="True">
             <hc:SimpleStackPanel>
@@ -34,6 +40,7 @@
                 <hc:NumericUpDown Value="{Binding PowerRatio}" hc:TitleElement.Title="Мощность, %"
                                   Increment="1"
                                   Minimum="1"
+                                  Visibility="Collapsed"
                                   />
                 <hc:NumericUpDown Value="{Binding Freq}" hc:TitleElement.Title="Частота, Гц"
                                   Increment="1000"
@@ -42,6 +49,7 @@
                 <hc:NumericUpDown Value="{Binding QPulseWidth}" hc:TitleElement.Title="Ширина импульса, мкс"
                                   Increment="1"    
                                   Minimum="0"
+                                  Visibility="Collapsed"
                                  />
             </hc:SimpleStackPanel>
         </Expander>
@@ -75,20 +83,53 @@
                     <TextBlock DockPanel.Dock="Left" Text="Штриховать"/>
                 </DockPanel>
                 <hc:SimpleStackPanel IsEnabled="{Binding ElementName=toggleHatch, Path=IsChecked}">
+                    <DockPanel>
+                        <DockPanel.Resources>
+                            <x:Array x:Key="LoopDirections" Type="{x:Type sys:Enum}">
+                                <vm:HatchLoopDirection>Hatch_IN</vm:HatchLoopDirection>
+                                <vm:HatchLoopDirection>Hatch_OUT</vm:HatchLoopDirection>
+                            </x:Array>
+                        </DockPanel.Resources>
+                        <controls:ItemsButton
+                            ItemSelector="{StaticResource LoopDirSelector}"
+                            Items="{StaticResource LoopDirections}"
+                            SelectedItem="{Binding HatchAttribute, Converter={StaticResource HatchAttrIntConverter}, Mode=TwoWay}"
+                            Height="60" 
+                            Width="80" 
+                            DockPanel.Dock="Right"
+                            />
+                        <TextBlock DockPanel.Dock="Left" Text="Направление штриховки"/>
+                    </DockPanel>
+                    <hc:NumericUpDown Value="{Binding HatchEdgeDist}" hc:TitleElement.Title="Отступ от края, мкм"
+                                      Increment="1"
+                                      Minimum="0"
+                                      Maximum="500"
+                                      />   
                     <hc:NumericUpDown Value="{Binding HatchLineDistance}" hc:TitleElement.Title="Шаг, мкм"
                                   Increment="1"
                                   Minimum="1"
                                   />
                     <DockPanel>
-                        <ToggleButton   Style="{StaticResource ToggleButtonSwitch}"
-                                      IsChecked="{Binding DisableContour}"
+                        <ToggleButton x:Name="EnableContourSwitch"
+                                      Style="{StaticResource ToggleButtonSwitch}"
+                                      IsChecked="{Binding EnableContour}"
                                       DockPanel.Dock="Right"
                                       />
 
-                        <TextBlock DockPanel.Dock="Left" Text="Не проходить контур"/>
+                        <TextBlock DockPanel.Dock="Left" Text="Проходить контур"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <ToggleButton   Style="{StaticResource ToggleButtonSwitch}"
+                                        IsChecked="{Binding HatchContourFirst}"
+                                        DockPanel.Dock="Right"
+                                        IsEnabled="{Binding ElementName=EnableContourSwitch, Path=IsChecked}"
+                                        />
+
+                        <TextBlock DockPanel.Dock="Left" Text="Проходить сначала контур"/>
                     </DockPanel>
                     <hc:Divider Orientation="Horizontal" Content="Правило обработки материала"/>
-                    <hc:NumericUpDown Value="{Binding ContourOffset}" hc:TitleElement.Title="Смещение контура, мкм"
+                    <hc:NumericUpDown Value="{Binding ContourOffset}" 
+                                  hc:TitleElement.Title="Смещение контура, мкм"
                                   Increment="10"
                                   Minimum="-1000"
                                   Maximum="1000"

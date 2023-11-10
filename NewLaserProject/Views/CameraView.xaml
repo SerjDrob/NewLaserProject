@@ -72,7 +72,7 @@
                                               >
                     </Line>
                 </Canvas>
-                <Canvas Panel.ZIndex="1" UseLayoutRounding="True">
+                <Canvas Panel.ZIndex="1" UseLayoutRounding="True" ClipToBounds="True">
                     <ContentControl 
                         Width="25"
                         MinWidth="20"

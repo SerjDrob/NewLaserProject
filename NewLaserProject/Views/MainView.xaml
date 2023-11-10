@@ -29,7 +29,7 @@
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.S}" Modifiers="Ctrl" Key="Down"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterV}" Modifiers="Ctrl" Key="V"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterH}" Modifiers="Ctrl" Key="H"/>
-        <KeyBinding Command="{Binding ChangeMechViewCommand}" Key="W"/>
+        <!--<KeyBinding Command="{Binding ChangeMechViewCommand}" Key="W"/>-->
     </hc:GlowWindow.InputBindings>
     
     <hc:GlowWindow.Resources>        
@@ -161,7 +161,7 @@
                                       Header="Настройки пера и штриховки"/>
                             <MenuItem Command="{Binding OpenFileViewSettingsWindowCommand}"
                                       Header="Отображение файла"/>
-                            <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}"
+                            <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}" Visibility="Collapsed"
                                       Header="Ориентация подложки"/>
                             <MenuItem Command="{Binding CameraSettingsCommand}">
                                 <MenuItem.Header>
@@ -572,57 +572,6 @@
                                             </Button>
                                         </hc:ElementGroup>
                                     </WrapPanel>
-                                    <!--<hc:SimpleStackPanel Orientation="Horizontal">
-                                        <hc:ElementGroup Orientation="Horizontal" Visibility="Collapsed" IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                            <Button hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                                    Command="{Binding AddObjectToProcessCommand}"
-                                                    Style="{StaticResource ButtonSuccess}"
-                                                    />
-
-                                            <ComboBox ItemsSource="{Binding Source={StaticResource FileStructure}}"
-                                                      SelectedIndex="{Binding DefLayerIndex}"
-                                                      SelectedItem="{Binding CurrentLayerFilter, Converter={StaticResource GetLayerNameConverter}, Mode=OneWayToSource}"
-                                                      DisplayMemberPath="LayerName" Grid.Column="1"
-                                                      MinWidth="100"
-                                                       />
-
-                                            <uclocal:ItemsButton x:Name="testname" 
-                                                                 Width="32"
-                                                        Items="{Binding Source={StaticResource FileStructure}, Path=Entities}"
-                                                        ItemSelector="{StaticResource EntitySelector}"
-                                                        SelectedItem="{Binding CurrentEntityType, Mode=OneWayToSource}"
-                                                        SetIndex="{Binding DefEntityIndex}"
-                                                        HorizontalAlignment="Stretch"
-                                                        />
-
-                                            <ComboBox x:Name="Materials" ItemsSource="{Binding Source={StaticResource MaterialSource}}" 
-                                                                         SelectedIndex="{Binding DefMaterialIndex}"
-                                                                         MinWidth="120"
-                                                                        >
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding Name}" Margin="0,0,10,0"/>
-                                                            <TextBlock Text="{Binding Thickness}"/>
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                            <ComboBox ItemsSource="{Binding Source={StaticResource MaterialSource}, Path=Technologies}"
-                                                      SelectedIndex="{Binding DefTechnologyIndex}"
-                                                      SelectedItem="{Binding CurrentTechnology}"  
-                                                      MinWidth="120"
-                                                      >
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                        </hc:ElementGroup>                                        
-                                    </hc:SimpleStackPanel>-->
                                     <UniformGrid Columns="2" 
                                                      IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <ContentControl Content="{Binding LayersProcessingModel}"/>

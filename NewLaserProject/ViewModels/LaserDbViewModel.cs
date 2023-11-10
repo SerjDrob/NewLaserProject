@@ -26,8 +26,6 @@ using NewLaserProject.Data.Models.TechnologyFeatures.Delete;
 using NewLaserProject.Data.Models.TechnologyFeatures.Update;
 using NewLaserProject.ViewModels.DbVM;
 using NewLaserProject.ViewModels.DialogVM;
-using NewLaserProject.Views.DbViews;
-using NewLaserProject.Views.Dialogs;
 using PropertyChanged;
 
 namespace NewLaserProject.ViewModels
@@ -145,10 +143,10 @@ namespace NewLaserProject.ViewModels
         }
         [ICommand]
         private async Task EditTechnology(Technology technology) => EditCopyTechnology(technology);
-        
+
         private async Task EditCopyTechnology(Technology technology, bool copy = false)
         {
-            var tech = copy? (Technology)technology.Clone() : technology;
+            var tech = copy ? (Technology)technology.Clone() : technology;
             var defParams = (ExtendedParams)_defaultParams.Clone();
             defParams.ContourOffset = tech.Material.MaterialEntRule?.Offset ?? 0;
             defParams.HatchWidth = tech.Material.MaterialEntRule?.Width ?? 0;
@@ -156,7 +154,7 @@ namespace NewLaserProject.ViewModels
             var techWizard = new TechWizardVM(defParams) { EditEnable = true };
             var path = Path.Combine(AppPaths.TechnologyFolder, $"{tech.ProcessingProgram}.json");
             techWizard.LoadListing(path);
-           
+
             var writeTechVM = new WriteTechnologyVM(defParams)
             {
                 TechnologyName = copy ? string.Empty : tech.ProgramName,
@@ -166,7 +164,7 @@ namespace NewLaserProject.ViewModels
             };
 
             var result = await Dialog.Show<CommonDialog>()
-                .SetDialogTitle( copy ? "Создать из копии" : "Правка программы")
+                .SetDialogTitle(copy ? "Создать из копии" : "Правка программы")
                 .SetDataContext(writeTechVM, vm => { })
                 .GetCommonResultAsync<TechWizardVM>();
 
@@ -180,12 +178,12 @@ namespace NewLaserProject.ViewModels
                 if (copy) tech.Id = 0;
                 tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
                 tech.ProgramName = writeTechVM.TechnologyName;
-                var response = copy? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
-                if(!copy) File.Delete(path);
+                var response = copy ? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
+                if (!copy) File.Delete(path);
                 ReviseTechnologies();
             }
         }
-        
+
         [ICommand]
         private async void DeleteTechnology(Technology technology)
         {
@@ -195,7 +193,7 @@ namespace NewLaserProject.ViewModels
         }
         [ICommand]
         private async void CopyTechnology(Technology technology) => EditCopyTechnology(technology, true);
-       
+
         private void DeleteTechnologyFile(Technology technology)
         {
             var path = Path.Combine(AppPaths.TechnologyFolder, $"{technology.ProcessingProgram}.json");

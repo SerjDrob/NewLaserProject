@@ -49,7 +49,7 @@
                         <DataGridTemplateColumn CellStyle="{StaticResource DataGridCellStyle}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.RemoveDefLayerFilterCommand}" 
+                                    <Button Padding="4" Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.RemoveDefLayerFilterCommand}" 
                                     CommandParameter="{Binding}" Style="{StaticResource ButtonIconCircular.Small}" 
                                     hc:IconElement.Geometry="{StaticResource RemoveGeometry}"/>                                    
                                 </DataTemplate>
@@ -72,7 +72,32 @@
                 </hc:ElementGroup>
             </hc:SimpleStackPanel>
         </GroupBox>
-        <GroupBox Header="Технологии по-умолчанию">
+        <GroupBox Header="Габариты подложки" Margin="0,5,0,0">
+            <hc:ElementGroup Orientation="Horizontal" HorizontalAlignment="Center">
+                <hc:NumericUpDown Minimum="20"
+                          Maximum="100"
+                          Increment="1"
+                          hc:InfoElement.Title="Ширина"
+                          hc:InfoElement.TitlePlacement="Left"
+                          Style="{StaticResource NumericUpDownExtend}"
+                          Value="{Binding DefaultWidth}"
+                          Margin="0,0,10,0"/>
+                <hc:NumericUpDown Minimum="20"
+                          Maximum="100"
+                          Increment="1"
+                          hc:InfoElement.Title="Высота"
+                          hc:InfoElement.TitlePlacement="Left"
+                          Style="{StaticResource NumericUpDownExtend}"
+                          Value="{Binding DefaultHeight}"/>
+            </hc:ElementGroup>
+        </GroupBox>
+        <GroupBox Header="Ориентация файла по-умолчанию" Margin="0,5,0,0">
+            <hc:ElementGroup Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                <CheckBox IsChecked="{Binding IsMirrored}" Content="Зеркально" Margin="0,0,30,0"/>
+                <CheckBox IsChecked="{Binding IsRotated}" Content="Повёрнут на 90&#186;"/>
+            </hc:ElementGroup>
+        </GroupBox>
+        <GroupBox Header="Технологии по-умолчанию" Visibility="Collapsed">
             <hc:SimpleStackPanel>
                 <DataGrid ItemsSource="{Binding Source={StaticResource DefTechnologiesSource}}" 
                           AutoGenerateColumns="False">

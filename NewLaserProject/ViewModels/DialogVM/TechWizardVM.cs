@@ -18,7 +18,6 @@ using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures;
-using NewLaserProject.Views.Dialogs;
 using Newtonsoft.Json;
 
 namespace NewLaserProject.ViewModels.DialogVM
