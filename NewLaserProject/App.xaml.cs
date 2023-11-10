@@ -62,8 +62,8 @@ namespace NewLaserProject
                    .AddSingleton<ExceptionsAgregator>()
                    .AddScoped<JCZLaser>()
                    .AddScoped<MockLaser>()
-                   .AddScoped<PWM>()
-                   .AddScoped<PWM2>()
+                   .AddScoped<PWM3>()
+                   //.AddScoped<PWM2>()
                    .AddSingleton(sp =>
                    {
                        return new LaserBoardFactory(sp, machineconfigs).GetPWM();
