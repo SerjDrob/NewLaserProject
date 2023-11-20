@@ -4,7 +4,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Data;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
@@ -112,7 +116,8 @@ namespace NewLaserProject.ViewModels
                 newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(AppPaths.TechnologyFolder);
                 newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();
                 var response = await _mediator.Send(new CreateTechnologyRequest(newTechnology));
-                ReviseTechnologies();
+                //ReviseTechnologies();
+
             }
         }
         [ICommand]
@@ -179,8 +184,13 @@ namespace NewLaserProject.ViewModels
                 tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
                 tech.ProgramName = writeTechVM.TechnologyName;
                 var response = copy ? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
-                if (!copy) File.Delete(path);
-                ReviseTechnologies();
+                if (!copy)
+                {
+                    File.Delete(path);
+                    technology = response.CreatedTechnology;                   
+                }
+                if(copy) Technologies.Add(response.CreatedTechnology);
+                //ReviseTechnologies();
             }
         }
 
@@ -188,8 +198,12 @@ namespace NewLaserProject.ViewModels
         private async void DeleteTechnology(Technology technology)
         {
             var response = await _mediator.Send(new DeleteTechnologyRequest(technology));
-            if (response.IsDeleted) DeleteTechnologyFile(technology);
-            ReviseTechnologies();
+            if (response.IsDeleted)
+            {
+                DeleteTechnologyFile(technology);
+                Technologies.Remove(technology);
+            }
+            //ReviseTechnologies();
         }
         [ICommand]
         private async void CopyTechnology(Technology technology) => EditCopyTechnology(technology, true);
@@ -207,6 +221,37 @@ namespace NewLaserProject.ViewModels
             Materials = response.Materials.ToObservableCollection();
             Technologies = Materials.SelectMany(m => m.Technologies).ToObservableCollection();
             material.Technologies?.ForEach(DeleteTechnologyFile);
+        }
+
+        public string TechnologyFilter
+        {
+            get;
+            set;
+        }
+
+        [ICommand]
+        private void FilterTechnology(FilterEventArgs filterEventArgs)
+        {
+            if (TechnologyFilter == string.Empty) return;
+            if (filterEventArgs.Item is not Technology technology) return;
+            var reg = new Regex($"[{TechnologyFilter}]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var sb = new StringBuilder();
+            sb.Append(technology.ProgramName)
+                .Append(technology.Material.Name)
+                .Append(technology.Material.Thickness);
+
+            
+            var result = sb.ToString().Contains(TechnologyFilter);
+            //result = reg.IsMatch(sb.ToString());
+            filterEventArgs.Accepted = result;
+        }
+
+        [ICommand]
+        private void TypeFilter(object o)
+        {
+            var collection = o as DataGrid;
+            if(collection is not null)
+                CollectionViewSource.GetDefaultView(collection.ItemsSource).Refresh();
         }
     }
 }
