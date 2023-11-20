@@ -35,7 +35,10 @@
                 <Grid Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=GroupBox}, Path=ActualWidth}">
                     <hc:SimpleStackPanel Orientation="Horizontal">
                         <TextBlock Text="Технологии" HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitleBold}"/>
-                        <hc:TextBox Width="70" Text="{Binding TechnologyFilter, UpdateSourceTrigger=PropertyChanged}" Margin="15,5,0,0" Style="{StaticResource TextBox.Small}">
+                        <hc:TextBox Width="70" Text="{Binding TechnologyFilter, UpdateSourceTrigger=PropertyChanged}" 
+                                    Margin="15,5,0,0" 
+                                    hc:InfoElement.Placeholder="Поиск"
+                                    Style="{StaticResource TextBoxExtend.Small}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="TextChanged">
                                     <i:InvokeCommandAction Command="{Binding TypeFilterCommand}" 
@@ -48,8 +51,17 @@
             </GroupBox.Header>
             <DataGrid x:Name="TechGrid" ItemsSource="{Binding Source={StaticResource TechnologyBase}}">
                 <DataGrid.Resources>
-                    <Style TargetType="Button" BasedOn="{StaticResource ButtonIconCircular.Small}">
+                    <Style x:Key="gridButton" TargetType="Button" BasedOn="{StaticResource ButtonIconCircular.Small}">
                         <Setter Property="Padding" Value="3"/>
+                    </Style>
+                    <Style x:Key="deleteButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
+                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                    </Style>
+                    <Style x:Key="copyButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
+                        <Setter Property="Foreground" Value="{StaticResource InfoBrush}"/>
+                    </Style>
+                    <Style x:Key="createButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
+                        <Setter Property="Foreground" Value="{StaticResource MenuPopupBrush}"/>
                     </Style>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
@@ -62,6 +74,7 @@
                                 <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
                                             Path=DataContext.EditTechnologyCommand}" CommandParameter="{Binding}"                                            
                                             hc:IconElement.Geometry="{StaticResource EditGeometry}"
+                                            Style="{StaticResource createButton}"
                                             ToolTip="Редактировать"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -72,6 +85,7 @@
                                 <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
                                         Path=DataContext.CopyTechnologyCommand}" CommandParameter="{Binding}"                                            
                                         hc:IconElement.Geometry="{StaticResource CopyGeometry}" 
+                                        Style="{StaticResource copyButton}"
                                         ToolTip="Копировать"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -80,7 +94,8 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
-                                            Path=DataContext.DeleteTechnologyCommand}" CommandParameter="{Binding}"                                            
+                                            Path=DataContext.DeleteTechnologyCommand}" CommandParameter="{Binding}"  
+                                            Style="{StaticResource deleteButton}"
                                             hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
                                             ToolTip="Удалить"/>
                             </DataTemplate>

@@ -31,6 +31,7 @@ using NewLaserProject.Data.Models.TechnologyFeatures.Update;
 using NewLaserProject.ViewModels.DbVM;
 using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
+using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
 {
@@ -116,6 +117,7 @@ namespace NewLaserProject.ViewModels
                 newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(AppPaths.TechnologyFolder);
                 newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();
                 var response = await _mediator.Send(new CreateTechnologyRequest(newTechnology));
+                Technologies.Add(response.CreatedTechnology);
                 //ReviseTechnologies();
 
             }
@@ -197,6 +199,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async void DeleteTechnology(Technology technology)
         {
+            if (MsgBox.Ask($@"Удалить технологию ""{technology.ProgramName}"" ?", "Удаление") != System.Windows.MessageBoxResult.OK) return;
             var response = await _mediator.Send(new DeleteTechnologyRequest(technology));
             if (response.IsDeleted)
             {
@@ -227,7 +230,7 @@ namespace NewLaserProject.ViewModels
         {
             get;
             set;
-        }
+        } = string.Empty;
 
         [ICommand]
         private void FilterTechnology(FilterEventArgs filterEventArgs)
