@@ -234,15 +234,18 @@ namespace NewLaserProject.ViewModels
         {
             if (TechnologyFilter == string.Empty) return;
             if (filterEventArgs.Item is not Technology technology) return;
-            var reg = new Regex($"[{TechnologyFilter}]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var pattern = TechnologyFilter.Aggregate(string.Empty, (a, b) => a + b + @"\w*?");
+
+            var reg = new Regex($"(?>{pattern})", RegexOptions.IgnoreCase | RegexOptions.Compiled);//(?>T\w*?)
             var sb = new StringBuilder();
+            
             sb.Append(technology.ProgramName)
                 .Append(technology.Material.Name)
                 .Append(technology.Material.Thickness);
 
-            
-            var result = sb.ToString().Contains(TechnologyFilter);
-            //result = reg.IsMatch(sb.ToString());
+            var str = sb.ToString();
+            str = Regex.Replace(str, @"\W","");
+            var result = reg.IsMatch(str);
             filterEventArgs.Accepted = result;
         }
 
