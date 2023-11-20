@@ -31,6 +31,7 @@ using NewLaserProject.Data.Models.TechnologyFeatures.Update;
 using NewLaserProject.ViewModels.DbVM;
 using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
+using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
 {
@@ -116,6 +117,7 @@ namespace NewLaserProject.ViewModels
                 newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(AppPaths.TechnologyFolder);
                 newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();
                 var response = await _mediator.Send(new CreateTechnologyRequest(newTechnology));
+                Technologies.Add(response.CreatedTechnology);
                 //ReviseTechnologies();
 
             }
@@ -197,6 +199,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async void DeleteTechnology(Technology technology)
         {
+            if (MsgBox.Ask($@"Удалить технологию ""{technology.ProgramName}"" ?", "Удаление") != System.Windows.MessageBoxResult.OK) return;
             var response = await _mediator.Send(new DeleteTechnologyRequest(technology));
             if (response.IsDeleted)
             {
@@ -227,22 +230,25 @@ namespace NewLaserProject.ViewModels
         {
             get;
             set;
-        }
+        } = string.Empty;
 
         [ICommand]
         private void FilterTechnology(FilterEventArgs filterEventArgs)
         {
             if (TechnologyFilter == string.Empty) return;
             if (filterEventArgs.Item is not Technology technology) return;
-            var reg = new Regex($"[{TechnologyFilter}]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var pattern = TechnologyFilter.Aggregate(string.Empty, (a, b) => a + b + @"\w*?");
+
+            var reg = new Regex($"(?>{pattern})", RegexOptions.IgnoreCase | RegexOptions.Compiled);//(?>T\w*?)
             var sb = new StringBuilder();
+            
             sb.Append(technology.ProgramName)
                 .Append(technology.Material.Name)
                 .Append(technology.Material.Thickness);
 
-            
-            var result = sb.ToString().Contains(TechnologyFilter);
-            //result = reg.IsMatch(sb.ToString());
+            var str = sb.ToString();
+            str = Regex.Replace(str, @"\W","");
+            var result = reg.IsMatch(str);
             filterEventArgs.Accepted = result;
         }
 
