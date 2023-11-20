@@ -114,6 +114,17 @@ namespace NewLaserProject.ViewModels
                             _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - waferThickness)
                             );
 
+                    var defLaserParams = ExtensionMethods
+                           .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+                    var pen = defLaserParams.PenParams with
+                    {
+                        Freq = 50000,
+                        MarkSpeed = 100
+                    };
+                    var hatch = defLaserParams.HatchParams;
+
+
+                    _laserMachine.SetMarkParams(new(pen, hatch));
 
                     for (int i = 0; i < 2; i++)
                     {
