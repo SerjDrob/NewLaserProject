@@ -15,7 +15,7 @@ namespace NewLaserProject.Data.Models.TechnologyFeatures.Update
         public async override Task<CreateTechnologyResponse> Handle(UpdateTechnologyRequest request, CancellationToken cancellationToken = default)
         {
             await _repository.UpdateAsync(request.Technology, cancellationToken).ConfigureAwait(false);
-            return new CreateTechnologyResponse(request.Technology.Id);
+            return new CreateTechnologyResponse(request.Technology);
         }
     }
 }

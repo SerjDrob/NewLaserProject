@@ -5,12 +5,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              DataContext="{Binding}"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <CollectionViewSource x:Key="TechnologyBase"
                               Source="{Binding Technologies}"
-                              />
+                              >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Filter">
+                    <i:InvokeCommandAction Command="{Binding FilterTechnologyCommand}" PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </CollectionViewSource>
         <CollectionViewSource x:Key="MaterialBase"
                               Source="{Binding Materials}"/>
     </UserControl.Resources>
@@ -26,10 +33,20 @@
         <GroupBox>
             <GroupBox.Header>
                 <Grid Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=GroupBox}, Path=ActualWidth}">
-                    <TextBlock Text="Технологии" HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitleBold}"/>
+                    <hc:SimpleStackPanel Orientation="Horizontal">
+                        <TextBlock Text="Технологии" HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitleBold}"/>
+                        <hc:TextBox Width="70" Text="{Binding TechnologyFilter, UpdateSourceTrigger=PropertyChanged}" Margin="15,5,0,0" Style="{StaticResource TextBox.Small}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="TextChanged">
+                                    <i:InvokeCommandAction Command="{Binding TypeFilterCommand}" 
+                                                           CommandParameter="{Binding ElementName=TechGrid}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </hc:TextBox>
+                    </hc:SimpleStackPanel>
                 </Grid>
             </GroupBox.Header>
-            <DataGrid ItemsSource="{Binding Source={StaticResource TechnologyBase}}">
+            <DataGrid x:Name="TechGrid" ItemsSource="{Binding Source={StaticResource TechnologyBase}}">
                 <DataGrid.Resources>
                     <Style TargetType="Button" BasedOn="{StaticResource ButtonIconCircular.Small}">
                         <Setter Property="Padding" Value="3"/>
