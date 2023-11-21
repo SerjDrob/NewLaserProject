@@ -189,7 +189,10 @@ namespace NewLaserProject.ViewModels
                 var processing = new List<(IEnumerable<IProcObject>, MicroProcess)>();
                 foreach (var ofp in ChosenProcessingObjects)
                 {
-                    var objects = getObjects(ofp.LaserEntity, ofp.Layer).ToList();
+                    var objects = getObjects(ofp.LaserEntity, ofp.Layer)
+                        .OrderBy(o => o.X)
+                        .ThenBy(o => o.Y)
+                        .ToList();
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
                     var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
                     //preparator.SetEntityAngle(Settings.Default.PazAngle); in case to take out the paz angle from the commonprocess ctor

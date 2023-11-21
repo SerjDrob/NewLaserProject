@@ -219,6 +219,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task DeleteMaterial(Material material)
         {
+            if (MsgBox.Ask($@"Удалить материал ""{material.Name}"" ? Вместе с материалом будут удалены все связанные с ним технологии.", "Удаление") != System.Windows.MessageBoxResult.OK) return;
             var request = new DeleteGetMaterialRequest(material);
             var response = await _mediator.Send(request);
             Materials = response.Materials.ToObservableCollection();

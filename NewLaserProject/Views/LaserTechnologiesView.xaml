@@ -20,6 +20,18 @@
         </CollectionViewSource>
         <CollectionViewSource x:Key="MaterialBase"
                               Source="{Binding Materials}"/>
+            <Style x:Key="gridButton" TargetType="Button" BasedOn="{StaticResource ButtonIconCircular.Small}">
+                <Setter Property="Padding" Value="3"/>
+            </Style>
+            <Style x:Key="deleteButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
+                <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+            </Style>
+            <Style x:Key="copyButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
+                <Setter Property="Foreground" Value="{StaticResource InfoBrush}"/>
+            </Style>
+            <Style x:Key="createButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
+                <Setter Property="Foreground" Value="{StaticResource MenuPopupBrush}"/>
+            </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -49,21 +61,7 @@
                     </hc:SimpleStackPanel>
                 </Grid>
             </GroupBox.Header>
-            <DataGrid x:Name="TechGrid" ItemsSource="{Binding Source={StaticResource TechnologyBase}}">
-                <DataGrid.Resources>
-                    <Style x:Key="gridButton" TargetType="Button" BasedOn="{StaticResource ButtonIconCircular.Small}">
-                        <Setter Property="Padding" Value="3"/>
-                    </Style>
-                    <Style x:Key="deleteButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
-                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-                    </Style>
-                    <Style x:Key="copyButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
-                        <Setter Property="Foreground" Value="{StaticResource InfoBrush}"/>
-                    </Style>
-                    <Style x:Key="createButton" TargetType="Button" BasedOn="{StaticResource gridButton}">
-                        <Setter Property="Foreground" Value="{StaticResource MenuPopupBrush}"/>
-                    </Style>
-                </DataGrid.Resources>
+            <DataGrid x:Name="TechGrid" ItemsSource="{Binding Source={StaticResource TechnologyBase}}">                
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Программа" Binding="{Binding ProgramName}"/>
                     <DataGridTextColumn Header="Материал" IsReadOnly="True" Binding="{Binding Material.Name}"/>
@@ -155,7 +153,8 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, 
-                                            Path=DataContext.DeleteMaterialCommand}" CommandParameter="{Binding}"                                            
+                                            Path=DataContext.DeleteMaterialCommand}" CommandParameter="{Binding}"
+                                            Style="{StaticResource deleteButton}"
                                             hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
                                             />
                             </DataTemplate>
