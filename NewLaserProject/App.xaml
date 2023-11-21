@@ -160,7 +160,16 @@
 
             <DataTemplate x:Key="HatchLoopOutTemplate">
                 <Path Data="{StaticResource HatchLoopOUTGeometry}" 
-                      Stretch="Uniform" 
+                      Stretch="Uniform"
+                      Stroke="{StaticResource PrimaryTextBrush}" 
+                      Fill="{StaticResource TextIconBrush}"
+                      StrokeThickness="0.1">
+                </Path>
+            </DataTemplate>
+
+            <DataTemplate x:Key="CrossHatchTemplate">
+                <Path Data="{StaticResource CrossHatchGeometry}" 
+                      Stretch="Uniform"
                       Stroke="{StaticResource PrimaryTextBrush}" 
                       Fill="{StaticResource TextIconBrush}"
                       StrokeThickness="0.1">

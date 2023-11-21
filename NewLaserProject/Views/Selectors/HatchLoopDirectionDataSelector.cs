@@ -15,6 +15,7 @@ namespace NewLaserProject.Views.Selectors
                 {
                     HatchLoopDirection.Hatch_IN => element?.FindResource("HatchLoopInTemplate") as DataTemplate,
                     HatchLoopDirection.Hatch_OUT => element?.FindResource("HatchLoopOutTemplate") as DataTemplate,
+                    HatchLoopDirection.CrossHatch => element?.FindResource("CrossHatchTemplate") as DataTemplate,
                     _ => null
                 };
                 return template;

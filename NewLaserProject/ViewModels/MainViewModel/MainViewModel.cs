@@ -5,6 +5,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using DynamicData;
 using HandyControl.Controls;
 using HandyControl.Data;
 using MachineClassLibrary.Classes;
@@ -19,9 +20,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.VisualBasic.Devices;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
+using NodeNetwork.ViewModels;
 using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
 
@@ -498,5 +501,4 @@ namespace NewLaserProject.ViewModels
             MechTableVM?.SetOffsets(Settings.Default.XOffset, Settings.Default.YOffset);
         }
     }
-
 }

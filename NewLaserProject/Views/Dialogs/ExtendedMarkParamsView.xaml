@@ -88,6 +88,7 @@
                             <x:Array x:Key="LoopDirections" Type="{x:Type sys:Enum}">
                                 <vm:HatchLoopDirection>Hatch_IN</vm:HatchLoopDirection>
                                 <vm:HatchLoopDirection>Hatch_OUT</vm:HatchLoopDirection>
+                                <vm:HatchLoopDirection>CrossHatch</vm:HatchLoopDirection>
                             </x:Array>
                         </DockPanel.Resources>
                         <controls:ItemsButton
@@ -98,7 +99,7 @@
                             Width="80" 
                             DockPanel.Dock="Right"
                             />
-                        <TextBlock DockPanel.Dock="Left" Text="Направление штриховки"/>
+                        <TextBlock DockPanel.Dock="Left" Text="Тип штриховки"/>
                     </DockPanel>
                     <hc:NumericUpDown Value="{Binding HatchEdgeDist}" hc:TitleElement.Title="Отступ от края, мкм"
                                       Increment="1"

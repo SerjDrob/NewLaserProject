@@ -115,8 +115,7 @@ namespace NewLaserProject
         {
             var provider = MainIoC.BuildServiceProvider();
             var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
-            //_principleLogger = loggerProvider.CreateLogger("AppLogger");
-            //_principleLogger.Log(LogLevel.Information, "I'm OnStartup");
+            _principleLogger = loggerProvider.CreateLogger("AppLogger");
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
             var viewModel = provider.GetService<MainViewModel>();

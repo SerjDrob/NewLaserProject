@@ -198,7 +198,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="GroupBox">
-                    <Grid Width="{StaticResource LoopWidth}">
+                    <Grid Width="{StaticResource LoopWidth}" Margin="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -229,7 +229,7 @@
                             <ContentPresenter Margin="4" ContentSource="Header" RecognizesAccessKey="True" />
                         </Border>
 
-                        <Border Grid.Row="1" BorderThickness="8,0,0,8" CornerRadius="0,0,2,2">
+                        <Border Grid.Row="1" BorderThickness="8,0,0,8" Margin="1,0" CornerRadius="0,0,2,2">
                             <Border.BorderBrush>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                     <LinearGradientBrush.GradientStops>
