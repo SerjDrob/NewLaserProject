@@ -380,6 +380,9 @@
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
+            <ToolBar>
+                <Button Content="CheckHatch" Command="{Binding CheckHatchCommand}"/>
+            </ToolBar>
         </ToolBarTray>
         <TabControl Margin="1" Grid.Column="1" Style="{StaticResource TabControlCapsule}">
             <TabItem Header="Процесс">
