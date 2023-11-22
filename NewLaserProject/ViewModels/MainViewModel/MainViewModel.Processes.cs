@@ -196,23 +196,26 @@ namespace NewLaserProject.ViewModels
                         .ToList();
 
                     var id = 0;
-
-                    var coors = objects.Select(o =>
+                    IEnumerable<IProcObject> elements = objects;
+                    if (elements.Count() > 1)
                     {
-                        var coor = new Coordination()
-                        {
-                            Name=o.Id.ToString(),
-                            X = o.X,
-                            Y = o.Y,
-                            Id = id++
-                        };
-                        
-                        return coor;
-                    }).ToList();
-                    var map = new Map(coors);
-                    var tsp = new TspSearch(map);
-                    var path = tsp.GetPath().Path;
+                        var coors = objects.Select(o =>
+                                    {
+                                        var coor = new Coordination()
+                                        {
+                                            Name = o.Id.ToString(),
+                                            X = o.X,
+                                            Y = o.Y,
+                                            Id = id++
+                                        };
 
+                                        return coor;
+                                    }).ToList();
+                        var map = new Map(coors);
+                        var tsp = new TspSearch(map);
+                        var path = tsp.GetPath().Path.SkipLast(1);
+                        elements = path.Select(p => objects.Single(o => o.Id.ToString().Equals(p.Name)));
+                    }
 
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
                     var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
@@ -222,7 +225,7 @@ namespace NewLaserProject.ViewModels
                     {
                         return _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
                     });
-                    processing.Add((objects, mp));
+                    processing.Add((elements, mp));
                 }
 
 
