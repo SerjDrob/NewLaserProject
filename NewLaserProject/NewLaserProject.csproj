@@ -107,7 +107,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="16.3.43" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NodeNetwork" Version="6.0.0" />
     <PackageReference Include="NReco.Logging.File" Version="1.1.6" />
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
     <PackageReference Include="SQLite" Version="3.13.0" />
@@ -116,6 +115,7 @@
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="Tang.Library.Algorithm" Version="0.0.3" />
     <PackageReference Include="UnitsNet" Version="5.32.0" />
     <PackageReference Include="ValueConverters" Version="2.2.10" />
   </ItemGroup>

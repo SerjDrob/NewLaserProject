@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
-using System.Windows.Markup;
 using HandyControl.Controls;
 using HandyControl.Data;
 using MachineClassLibrary.Classes;
@@ -25,6 +24,8 @@ using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
 using Newtonsoft.Json;
+using Tang.Library.Algorithm.PathSolution.TSP;
+using Tang.Library.Algorithm.PathSolution.TSP.MapComponent;
 
 namespace NewLaserProject.ViewModels
 {
@@ -193,8 +194,29 @@ namespace NewLaserProject.ViewModels
                         .OrderBy(o => o.X)
                         .ThenBy(o => o.Y)
                         .ToList();
+
+                    var id = 0;
+
+                    var coors = objects.Select(o =>
+                    {
+                        var coor = new Coordination()
+                        {
+                            Name=o.Id.ToString(),
+                            X = o.X,
+                            Y = o.Y,
+                            Id = id++
+                        };
+                        
+                        return coor;
+                    }).ToList();
+                    var map = new Map(coors);
+                    var tsp = new TspSearch(map);
+                    var path = tsp.GetPath().Path;
+
+
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
                     var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
+
                     //preparator.SetEntityAngle(Settings.Default.PazAngle); in case to take out the paz angle from the commonprocess ctor
                     var mp = new MicroProcess(json, preparator, _laserMachine, z =>
                     {

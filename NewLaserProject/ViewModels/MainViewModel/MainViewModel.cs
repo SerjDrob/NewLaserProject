@@ -3,13 +3,16 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using DynamicData;
+using AutoMapper;
 using HandyControl.Controls;
 using HandyControl.Data;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
+using MachineClassLibrary.Laser;
+using MachineClassLibrary.Laser.Markers;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
@@ -20,13 +23,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.VisualBasic.Devices;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
-using NodeNetwork.ViewModels;
+using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
+using HandyControl.Tools.Extension;
 
 namespace NewLaserProject.ViewModels
 {
@@ -181,6 +184,28 @@ namespace NewLaserProject.ViewModels
                 ShowDateTime = false
             });
         }
+
+        [ICommand]
+        private async Task CheckHatch()
+        {
+            var laser = new JCZLaser(new PWM3());
+            var defLaserParams = ExtensionMethods
+                           .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+
+            var mapper = _serviceProvider.GetService<IMapper>();
+            var mediator = _serviceProvider.GetService<IMediator>();
+            var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
+
+            var dialogResult = await Dialog.Show<MachineControlsLibrary.CommonDialog.CommonDialog>()
+                .SetDialogTitle("Параметры пера")
+                .SetDataContext(new EditExtendedParamsVM(defaultParams), vm => { })
+                .GetCommonResultAsync<ExtendedParams>();
+
+            laser.SetMarkParams(defLaserParams);
+            laser.SetExtMarkParams(new ExtParamsAdapter(dialogResult.CommonResult));
+            await laser.PierceDxfObjectAsync("D:/TestHatch.dxf");
+        }
+
 
         [ICommand]
         private void DbLoad()//TODO bad method

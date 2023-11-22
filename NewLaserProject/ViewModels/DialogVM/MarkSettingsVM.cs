@@ -173,11 +173,12 @@ namespace NewLaserProject.ViewModels.DialogVM
         [DisplayName("Реверсивная штриховка")]
         [Browsable (false)]
         public bool HatchLoopRev { get; set; } = true;
-        
+        private bool _isCrossHatch = false;
+
         [Category("Параметры штриховки")]
         [Browsable(false)]
         public bool HatchAutoRotate { get; set; } = false;
-        
+
         [Category("Параметры штриховки")]
         [DisplayName("Угол штриховки")]
         [Browsable(false)]
@@ -206,7 +207,11 @@ namespace NewLaserProject.ViewModels.DialogVM
         [Browsable(false)]
         public int HatchAttribute
         {
-            get => (int)HatchLoopDirection;
+            get
+            {
+                _isCrossHatch = ((int)HatchLoopDirection & JczLmc.HATCHATTRIB_CROSSLINE) > 0; 
+                return (int)HatchLoopDirection;
+            }
             set => HatchLoopDirection = (HatchLoopDirection)value;
         }
 

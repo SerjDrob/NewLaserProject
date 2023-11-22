@@ -179,7 +179,7 @@ namespace NewLaserProject.ViewModels
             {
                 if (!SearchPierceBlock(result.CommonResult.Listing))
                 {
-                    MessageBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
+                    MsgBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
                     return;
                 }
                 if (copy) tech.Id = 0;
