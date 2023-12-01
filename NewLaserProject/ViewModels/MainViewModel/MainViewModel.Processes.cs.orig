@@ -229,6 +229,7 @@ namespace NewLaserProject.ViewModels
                 var processing = new List<(IEnumerable<IProcObject>, MicroProcess)>();
                 foreach (var ofp in ChosenProcessingObjects)
                 {
+<<<<<<< HEAD
                     var objects = getObjects(ofp.LaserEntity, ofp.Layer);
                     try
                     {
@@ -253,6 +254,33 @@ namespace NewLaserProject.ViewModels
                         });
                         var lgc = new LayerGeometryCollection(geometries, "MyRoute", true, Brushes.Red, Brushes.Yellow);
                         _openedFileVM.AddRoute(Enumerable.Repeat(lgc, 1)); 
+=======
+                    var objects = getObjects(ofp.LaserEntity, ofp.Layer)
+                        .OrderBy(o => o.X)
+                        .ThenBy(o => o.Y)
+                        .ToList();
+
+                    var id = 0;
+                    IEnumerable<IProcObject> elements = objects;
+                    if (elements.Count() > 1)
+                    {
+                        var coors = objects.Select(o =>
+                                    {
+                                        var coor = new Coordination()
+                                        {
+                                            Name = o.Id.ToString(),
+                                            X = o.X,
+                                            Y = o.Y,
+                                            Id = id++
+                                        };
+
+                                        return coor;
+                                    }).ToList();
+                        var map = new Map(coors);
+                        var tsp = new TspSearch(map);
+                        var path = tsp.GetPath().Path.SkipLast(1);
+                        elements = path.Select(p => objects.Single(o => o.Id.ToString().Equals(p.Name)));
+>>>>>>> d8c8a609ba0f32b4ad6cfc961331043df46744f9
                     }
 
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
@@ -263,7 +291,7 @@ namespace NewLaserProject.ViewModels
                     {
                         return _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
                     });
-                    processing.Add((objects, mp));
+                    processing.Add((elements, mp));
                 }
 
 

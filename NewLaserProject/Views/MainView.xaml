@@ -161,6 +161,8 @@
                                       Header="Настройки пера и штриховки"/>
                             <MenuItem Command="{Binding OpenFileViewSettingsWindowCommand}"
                                       Header="Отображение файла"/>
+                            <MenuItem Command="{Binding OpenMarkSettingsCommand}"
+                                      Header="Технология маркировки"/>
                             <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}" Visibility="Collapsed"
                                       Header="Ориентация подложки"/>
                             <MenuItem Command="{Binding CameraSettingsCommand}">

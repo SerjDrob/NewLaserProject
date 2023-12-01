@@ -61,7 +61,7 @@ namespace NewLaserProject.ViewModels
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
             _isFileOpened = true;
-            
+
             _requestSubscription?.Dispose();
             _requestSubscription = _mediator.OfType<ScopedGeomsRequest>()
                 .Select(request=>Observable.FromAsync(async () =>
@@ -97,6 +97,18 @@ namespace NewLaserProject.ViewModels
             WaferTurn90 = Settings.Default.WaferAngle90;
             WaferOffsetX = 0;
             WaferOffsetY = 0;
+        }
+
+        public ObservableCollection<LayerGeometryCollection> Route
+        {
+            get;
+            set;
+        } = new();
+
+
+        public void AddRoute(IEnumerable<LayerGeometryCollection> layerGeometryCollections)
+        {
+            LayGeoms.Add(layerGeometryCollections.First());
         }
 
         [ICommand]
