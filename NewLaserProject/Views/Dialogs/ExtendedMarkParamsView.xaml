@@ -12,11 +12,11 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DesignHeight="600" d:DesignWidth="800">
 
-    <hc:SimpleStackPanel Width="300" DataContext="{Binding ExtendedParams}" Background="Black">
+    <hc:SimpleStackPanel Width="330" DataContext="{Binding ExtendedParams}" Background="Black">
         <hc:SimpleStackPanel.Resources>
             <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
                 <Setter Property="Margin" Value="5,2"/>
-                <Setter Property="hc:TitleElement.TitleWidth" Value="200"/>
+                <Setter Property="hc:TitleElement.TitleWidth" Value="230"/>
                 <Setter Property="hc:TitleElement.TitlePlacement" Value="Left"/>
             </Style>
             <Style TargetType="DockPanel">
@@ -128,6 +128,21 @@
 
                         <TextBlock DockPanel.Dock="Left" Text="Проходить сначала контур"/>
                     </DockPanel>
+                    <DockPanel>
+                        <ToggleButton   Style="{StaticResource ToggleButtonSwitch}"
+                                        IsChecked="{Binding HatchAutoRotate}"
+                                        DockPanel.Dock="Right"
+                                        x:Name="autorotate"
+                                        />
+
+                        <TextBlock DockPanel.Dock="Left" Text="Автоповорот штриховки"/>
+                    </DockPanel>
+                    <hc:NumericUpDown Value="{Binding HatchRotateAngle}" hc:TitleElement.Title="Угол автоповорота штриховки, град."
+                                      Increment="1"
+                                      Minimum="0"
+                                      Maximum="180"
+                                      IsEnabled="{Binding ElementName=autorotate, Path=IsChecked}"
+                                      />
                     <hc:Divider Orientation="Horizontal" Content="Правило обработки материала"/>
                     <hc:NumericUpDown Value="{Binding ContourOffset}" 
                                   hc:TitleElement.Title="Смещение контура, мкм"
@@ -145,7 +160,7 @@
                                       DockPanel.Dock="Right"
                                               IsEnabled="{Binding ElementName=toggleMilling, Path=IsChecked}"
                                   hc:TitleElement.Title="Ширина контура, мкм"
-                                              hc:TitleElement.TitleWidth="180"
+                                              hc:TitleElement.TitleWidth="230"
                                               Margin="5,2,0,2"
                                   Increment="10"
                                   Minimum="0"

@@ -176,12 +176,13 @@ namespace NewLaserProject.ViewModels.DialogVM
         private bool _isCrossHatch = false;
 
         [Category("Параметры штриховки")]
-        [Browsable(false)]
+        [DisplayName("Автоповорот штриховки")]
+        [Browsable(true)]
         public bool HatchAutoRotate { get; set; } = false;
 
         [Category("Параметры штриховки")]
-        [DisplayName("Угол штриховки")]
-        [Browsable(false)]
+        [DisplayName("Угол автоповорота штриховки")]
+        [Browsable(true)]
         public double HatchRotateAngle { get; set; } = 0;
 
 
