@@ -82,7 +82,7 @@ namespace NewLaserProject.ViewModels
                     DownKeys.TryGetValue(args.KeyEventArgs.Key, out var commandPair);
 
                     if (commandPair != default && !(args.KeyEventArgs.IsRepeat & commandPair.isKeyRepeatProhibited))
-                        await commandPair.command.ExecuteAsync(null);//TODO fix it
+                        await commandPair.command.ExecuteAsync(null);
                 }
                 else
                 {
@@ -92,7 +92,7 @@ namespace NewLaserProject.ViewModels
                         return;
                     }
                     UpKeys.TryGetValue(args.KeyEventArgs.Key, out var command);
-                    if (command is not null) await command.ExecuteAsync(null);//TODO fix it
+                    if (command is not null) await command.ExecuteAsync(null);
                 }
                 args.KeyEventArgs.Handled = true;
             }
