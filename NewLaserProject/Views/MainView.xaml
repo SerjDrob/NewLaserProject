@@ -161,6 +161,8 @@
                                       Header="Настройки пера и штриховки"/>
                             <MenuItem Command="{Binding OpenFileViewSettingsWindowCommand}"
                                       Header="Отображение файла"/>
+                            <MenuItem Command="{Binding OpenMarkSettingsCommand}"
+                                      Header="Технология маркировки"/>
                             <MenuItem Command="{Binding OpenSpecimenSettingsWindowCommand}" Visibility="Collapsed"
                                       Header="Ориентация подложки"/>
                             <MenuItem Command="{Binding CameraSettingsCommand}">
@@ -380,7 +382,7 @@
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
-            <ToolBar>
+            <ToolBar Visibility="Collapsed">
                 <Button Content="CheckHatch" Command="{Binding CheckHatchCommand}"/>
             </ToolBar>
         </ToolBarTray>

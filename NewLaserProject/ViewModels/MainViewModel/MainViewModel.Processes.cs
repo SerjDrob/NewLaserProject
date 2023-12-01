@@ -9,6 +9,8 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using HandyControl.Controls;
 using HandyControl.Data;
 using MachineClassLibrary.Classes;
@@ -16,6 +18,7 @@ using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
+using MachineControlsLibrary.Classes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -24,8 +27,11 @@ using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
 using Newtonsoft.Json;
+using Tang.Library.Algorithm.PathSolution.SP;
 using Tang.Library.Algorithm.PathSolution.TSP;
+using Tang.Library.Algorithm.PathSolution.TSP.Algorithm.Genetic.Chromosome;
 using Tang.Library.Algorithm.PathSolution.TSP.MapComponent;
+using Path = System.IO.Path;
 
 namespace NewLaserProject.ViewModels
 {
@@ -159,8 +165,41 @@ namespace NewLaserProject.ViewModels
             set;
         }
 
+        private IEnumerable<IProcObject> ArrangeProcObjects(List<IProcObject> procObjects)
+        {
+            var g = Guid.NewGuid();
+            var gg = g.ToString();
+
+
+            var list = procObjects.Select(o => (o.Id.ToString(), o.X, o.Y))
+                .OrderBy(l=>l.X)
+                .ToList();
+            var curX = list.First().X;
+            var delta = 3000d;
+            var curCount = 0;
+            var count = list.Count();
+            var asc = false;
+            var result = new List<(string, double, double)>();
+            do
+            {
+                var rest = list.Skip(curCount);
+                var seq =
+                    rest.TakeWhile(l => (l.X <= curX + delta) & (l.X >= curX - delta))
+                    .ToList();
+                var res = asc ? seq.OrderBy(y => y.Y) : seq.OrderByDescending(y => y.Y);
+                result.AddRange(res.ToList());
+                curCount += seq.Count;
+                if (curCount >= count) continue;
+                curX = list.ElementAt(curCount).X;
+                asc ^= true;
+            } while (curCount < count);
+            return result.Select(r => procObjects.Single(p => p.Id.ToString() == r.Item1));
+        }
+
+
+
         [ICommand]
-        private void DownloadProcess()
+        private async Task DownloadProcess()
         {
             //TODO determine size by specified layer
             try
@@ -190,29 +229,31 @@ namespace NewLaserProject.ViewModels
                 var processing = new List<(IEnumerable<IProcObject>, MicroProcess)>();
                 foreach (var ofp in ChosenProcessingObjects)
                 {
-                    var objects = getObjects(ofp.LaserEntity, ofp.Layer)
-                        .OrderBy(o => o.X)
-                        .ThenBy(o => o.Y)
-                        .ToList();
-
-                    var id = 0;
-
-                    var coors = objects.Select(o =>
+                    var objects = getObjects(ofp.LaserEntity, ofp.Layer);
+                    try
                     {
-                        var coor = new Coordination()
-                        {
-                            Name=o.Id.ToString(),
-                            X = o.X,
-                            Y = o.Y,
-                            Id = id++
-                        };
-                        
-                        return coor;
-                    }).ToList();
-                    var map = new Map(coors);
-                    var tsp = new TspSearch(map);
-                    var path = tsp.GetPath().Path;
+                        objects = ArrangeProcObjects(objects.ToList());
+                    }
+                    catch (Exception)
+                    {
+                    }
 
+                    if (objects.Count() > 1)
+                    {
+                        var lastPoint = new System.Windows.Point(objects.ElementAt(1).X, objects.ElementAt(1).Y);
+                        var firstLine = new LineGeometry(new(objects.ElementAt(0).X, objects.ElementAt(0).Y), lastPoint);
+                        var geometries = new GeometryCollection();
+                        geometries.Add(firstLine);
+                        objects.Skip(1).ToList().ForEach(o =>
+                        {
+                            var curpoint = new System.Windows.Point(o.X, o.Y);
+                            var line = new LineGeometry(lastPoint, curpoint);
+                            geometries.Add(line);
+                            lastPoint = curpoint;
+                        });
+                        var lgc = new LayerGeometryCollection(geometries, "MyRoute", true, Brushes.Red, Brushes.Yellow);
+                        _openedFileVM.AddRoute(Enumerable.Repeat(lgc, 1)); 
+                    }
 
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
                     var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
@@ -282,7 +323,7 @@ namespace NewLaserProject.ViewModels
                         LastProcObjectTimer = CurrentProcObjectTimer;
                         _procObjTempTime = new(0);
                         var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
-                        ProcessingObjects.Remove(o);
+                        if(o is not null) ProcessingObjects.Remove(o);
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
@@ -442,6 +483,13 @@ namespace NewLaserProject.ViewModels
             var theta = coorSystem.GetMatrixAngle();
             var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Today.Date;
             await _laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, position, true);
+
+            var markTextJson = File.ReadAllText(AppPaths.MarkTextParams);
+
+            var laserParams = new JsonDeserializer<ExtendedParams>()
+                .Deserialize(markTextJson);
+
+            _laserMachine.SetExtMarkParams(new ExtParamsAdapter(laserParams));
             await _laserMachine.MarkTextAsync(markingText, 0.8, angle + theta);
         }
 

@@ -6,16 +6,20 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 //using System.Windows.Controls;
 using System.Windows.Input;
+using AutoMapper;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
+using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineControlsLibrary.CommonDialog;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DefaultLayerEntityTechnologyFeatures.Get;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Create;
@@ -459,7 +463,28 @@ namespace NewLaserProject.ViewModels
             Settings.Default.PreferedCameraCapabilities = CameraCapabilitiesIndex;
             Settings.Default.Save();
         }
-        
+
+        [ICommand]
+        private async Task OpenMarkSettings()
+        {
+            var @params = ExtensionMethods
+                            .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+            var mapper = _serviceProvider.GetService<IMapper>();
+            var mediator = _serviceProvider.GetService<IMediator>();
+            var defaultParams = mapper?.Map<ExtendedParams>(@params);
+
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Параметры пера")
+                .SetDataContext(new EditExtendedParamsVM(defaultParams), vm => { })
+                .GetCommonResultAsync<ExtendedParams>();
+
+            if (result.Success)
+            {
+                result.CommonResult.SerializeObject(AppPaths.MarkTextParams);
+            }
+        }
+
+
     }
     public enum Compass
     {
