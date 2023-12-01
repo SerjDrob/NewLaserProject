@@ -467,15 +467,13 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task OpenMarkSettings()
         {
-            var @params = ExtensionMethods
-                            .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
-            var mapper = _serviceProvider.GetService<IMapper>();
-            var mediator = _serviceProvider.GetService<IMediator>();
-            var defaultParams = mapper?.Map<ExtendedParams>(@params);
+            var markParams = ExtensionMethods
+                            .DeserilizeObject<ExtendedParams>(AppPaths.MarkTextParams);
+
 
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Параметры пера")
-                .SetDataContext(new EditExtendedParamsVM(defaultParams), vm => { })
+                .SetDataContext(new EditExtendedParamsVM(markParams), vm => { })
                 .GetCommonResultAsync<ExtendedParams>();
 
             if (result.Success)
@@ -483,8 +481,6 @@ namespace NewLaserProject.ViewModels
                 result.CommonResult.SerializeObject(AppPaths.MarkTextParams);
             }
         }
-
-
     }
     public enum Compass
     {
