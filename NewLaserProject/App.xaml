@@ -55,6 +55,10 @@
             <DataTemplate DataType="{x:Type viewmodels:MechanicVM}">
                 <views:MechanicView/>
             </DataTemplate>
+
+            <!--<DataTemplate DataType="{x:Type dialogvm:AskThicknessVM}">
+                
+            </DataTemplate>-->
             
             <DataTemplate DataType="{x:Type dialogvm:WaferVM}">
                 <dialogviews:WaferSettingsView/>
@@ -73,13 +77,14 @@
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type dialogvm:AskThicknessVM}">
-                <hc:NumericUpDown hc:TitleElement.Title="Толщина" 
+                <hc:NumericUpDown hc:TitleElement.Title="Толщина подложки" 
                                   hc:TitleElement.TitlePlacement="Left" 
                                   Minimum="0.1"
                                   Maximum="5"
-                                  Increment="0.1"
+                                  Increment="0.05"
                                   ValueFormat="N3"
-                                  Value="{Binding Thickness}"/>
+                                  Value="{Binding Thickness}"
+                                  Style="{StaticResource NumericUpDownExtend}"/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type dialogvm:MarkSettingsVM}">

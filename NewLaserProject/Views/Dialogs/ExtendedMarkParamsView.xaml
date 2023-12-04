@@ -10,7 +10,7 @@
              xmlns:controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
              mc:Ignorable="d" 
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="700" d:DesignWidth="800">
 
     <hc:SimpleStackPanel Width="330" DataContext="{Binding ExtendedParams}" Background="Black">
         <hc:SimpleStackPanel.Resources>
@@ -59,17 +59,20 @@
                     <ToggleButton Style="{StaticResource ToggleButtonSwitch}"                                         
                                       IsChecked="{Binding EnablePWM}"
                                       DockPanel.Dock="Right"
+                                      x:Name="switchPWM"
                                       />
                     <TextBlock DockPanel.Dock="Left" Text="Применить модуляцию"/>
                 </DockPanel>
-                <hc:NumericUpDown Value="{Binding PWMFrequency}" hc:TitleElement.Title="Частота модуляции, Гц" 
+                <hc:SimpleStackPanel IsEnabled="{Binding ElementName=switchPWM, Path=IsChecked}">
+                    <hc:NumericUpDown Value="{Binding PWMFrequency}" hc:TitleElement.Title="Частота модуляции, Гц" 
                                   Increment="10"
                                   Minimum="50"
                                  />
-                <hc:NumericUpDown Value="{Binding PWMDutyCycle}" hc:TitleElement.Title="Скважность, %"
+                    <hc:NumericUpDown Value="{Binding PWMDutyCycle}" hc:TitleElement.Title="Скважность, %"
                                   Increment="1"
                                   Minimum="1"
                                  />
+                </hc:SimpleStackPanel>
             </hc:SimpleStackPanel>
         </Expander>
         <Expander Header="Штриховка / фрезеровка" IsExpanded="True">
@@ -105,7 +108,7 @@
                                       Increment="1"
                                       Minimum="0"
                                       Maximum="500"
-                                      />   
+                                      />
                     <hc:NumericUpDown Value="{Binding HatchLineDistance}" hc:TitleElement.Title="Шаг, мкм"
                                   Increment="1"
                                   Minimum="1"
@@ -143,20 +146,22 @@
                                       Maximum="180"
                                       IsEnabled="{Binding ElementName=autorotate, Path=IsChecked}"
                                       />
-                    <hc:Divider Orientation="Horizontal" Content="Правило обработки материала"/>
-                    <hc:NumericUpDown Value="{Binding ContourOffset}" 
+
+                </hc:SimpleStackPanel>
+                <hc:Divider Orientation="Horizontal" Content="Правило обработки материала"/>
+                <hc:NumericUpDown Value="{Binding ContourOffset}" 
                                   hc:TitleElement.Title="Смещение контура, мкм"
                                   Increment="10"
                                   Minimum="-1000"
                                   Maximum="1000"
                                   />
-                    <DockPanel>
-                        <CheckBox Name="toggleMilling"
+                <DockPanel>
+                    <CheckBox Name="toggleMilling"
                                       IsChecked="{Binding EnableMilling}"
                                       DockPanel.Dock="Left"
                                       />
 
-                        <hc:NumericUpDown Value="{Binding HatchWidth}" 
+                    <hc:NumericUpDown Value="{Binding HatchWidth}" 
                                       DockPanel.Dock="Right"
                                               IsEnabled="{Binding ElementName=toggleMilling, Path=IsChecked}"
                                   hc:TitleElement.Title="Ширина контура, мкм"
@@ -167,8 +172,7 @@
                                   Maximum="500"
                                   />
 
-                    </DockPanel>
-                </hc:SimpleStackPanel>
+                </DockPanel>
             </hc:SimpleStackPanel>
         </Expander>
     </hc:SimpleStackPanel>

@@ -36,7 +36,7 @@ namespace NewLaserProject.Classes.Process
         private double _matrixAngle;
         private readonly double _zeroZPiercing;
         private readonly double _zeroZCamera;
-        private readonly double _waferThickness;
+        private double _waferThickness;
         private readonly double _dX;
         private readonly double _dY;
         private readonly double _pazAngle;
@@ -440,6 +440,11 @@ namespace NewLaserProject.Classes.Process
         protected virtual void DisposeManagedResources()
         {
             _subscriptions?.ForEach(s => s.Dispose());
+        }
+
+        public void ChangeParams(ProcessParams processParams)
+        {
+            _waferThickness = processParams.WaferThickness;
         }
     }
 }

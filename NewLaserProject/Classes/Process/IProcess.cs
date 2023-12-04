@@ -16,5 +16,6 @@ namespace NewLaserProject.Classes
         Task Deny();
         Task Next();
         Task StartAsync();
+        void ChangeParams(ProcessParams processParams);
     }
 }

@@ -10,15 +10,16 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using HandyControl.Controls;
 using HandyControl.Data;
+using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineControlsLibrary.Classes;
+using MachineControlsLibrary.CommonDialog;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -26,11 +27,8 @@ using NewLaserProject.Classes.Process;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
+using NewLaserProject.ViewModels.DialogVM;
 using Newtonsoft.Json;
-using Tang.Library.Algorithm.PathSolution.SP;
-using Tang.Library.Algorithm.PathSolution.TSP;
-using Tang.Library.Algorithm.PathSolution.TSP.Algorithm.Genetic.Chromosome;
-using Tang.Library.Algorithm.PathSolution.TSP.MapComponent;
 using Path = System.IO.Path;
 
 namespace NewLaserProject.ViewModels
@@ -172,7 +170,7 @@ namespace NewLaserProject.ViewModels
 
 
             var list = procObjects.Select(o => (o.Id.ToString(), o.X, o.Y))
-                .OrderBy(l=>l.X)
+                .OrderBy(l => l.X)
                 .ToList();
             var curX = list.First().X;
             var delta = 3000d;
@@ -237,7 +235,7 @@ namespace NewLaserProject.ViewModels
                     catch (Exception)
                     {
                     }
-
+                    /*
                     if (objects.Count() > 1)
                     {
                         var lastPoint = new System.Windows.Point(objects.ElementAt(1).X, objects.ElementAt(1).Y);
@@ -252,9 +250,9 @@ namespace NewLaserProject.ViewModels
                             lastPoint = curpoint;
                         });
                         var lgc = new LayerGeometryCollection(geometries, "MyRoute", true, Brushes.Red, Brushes.Yellow);
-                        _openedFileVM.AddRoute(Enumerable.Repeat(lgc, 1)); 
+                        _openedFileVM.AddRoute(Enumerable.Repeat(lgc, 1));
                     }
-
+                    */
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
                     var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
 
@@ -323,7 +321,7 @@ namespace NewLaserProject.ViewModels
                         LastProcObjectTimer = CurrentProcObjectTimer;
                         _procObjTempTime = new(0);
                         var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
-                        if(o is not null) ProcessingObjects.Remove(o);
+                        if (o is not null) ProcessingObjects.Remove(o);
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
@@ -443,6 +441,19 @@ namespace NewLaserProject.ViewModels
         {
 
 #if PCIInserted
+
+            var result = await Dialog.Show<CheckParamsDialog>()
+               .SetDialogTitle("Запуск процесса")
+                .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
+                .GetCommonResultAsync<double>();
+                
+            if (result.Success)
+            {
+                var procParams = new ProcessParams(result.CommonResult);
+                _mainProcess?.ChangeParams(procParams);
+            }
+
+            if (!result.Success) return;
 
             try
             {
