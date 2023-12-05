@@ -1,16 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
 using MachineControlsLibrary.CommonDialog;
 using NewLaserProject.ViewModels.DialogVM;
 
 namespace NewLaserProject.ViewModels.DbVM
 {
-    internal class WriteTechnologyVM : CommonDialogResultable<TechWizardVM>
+    internal class WriteTechnologyVM : TechWizardVM, ICommonDialog, IDialogResultable<CommonDialogResult<TechWizardVM>>
     {
-        public WriteTechnologyVM(ExtendedParams defaultParams)
+        public WriteTechnologyVM(ExtendedParams defaultParams) : base(defaultParams)
         {
-           TechnologyWizard = new(defaultParams);
         }
+
         [Required]
         public string TechnologyName
         {
@@ -24,11 +27,41 @@ namespace NewLaserProject.ViewModels.DbVM
         {
             get; set;
         }
-        public TechWizardVM TechnologyWizard
+        //public TechWizardVM TechnologyWizard
+        //{
+        //    get; set;
+        //}
+
+        public void SetResult() => SetResult(this);
+        protected void SetResult(TechWizardVM result)
         {
-            get; set;
+            Result.CommonResult = result;
         }
 
-        public override void SetResult() => SetResult(TechnologyWizard);
+        [Browsable(false)]
+        public CommonDialogResult<TechWizardVM> Result
+        {
+            get;
+            set;
+        }
+        [Browsable(false)]
+        public Action CloseAction
+        {
+            get;
+            set;
+        }
+        public void CloseWithSuccess()
+        {
+            Result = new CommonDialogResult<TechWizardVM> { Success = true };
+            SetResult();
+            CloseAction();
+        }
+        public void CloseWithCancel()
+        {
+            Result = new CommonDialogResult<TechWizardVM> { Success = false };
+            SetResult();
+            CloseAction();
+        }
     }
+
 }

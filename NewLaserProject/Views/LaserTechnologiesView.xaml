@@ -111,7 +111,7 @@
                                 hc:IconElement.Height="10"
                                 hc:Poptip.Content="Создать материал"
                                 hc:Poptip.Placement="RightTop"
-                                hc:Poptip.Offset="12"
+                                hc:Poptip.HorizontalOffset="12"
                                 Margin="50,0"
                                 Content="Новый материал"
                         Command="{Binding AddMaterialCommand}"

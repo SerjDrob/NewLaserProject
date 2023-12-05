@@ -152,11 +152,10 @@
     <DataTemplate DataType="{x:Type pblocks:PierceBlock}">
         <ItemsControl Style="{StaticResource PierceBlock}">
             <Label Content="Прошивка" Style="{StaticResource BlockLabel}"/>
-            <Button Content="Параметры" 
-                Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, 
-            Path=DataContext.SetPiercingParamsCommand}" 
-                CommandParameter="{Binding}"
-                Style="{StaticResource ButtonPrimary.Small}">
+            <Button Content="Параметры" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, 
+                    Path=DataContext.SetPiercingParamsCommand}" 
+                    CommandParameter="{Binding}"
+                    Style="{StaticResource ButtonPrimary.Small}">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="2"/>

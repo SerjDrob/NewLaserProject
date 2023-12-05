@@ -17,8 +17,7 @@
             </ResourceDictionary>
         </Grid.Resources>
         <UniformGrid Columns="2">
-            <DockPanel IsEnabled="{Binding EditEnable}"
-                       >
+            <DockPanel IsEnabled="{Binding EditEnable}">
                 <hc:SimpleStackPanel DockPanel.Dock="Top">
                     <TextBlock Text="Программа" Style="{StaticResource TextBlockSubTitleBold}"/>
                     <hc:ElementGroup Orientation="Horizontal" Margin="3" HorizontalAlignment="Center">

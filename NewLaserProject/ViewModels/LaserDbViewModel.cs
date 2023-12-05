@@ -27,7 +27,6 @@ using NewLaserProject.Data.Models.MaterialFeatures.Delete;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.Data.Models.TechnologyFeatures.Create;
 using NewLaserProject.Data.Models.TechnologyFeatures.Delete;
-using NewLaserProject.Data.Models.TechnologyFeatures.Update;
 using NewLaserProject.ViewModels.DbVM;
 using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
@@ -69,7 +68,7 @@ namespace NewLaserProject.ViewModels
         {
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Новый материал")
-                .SetDataContext<MaterialVM>(vm => vm.MaterialDTO = new())
+                .SetDataContext<MaterialVM>(vm => vm.MaterialDTO = new() { Thickness = 0.25f })
                 .GetCommonResultAsync<MaterialDTO>();
 
             if (result.Success)
@@ -114,7 +113,7 @@ namespace NewLaserProject.ViewModels
                 }
                 var newTechnology = new Technology();
                 newTechnology.Material = material;
-                newTechnology.ProcessingProgram = writeTechVM.TechnologyWizard.SaveListingToFolder(AppPaths.TechnologyFolder);
+                newTechnology.ProcessingProgram = writeTechVM.SaveListingToFolder(AppPaths.TechnologyFolder);
                 newTechnology.ProgramName = writeTechVM.TechnologyName ?? DateTime.Now.ToString();
                 var response = await _mediator.Send(new CreateTechnologyRequest(newTechnology));
                 Technologies.Add(response.CreatedTechnology);
@@ -149,9 +148,9 @@ namespace NewLaserProject.ViewModels
             }
         }
         [ICommand]
-        private async Task EditTechnology(Technology technology) => EditCopyTechnology(technology);
+        private async Task EditTechnology(Technology technology) => await EditCopyTechnologyAsync(technology);
 
-        private async Task EditCopyTechnology(Technology technology, bool copy = false)
+        private async Task EditCopyTechnologyAsync(Technology technology, bool copy = false)
         {
             var tech = copy ? (Technology)technology.Clone() : technology;
             var defParams = (ExtendedParams)_defaultParams.Clone();
@@ -167,33 +166,50 @@ namespace NewLaserProject.ViewModels
                 TechnologyName = copy ? string.Empty : tech.ProgramName,
                 MaterialName = tech.Material.Name,
                 MaterialThickness = tech.Material.Thickness,
-                TechnologyWizard = techWizard
+                //TechnologyWizard = techWizard
             };
+
+            writeTechVM.LoadListing(path);
+
+            //var view = new WriteTechnologyControl() { DataContext = writeTechVM };
+            //var window = new Window
+            //{
+            //    Title = "My User Control Dialog",
+            //    SizeToContent = System.Windows.SizeToContent.WidthAndHeight,
+            //    WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen,
+            //    Content = view
+            //};
+
+            //window.ShowDialog();
 
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle(copy ? "Создать из копии" : "Правка программы")
                 .SetDataContext(writeTechVM, vm => { })
                 .GetCommonResultAsync<TechWizardVM>();
 
-            if (result.Success)
-            {
-                if (!SearchPierceBlock(result.CommonResult.Listing))
-                {
-                    MsgBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
-                    return;
-                }
-                if (copy) tech.Id = 0;
-                tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
-                tech.ProgramName = writeTechVM.TechnologyName;
-                var response = copy ? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
-                if (!copy)
-                {
-                    File.Delete(path);
-                    technology = response.CreatedTechnology;                   
-                }
-                if(copy) Technologies.Add(response.CreatedTechnology);
-                //ReviseTechnologies();
-            }
+            //var result = await Dialog.Show<CommonDialog>()
+            //    .SetDialogTitle(copy ? "Создать из копии" : "Правка программы")
+            //    .SetDataContext(techWizard, vm => { })
+            //    .GetCommonResultAsync<string>();
+
+            //if (result.Success)
+            //{
+            //    if (!SearchPierceBlock(result.CommonResult.Listing))
+            //    {
+            //        MsgBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
+            //        return;
+            //    }
+            //    if (copy) tech.Id = 0;
+            //    tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
+            //    tech.ProgramName = writeTechVM.TechnologyName;
+            //    var response = copy ? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
+            //    if (!copy)
+            //    {
+            //        File.Delete(path);
+            //        technology = response.CreatedTechnology;
+            //    }
+            //    if (copy) Technologies.Add(response.CreatedTechnology);
+            //}
         }
 
         [ICommand]
@@ -209,7 +225,7 @@ namespace NewLaserProject.ViewModels
             //ReviseTechnologies();
         }
         [ICommand]
-        private async void CopyTechnology(Technology technology) => EditCopyTechnology(technology, true);
+        private async void CopyTechnology(Technology technology) => EditCopyTechnologyAsync(technology, true);
 
         private void DeleteTechnologyFile(Technology technology)
         {
@@ -242,13 +258,13 @@ namespace NewLaserProject.ViewModels
 
             var reg = new Regex($"(?>{pattern})", RegexOptions.IgnoreCase | RegexOptions.Compiled);//(?>T\w*?)
             var sb = new StringBuilder();
-            
+
             sb.Append(technology.ProgramName)
                 .Append(technology.Material.Name)
                 .Append(technology.Material.Thickness);
 
             var str = sb.ToString();
-            str = Regex.Replace(str, @"\W","");
+            str = Regex.Replace(str, @"\W", "");
             var result = reg.IsMatch(str);
             filterEventArgs.Accepted = result;
         }
@@ -257,7 +273,7 @@ namespace NewLaserProject.ViewModels
         private void TypeFilter(object o)
         {
             var collection = o as DataGrid;
-            if(collection is not null)
+            if (collection is not null)
                 CollectionViewSource.GetDefaultView(collection.ItemsSource).Refresh();
         }
     }
