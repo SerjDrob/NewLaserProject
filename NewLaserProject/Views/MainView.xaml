@@ -14,9 +14,8 @@
         mc:Ignorable="d"   
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="ТЕМП-ЛР50"    
-        Height="800" 
-        Width="1200" 
-        WindowState="Maximized">
+        WindowState="Maximized"
+        ResizeMode="CanResize">
     
     <hc:GlowWindow.InputBindings>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.SW}" Gesture="CTRL+1"/>
@@ -222,7 +221,7 @@
                 </hc:SplitButton>
 
             </ToolBar>
-            <ToolBar>
+            <ToolBar Style="{StaticResource ToolBarBaseStyle}">
                 <Button Command="{Binding ChooseMaterialCommand}" HorizontalAlignment="Stretch" MinHeight="50">
                     <hc:AdornerElement.Instance>
                         <hc:Poptip Content="Введите параметры подложки" PlacementType="TopLeft"/>
@@ -242,29 +241,27 @@
                         </StackPanel>
                     </StackPanel>
                 </Button>
-                <StackPanel DockPanel.Dock="Bottom" >
-                    <controls:AxisState CoordinateName="X"                                  
+                <controls:AxisState CoordinateName="X"
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.Position}"  
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.MotionDone}" 
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.CmdPosition}"
                                   />
-                    <controls:AxisState CoordinateName="Y"
+                <controls:AxisState CoordinateName="Y"
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.Position}"
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.CmdPosition}"
                                   />
-                    <controls:AxisState CoordinateName="Z"
+                <controls:AxisState CoordinateName="Z"
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.Position}"
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.CmdPosition}"
                                   />
-                </StackPanel>
                 <DockPanel>
                     <Border
                         DockPanel.Dock="Top"
@@ -344,7 +341,7 @@
                                 </i:Interaction.Triggers>
                                 <Label Content="ШАГ"
                                        HorizontalAlignment="Stretch"
-                                       VerticalAlignment="Stretch"
+                                       Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=ActualHeight}"
                                        Style="{StaticResource LabelDanger}"
                                        />
                             </Grid>
@@ -382,7 +379,7 @@
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
-            <ToolBar Visibility="Collapsed">
+            <ToolBar>
                 <Button Content="CheckHatch" Command="{Binding CheckHatchCommand}"/>
             </ToolBar>
         </ToolBarTray>
@@ -440,13 +437,13 @@
                         <hc:SimpleStackPanel Grid.Row="1">
                             <hc:Divider Orientation="Horizontal" Style="{StaticResource DividerBaseStyle}"/>
                             <Border BorderBrush="{StaticResource PrimaryBrush}" CornerRadius="5" BorderThickness="1">
-                                <hc:ElementGroup Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
                                     <Button Command="{Binding OpenFileCommand}" HorizontalAlignment="Left" Content="Файл" Style="{StaticResource ButtonPrimary.Small}" />
                                     <TextBlock Text="{Binding DataContext.FileName, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
                                            Margin="5,0"
                                            Style="{StaticResource TextBlockDefault}"
                                            />
-                                </hc:ElementGroup>
+                                </StackPanel>
                             </Border>
                         </hc:SimpleStackPanel>
                         <GroupBox x:Name="ProcessPanel"
@@ -469,14 +466,14 @@
                                 </Grid.RowDefinitions>
                                 <hc:SimpleStackPanel>                                    
                                     <WrapPanel IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                        <hc:ElementGroup x:Name="FileScale" Orientation="Horizontal">
-                                            <hc:ElementGroup.Resources>
+                                        <StackPanel x:Name="FileScale" Orientation="Horizontal">
+                                            <StackPanel.Resources>
                                                 <x:Array x:Key="Scales" Type="{x:Type classes:Scale}">
                                                     <classes:Scale Numerator="1000" Denominator="1"/>
                                                     <classes:Scale Numerator="100" Denominator="1"/>
                                                     <classes:Scale Numerator="1" Denominator="1"/>
                                                 </x:Array>
-                                            </hc:ElementGroup.Resources>
+                                            </StackPanel.Resources>
                                             <hc:ComboBox ItemsSource="{Binding Source={StaticResource Scales}}" 
                                                          SelectedItem="{Binding DefaultFileScale}"
                                                          SelectedIndex="0"
@@ -484,15 +481,15 @@
                                                          hc:TitleElement.TitlePlacement="Left"
                                                          hc:TitleElement.Background="Black"
                                                          Width="180"/>
-                                        </hc:ElementGroup>
-                                        <hc:ElementGroup Orientation="Horizontal">
-                                            <hc:ElementGroup.Resources>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <StackPanel.Resources>
                                                 <x:Array x:Key="FileAlignments" Type="{x:Type sys:Enum}">
                                                     <classes:FileAlignment>AlignByCorner</classes:FileAlignment>
                                                     <classes:FileAlignment>AlignByThreePoint</classes:FileAlignment>
                                                     <classes:FileAlignment>AlignByTwoPoint</classes:FileAlignment>
                                                 </x:Array>
-                                            </hc:ElementGroup.Resources>
+                                            </StackPanel.Resources>
                                             <controls:ItemsButton DockPanel.Dock="Right"
                                                                  Width="40"
                                                                  ItemSelector="{StaticResource AligningSelector}"
@@ -502,8 +499,8 @@
                                                                 >
                                             </controls:ItemsButton>
                                             <Label Content="Тип совмещения"/>
-                                        </hc:ElementGroup>
-                                        <hc:ElementGroup Orientation="Horizontal">
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
                                             <CheckBox IsChecked="{Binding IsWaferMark, Mode=OneWayToSource}"
                                                   Content="Маркировать"
                                                   Margin="5,0,5,0"
@@ -543,9 +540,9 @@
                                                     </i:DataTrigger>
                                                 </i:Interaction.Triggers>
                                             </Button>
-                                        </hc:ElementGroup>
+                                        </StackPanel>
 
-                                        <hc:ElementGroup Orientation="Horizontal">
+                                        <StackPanel Orientation="Horizontal">
                                             <ToggleButton IsChecked="{Binding CutMode}">
                                                 <ToggleButton.Resources>
                                                     <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonDefault}">
@@ -575,7 +572,7 @@
                                                     <ScaleTransform ScaleY="-1"/>
                                                 </Button.RenderTransform>
                                             </Button>
-                                        </hc:ElementGroup>
+                                        </StackPanel>
                                     </WrapPanel>
                                     <UniformGrid Columns="2" 
                                                      IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">

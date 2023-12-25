@@ -48,7 +48,7 @@
       <Value Profile="(Default)">180</Value>
     </Setting>
     <Setting Name="ZPPU" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">6400</Value>
+      <Value Profile="(Default)">12800</Value>
     </Setting>
     <Setting Name="ZJerk" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>

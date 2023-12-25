@@ -68,6 +68,7 @@ namespace NewLaserProject.ViewModels
                 .CreateKeyDownCommand(Key.Home, async () =>
                 {
                     await moveHomeAsync();
+                    _signalColumn.TurnOnLight(LightColumn.Light.Green);
                     Growl.Clear();
                 }, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.Add, changeVelocity, () => IsMainTabOpen && !IsProcessing)
@@ -290,7 +291,7 @@ namespace NewLaserProject.ViewModels
                     vm.DefaultHeight = Settings.Default.DefaultHeight;
                     vm.DefaultWidth = Settings.Default.DefaultWidth;
                     vm.IsMirrored = Settings.Default.IsMirrored;
-                    vm.IsRotated= Settings.Default.IsRotated;
+                    vm.IsRotated= Settings.Default.WaferAngle90;
                 })
                 .GetCommonResultAsync<FileViewDialogVM>();//UNDONE this dialog doesn't save db
             if (result.Success)
@@ -298,7 +299,7 @@ namespace NewLaserProject.ViewModels
                 Settings.Default.DefaultWidth = result.CommonResult.DefaultWidth;
                 Settings.Default.DefaultHeight = result.CommonResult.DefaultHeight;
                 Settings.Default.IsMirrored = result.CommonResult.IsMirrored;
-                Settings.Default.IsRotated = result.CommonResult.IsRotated;
+                Settings.Default.WaferAngle90 = result.CommonResult.IsRotated;
                 Settings.Default.Save();
 
                 var newFilters = result.CommonResult.DefLayerFilters.Where(f => f.Id == 0).ToList();

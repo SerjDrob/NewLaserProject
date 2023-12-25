@@ -9,8 +9,8 @@ namespace NewLaserProject.ViewModels
         public double TableY { get; set; }
         public double CameraLaserOffsetX { get; set; } = -69.443;
         public double CameraLaserOffsetY { get; set; } = 3.797;
-        public double TableWidth => 130;
-        public double TableHeight => 120;
+        public double TableWidth => 77;//130;
+        public double TableHeight => 111;//120;
         public double TableOriginX => 3.3;
         public double TableOriginY => 80.59;
         public double LaserOriginX => 0;

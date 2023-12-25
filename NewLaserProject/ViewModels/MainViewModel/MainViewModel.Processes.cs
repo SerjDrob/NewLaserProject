@@ -342,10 +342,16 @@ namespace NewLaserProject.ViewModels
                         {
                             case CompletionStatus.Success:
                                 if (IsWaferMark) await MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem);
+                                _signalColumn.BlinkLightAsync(LightColumn.Light.Blue).ConfigureAwait(false);
                                 MessageBox.Success("Процесс завершён");
+                                _signalColumn.TurnOff();
+                                _signalColumn.TurnOnLight(LightColumn.Light.Green);
                                 break;
                             case CompletionStatus.Cancelled:
+                                _signalColumn.BlinkLightAsync(LightColumn.Light.Red).ConfigureAwait(false);
                                 MessageBox.Fatal("Процесс отменён");
+                                _signalColumn.TurnOff();
+                                _signalColumn.TurnOnLight(LightColumn.Light.Green);
                                 break;
                             default:
                                 break;
@@ -446,14 +452,17 @@ namespace NewLaserProject.ViewModels
                .SetDialogTitle("Запуск процесса")
                 .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
                 .GetCommonResultAsync<double>();
-                
+
             if (result.Success)
             {
                 var procParams = new ProcessParams(result.CommonResult);
                 _mainProcess?.ChangeParams(procParams);
             }
-
-            if (!result.Success) return;
+            else
+            {
+                await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                return;
+            }
 
             try
             {
@@ -471,6 +480,7 @@ namespace NewLaserProject.ViewModels
                     $"File's name: {FileName}" +
                     $"Layer's name for processing: {CurrentLayerFilter}" +
                     $"Entity type for processing: {CurrentEntityType}");
+                _signalColumn.TurnOnLight(LightColumn.Light.Yellow);
                 await _mainProcess.StartAsync().ConfigureAwait(false);
             }
             catch (Exception ex)

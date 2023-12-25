@@ -114,8 +114,10 @@ namespace NewLaserProject.ViewModels
             _subjMediator = subjMediator;
             _serviceProvider = serviceProvider;
             var workingDirectory = Environment.CurrentDirectory;
-            _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             _laserMachine.CameraPlugged += _laserMachine_CameraPlugged;
+            _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
+            
+
             _coorSystem = GetCoorSystem(AppPaths.PureDeformation);
             TuneCoorSystem();
             ImplementMachineSettings();
@@ -142,6 +144,8 @@ namespace NewLaserProject.ViewModels
             InitViews();
             InitAppState();
             InitCommands();
+            _signalColumn?.TurnOnLight(LightColumn.Light.Red);
+            _laserMachine.StartMonitoringState();
             MechTableVM = new();
             _logger.Log(LogLevel.Information, "App started");
         }
@@ -155,6 +159,8 @@ namespace NewLaserProject.ViewModels
         }
 
         private object _tempVM;
+        private LightColumn _signalColumn;
+
         public bool IsMechViewChecked
         {
             get;
@@ -188,22 +194,25 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task CheckHatch()
         {
-            var laser = new JCZLaser(new PWM3());
-            var defLaserParams = ExtensionMethods
-                           .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+            _signalColumn.TurnOff();
+            //_laserMachine.SwitchOnValve(Valves.RedLight);
 
-            var mapper = _serviceProvider.GetService<IMapper>();
-            var mediator = _serviceProvider.GetService<IMediator>();
-            var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
+            //var laser = new JCZLaser(new PWM3());
+            //var defLaserParams = ExtensionMethods
+            //               .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
 
-            var dialogResult = await Dialog.Show<MachineControlsLibrary.CommonDialog.CommonDialog>()
-                .SetDialogTitle("Параметры пера")
-                .SetDataContext(new EditExtendedParamsVM(defaultParams), vm => { })
-                .GetCommonResultAsync<ExtendedParams>();
+            //var mapper = _serviceProvider.GetService<IMapper>();
+            //var mediator = _serviceProvider.GetService<IMediator>();
+            //var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
 
-            laser.SetMarkParams(defLaserParams);
-            laser.SetExtMarkParams(new ExtParamsAdapter(dialogResult.CommonResult));
-            await laser.PierceDxfObjectAsync("D:/TestHatch.dxf");
+            //var dialogResult = await Dialog.Show<MachineControlsLibrary.CommonDialog.CommonDialog>()
+            //    .SetDialogTitle("Параметры пера")
+            //    .SetDataContext(new EditExtendedParamsVM(defaultParams), vm => { })
+            //    .GetCommonResultAsync<ExtendedParams>();
+
+            //laser.SetMarkParams(defLaserParams);
+            //laser.SetExtMarkParams(new ExtParamsAdapter(dialogResult.CommonResult));
+            //await laser.PierceDxfObjectAsync("D:/TestHatch.dxf");
         }
 
 
@@ -241,7 +250,7 @@ namespace NewLaserProject.ViewModels
             CentralSideVM = _openedFileVM;
 
 
-            var count = _laserMachine.AvailableVideoCaptureDevices.Count;
+            var count = _laserMachine.AvailableVideoCaptureDevices.Count;//TODO what if there is no any devices
             if (count != 0)
             {
                 CameraCapabilities = new(_laserMachine.AvailableVideoCaptureDevices[0].Item2);
@@ -320,8 +329,8 @@ namespace NewLaserProject.ViewModels
                         ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
                         break;
                 }
-                MechTableVM?.SetCoordinates(XAxis.Position - 85.876, YAxis.Position - 51.945);
-                //MechTableVM?.SetCoordinates(XAxis.Position, YAxis.Position);
+                //MechTableVM?.SetCoordinates(XAxis.Position - 85.876, YAxis.Position - 51.945);
+                MechTableVM?.SetCoordinates(XAxis.Position + Settings.Default.XOffset, YAxis.Position + Settings.Default.YOffset);
             }
             catch (Exception ex)
             {
@@ -437,6 +446,7 @@ namespace NewLaserProject.ViewModels
                     .WithVelRegime(Velocity.Service, Settings.Default.ZVelService)
                     .Build();
 
+                _laserMachine.AddAxis(Ax.U,0d).WithConfigs(xpar).Build();
 
                 _laserMachine.AddGroup(Groups.XY, Ax.X, Ax.Y);
 
@@ -468,9 +478,19 @@ namespace NewLaserProject.ViewModels
                 _laserMachine.ConfigureValves(
                         new()
                         {
-                            [Valves.Light] = (Ax.Y, Do.Out4)
+                            [Valves.BlueLight] = (Ax.Y, Do.Out4),
+                            [Valves.GreenLight] = (Ax.Y, Do.Out5),
+                            [Valves.RedLight] = (Ax.U, Do.Out4),
+                            [Valves.YellowLight] = (Ax.U, Do.Out5)
                         }
                     );
+
+                _signalColumn = new LightColumn();
+                _signalColumn.AddLight(LightColumn.Light.Red,() => _laserMachine.SwitchOnValve(Valves.RedLight), ()=>_laserMachine.SwitchOffValve(Valves.RedLight));
+                _signalColumn.AddLight(LightColumn.Light.Green, () => _laserMachine.SwitchOnValve(Valves.GreenLight), () => _laserMachine.SwitchOffValve(Valves.GreenLight));
+                _signalColumn.AddLight(LightColumn.Light.Yellow, () => _laserMachine.SwitchOnValve(Valves.YellowLight), () => _laserMachine.SwitchOffValve(Valves.YellowLight));
+                _signalColumn.AddLight(LightColumn.Light.Blue, () => _laserMachine.SwitchOnValve(Valves.BlueLight), () => _laserMachine.SwitchOffValve(Valves.BlueLight));
+
             }
             catch (Exception ex)
             {
