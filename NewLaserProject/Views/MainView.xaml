@@ -379,7 +379,7 @@
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
-            <ToolBar>
+            <ToolBar Visibility="Collapsed">
                 <Button Content="CheckHatch" Command="{Binding CheckHatchCommand}"/>
             </ToolBar>
         </ToolBarTray>
@@ -554,15 +554,13 @@
                                                     </Style>
                                                 </ToggleButton.Resources>
 
-                                                <Grid>
-                                                    <Path Data="{StaticResource ScissorGeometry}" Stretch="Uniform" 
+                                                <Path Data="{StaticResource ScissorGeometry}" Stretch="Uniform" 
                                                           Fill="{StaticResource PrimaryTextBrush}" 
                                                           RenderTransformOrigin="0.5 0.5">
-                                                        <Path.RenderTransform>
-                                                            <ScaleTransform ScaleY="-1"/>
-                                                        </Path.RenderTransform>
-                                                    </Path>
-                                                </Grid>
+                                                    <Path.RenderTransform>
+                                                        <ScaleTransform ScaleY="-1"/>
+                                                    </Path.RenderTransform>
+                                                </Path>
                                             </ToggleButton>
                                             <Button Command="{Binding UndoCutCommand}"
                                                 IsEnabled="{Binding CanUndoCut, Mode=OneWay}"
@@ -593,17 +591,16 @@
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </UniformGrid>
-                                    <hc:ElementGroup Orientation="Horizontal">
-                                        <hc:ToggleBlock IsChecked="{Binding IsProcessPanelVisible}">
-                                            <hc:ToggleBlock.UnCheckedContent>
-                                                <Button hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    <hc:ToggleBlock HorizontalAlignment="Left" IsChecked="{Binding IsProcessPanelVisible}">
+                                        <hc:ToggleBlock.UnCheckedContent>
+                                            <Button hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                     Command="{Binding DownloadProcessCommand}"/>
-                                            </hc:ToggleBlock.UnCheckedContent>
-                                            <hc:ToggleBlock.CheckedContent>
-                                                <hc:ToggleBlock IsChecked="{Binding OnProcess}">
-                                                    <hc:ToggleBlock.UnCheckedContent>
-                                                        <hc:ElementGroup Orientation="Horizontal">
-                                                            <ToggleButton Command="{Binding StartStopProcessCommand}"
+                                        </hc:ToggleBlock.UnCheckedContent>
+                                        <hc:ToggleBlock.CheckedContent>
+                                            <hc:ToggleBlock IsChecked="{Binding OnProcess}">
+                                                <hc:ToggleBlock.UnCheckedContent>
+                                                    <hc:ElementGroup Orientation="Horizontal">
+                                                        <ToggleButton Command="{Binding StartStopProcessCommand}"
                                                                       CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
                                                                       IsChecked="{Binding OnProcess}"
                                                                       hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
@@ -611,20 +608,20 @@
                                                                       RenderTransformOrigin="0,0.5"
                                                                       Style="{StaticResource ToggleButtonIcon}"
                                                                       >
-                                                                <ToggleButton.RenderTransform>
-                                                                    <ScaleTransform ScaleY="-1"/>
-                                                                </ToggleButton.RenderTransform>
-                                                            </ToggleButton>
-                                                            <Button hc:IconElement.Geometry="{StaticResource RemoveGeometry}"
+                                                            <ToggleButton.RenderTransform>
+                                                                <ScaleTransform ScaleY="-1"/>
+                                                            </ToggleButton.RenderTransform>
+                                                        </ToggleButton>
+                                                        <Button hc:IconElement.Geometry="{StaticResource RemoveGeometry}"
                                                                 Command="{Binding DenyDownloadedProcessCommand}"
                                                                 Style="{StaticResource ButtonDashedDanger.Small}"
                                                                 ToolTip="Отменить"
                                                                 hc:TipElement.Placement="TopLeft"
                                                                 />
-                                                        </hc:ElementGroup>
-                                                    </hc:ToggleBlock.UnCheckedContent>
-                                                    <hc:ToggleBlock.CheckedContent>
-                                                        <ToggleButton Command="{Binding StartStopProcessCommand}"
+                                                    </hc:ElementGroup>
+                                                </hc:ToggleBlock.UnCheckedContent>
+                                                <hc:ToggleBlock.CheckedContent>
+                                                    <ToggleButton Command="{Binding StartStopProcessCommand}"
                                                           CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
                                                           IsChecked="{Binding OnProcess}"
                                                           hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
@@ -632,15 +629,14 @@
                                                           RenderTransformOrigin="0,0.5"
                                                           Style="{StaticResource ToggleButtonIcon}"
                                                           >
-                                                            <ToggleButton.RenderTransform>
-                                                                <ScaleTransform ScaleY="-1"/>
-                                                            </ToggleButton.RenderTransform>
-                                                        </ToggleButton>
-                                                    </hc:ToggleBlock.CheckedContent>
-                                                </hc:ToggleBlock>
-                                            </hc:ToggleBlock.CheckedContent>
-                                        </hc:ToggleBlock>
-                                    </hc:ElementGroup>
+                                                        <ToggleButton.RenderTransform>
+                                                            <ScaleTransform ScaleY="-1"/>
+                                                        </ToggleButton.RenderTransform>
+                                                    </ToggleButton>
+                                                </hc:ToggleBlock.CheckedContent>
+                                            </hc:ToggleBlock>
+                                        </hc:ToggleBlock.CheckedContent>
+                                    </hc:ToggleBlock>
                                 </hc:SimpleStackPanel>
                                 <UniformGrid Rows="2" Grid.Row="1">
                                     <DataGrid x:Name="ProcObjGrid"
