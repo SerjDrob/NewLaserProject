@@ -34,5 +34,28 @@
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
     <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}"/>
-    <Style TargetType="TreeView" BasedOn="{StaticResource TreeView.Small}"/>
+    <!--<Style TargetType="TreeView" BasedOn="{StaticResource TreeView.Small}"/>-->
+    <Style x:Key="{x:Type TreeView}" TargetType="TreeView" BasedOn="{StaticResource TreeView.Small}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility"  Value="Auto" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TreeView">
+                    <Border Name="Border" CornerRadius="1" BorderThickness="1">
+                        <!--<Border.BorderBrush>
+                            <SolidColorBrush Color="{DynamicResource BorderMediumColor}" />
+                        </Border.BorderBrush>-->
+                        <Border.Background>
+                            <SolidColorBrush Color="{DynamicResource RegionColor}" />
+                        </Border.Background>
+                        <ScrollViewer Focusable="False" CanContentScroll="False" Padding="4">
+                            <ItemsPresenter />
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

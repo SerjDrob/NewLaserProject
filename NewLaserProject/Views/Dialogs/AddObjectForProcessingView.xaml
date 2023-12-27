@@ -13,7 +13,7 @@
                 <Setter Property="hc:TitleElement.TitleWidth" Value="80"/>
             </Style> 
         </Grid.Resources>
-        <hc:ElementGroup>
+        <StackPanel>
             <ComboBox x:Name="Materials" 
                       ItemsSource="{Binding Source={StaticResource MaterialsSource}}" 
                       SelectedItem="{Binding Material, Mode=TwoWay}"
@@ -37,13 +37,13 @@
                       hc:TitleElement.TitlePlacement="Left"
                       x:Name="TechCombo"
                       >
-                
+
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding ProgramName}" Margin="0,0,10,0"/>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-        </hc:ElementGroup>
+        </StackPanel>
     </Grid>
 </UserControl>

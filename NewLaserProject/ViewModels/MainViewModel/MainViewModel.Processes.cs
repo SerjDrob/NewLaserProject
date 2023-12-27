@@ -199,6 +199,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task DownloadProcess()
         {
+            CutMode = false;
             //TODO determine size by specified layer
             try
             {
@@ -235,24 +236,7 @@ namespace NewLaserProject.ViewModels
                     catch (Exception)
                     {
                     }
-                    /*
-                    if (objects.Count() > 1)
-                    {
-                        var lastPoint = new System.Windows.Point(objects.ElementAt(1).X, objects.ElementAt(1).Y);
-                        var firstLine = new LineGeometry(new(objects.ElementAt(0).X, objects.ElementAt(0).Y), lastPoint);
-                        var geometries = new GeometryCollection();
-                        geometries.Add(firstLine);
-                        objects.Skip(1).ToList().ForEach(o =>
-                        {
-                            var curpoint = new System.Windows.Point(o.X, o.Y);
-                            var line = new LineGeometry(lastPoint, curpoint);
-                            geometries.Add(line);
-                            lastPoint = curpoint;
-                        });
-                        var lgc = new LayerGeometryCollection(geometries, "MyRoute", true, Brushes.Red, Brushes.Yellow);
-                        _openedFileVM.AddRoute(Enumerable.Repeat(lgc, 1));
-                    }
-                    */
+                   
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
                     var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
 
@@ -342,10 +326,16 @@ namespace NewLaserProject.ViewModels
                         {
                             case CompletionStatus.Success:
                                 if (IsWaferMark) await MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem);
+                                _ = _signalColumn.BlinkLightAsync(LightColumn.Light.Blue).ConfigureAwait(false);
                                 MessageBox.Success("Процесс завершён");
+                                _signalColumn.TurnOff();
+                                _signalColumn.TurnOnLight(LightColumn.Light.Green);
                                 break;
                             case CompletionStatus.Cancelled:
+                                _ = _signalColumn.BlinkLightAsync(LightColumn.Light.Red).ConfigureAwait(false);
                                 MessageBox.Fatal("Процесс отменён");
+                                _signalColumn.TurnOff();
+                                _signalColumn.TurnOnLight(LightColumn.Light.Green);
                                 break;
                             default:
                                 break;
@@ -446,14 +436,17 @@ namespace NewLaserProject.ViewModels
                .SetDialogTitle("Запуск процесса")
                 .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
                 .GetCommonResultAsync<double>();
-                
+
             if (result.Success)
             {
                 var procParams = new ProcessParams(result.CommonResult);
                 _mainProcess?.ChangeParams(procParams);
             }
-
-            if (!result.Success) return;
+            else
+            {
+                await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                return;
+            }
 
             try
             {
@@ -471,6 +464,7 @@ namespace NewLaserProject.ViewModels
                     $"File's name: {FileName}" +
                     $"Layer's name for processing: {CurrentLayerFilter}" +
                     $"Entity type for processing: {CurrentEntityType}");
+                _signalColumn.TurnOnLight(LightColumn.Light.Yellow);
                 await _mainProcess.StartAsync().ConfigureAwait(false);
             }
             catch (Exception ex)

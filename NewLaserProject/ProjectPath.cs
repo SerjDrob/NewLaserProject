@@ -13,7 +13,7 @@ namespace NewLaserProject
         {
             var workingDirectory = Environment.CurrentDirectory;
 #if DEBUGGING
-            _directoryPrefix = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+            _directoryPrefix = workingDirectory;//Directory.GetParent(workingDirectory).Parent.Parent.FullName;
 #else
             _directoryPrefix = string.Empty;
 #endif

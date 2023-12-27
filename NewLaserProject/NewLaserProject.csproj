@@ -34,7 +34,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Remove="LaserSplash.png" />
+    <None Remove="splashscreen2.png" />
     <None Remove="Views\Dictionaries\HatchAttr1.png" />
     <None Remove="Views\HuarayBlock.png" />
     <None Remove="Views\Sources\angle.png" />
@@ -46,10 +46,51 @@
     <None Remove="Views\Sources\rotate.png" />
     <None Remove="Views\Sources\scale.png" />
     <None Remove="Views\Sources\settings.png" />
+    <None Remove="Views\TableReady.png" />
     <None Remove="Views\WorkpieceTable.png" />
   </ItemGroup>
   
   <ItemGroup>
+    <Content Include="EZCAD\res\Company.bmp" />
+    <Content Include="EZCAD\res\drawbar.bmp" />
+    <Content Include="EZCAD\res\drawbar_dis.bmp" />
+    <Content Include="EZCAD\res\enttype0.bmp" />
+    <Content Include="EZCAD\res\enttype1.bmp" />
+    <Content Include="EZCAD\res\enttype10.bmp" />
+    <Content Include="EZCAD\res\enttype11.bmp" />
+    <Content Include="EZCAD\res\enttype12.bmp" />
+    <Content Include="EZCAD\res\enttype13.bmp" />
+    <Content Include="EZCAD\res\enttype14.bmp" />
+    <Content Include="EZCAD\res\enttype15.bmp" />
+    <Content Include="EZCAD\res\enttype16.bmp" />
+    <Content Include="EZCAD\res\enttype17.bmp" />
+    <Content Include="EZCAD\res\enttype18.bmp" />
+    <Content Include="EZCAD\res\enttype2.bmp" />
+    <Content Include="EZCAD\res\enttype3.bmp" />
+    <Content Include="EZCAD\res\enttype4.bmp" />
+    <Content Include="EZCAD\res\enttype5.bmp" />
+    <Content Include="EZCAD\res\enttype6.bmp" />
+    <Content Include="EZCAD\res\enttype7.bmp" />
+    <Content Include="EZCAD\res\enttype8.bmp" />
+    <Content Include="EZCAD\res\enttype9.bmp" />
+    <Content Include="EZCAD\res\license.txt" />
+    <Content Include="EZCAD\res\license_en.txt" />
+    <Content Include="EZCAD\res\Logo.bmp" />
+    <Content Include="EZCAD\res\MarkOff.bmp" />
+    <Content Include="EZCAD\res\MarkOn.bmp" />
+    <Content Include="EZCAD\res\sysbar.bmp" />
+    <Content Include="EZCAD\res\sysbar_dis.bmp" />
+    <Content Include="EZCAD\res\weld_drawbar.bmp" />
+    <Content Include="EZCAD\res\weld_drawbar_dis.bmp" />
+    <Content Include="EZCAD\res\Zoom.ico" />
+    <Content Include="EZCAD\res\ZoomAll.ico" />
+    <Content Include="EZCAD\res\zoombar.bmp" />
+    <Content Include="EZCAD\res\zoombar_dis.bmp" />
+    <Content Include="EZCAD\res\ZoomIn.ico" />
+    <Content Include="EZCAD\res\ZoomOut.ico" />
+    <Content Include="EZCAD\res\ZoomPage.ico" />
+    <Content Include="EZCAD\res\ZoomPan.ico" />
+    <Content Include="EZCAD\res\ZoomWnd.ico" />
     <Content Include="Views\Sources\angle.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -129,9 +170,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="EZCAD\MarkEzd.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
 	<None Update="AppSettings\*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
@@ -143,6 +181,9 @@
 	</None>
 	<None Update="TempFiles\*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="LaserSplash.png">
+	  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	</None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -170,6 +211,10 @@
     </ItemGroup>
   
     <ItemGroup>
+      <ContentWithTargetPath Remove="EZCAD\MarkEzd.dll" />
+    </ItemGroup>
+  
+    <ItemGroup>
       <Page Remove="Views\Dictionaries\Styles.xaml" />
       <Page Remove="Views\MainView2.xaml" />
     </ItemGroup>
@@ -183,14 +228,15 @@
       <Resource Include="Views\Dictionaries\HatchAttr1.png" />
       <Resource Include="Views\Dictionaries\Styles.xaml" />
       <Resource Include="Views\HuarayBlock.png" />
+      <Resource Include="Views\TableReady.png" />
       <Resource Include="Views\WorkpieceTable.png" />
     </ItemGroup>
-  
-    <ItemGroup>
-      <SplashScreen Include="LaserSplash.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </SplashScreen>
-    </ItemGroup>
+
+	<ItemGroup>
+		<SplashScreen Include="splashscreen2.png">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</SplashScreen>
+	</ItemGroup>
   
     <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
   

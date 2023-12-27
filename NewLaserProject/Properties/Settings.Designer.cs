@@ -205,7 +205,7 @@ namespace NewLaserProject.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("6400")]
+        [global::System.Configuration.DefaultSettingValueAttribute("12800")]
         public int ZPPU {
             get {
                 return ((int)(this["ZPPU"]));

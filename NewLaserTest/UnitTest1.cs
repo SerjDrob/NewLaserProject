@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -303,6 +305,23 @@ namespace NewLaserTest
             Turn90,
             Scale,
             Translte
+        }
+
+
+        [TestCaseSource(nameof(TestCaseSourceData))]
+        public void TestPCurveTransformation(IEnumerable<(double X, double Y, double Bulge)> vertices)
+        {
+            var points = new[] { (-45, 28, 0), (1, 11, 1) };
+            var curve = new Curve(vertices, true);
+            var pcurve = new PCurve(0, 0, 0, curve, "layer", 1);
+            pcurve.SetMirrorX(true);
+            var transCurve = pcurve.PObject;
+            Assert.That(true);
+        }
+
+        public static IEnumerable<TestCaseData> TestCaseSourceData()
+        {
+            yield return new TestCaseData(new List<(double,double,double)> { (-45, 28, 0), (25, 36, 0), (43,-12,0),(2,-30,0),(-20,6,0) });
         }
 
         //[Test]
