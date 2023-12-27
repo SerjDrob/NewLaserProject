@@ -27,6 +27,7 @@ using NewLaserProject.Data.Models.MaterialFeatures.Delete;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.Data.Models.TechnologyFeatures.Create;
 using NewLaserProject.Data.Models.TechnologyFeatures.Delete;
+using NewLaserProject.Data.Models.TechnologyFeatures.Update;
 using NewLaserProject.ViewModels.DbVM;
 using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
@@ -157,30 +158,20 @@ namespace NewLaserProject.ViewModels
             defParams.ContourOffset = tech.Material.MaterialEntRule?.Offset ?? 0;
             defParams.HatchWidth = tech.Material.MaterialEntRule?.Width ?? 0;
 
-            var techWizard = new TechWizardVM(defParams) { EditEnable = true };
+            //var techWizard = new TechWizardVM(defParams) { EditEnable = true };
             var path = Path.Combine(AppPaths.TechnologyFolder, $"{tech.ProcessingProgram}.json");
-            techWizard.LoadListing(path);
+            //techWizard.LoadListing(path);
 
             var writeTechVM = new WriteTechnologyVM(defParams)
             {
+                EditEnable = true,
                 TechnologyName = copy ? string.Empty : tech.ProgramName,
                 MaterialName = tech.Material.Name,
                 MaterialThickness = tech.Material.Thickness,
-                //TechnologyWizard = techWizard
             };
 
             writeTechVM.LoadListing(path);
 
-            //var view = new WriteTechnologyControl() { DataContext = writeTechVM };
-            //var window = new Window
-            //{
-            //    Title = "My User Control Dialog",
-            //    SizeToContent = System.Windows.SizeToContent.WidthAndHeight,
-            //    WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen,
-            //    Content = view
-            //};
-
-            //window.ShowDialog();
 
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle(copy ? "Создать из копии" : "Правка программы")
@@ -192,24 +183,24 @@ namespace NewLaserProject.ViewModels
             //    .SetDataContext(techWizard, vm => { })
             //    .GetCommonResultAsync<string>();
 
-            //if (result.Success)
-            //{
-            //    if (!SearchPierceBlock(result.CommonResult.Listing))
-            //    {
-            //        MsgBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
-            //        return;
-            //    }
-            //    if (copy) tech.Id = 0;
-            //    tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
-            //    tech.ProgramName = writeTechVM.TechnologyName;
-            //    var response = copy ? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
-            //    if (!copy)
-            //    {
-            //        File.Delete(path);
-            //        technology = response.CreatedTechnology;
-            //    }
-            //    if (copy) Technologies.Add(response.CreatedTechnology);
-            //}
+            if (result.Success)
+            {
+                if (!SearchPierceBlock(result.CommonResult.Listing))
+                {
+                    MsgBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
+                    return;
+                }
+                if (copy) tech.Id = 0;
+                tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
+                tech.ProgramName = writeTechVM.TechnologyName;
+                var response = copy ? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
+                if (!copy)
+                {
+                    File.Delete(path);
+                    technology = response.CreatedTechnology;
+                }
+                if (copy) Technologies.Add(response.CreatedTechnology);
+            }
         }
 
         [ICommand]
