@@ -7,6 +7,7 @@ using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -133,6 +134,18 @@ namespace NewLaserProject
             }.Show();
 
             viewModel?.OnInitialized();
+        }
+
+        protected override void OnDeactivated(EventArgs e)
+        {
+            //using (var location = new SqliteConnection(@"Data Source=C:\activeDb.db; Version=3;"))
+            //using (var destination = new SqliteConnection(string.Format(@"Data Source={0}:\backupDb.db; Version=3;", strDestination)))
+            //{
+            //    location.Open();
+            //    destination.Open();
+            //    location.BackupDatabase((destination, "main", "main", -1, null, 0);
+            //}
+            base.OnDeactivated(e);
         }
     }
 }

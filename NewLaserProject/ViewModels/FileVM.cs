@@ -136,12 +136,12 @@ namespace NewLaserProject.ViewModels
                 serviceWafer.Scale(1 / FileScale);
                 if (WaferTurn90) serviceWafer.Turn90();
                 if (MirrorX) serviceWafer.MirrorX();
-                serviceWafer.OffsetX((float)FileOffsetX);
-                serviceWafer.OffsetY((float)FileOffsetY);
+                serviceWafer.OffsetX(-(float)FileOffsetX);
+                serviceWafer.OffsetY(-(float)FileOffsetY);
 
                 var fromwafer = serviceWafer.GetPointToWafer(new((float)x, (float)y));
 
-                OnFileClicked(this, new Point(fromwafer.X, fromwafer.Y));
+                OnFileClicked?.Invoke(this, new Point(fromwafer.X, fromwafer.Y));
             }
         }
         public void UndoRemoveSelection()
