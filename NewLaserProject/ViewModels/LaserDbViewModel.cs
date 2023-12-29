@@ -14,6 +14,7 @@ using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
 using MachineControlsLibrary.CommonDialog;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
@@ -46,9 +47,10 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
-        public LaserDbViewModel(IMediator mediator, ExtendedParams defaultParams)
+        public LaserDbViewModel(IMediator mediator, ExtendedParams defaultParams, ILoggerProvider loggerProvider)
         {
             _mediator = mediator;
+            _logger = loggerProvider.CreateLogger("LaserDb");
             _defaultParams = defaultParams;
             _mediator.Send(new GetFullMaterialRequest())
                 .ContinueWith(t =>
@@ -60,6 +62,7 @@ namespace NewLaserProject.ViewModels
                 .ConfigureAwait(false);
         }
         private readonly IMediator _mediator;
+        private readonly ILogger _logger;
         private readonly ExtendedParams _defaultParams;
 
         private void ReviseTechnologies() => Technologies = Materials.SelectMany(m => m.Technologies).ToObservableCollection();
@@ -109,7 +112,7 @@ namespace NewLaserProject.ViewModels
             {
                 if (!SearchPierceBlock(result.CommonResult.Listing))
                 {
-                    MessageBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
+                    MsgBox.Error("Программа не содержит ни одного блока прошивки. Технология не будет сохранена.", "Технология");
                     return;
                 }
                 var newTechnology = new Technology();
@@ -170,7 +173,16 @@ namespace NewLaserProject.ViewModels
                 MaterialThickness = tech.Material.Thickness,
             };
 
-            writeTechVM.LoadListing(path);
+            try
+            {
+                writeTechVM.LoadListing(path);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "The exception was thrown in the EditCopyTechnologyAsync method");
+                MsgBox.Error("Файл программы не найден в базе.", "Технология");
+                return;
+            }
 
 
             var result = await Dialog.Show<CommonDialog>()

@@ -14,6 +14,7 @@ using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
 using MachineControlsLibrary.CommonDialog;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
@@ -200,23 +201,30 @@ namespace NewLaserProject.ViewModels.DialogVM
 
         public void LoadListing(string path)
         {
-            var mainLoop = JsonConvert.DeserializeObject<MainLoop>(File.ReadAllText(path), new JsonSerializerSettings
+            try
             {
-                TypeNameHandling = TypeNameHandling.Objects,
-                SerializationBinder = new TypesBinder
+                var mainLoop = JsonConvert.DeserializeObject<MainLoop>(File.ReadAllText(path), new JsonSerializerSettings
                 {
-                    KnownTypes = _knownBlockTypes
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    SerializationBinder = new TypesBinder
+                    {
+                        KnownTypes = _knownBlockTypes
+                    }
+                });
+                if (mainLoop is not null)
+                {
+                    MainLoopCount = mainLoop.LoopCount;
+                    MainLoopShuffle = mainLoop.Shuffle;
+                    Listing = new ObservableCollection<IProgBlock>(mainLoop.Children);
                 }
-            });
-            if (mainLoop is not null)
-            {
-                MainLoopCount = mainLoop.LoopCount;
-                MainLoopShuffle = mainLoop.Shuffle;
-                Listing = new ObservableCollection<IProgBlock>(mainLoop.Children);
+                else
+                {
+                    throw new ArgumentNullException(nameof(mainLoop));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new ArgumentNullException(nameof(mainLoop));
+                throw new FileNotFoundException("Cannot find the file in the LoadListing method of the TechWizardVM");
             }
         }
     }
