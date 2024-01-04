@@ -134,13 +134,13 @@ namespace NewLaserProject.ViewModels
                 var serviceWafer = new LaserWafer((FileSizeX, FileSizeY));
 
                 serviceWafer.Scale(1 / FileScale);
+                /*
                 if (WaferTurn90) serviceWafer.Turn90();
                 if (MirrorX) serviceWafer.MirrorX();
-                serviceWafer.OffsetX(-(float)FileOffsetX);
-                serviceWafer.OffsetY(-(float)FileOffsetY);
-
+                serviceWafer.OffsetX((float)FileOffsetX);
+                serviceWafer.OffsetY((float)FileOffsetY);
+                */
                 var fromwafer = serviceWafer.GetPointToWafer(new((float)x, (float)y));
-
                 OnFileClicked?.Invoke(this, new Point(fromwafer.X, fromwafer.Y));
             }
         }

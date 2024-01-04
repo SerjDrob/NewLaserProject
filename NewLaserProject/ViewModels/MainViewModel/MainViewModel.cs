@@ -281,7 +281,7 @@ namespace NewLaserProject.ViewModels
         }
         private void _openedFileVM_CanUndoChanged(object? sender, bool e) => CanUndoCut = e;
 
-        private void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
+        private async void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
         {
             var caps = CameraCapabilities[CameraCapabilitiesIndex].Split(" ");
 
@@ -289,7 +289,7 @@ namespace NewLaserProject.ViewModels
             {
                 var k = xRatio / yRatio;
                 var offset = new[] { e.x * Settings.Default.CameraScale * k, -e.y * Settings.Default.CameraScale };
-                _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);//TODO fix it. it smells
+                await _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);
             }
         }
 
