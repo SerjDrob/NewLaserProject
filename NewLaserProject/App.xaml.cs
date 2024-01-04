@@ -1,4 +1,10 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Configuration;
+using System.Diagnostics;
+using System.Reactive.Subjects;
+using System.Reflection;
+using System.Windows;
+using AutoMapper;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Markers;
 using MachineClassLibrary.Laser.Parameters;
@@ -19,14 +25,6 @@ using NewLaserProject.ViewModels;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.ViewModels.DialogVM.Profiles;
 using NewLaserProject.Views;
-using System;
-using System.Configuration;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.IO;
-using System.Reactive.Subjects;
-using System.Reflection;
-using System.Windows;
 
 namespace NewLaserProject
 {
@@ -36,7 +34,10 @@ namespace NewLaserProject
     /// </summary>
     public partial class App : Application
     {
-        public ServiceCollection MainIoC { get; private set; }
+        public ServiceCollection MainIoC
+        {
+            get; private set;
+        }
         public App()
         {
             var machineconfigs = ExtensionMethods
@@ -45,7 +46,7 @@ namespace NewLaserProject
 
             MainIoC = new ServiceCollection();
 
-            _ = MainIoC.AddMediatR(cfg=>cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()))
+            _ = MainIoC.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()))
                    .AddDbContext<DbContext, LaserDbContext>(options =>
                    {
                        var connectionString = ConfigurationManager.ConnectionStrings["myDb"].ToString();
@@ -122,7 +123,7 @@ namespace NewLaserProject
             var viewModel = provider.GetService<MainViewModel>();
             var context = provider.GetService<DbContext>() as LaserDbContext;
             context?.LoadSetsAsync();
-            
+
             base.OnStartup(e);
 
             Trace.TraceInformation("The application started");
@@ -138,13 +139,16 @@ namespace NewLaserProject
 
         protected override void OnDeactivated(EventArgs e)
         {
-            //using (var location = new SqliteConnection(@"Data Source=C:\activeDb.db; Version=3;"))
-            //using (var destination = new SqliteConnection(string.Format(@"Data Source={0}:\backupDb.db; Version=3;", strDestination)))
-            //{
-            //    location.Open();
-            //    destination.Open();
-            //    location.BackupDatabase((destination, "main", "main", -1, null, 0);
-            //}
+            var sourceString = ConfigurationManager.ConnectionStrings["myDb"].ToString();
+            var destString = ConfigurationManager.ConnectionStrings["myDbBackup"].ToString();
+
+            using (var location = new SqliteConnection(sourceString))
+            using (var destination = new SqliteConnection(destString))
+            {
+                location.Open();
+                destination.Open();
+                location.BackupDatabase(destination);
+            }
             base.OnDeactivated(e);
         }
     }
