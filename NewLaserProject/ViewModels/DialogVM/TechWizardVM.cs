@@ -172,7 +172,7 @@ namespace NewLaserProject.ViewModels.DialogVM
         /// </summary>
         /// <param name="path">folder path for the saving</param>
         /// <returns>generated name of the file</returns>
-        public string SaveListingToFolder(string path)
+        public string SaveListingToFolder(string path, string progName = "", string materialName = "")
         {
             foreach (var pierceBlock in Listing.OfType<PierceBlock>())
             {
@@ -180,7 +180,11 @@ namespace NewLaserProject.ViewModels.DialogVM
             }
 
 
-            var mainLoop = new MainLoop(MainLoopCount, MainLoopShuffle, Listing);
+            var mainLoop = new MainLoop(MainLoopCount, MainLoopShuffle, Listing) 
+            {
+                ProgName = progName,
+                MaterialName = materialName
+            };
 
             var json = JsonConvert.SerializeObject(mainLoop, Formatting.Indented, new JsonSerializerSettings
             {

@@ -15,6 +15,16 @@ namespace NewLaserProject.Classes.ProgBlocks
             Shuffle = shuffle;
             Children = new ChildrenObservableCollection<IProgBlock>(this,listing);
         }
+        public string ProgName
+        {
+            get;
+            set;
+        }
+        public string MaterialName
+        {
+            get;
+            set;
+        }
         public bool Shuffle { get; set; } = false;
     }
 
