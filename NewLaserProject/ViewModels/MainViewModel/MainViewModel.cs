@@ -3,16 +3,12 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using AutoMapper;
 using HandyControl.Controls;
 using HandyControl.Data;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
-using MachineClassLibrary.Laser;
-using MachineClassLibrary.Laser.Markers;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
@@ -26,10 +22,8 @@ using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
-using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
-using HandyControl.Tools.Extension;
 
 namespace NewLaserProject.ViewModels
 {
@@ -75,7 +69,10 @@ namespace NewLaserProject.ViewModels
             get; set;
         }
 
-        public MechanicVM MechTableVM { get; set; }
+        public MechanicVM MechTableVM
+        {
+            get; set;
+        }
 
         private CameraVM _cameraVM;
 
@@ -116,7 +113,7 @@ namespace NewLaserProject.ViewModels
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.CameraPlugged += _laserMachine_CameraPlugged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
-            
+
 
             _coorSystem = GetCoorSystem(AppPaths.PureDeformation);
             TuneCoorSystem();
@@ -295,7 +292,7 @@ namespace NewLaserProject.ViewModels
                 _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);//TODO fix it. it smells
             }
         }
-        
+
 
         [ICommand]
         private void UndoRemoveSelection()
@@ -446,7 +443,7 @@ namespace NewLaserProject.ViewModels
                     .WithVelRegime(Velocity.Service, Settings.Default.ZVelService)
                     .Build();
 
-                _laserMachine.AddAxis(Ax.U,0d).WithConfigs(xpar).Build();
+                _laserMachine.AddAxis(Ax.U, 0d).WithConfigs(xpar).Build();
 
                 _laserMachine.AddGroup(Groups.XY, Ax.X, Ax.Y);
 
@@ -486,7 +483,7 @@ namespace NewLaserProject.ViewModels
                     );
 
                 _signalColumn = new LightColumn();
-                _signalColumn.AddLight(LightColumn.Light.Red,() => _laserMachine.SwitchOnValve(Valves.RedLight), ()=>_laserMachine.SwitchOffValve(Valves.RedLight));
+                _signalColumn.AddLight(LightColumn.Light.Red, () => _laserMachine.SwitchOnValve(Valves.RedLight), () => _laserMachine.SwitchOffValve(Valves.RedLight));
                 _signalColumn.AddLight(LightColumn.Light.Green, () => _laserMachine.SwitchOnValve(Valves.GreenLight), () => _laserMachine.SwitchOffValve(Valves.GreenLight));
                 _signalColumn.AddLight(LightColumn.Light.Yellow, () => _laserMachine.SwitchOnValve(Valves.YellowLight), () => _laserMachine.SwitchOffValve(Valves.YellowLight));
                 _signalColumn.AddLight(LightColumn.Light.Blue, () => _laserMachine.SwitchOnValve(Valves.BlueLight), () => _laserMachine.SwitchOffValve(Valves.BlueLight));

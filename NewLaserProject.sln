@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineClassLibrary", "..\M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MachineControlsLibrary", "..\MachineControlsLibrary\MachineControlsLibrary.csproj", "{51EC1BC3-3B44-4AF9-AE00-D211CB3C662C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeViews", "NodeViews\NodeViews.csproj", "{28DED10C-94DB-43B2-8633-D44D8F530D6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeViews", "NodeViews\NodeViews.csproj", "{28DED10C-94DB-43B2-8633-D44D8F530D6E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewLaserProject", "NewLaserProject\NewLaserProject.csproj", "{C5FDDC60-37E3-4FB1-BEF3-125102368FE7}"
 EndProject
