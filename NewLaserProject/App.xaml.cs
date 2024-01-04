@@ -96,7 +96,8 @@ namespace NewLaserProject
                        var mapper = sp.GetService<IMapper>();
                        var mediator = sp.GetService<IMediator>();
                        var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
-                       return new(mediator, defaultParams);
+                       var loggerProvider = sp.GetRequiredService<ILoggerProvider>();
+                       return new(mediator, defaultParams, loggerProvider);
                    })
                    .AddTransient<MarkSettingsVM>(sp =>
                    {

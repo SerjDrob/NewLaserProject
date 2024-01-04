@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
 using MachineControlsLibrary.CommonDialog;
+using Microsoft.Extensions.Logging;
 using NewLaserProject.ViewModels.DialogVM;
 
 namespace NewLaserProject.ViewModels.DbVM

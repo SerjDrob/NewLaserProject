@@ -394,7 +394,7 @@ namespace NewLaserProject.ViewModels
             catch (FileNotFoundException ex)
             {
                 _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
-                Growl.Error($"Файл технологии \"{CurrentTechnology.ProgramName}\" не найден.");
+                Growl.Error($"Файл технологии \"{CurrentTechnology?.ProgramName}\" не найден.");
             }
             catch (NullReferenceException ex)
             {

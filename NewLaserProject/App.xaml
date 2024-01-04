@@ -123,7 +123,7 @@
                 <Grid>
                     <DockPanel>
                         <dialogviews:WriteEditTechnologyView DockPanel.Dock="Top"/>
-                        <ContentPresenter ContentTemplate="{StaticResource techWizardTemplate}" Content="{Binding}"/>
+                        <ContentControl ContentTemplate="{StaticResource techWizardTemplate}" Content="{Binding}"/>
                     </DockPanel>
                 </Grid>
             </DataTemplate>

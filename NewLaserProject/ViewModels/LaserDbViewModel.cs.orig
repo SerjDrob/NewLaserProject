@@ -203,8 +203,13 @@ namespace NewLaserProject.ViewModels
                     return;
                 }
                 if (copy) tech.Id = 0;
+<<<<<<< HEAD
+                tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder);
+                tech.ProgramName = writeTechVM.TechnologyName;
+=======
                 tech.ProgramName = writeTechVM.TechnologyName;
                 tech.ProcessingProgram = result.CommonResult.SaveListingToFolder(AppPaths.TechnologyFolder, tech.ProgramName, tech.Material.Name);
+>>>>>>> 7bb224fd54f4248be1a24d2e3267caf898d46dc6
                 var response = copy ? await _mediator.Send(new CreateTechnologyRequest(tech)) : await _mediator.Send(new UpdateTechnologyRequest(tech));
                 if (!copy)
                 {
