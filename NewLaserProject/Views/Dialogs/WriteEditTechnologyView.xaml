@@ -8,14 +8,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <StackPanel DockPanel.Dock="Top">
+        <StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource TextBlockSubTitleBold}" Text="Материал"/>
                 <TextBlock Text="{Binding MaterialName}" Margin="5,0,0,0" Style="{StaticResource TextBlockSubTitle}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource TextBlockSubTitleBold}" Text="Толщина"/>
-                <TextBlock Text="{Binding MaterialThickness}" Margin="5,0,0,0" Style="{StaticResource TextBlockSubTitle}"/>
+                <TextBlock Text="{Binding MaterialThickness, StringFormat=0.###}" Margin="5,0,0,0" Style="{StaticResource TextBlockSubTitle}"/>
             </StackPanel>
             <hc:TextBox Text="{Binding TechnologyName}" Margin="0,5,0,5"
                         hc:InfoElement.Necessary="True"

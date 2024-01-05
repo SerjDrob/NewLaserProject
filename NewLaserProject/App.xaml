@@ -115,7 +115,7 @@
             </DataTemplate> 
             
             
-            <DataTemplate x:Key="techWizardTemplate" DataType="{x:Type dialogvm:TechWizardVM}">
+            <!--<DataTemplate x:Key="techWizardTemplate" DataType="{x:Type dialogvm:TechWizardVM}">
                 <dialogviews:LayerWizardProgramView/>
             </DataTemplate>
 
@@ -126,6 +126,10 @@
                         <ContentControl ContentTemplate="{StaticResource techWizardTemplate}" Content="{Binding}"/>
                     </DockPanel>
                 </Grid>
+            </DataTemplate>-->
+
+            <DataTemplate DataType="{x:Type dbviewmodels:WriteTechnologyVM}">
+                <dialogviews:WETechView/>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewmodels:FileVM}">

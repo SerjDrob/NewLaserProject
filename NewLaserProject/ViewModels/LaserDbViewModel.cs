@@ -188,7 +188,8 @@ namespace NewLaserProject.ViewModels
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle(copy ? "Создать из копии" : "Правка программы")
                 .SetDataContext(writeTechVM, vm => { })
-                .GetCommonResultAsync<TechWizardVM>();
+                .GetCommonResultAsync<TechWizardVM>()
+                .ConfigureAwait(false);
 
             //var result = await Dialog.Show<CommonDialog>()
             //    .SetDialogTitle(copy ? "Создать из копии" : "Правка программы")
