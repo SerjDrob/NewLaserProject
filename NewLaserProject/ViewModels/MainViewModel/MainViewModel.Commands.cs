@@ -461,18 +461,25 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task OpenMarkSettings()
         {
-            var markParams = ExtensionMethods
-                            .DeserilizeObject<ExtendedParams>(AppPaths.MarkTextParams);
-
-
-            var result = await Dialog.Show<CommonDialog>()
-                .SetDialogTitle("Параметры пера")
-                .SetDataContext(new EditExtendedParamsVM(markParams), vm => { })
-                .GetCommonResultAsync<ExtendedParams>();
-
-            if (result.Success)
+            try
             {
-                result.CommonResult.SerializeObject(AppPaths.MarkTextParams);
+                var markParams = ExtensionMethods
+                                    .DeserilizeObject<ExtendedParams>(AppPaths.MarkTextParams);
+
+
+                var result = await Dialog.Show<CommonDialog>()
+                    .SetDialogTitle("Параметры пера")
+                    .SetDataContext(new EditExtendedParamsVM(markParams), vm => { })
+                    .GetCommonResultAsync<ExtendedParams>();
+
+                if (result.Success)
+                {
+                    result.CommonResult.SerializeObject(AppPaths.MarkTextParams);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Swallowed the exception in the {nameof(OpenMarkSettings)} method.");
             }
         }
     }
