@@ -59,7 +59,9 @@ namespace NewLaserProject
                    .AddScoped<MotionDevicePCI1245E>()
                    .AddSingleton(sp =>
                    {
-                       return new MotionBoardFactory(sp, machineconfigs).GetMotionBoard();
+                       var motionBoard = new MotionBoardFactory(sp, machineconfigs).GetMotionBoard();
+                       motionBoard.SetPrecision(machineconfigs.AxesTolerance);
+                       return motionBoard;
                    })
                    .AddSingleton<ExceptionsAgregator>()
                    .AddScoped<JCZLaser>()

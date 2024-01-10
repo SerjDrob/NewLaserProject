@@ -265,18 +265,23 @@ namespace NewLaserProject.ViewModels
 #endif
         }
 
-        private void _openedFileVM_OnFileClicked(object? sender, System.Windows.Point e)
+        private async void _openedFileVM_OnFileClicked(object? sender, System.Windows.Point e)
         {
             if (XAxis.MotionDone && YAxis.MotionDone && !_onProcessing)
             {
                 var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, e.X, e.Y);
                 _laserMachine.SetVelocity(Velocity.Service);
-                Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.X, result[0]),
-                             _laserMachine.MoveAxInPosAsync(Ax.Y, result[1]))
-                    .ContinueWith(t =>
-                    {
-                        _laserMachine.SetVelocity(VelocityRegime);
-                    });
+                try
+                {
+                    await Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.X, result[0]),
+                                       _laserMachine.MoveAxInPosAsync(Ax.Y, result[1]))
+                        .ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    await Console.Error.WriteLineAsync(ex.Message).ConfigureAwait(false);
+                }
+                _laserMachine.SetVelocity(VelocityRegime);
             }
         }
         private void _openedFileVM_CanUndoChanged(object? sender, bool e) => CanUndoCut = e;
@@ -289,7 +294,14 @@ namespace NewLaserProject.ViewModels
             {
                 var k = xRatio / yRatio;
                 var offset = new[] { e.x * Settings.Default.CameraScale * k, -e.y * Settings.Default.CameraScale };
-                await _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true);
+                try
+                {
+                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    await Console.Error.WriteLineAsync(ex.Message).ConfigureAwait(false);
+                }
             }
         }
 
