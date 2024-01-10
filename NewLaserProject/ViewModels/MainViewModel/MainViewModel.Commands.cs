@@ -393,6 +393,12 @@ namespace NewLaserProject.ViewModels
                 WaferWidth = result.CommonResult.Width;
                 WaferHeight = result.CommonResult.Height;
                 WaferThickness = result.CommonResult.Thickness;
+
+                Settings.Default.WaferWidth = WaferWidth;
+                Settings.Default.WaferHeight = WaferHeight;
+                Settings.Default.WaferThickness = WaferThickness;
+                Settings.Default.Save();
+
             }
         }
         [ICommand]

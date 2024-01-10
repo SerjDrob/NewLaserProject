@@ -296,7 +296,11 @@ namespace NewLaserProject.ViewModels
                 var offset = new[] { e.x * Settings.Default.CameraScale * k, -e.y * Settings.Default.CameraScale };
                 try
                 {
-                    await _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true).ConfigureAwait(false);
+                    await Task.WhenAll(
+                        _laserMachine.MoveAxRelativeAsync(Ax.X, offset[0],true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.Y, offset[1],true)
+                        ).ConfigureAwait(false);
+                    //await _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -312,12 +316,6 @@ namespace NewLaserProject.ViewModels
             _openedFileVM?.UndoRemoveSelection();
         }
 
-        //private void TechMessager_PublishMessage(string message, string iconPath, MessageType icon)
-        //{
-        //    TechInfo = message;
-        //    IconPath = iconPath;
-        //    CurrentMessageType = icon;
-        //}
         private void _laserMachine_OnAxisMotionStateChanged(object? sender, AxisStateEventArgs e)
         {
             try
@@ -361,14 +359,6 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StopCamera();
             ShowVideo = false;
         }
-
-        //[ICommand]
-        //private async Task Test()
-        //{
-        //    //var element = ProcessingObjects.ElementAt(15);
-        //    //element.IsBeingProcessed = true;
-        //    //IsBeingProcessedObject = element;
-        //}
 
         [ICommand]
         private void LasSettings() => _laserMachine.SetDevConfig();

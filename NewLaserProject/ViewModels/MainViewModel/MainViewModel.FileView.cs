@@ -26,7 +26,8 @@ namespace NewLaserProject.ViewModels
 {
     internal partial class MainViewModel
     {
-        public Scale DefaultFileScale { get; set; } = Scale.ThousandToOne;
+        [OnChangedMethod(nameof(FileScaleChanged))]
+        public Scale DefaultFileScale { get; set; } = Scale.ThousandToOne;                
         public bool IsFileLoaded { get; set; } = false;
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
@@ -39,11 +40,11 @@ namespace NewLaserProject.ViewModels
             get; set;
         }
         [OnChangedMethod(nameof(WaferDimensionChanged))]
-        public double WaferWidth { get; set; } = 48;
+        public double WaferWidth { get; set; } = Settings.Default.WaferWidth;
 
         [OnChangedMethod(nameof(WaferDimensionChanged))]
-        public double WaferHeight { get; set; } = 60;
-        public double WaferThickness { get; set; } = 0.5;
+        public double WaferHeight { get; set; } = Settings.Default.WaferHeight;
+        public double WaferThickness { get; set; } = Settings.Default.WaferThickness;
 
         [OnChangedMethod(nameof(ViewFinderChanged))]
         public double CameraViewfinderX
@@ -89,7 +90,10 @@ namespace NewLaserProject.ViewModels
         }
 
         private IDxfReader _dxfReader;
-
+        private void FileScaleChanged()
+        {
+            if(_openedFileVM is not null) _openedFileVM.FileScale = DefaultFileScale;
+        }
 
         [ICommand]
         private async Task OpenFile()
