@@ -267,6 +267,7 @@
                             <uc:SpecimenWindow.LayGeoms>
                                 <MultiBinding Converter="{StaticResource PointSpecWinConverter}">
                                     <Binding Path="GeomPoints"/>
+                                    <Binding Path="Scale"/>
                                 </MultiBinding>
                             </uc:SpecimenWindow.LayGeoms>
                             <i:Interaction.Triggers>
