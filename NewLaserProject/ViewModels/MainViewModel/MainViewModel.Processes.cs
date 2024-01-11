@@ -280,15 +280,42 @@ namespace NewLaserProject.ViewModels
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
 
+                //_mainProcess.OfType<ProcessingStarted>()
+                //    .Subscribe(args =>
+                //    {
+                //        _processTimer = new Timer(1000);
+                //        _procStartTime = DateTime.Now;
+                //        _processTimer.Elapsed += _processTimer_Elapsed;
+                //        _processTimer.Start();
+                //    })
+                //    .AddSubscriptionTo(_currentProcSubscriptions);
+
                 _mainProcess.OfType<ProcessingStarted>()
-                    .Subscribe(args =>
-                    {
-                        _processTimer = new Timer(1000);
-                        _procStartTime = DateTime.Now;
-                        _processTimer.Elapsed += _processTimer_Elapsed;
-                        _processTimer.Start();
-                    })
-                    .AddSubscriptionTo(_currentProcSubscriptions);
+                   .Select(args => Observable.FromAsync(async () =>
+                   {
+                       var result = await Dialog.Show<CheckParamsDialog>()
+                            .SetDialogTitle("Запуск процесса")
+                            .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
+                            .GetCommonResultAsync<double>();
+
+                       if (result.Success)
+                       {
+                           var procParams = new ProcessParams(result.CommonResult);
+                           _mainProcess?.ChangeParams(procParams);
+                       }
+                       else
+                       {
+                           await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                           return;
+                       }
+                       _processTimer = new Timer(1000);
+                       _procStartTime = DateTime.Now;
+                       _processTimer.Elapsed += _processTimer_Elapsed;
+                       _processTimer.Start();
+                   }))
+                   .Concat()
+                   .Subscribe()
+                   .AddSubscriptionTo(_currentProcSubscriptions);
 
                 _mainProcess.OfType<ProcessingStopped>()
                     .Subscribe(args =>
@@ -432,21 +459,21 @@ namespace NewLaserProject.ViewModels
 
 #if PCIInserted
 
-            var result = await Dialog.Show<CheckParamsDialog>()
-               .SetDialogTitle("Запуск процесса")
-                .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
-                .GetCommonResultAsync<double>();
+            //var result = await Dialog.Show<CheckParamsDialog>()
+            //   .SetDialogTitle("Запуск процесса")
+            //    .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
+            //    .GetCommonResultAsync<double>();
 
-            if (result.Success)
-            {
-                var procParams = new ProcessParams(result.CommonResult);
-                _mainProcess?.ChangeParams(procParams);
-            }
-            else
-            {
-                await _appStateMachine.FireAsync(AppTrigger.EndProcess);
-                return;
-            }
+            //if (result.Success)
+            //{
+            //    var procParams = new ProcessParams(result.CommonResult);
+            //    _mainProcess?.ChangeParams(procParams);
+            //}
+            //else
+            //{
+            //    await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+            //    return;
+            //}
 
             try
             {

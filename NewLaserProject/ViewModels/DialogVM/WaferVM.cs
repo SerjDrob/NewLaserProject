@@ -1,5 +1,8 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using HandyControl.Controls;
 using MachineControlsLibrary.CommonDialog;
+using NewLaserProject.Views.Misc;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {
