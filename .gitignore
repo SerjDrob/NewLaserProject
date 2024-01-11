@@ -460,3 +460,5 @@ $RECYCLE.BIN/
 /NewLaserProject/Data/laserDatabase.db
 /NewLaserProject/Database/
 /NewLaserProject/Database/
+/NewLaserProject/Database/laserDatabase.db
+/Directory.Build.props
