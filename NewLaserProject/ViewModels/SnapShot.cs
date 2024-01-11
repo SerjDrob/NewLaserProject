@@ -26,9 +26,10 @@ namespace NewLaserProject.ViewModels
 
         public ObservableCollection<LayerGeometryCollection>? LayGeoms { get; set; }
         public ObservableCollection<Point>? GeomPoints { get; set; }
-        public double FieldSizeX { get; set; }
+        public double Scale => SpecSizeX / FieldSizeX;
+        public double FieldSizeX { get; set; } = 1;
         public double FieldSizeY { get; set; }
-        public double SpecSizeX { get; set; }
+        public double SpecSizeX { get; set; } = 1;
         public double SpecSizeY { get; set; }
         public double MirrorX { get; set; }
         public double Angle { get; set; }

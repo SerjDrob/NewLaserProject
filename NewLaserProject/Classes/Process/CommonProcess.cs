@@ -240,7 +240,7 @@ namespace NewLaserProject.Classes.Process
                 {
                     var position = _teachingPointsCoorSystem.FromGlobal(_xActual, _yActual);
                     var point = _procWafer.GetPointFromWafer(new((float)position[0], (float)position[1]));
-                    var request = new ScopedGeomsRequest(5000, 5000, point.X, point.Y);
+                    var request = new ScopedGeomsRequest(5 * _scale, 5 * _scale, point.X, point.Y);
                     _subject.OnNext(request);
                 })
                 .AddSubscriptionTo(_subscriptions);

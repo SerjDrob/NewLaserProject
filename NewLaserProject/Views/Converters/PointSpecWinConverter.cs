@@ -15,8 +15,13 @@ namespace NewLaserProject.Views.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
+            var scale = 1d;
+            if (values.Count()==2)
+            {
+                scale = (double)values[1];
+            }
             var points = values?[0] as IEnumerable<Point>;
-            var geometries = points?.Select(p => new EllipseGeometry(p, 50, 50))
+            var geometries = points?.Select(p => new EllipseGeometry(p, 0.05 * scale, 0.05 * scale))
                 .ToArray();
             if (geometries is not null)
             {
