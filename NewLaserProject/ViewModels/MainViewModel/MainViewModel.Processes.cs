@@ -281,35 +281,15 @@ namespace NewLaserProject.ViewModels
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
 
-                //_mainProcess.OfType<ProcessingStarted>()
-                //    .Subscribe(args =>
-                //    {
-                //        _processTimer = new Timer(1000);
-                //        _procStartTime = DateTime.Now;
-                //        _processTimer.Elapsed += _processTimer_Elapsed;
-                //        _processTimer.Start();
-                //    })
-                //    .AddSubscriptionTo(_currentProcSubscriptions);
-
                 _mainProcess.OfType<ProcessingStarted>()
-                   .Select(args => Observable.FromAsync(async () =>
-                   {
-                       if(FileAlignment == FileAlignment.AlignByThreePoint || FileAlignment == FileAlignment.AlignByTwoPoint)
-                       {
-                           if(MsgBox.Ask("Запустить процесс?", "Процесс") != System.Windows.MessageBoxResult.OK)
-                           {
-                               await _appStateMachine.FireAsync(AppTrigger.EndProcess);
-                               return;
-                           }
-                       }
-                       _processTimer = new Timer(1000);
-                       _procStartTime = DateTime.Now;
-                       _processTimer.Elapsed += _processTimer_Elapsed;
-                       _processTimer.Start();
-                   }))
-                   .Concat()
-                   .Subscribe()
-                   .AddSubscriptionTo(_currentProcSubscriptions);
+                    .Subscribe(args =>
+                    {
+                        _processTimer = new Timer(1000);
+                        _procStartTime = DateTime.Now;
+                        _processTimer.Elapsed += _processTimer_Elapsed;
+                        _processTimer.Start();
+                    })
+                    .AddSubscriptionTo(_currentProcSubscriptions);
 
                 _mainProcess.OfType<ProcessingStopped>()
                     .Subscribe(args =>
