@@ -393,9 +393,10 @@ namespace NewLaserProject.ViewModels
                 SpecSizeX = request.Width,
                 SpecSizeY = request.Height,
                 MirrorX = this.MirrorX ? -1 : 1,
-                Angle = WaferTurn90 ? 90d : 0d
+                Angle = WaferTurn90 ? 90d : 0d,
+                Scale = FileScale
             };
-
+            
             return Task.FromResult(snapshot);
         }
 
