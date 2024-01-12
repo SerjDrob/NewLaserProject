@@ -30,6 +30,7 @@ using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using Newtonsoft.Json;
 using Path = System.IO.Path;
+using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
 {
@@ -293,20 +294,13 @@ namespace NewLaserProject.ViewModels
                 _mainProcess.OfType<ProcessingStarted>()
                    .Select(args => Observable.FromAsync(async () =>
                    {
-                       var result = await Dialog.Show<CheckParamsDialog>()
-                            .SetDialogTitle("Запуск процесса")
-                            .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
-                            .GetCommonResultAsync<double>();
-
-                       if (result.Success)
+                       if(FileAlignment == FileAlignment.AlignByThreePoint || FileAlignment == FileAlignment.AlignByTwoPoint)
                        {
-                           var procParams = new ProcessParams(result.CommonResult);
-                           _mainProcess?.ChangeParams(procParams);
-                       }
-                       else
-                       {
-                           await _appStateMachine.FireAsync(AppTrigger.EndProcess);
-                           return;
+                           if(MsgBox.Ask("Запустить процесс?", "Процесс") != System.Windows.MessageBoxResult.OK)
+                           {
+                               await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                               return;
+                           }
                        }
                        _processTimer = new Timer(1000);
                        _procStartTime = DateTime.Now;
@@ -459,21 +453,21 @@ namespace NewLaserProject.ViewModels
 
 #if PCIInserted
 
-            //var result = await Dialog.Show<CheckParamsDialog>()
-            //   .SetDialogTitle("Запуск процесса")
-            //    .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
-            //    .GetCommonResultAsync<double>();
+            var result = await Dialog.Show<CheckParamsDialog>()
+               .SetDialogTitle("Запуск процесса")
+                .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
+                .GetCommonResultAsync<double>();
 
-            //if (result.Success)
-            //{
-            //    var procParams = new ProcessParams(result.CommonResult);
-            //    _mainProcess?.ChangeParams(procParams);
-            //}
-            //else
-            //{
-            //    await _appStateMachine.FireAsync(AppTrigger.EndProcess);
-            //    return;
-            //}
+            if (result.Success)
+            {
+                var procParams = new ProcessParams(result.CommonResult);
+                _mainProcess?.ChangeParams(procParams);
+            }
+            else
+            {
+                await _appStateMachine.FireAsync(AppTrigger.EndProcess);
+                return;
+            }
 
             try
             {
