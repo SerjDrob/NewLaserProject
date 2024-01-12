@@ -21,7 +21,7 @@ namespace NewLaserProject.Views.Converters
                 scale = (double)values[1];
             }
             var points = values?[0] as IEnumerable<Point>;
-            var geometries = points?.Select(p => new EllipseGeometry(p, 0.05 * scale, 0.05 * scale))
+            var geometries = points?.Select(p => new EllipseGeometry(p, 50 * scale, 50 * scale))
                 .ToArray();
             if (geometries is not null)
             {
