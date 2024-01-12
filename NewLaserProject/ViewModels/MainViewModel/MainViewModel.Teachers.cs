@@ -346,13 +346,17 @@ namespace NewLaserProject.ViewModels
 
                     double AC = second[0] - first[0];
                     double CB = second[1] - first[1];
-                    var angle =  Math.Atan2(CB, AC);
-                    Settings.Default.PazAngle = angle;
+                    _angle =  Math.Atan2(CB, AC);
+                    Settings.Default.PazAngle = _angle;
                     Settings.Default.Save();
                     MsgBox.Info("Новое значение установленно", "Обучение");
                     _canTeach = false;
                 }));
             return tcb.Build();
+        }
+        public override string ToString()
+        {
+            return $"A = {_angle}";
         }
         private async Task<ITeacher> TeachOrthXYAsync()
         {
@@ -640,6 +644,7 @@ namespace NewLaserProject.ViewModels
         }
 
         private CoorSystem<LMPlace> _testCoorSys;
+        private double _angle;
 
         [ICommand]
         private async Task TestPierce()
