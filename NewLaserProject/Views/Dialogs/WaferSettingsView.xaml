@@ -8,6 +8,27 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <hc:PropertyGrid ShowSortButton="False" SelectedObject="{Binding}"/>
+        <!--<hc:PropertyGrid ShowSortButton="False" SelectedObject="{Binding}"/>-->
+        <StackPanel>
+            <StackPanel.Resources>
+                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                    <Setter Property="hc:TitleElement.TitlePlacement" Value="Left"/>
+                    <Setter Property="hc:TitleElement.TitleWidth" Value="70"/>
+                    <Setter Property="Margin" Value="2"/>
+                    <Setter Property="Minimum" Value="10"/>
+                    <Setter Property="Maximum" Value="100"/>
+                    <Setter Property="Increment" Value="1"/>
+                </Style>
+
+            </StackPanel.Resources>  
+            <hc:NumericUpDown hc:TitleElement.Title="Ширина" Value="{Binding Width}"/>
+            <hc:NumericUpDown hc:TitleElement.Title="Высота" Value="{Binding Height}"/>
+            <hc:NumericUpDown hc:TitleElement.Title="Толщина"
+                              Value="{Binding Thickness}"
+                              DecimalPlaces="3"
+                              Minimum="0.1"
+                              Maximum="5"
+                              Increment="0.05"/>
+        </StackPanel>
     </Grid>
 </UserControl>

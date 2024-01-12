@@ -226,6 +226,11 @@ namespace NewLaserProject.ViewModels
                     _logger.LogError(ex, $"Throwed the exception in the {nameof(moveHomeAsync)} method.");
                     throw;
                 }
+                finally
+                {
+                    VelocityRegime = Velocity.Fast;
+                    _laserMachine.SetVelocity(VelocityRegime);
+                }
             }
             Task changeVelocity()
             {
