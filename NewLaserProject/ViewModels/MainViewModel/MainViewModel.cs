@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -191,7 +192,12 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task CheckHatch()
         {
-            _signalColumn.TurnOff();
+
+            var reader = new IMDxfReader("D:/Test.dxf");
+            var curve = reader.GetAllCurves().Single();
+            var inflateCurve = curve.PObject.InflateCurve(200);
+            reader.WriteCurveToFile("D:/TestInflate.dxf", inflateCurve.First(), true);
+            var i = 0;
             //_laserMachine.SwitchOnValve(Valves.RedLight);
 
             //var laser = new JCZLaser(new PWM3());

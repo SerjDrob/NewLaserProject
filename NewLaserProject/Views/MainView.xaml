@@ -468,10 +468,10 @@
                                     <WrapPanel IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
                                         <StackPanel x:Name="FileScale" Orientation="Horizontal">
                                             <StackPanel.Resources>
-                                                <x:Array x:Key="Scales" Type="{x:Type classes:Scale}">
-                                                    <classes:Scale Numerator="1000" Denominator="1"/>
-                                                    <classes:Scale Numerator="100" Denominator="1"/>
-                                                    <classes:Scale Numerator="1" Denominator="1"/>
+                                                <x:Array x:Key="Scales" Type="sys:Object">
+                                                    <x:Static Member="classes:Scale.ThousandToOne"/>
+                                                    <x:Static Member="classes:Scale.HundredToOne"/>
+                                                    <x:Static Member="classes:Scale.OneToOne"/>
                                                 </x:Array>
                                             </StackPanel.Resources>
                                             <hc:ComboBox ItemsSource="{Binding Source={StaticResource Scales}}" 

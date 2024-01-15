@@ -2,27 +2,24 @@
 {
     public class Scale
     {
-        public Scale()
-        {
-            
-        }
         public Scale(uint numerator, uint denominator)
         {
             Numerator = numerator;
             Denominator = denominator;
+            Ratio = (float)numerator / denominator;
         }
         public static Scale ThousandToOne => new(1000, 1);
         public static Scale HundredToOne => new(100, 1); 
         public static Scale OneToOne => new(1, 1);
         public uint Numerator
         {
-            get; set;
+            get; init;
         }
         public uint Denominator
         {
-            get; set;
+            get; init;
         }
-        public float Ratio => Numerator / Denominator;
+        public float Ratio { get; init; } 
         public override string ToString()
         {
             return $"{Numerator} : {Denominator}";
