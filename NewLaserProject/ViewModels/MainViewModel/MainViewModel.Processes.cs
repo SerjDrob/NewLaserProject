@@ -367,6 +367,12 @@ namespace NewLaserProject.ViewModels
                             case MsgType.Warn:
                                 break;
                             case MsgType.Error:
+                                Growl.Error(new GrowlInfo()
+                                {
+                                    StaysOpen = true,
+                                    Message = args.Message,
+                                    ShowDateTime = false,
+                                });
                                 break;
                             case MsgType.Clear:
                                 Growl.Clear();
