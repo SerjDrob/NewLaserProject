@@ -18,6 +18,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MachineClassLibrary.Laser.Markers;
 
 namespace NewLaserProject.Classes.Process
 {
@@ -160,7 +161,16 @@ namespace NewLaserProject.Classes.Process
                                 _subject.OnNext(new ProcObjectChanged(procObject));
                                 if (_inProcess && !_underCamera)
                                 {
-                                    await item.microProcess.InvokePierceFunctionForObjectAsync(procObject);
+                                    try
+                                    {
+                                        await item.microProcess.InvokePierceFunctionForObjectAsync(procObject);
+                                    }
+                                    catch (MarkerException ex)
+                                    {
+                                        _subject.OnNext(new ProcessMessage("Потеряна связь с платой ШИМ. Процесс был завершен!", MsgType.Error));
+                                        Console.Error.WriteLine(ex.Message);
+                                        goto M1;
+                                    }
                                 }
                                 else
                                 {
@@ -182,7 +192,7 @@ namespace NewLaserProject.Classes.Process
                         }
                     }
                 }
-                _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+ M1:            _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                 var completeStatus = _mainCancellationToken.IsCancellationRequested ? CompletionStatus.Cancelled : CompletionStatus.Success;
                 _subject.OnNext(new ProcessingStopped());
                 _subject.OnNext(new ProcCompletionPreview(completeStatus, coorSystem));
