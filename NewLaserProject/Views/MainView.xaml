@@ -472,6 +472,7 @@
                                                     <x:Static Member="classes:Scale.ThousandToOne"/>
                                                     <x:Static Member="classes:Scale.HundredToOne"/>
                                                     <x:Static Member="classes:Scale.OneToOne"/>
+                                                    <x:Static Member="classes:Scale.OneToHundred"/>
                                                 </x:Array>
                                             </StackPanel.Resources>
                                             <hc:ComboBox ItemsSource="{Binding Source={StaticResource Scales}}" 

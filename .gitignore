@@ -462,3 +462,6 @@ $RECYCLE.BIN/
 /NewLaserProject/Database/
 /NewLaserProject/Database/laserDatabase.db
 /Directory.Build.props
+/NodeViews/
+/WpfApp1/
+/LR50Setup.exe

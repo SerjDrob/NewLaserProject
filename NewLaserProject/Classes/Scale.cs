@@ -11,6 +11,9 @@
         public static Scale ThousandToOne => new(1000, 1);
         public static Scale HundredToOne => new(100, 1); 
         public static Scale OneToOne => new(1, 1);
+        public static Scale OneToHundred => new(1, 100);
+        public static Scale OneToThousand => new(1, 1000);
+
         public uint Numerator
         {
             get; init;
