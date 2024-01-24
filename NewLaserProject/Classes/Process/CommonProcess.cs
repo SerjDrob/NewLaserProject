@@ -167,7 +167,7 @@ namespace NewLaserProject.Classes.Process
                                     }
                                     catch (MarkerException ex)
                                     {
-                                        _subject.OnNext(new ProcessMessage("Потеряна связь с платой ШИМ. Процесс был завершен!", MsgType.Error));
+                                        _subject.OnNext(new ProcessMessage(ex.Message, MsgType.Error));
                                         Console.Error.WriteLine(ex.Message);
                                         goto M1;
                                     }

@@ -66,7 +66,8 @@ namespace NewLaserProject
                    .AddSingleton<ExceptionsAgregator>()
                    .AddScoped<JCZLaser>()
                    .AddScoped<MockLaser>()
-                   .AddScoped<PWM3>()
+                   //.AddScoped<PWM3>()
+                   .AddSingleton<PWM3>()
                    //.AddScoped<PWM2>()
                    .AddSingleton(sp =>
                    {
