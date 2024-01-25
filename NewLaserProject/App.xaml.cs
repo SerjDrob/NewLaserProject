@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Reactive.Subjects;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
 using AutoMapper;
 using MachineClassLibrary.Laser;
@@ -38,15 +39,24 @@ namespace NewLaserProject
         {
             get; private set;
         }
+        [DllImport("Kernel32")]
+        public static extern void AllocConsole();
+
+        [DllImport("Kernel32")]
+        public static extern void FreeConsole();
         public App()
         {
             var machineconfigs = ExtensionMethods
                 .DeserilizeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs)
                 ?? throw new NullReferenceException("The machine configs are null");
 
+            var settingsManager = new SettingsManager<LaserMachineSettings>(AppPaths.LaserMachineSettings);
+            settingsManager.Load();
+
             MainIoC = new ServiceCollection();
 
             _ = MainIoC.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()))
+                   .AddSingleton<ISettingsManager<LaserMachineSettings>>(settingsManager)
                    .AddDbContext<DbContext, LaserDbContext>(options =>
                    {
                        var connectionString = ConfigurationManager.ConnectionStrings["myDb"].ToString();
@@ -139,6 +149,7 @@ namespace NewLaserProject
             }.Show();
 
             viewModel?.OnInitialized();
+            AllocConsole();
         }
 
         protected override void OnDeactivated(EventArgs e)

@@ -146,6 +146,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartMonitoringState();
             MechTableVM = new();
             _logger.Log(LogLevel.Information, "App started");
+            var settmanager = _serviceProvider.GetRequiredService<ISettingsManager<LaserMachineSettings>>();
         }
 
         private void _laserMachine_CameraPlugged(object? sender, EventArgs e)
@@ -303,8 +304,8 @@ namespace NewLaserProject.ViewModels
                 try
                 {
                     await Task.WhenAll(
-                        _laserMachine.MoveAxRelativeAsync(Ax.X, offset[0],true),
-                        _laserMachine.MoveAxRelativeAsync(Ax.Y, offset[1],true)
+                        _laserMachine.MoveAxRelativeAsync(Ax.X, offset[0], true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.Y, offset[1], true)
                         ).ConfigureAwait(false);
                     //await _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true).ConfigureAwait(false);
                 }

@@ -243,4 +243,12 @@
   
     <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
   
+    <ItemGroup>
+      <EditorConfigFiles Remove="C:\Users\Serj\source\repos\NewLaserProject\NewLaserProject\.editorconfig" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <None Include="C:\Users\Serj\source\repos\NewLaserProject\NewLaserProject\.editorconfig" />
+    </ItemGroup>
+  
 </Project>

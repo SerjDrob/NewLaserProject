@@ -33,7 +33,7 @@ namespace NewLaserProject.Classes
                     }
                 }) ?? throw new ArgumentException($"Can not deserialize {nameof(jsonTree)}");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

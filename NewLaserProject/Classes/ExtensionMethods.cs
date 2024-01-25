@@ -43,6 +43,11 @@ namespace NewLaserProject.Classes
             Settings.Default.XRightPoint = machineSettings.XRightPoint;
             Settings.Default.YRightPoint = machineSettings.YRightPoint;
         }
+
+        internal static void CopyToSettings2(this MachineSettingsVM machineSettings)
+        {
+
+        }
         internal static void CopyFromSettings(this MachineSettingsVM machineSettings)
         {
             machineSettings.XAcc = Settings.Default.XAcc;

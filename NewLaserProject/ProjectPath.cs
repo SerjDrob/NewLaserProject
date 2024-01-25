@@ -30,6 +30,7 @@ namespace NewLaserProject
         public static string PureDeformation => Path.Combine(SettingsFolder, "PureDeformation.json");
         public static string TeachingDeformation => Path.Combine(SettingsFolder, "TeachingDeformation.json");
         public static string MarkTextParams => Path.Combine(SettingsFolder, "MarkTextParams.json");
+        public static string LaserMachineSettings => Path.Combine(SettingsFolder, "LaserMachineSettings.json");
         public static string Applog => Path.Combine(TempFolder, "app.log");
     }
 }
