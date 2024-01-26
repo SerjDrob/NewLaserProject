@@ -70,10 +70,10 @@ namespace NewLaserProject.ViewModels
 
             StartVideoCapture();
             var teachPosition = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 10, 10);
-            var xOffset = Settings.Default.XOffset;
-            var yOffset = Settings.Default.YOffset;
-            var zCamera = Settings.Default.ZeroFocusPoint;
-            var zLaser = Settings.Default.ZeroPiercePoint;
+            var xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
+            var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
+            var zCamera = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
+            var zLaser = _settingsManager.Settings.ZeroPiercePoint ?? throw new ArgumentNullException("ZeroPiercePoint is null");
             var waferThickness = WaferThickness;            
             var tcb = CameraOffsetTeacher.GetBuilder();
 
@@ -199,9 +199,9 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
                 {
-                    Settings.Default.XOffset = _currentTeacher.GetParams()[0];
-                    Settings.Default.YOffset = _currentTeacher.GetParams()[1];
-                    Settings.Default.Save();                    
+                    _settingsManager.Settings.XOffset = _currentTeacher.GetParams()[0];
+                    _settingsManager.Settings.YOffset = _currentTeacher.GetParams()[1];
+                    _settingsManager.Save();                    
                     Growl.Info(new GrowlInfo
                     {
                         Message = "Новое значение установлено",
@@ -226,8 +226,10 @@ namespace NewLaserProject.ViewModels
             var waferHeight = 60;
             var tempX = 0F;
             var tempY = 0F;
-            var zCamera = Settings.Default.ZeroFocusPoint - WaferThickness;
-            var zLaser = Settings.Default.ZeroPiercePoint - WaferThickness;
+            var zeroFocusPoint = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
+            var zeroPiercePoint = _settingsManager.Settings.ZeroPiercePoint ?? throw new ArgumentNullException("ZeroPiercePoint is null");
+            var zCamera = zeroFocusPoint - WaferThickness;
+            var zLaser = zeroPiercePoint - WaferThickness;
 
             var tcb = LaserHorizontTeacher.GetBuilder();
 
@@ -249,12 +251,15 @@ namespace NewLaserProject.ViewModels
                 .SetGoAtFirstPointAction(async () =>
                 {
                     _laserMachine.SetVelocity(Velocity.Fast);
+                    var xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
+                    var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
+
                     await Task.WhenAll(
-                        _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { Settings.Default.XOffset, Settings.Default.YOffset }, true),
+                        _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser));
 
                     var matrix = new System.Drawing.Drawing2D.Matrix();
-                    matrix.Rotate((float)Settings.Default.PazAngle * 180 / MathF.PI);
+                    matrix.Rotate((float)(_settingsManager.Settings.PazAngle ?? throw new ArgumentNullException("PAZAngle is null")) * 180 / MathF.PI);
                     var points = new PointF[] { new PointF(xLeft - waferWidth / 2, 0), new PointF(xRight - waferWidth / 2, 0) };
                     matrix.TransformPoints(points);
                     tempX = points[0].X + waferWidth / 2;
@@ -270,7 +275,7 @@ namespace NewLaserProject.ViewModels
                     await Task.WhenAll
                     (
                         _laserMachine.MoveAxInPosAsync(Ax.X, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)[0], true),
-                        _laserMachine.MoveAxRelativeAsync(Ax.Y, -tempY - Settings.Default.YOffset, true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.Y, -tempY - (_settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null")), true),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
                         );
                     
@@ -347,9 +352,9 @@ namespace NewLaserProject.ViewModels
                     double AC = second[0] - first[0];
                     double CB = second[1] - first[1];
                     _angle =  Math.Atan2(CB, AC);
-                    Settings.Default.PazAngle = _angle;
-                    Settings.Default.Save();
-                    MsgBox.Info("Новое значение установленно", "Обучение");
+                    _settingsManager.Settings.PazAngle = _angle;
+                    _settingsManager.Save();
+                    MsgBox.Info("Новое значение установлено", "Обучение");
                     _canTeach = false;
                 }));
             return tcb.Build();
@@ -364,7 +369,7 @@ namespace NewLaserProject.ViewModels
             _tempWaferTurn90 = WaferTurn90;
             WaferTurn90 = false;
             var waferThickness = WaferThickness;
-            var zFocus = Settings.Default.ZeroFocusPoint;
+            var zFocus = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
             
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Толщина подложки")
@@ -553,8 +558,8 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnHasResultAction(() => Task.Run(async () =>
                 {
-                    Settings.Default.CameraScale = _currentTeacher.GetParams()[0];
-                    Settings.Default.Save();
+                    _settingsManager.Settings.CameraScale = _currentTeacher.GetParams()[0];
+                    _settingsManager.Save();
                     Growl.Info("Новое значение установлено");
                     _canTeach = false;
                 }));
@@ -626,15 +631,15 @@ namespace NewLaserProject.ViewModels
                 {
                     if (horizontal)
                     {
-                        Settings.Default.XNegDimension = _currentTeacher.GetParams()[0];
-                        Settings.Default.XPosDimension = _currentTeacher.GetParams()[1];
+                        _settingsManager.Settings.XNegDimension = _currentTeacher.GetParams()[0];
+                        _settingsManager.Settings.XPosDimension = _currentTeacher.GetParams()[1];
                     }
                     else
                     {
-                        Settings.Default.YNegDimension = _currentTeacher.GetParams()[0];
-                        Settings.Default.YPosDimension = _currentTeacher.GetParams()[1];
+                        _settingsManager.Settings.YNegDimension = _currentTeacher.GetParams()[0];
+                        _settingsManager.Settings.YPosDimension = _currentTeacher.GetParams()[1];
                     }
-                    Settings.Default.Save();
+                    _settingsManager.Save();
                     Growl.Info("Новое значение установлено");
                     _canTeach = false;
                 }))

@@ -21,6 +21,7 @@ using Microsoft.Extensions.Logging;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data;
+using NewLaserProject.Properties;
 using NewLaserProject.Repositories;
 using NewLaserProject.ViewModels;
 using NewLaserProject.ViewModels.DialogVM;

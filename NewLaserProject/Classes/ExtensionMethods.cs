@@ -1,4 +1,5 @@
-﻿using NewLaserProject.Properties;
+﻿using AutoMapper;
+using NewLaserProject.Properties;
 using NewLaserProject.ViewModels;
 using NewLaserProject.ViewModels.DialogVM;
 using Newtonsoft.Json;
@@ -44,9 +45,14 @@ namespace NewLaserProject.Classes
             Settings.Default.YRightPoint = machineSettings.YRightPoint;
         }
 
-        internal static void CopyToSettings2(this MachineSettingsVM machineSettings)
+        internal static void CopyToSettings2(this MachineSettingsVM machineSettings, LaserMachineSettings laserMachineSettings)
         {
-
+            var config = new MapperConfiguration(expr =>
+            {
+                expr.CreateMap<MachineSettingsVM,LaserMachineSettings>();
+            });
+            var mapper = new Mapper(config);
+            var obj = mapper.Map(machineSettings, laserMachineSettings);
         }
         internal static void CopyFromSettings(this MachineSettingsVM machineSettings)
         {
@@ -76,6 +82,16 @@ namespace NewLaserProject.Classes
             machineSettings.XRightPoint=Settings.Default.XRightPoint;
             machineSettings.YRightPoint=Settings.Default.YRightPoint;
         }
+        internal static void CopyFromSettings2(this MachineSettingsVM machineSettings, LaserMachineSettings laserMachineSettings)
+        {
+            var config = new MapperConfiguration(expr =>
+            {
+                expr.CreateMap<LaserMachineSettings, MachineSettingsVM>();
+            });
+            var mapper = new Mapper(config);
+            machineSettings = mapper.Map(laserMachineSettings, machineSettings);
+        }
+
         internal static void SerializeObject(this object obj, string filePath)
         {
             var json = JsonConvert.SerializeObject(obj);          

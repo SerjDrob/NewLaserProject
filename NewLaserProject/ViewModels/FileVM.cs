@@ -93,8 +93,8 @@ namespace NewLaserProject.ViewModels
             FileSizeY = Math.Round(fileSize.height);
             LayGeoms = new LayGeomAdapter(new IMGeometryAdapter(_filePath)).LayerGeometryCollections;
             _geomsEditor = new(LayGeoms);
-            MirrorX = Settings.Default.WaferMirrorX;
-            WaferTurn90 = Settings.Default.WaferAngle90;
+            //MirrorX = mirrorX;
+            //WaferTurn90 = turn90;
             WaferOffsetX = 0;
             WaferOffsetY = 0;
         }

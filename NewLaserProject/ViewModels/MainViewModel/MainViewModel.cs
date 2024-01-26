@@ -100,6 +100,7 @@ namespace NewLaserProject.ViewModels
         private IProcess? _mainProcess;
         private double _waferAngle;
         private readonly ILogger _logger;
+        private readonly ISettingsManager<LaserMachineSettings> _settingsManager;
 
         public MainViewModel(LaserMachine laserMachine, IMediator mediator,
             IServiceProvider serviceProvider, ILoggerProvider loggerProvider,
@@ -111,6 +112,7 @@ namespace NewLaserProject.ViewModels
             _mediator = mediator;
             _subjMediator = subjMediator;
             _serviceProvider = serviceProvider;
+            _settingsManager = _serviceProvider.GetRequiredService<ISettingsManager<LaserMachineSettings>>();
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.CameraPlugged += _laserMachine_CameraPlugged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
@@ -146,14 +148,13 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartMonitoringState();
             MechTableVM = new();
             _logger.Log(LogLevel.Information, "App started");
-            var settmanager = _serviceProvider.GetRequiredService<ISettingsManager<LaserMachineSettings>>();
         }
 
         private void _laserMachine_CameraPlugged(object? sender, EventArgs e)
         {
             //_laserMachine.StopCamera();
             CameraCapabilities = new(_laserMachine.AvailableVideoCaptureDevices[0].Item2);
-            CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
+            CameraCapabilitiesIndex = _settingsManager.Settings.PreferredCameraCapabilities ?? throw new ArgumentNullException("PreferredCameraCapabilities is null");
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
         }
 
@@ -248,28 +249,40 @@ namespace NewLaserProject.ViewModels
         private void HideProcessPanel(bool hide) => IsProcessPanelVisible = !hide;
         private void InitViews()
         {
-            _openedFileVM = new FileVM(48, 60, _subjMediator);
-            _openedFileVM.CanUndoChanged += _openedFileVM_CanUndoChanged;
-            _openedFileVM.OnFileClicked += _openedFileVM_OnFileClicked;
-            CentralSideVM = _openedFileVM;
-
-
-            var count = _laserMachine.AvailableVideoCaptureDevices.Count;//TODO what if there is no any devices
-            if (count != 0)
+            try
             {
-                CameraCapabilities = new(_laserMachine.AvailableVideoCaptureDevices[0].Item2);
-                CameraCapabilitiesIndex = Settings.Default.PreferedCameraCapabilities;
-                _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-            }
+                WaferWidth = _settingsManager.Settings.WaferWidth ?? Settings.Default.WaferWidth;
+                WaferHeight = _settingsManager.Settings.WaferHeight ?? Settings.Default.WaferHeight;
+                WaferThickness = _settingsManager.Settings.WaferThickness ?? Settings.Default.WaferThickness;
+
+                _openedFileVM = new FileVM(WaferWidth, WaferHeight, _subjMediator);
+                _openedFileVM.CanUndoChanged += _openedFileVM_CanUndoChanged;
+                _openedFileVM.OnFileClicked += _openedFileVM_OnFileClicked;
+                CentralSideVM = _openedFileVM;
 
 
-            _cameraVM = new CameraVM(_subjMediator);
+                var count = _laserMachine.AvailableVideoCaptureDevices.Count;//TODO what if there is no any devices
+                if (count != 0)
+                {
+                    CameraCapabilities = new(_laserMachine.AvailableVideoCaptureDevices[0].Item2);
+                    CameraCapabilitiesIndex = _settingsManager.Settings.PreferredCameraCapabilities ?? throw new ArgumentNullException("PreferredCameraCapabilities is null");
+                    _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+                }
 
-            RightSideVM = _cameraVM;
+
+                _cameraVM = new CameraVM(_subjMediator);
+
+                RightSideVM = _cameraVM;
 #if PCIInserted
-            _laserMachine.OnBitmapChanged += _cameraVM.OnVideoSourceBmpChanged;
-            _cameraVM.VideoClicked += _cameraVM_VideoClicked;
+                _laserMachine.OnBitmapChanged += _cameraVM.OnVideoSourceBmpChanged;
+                _cameraVM.VideoClicked += _cameraVM_VideoClicked;
 #endif
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Throwed the exception in the {nameof(InitViews)} method.");
+                throw;
+            }
         }
 
         private async void _openedFileVM_OnFileClicked(object? sender, System.Windows.Point e)
@@ -300,7 +313,8 @@ namespace NewLaserProject.ViewModels
             if (double.TryParse(caps[0], out var xRatio) && double.TryParse(caps[2], out var yRatio))
             {
                 var k = xRatio / yRatio;
-                var offset = new[] { e.x * Settings.Default.CameraScale * k, -e.y * Settings.Default.CameraScale };
+                var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
+                var offset = new[] { e.x * scale * k, -e.y * scale };
                 try
                 {
                     await Task.WhenAll(
@@ -344,7 +358,9 @@ namespace NewLaserProject.ViewModels
                         break;
                 }
                 //MechTableVM?.SetCoordinates(XAxis.Position - 85.876, YAxis.Position - 51.945);
-                MechTableVM?.SetCoordinates(XAxis.Position + Settings.Default.XOffset, YAxis.Position + Settings.Default.YOffset);
+                var xoffset = _settingsManager.Settings.XOffset ?? 0;
+                var yoffset = _settingsManager.Settings.YOffset ?? 0;    
+                MechTableVM?.SetCoordinates(XAxis.Position + xoffset, YAxis.Position + yoffset);
             }
             catch (Exception ex)
             {
@@ -390,13 +406,13 @@ namespace NewLaserProject.ViewModels
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.XHomeReset,
-                acc = Settings.Default.XAcc,
-                dec = Settings.Default.XDec,
-                ppu = 4005,// Settings.Default.XPPU*2,
+                acc = _settingsManager.Settings.XAcc ?? throw new ArgumentNullException("XAcc is null"),
+                dec = _settingsManager.Settings.XDec ?? throw new ArgumentNullException("XDec is null"),
+                ppu = 4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
                 denominator = 4,
                 plsInMde = (int)PlsInMode.AB_4X,
-                homeVelLow = Settings.Default.XVelLow,
-                homeVelHigh = Settings.Default.XVelService
+                homeVelLow = _settingsManager.Settings.XVelLow ?? throw new ArgumentNullException("XVelLow is null"),
+                homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null")
             };
             var ypar = new MotionDeviceConfigs
             {
@@ -406,13 +422,13 @@ namespace NewLaserProject.ViewModels
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.YRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.YHomeReset,
-                acc = Settings.Default.YAcc,
-                dec = Settings.Default.YDec,
+                acc = _settingsManager.Settings.YAcc ?? throw new ArgumentNullException("YAcc is null"),
+                dec = _settingsManager.Settings.YDec ?? throw new ArgumentNullException("YDec is null"),
                 ppu = 3993,//Settings.Default.YPPU*2,
                 denominator = 4,
                 plsInMde = (int)PlsInMode.AB_4X,
-                homeVelLow = Settings.Default.YVelLow,
-                homeVelHigh = Settings.Default.YVelService
+                homeVelLow = _settingsManager.Settings.YVelLow ?? throw new ArgumentNullException("YVelLow is null"),
+                homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")
             };
             var zpar = new MotionDeviceConfigs
             {
@@ -422,34 +438,34 @@ namespace NewLaserProject.ViewModels
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.ZRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.ZHomeReset,
-                acc = Settings.Default.ZAcc,
-                dec = Settings.Default.ZDec,
-                ppu = Settings.Default.ZPPU,
-                homeVelLow = Settings.Default.ZVelLow,
-                homeVelHigh = Settings.Default.ZVelService
+                acc = _settingsManager.Settings.ZAcc ?? throw new ArgumentNullException("ZAcc is null"),
+                dec = _settingsManager.Settings.ZDec ?? throw new ArgumentNullException("ZDec is null"),
+                ppu = _settingsManager.Settings.ZPPU ?? throw new ArgumentNullException("ZPPU is null"),
+                homeVelLow = _settingsManager.Settings.ZVelLow ?? throw new ArgumentNullException("ZVelLow is null"),
+                homeVelHigh = _settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null")
             };
 
             try
             {
                 _laserMachine.AddAxis(Ax.X, axesConfigs.XLine)
                     .WithConfigs(xpar)
-                    .WithVelRegime(Velocity.Fast, Settings.Default.XVelHigh)
-                    .WithVelRegime(Velocity.Slow, Settings.Default.XVelLow)
-                    .WithVelRegime(Velocity.Service, Settings.Default.XVelService)
+                    .WithVelRegime(Velocity.Fast, _settingsManager.Settings.XVelHigh ?? throw new ArgumentNullException("ZVelService is null"))
+                    .WithVelRegime(Velocity.Slow, _settingsManager.Settings.XVelLow ?? throw new ArgumentNullException("ZVelService is null"))
+                    .WithVelRegime(Velocity.Service, _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("ZVelService is null"))
                     .Build();
 
                 _laserMachine.AddAxis(Ax.Y, axesConfigs.YLine)
                     .WithConfigs(ypar)
-                    .WithVelRegime(Velocity.Fast, Settings.Default.YVelHigh)
-                    .WithVelRegime(Velocity.Slow, Settings.Default.YVelLow)
-                    .WithVelRegime(Velocity.Service, Settings.Default.YVelService)
+                    .WithVelRegime(Velocity.Fast, _settingsManager.Settings.YVelHigh ?? throw new ArgumentNullException("ZVelService is null"))
+                    .WithVelRegime(Velocity.Slow, _settingsManager.Settings.YVelLow ?? throw new ArgumentNullException("ZVelService is null"))
+                    .WithVelRegime(Velocity.Service, _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("ZVelService is null"))
                     .Build();
 
                 _laserMachine.AddAxis(Ax.Z, axesConfigs.ZLine)
                     .WithConfigs(zpar)
-                    .WithVelRegime(Velocity.Fast, Settings.Default.ZVelHigh)
-                    .WithVelRegime(Velocity.Slow, Settings.Default.ZVelLow)
-                    .WithVelRegime(Velocity.Service, Settings.Default.ZVelService)
+                    .WithVelRegime(Velocity.Fast, _settingsManager.Settings.ZVelHigh ?? throw new ArgumentNullException("ZVelService is null"))
+                    .WithVelRegime(Velocity.Slow, _settingsManager.Settings.ZVelLow ?? throw new ArgumentNullException("ZVelService is null"))
+                    .WithVelRegime(Velocity.Service, _settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null"))
                     .Build();
 
                 _laserMachine.AddAxis(Ax.U, 0d).WithConfigs(xpar).Build();
@@ -457,28 +473,28 @@ namespace NewLaserProject.ViewModels
                 _laserMachine.AddGroup(Groups.XY, Ax.X, Ax.Y);
 
                 _laserMachine.ConfigureGeometryFor(LMPlace.Loading)
-                    .SetCoordinateForPlace(Ax.X, Settings.Default.XLoad)
-                    .SetCoordinateForPlace(Ax.Y, Settings.Default.YLoad)
+                    .SetCoordinateForPlace(Ax.X, _settingsManager.Settings.XLoad ?? throw new ArgumentNullException("XLoad is null"))
+                    .SetCoordinateForPlace(Ax.Y, _settingsManager.Settings.YLoad ?? throw new ArgumentNullException("YLoad is null"))
                     .Build();
 
                 _laserMachine.ConfigureHomingForAxis(Ax.X)
                     .SetHomingDirection((AxDir)axesConfigs.XHomeDirection)
                     .SetHomingMode((HmMode)axesConfigs.XHomeMode)
-                    .SetPositionAfterHoming(Settings.Default.XLeftPoint)
-                    .SetHomingVelocity(Settings.Default.XVelService)
+                    .SetPositionAfterHoming(_settingsManager.Settings.XLeftPoint ?? throw new ArgumentNullException("XLeftPoint is null"))
+                    .SetHomingVelocity(_settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"))
                     .Configure();
 
                 _laserMachine.ConfigureHomingForAxis(Ax.Y)
                     .SetHomingDirection((AxDir)axesConfigs.YHomeDirection)
                     .SetHomingMode((HmMode)axesConfigs.YHomeMode)
-                    .SetPositionAfterHoming(Settings.Default.YLeftPoint)
-                    .SetHomingVelocity(Settings.Default.YVelService)
+                    .SetPositionAfterHoming(_settingsManager.Settings.YLeftPoint ?? throw new ArgumentNullException("YLeftPoint is null"))
+                    .SetHomingVelocity(_settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null"))
                     .Configure();
 
                 _laserMachine.ConfigureHomingForAxis(Ax.Z)
                     .SetHomingDirection((AxDir)axesConfigs.ZHomeDirection)
-                    .SetHomingVelocity(Settings.Default.ZVelService)
-                    .SetPositionAfterHoming(Settings.Default.ZeroFocusPoint - WaferThickness)
+                    .SetHomingVelocity(_settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null"))
+                    .SetPositionAfterHoming((_settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null")) - WaferThickness)
                     .Configure();
 
                 _laserMachine.ConfigureValves(
@@ -500,7 +516,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Swallowed the exception in the {nameof(ImplementMachineSettings)} method.");
+                _logger.LogError(ex, $"Throwed the exception in the {nameof(ImplementMachineSettings)} method.");
                 throw;
             }
 
@@ -510,7 +526,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Swallowed the exception in the {nameof(ImplementMachineSettings)} method when setting a velocity regime.");
+                _logger.LogError(ex, $"Throwed the exception in the {nameof(ImplementMachineSettings)} method when setting a velocity regime.");
                 throw;
             }
 #endif
@@ -525,8 +541,14 @@ namespace NewLaserProject.ViewModels
         }
         private void TuneCoorSystem()
         {
-            var dx = Settings.Default.XRightPoint - Settings.Default.XLeftPoint;
-            var dy = Settings.Default.YRightPoint - Settings.Default.YLeftPoint;
+            var xleft = _settingsManager.Settings.XLeftPoint ?? throw new ArgumentNullException("XLeftPoint is null");
+            var xright = _settingsManager.Settings.XRightPoint ?? throw new ArgumentNullException("XRightPoint is null");
+            var yleft = _settingsManager.Settings.YLeftPoint ?? throw new ArgumentNullException("YLeftPoint is null");
+            var yright = _settingsManager.Settings.YRightPoint ?? throw new ArgumentNullException("YRightPoint is null");
+            var xoffset  = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
+            var yoffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
+            var dx = xright - xleft;
+            var dy = yright - yleft;
 
             //_waferAngle = Math.Atan2(dy, dx);
             _waferAngle = Math.Atan(dy / dx);
@@ -536,20 +558,20 @@ namespace NewLaserProject.ViewModels
 
             _coorSystem.BuildRelatedSystem()
                       .Rotate(_waferAngle)
-                      .Translate(Settings.Default.XLeftPoint, Settings.Default.YLeftPoint)
+                      .Translate(xleft, yleft)
                       .Build(LMPlace.FileOnWaferUnderCamera);
 
             _coorSystem.BuildRelatedSystem()
                       .Rotate(_waferAngle)
-                      .Translate(Settings.Default.XLeftPoint + Settings.Default.XOffset, Settings.Default.YLeftPoint + Settings.Default.YOffset)
+                      .Translate(xleft + xoffset, yleft + yoffset)
                       .Build(LMPlace.FileOnWaferUnderLaser);
 
 
             _coorSystem.SetRelatedSystem(LMPlace.Loading, 50, 20);
             _coorSystem.SetRelatedSystem(LMPlace.UnderLaser, 1, 2);
-            _coorSystem.SetRelatedSystem(LMPlace.LeftCorner, Settings.Default.XLeftPoint, Settings.Default.YLeftPoint);
+            _coorSystem.SetRelatedSystem(LMPlace.LeftCorner, xleft, yleft);
             _coorSystem.SetRelatedSystem(LMPlace.RightCorner, 1, 2);
-            MechTableVM?.SetOffsets(Settings.Default.XOffset, Settings.Default.YOffset);
+            MechTableVM?.SetOffsets(xoffset, yoffset);
         }
     }
 }

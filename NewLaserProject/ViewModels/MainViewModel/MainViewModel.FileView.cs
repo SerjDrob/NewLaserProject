@@ -40,11 +40,11 @@ namespace NewLaserProject.ViewModels
             get; set;
         }
         [OnChangedMethod(nameof(WaferDimensionChanged))]
-        public double WaferWidth { get; set; } = Settings.Default.WaferWidth;
+        public double WaferWidth { get; set; }
 
         [OnChangedMethod(nameof(WaferDimensionChanged))]
-        public double WaferHeight { get; set; } = Settings.Default.WaferHeight;
-        public double WaferThickness { get; set; } = Settings.Default.WaferThickness;
+        public double WaferHeight { get; set; }
+        public double WaferThickness { get; set; }
 
         [OnChangedMethod(nameof(ViewFinderChanged))]
         public double CameraViewfinderX
@@ -114,8 +114,8 @@ namespace NewLaserProject.ViewModels
                     {
                         var dxfReader = new IMDxfReader(FileName);
                         _dxfReader = new DxfEditor(dxfReader);
-                        MirrorX = Settings.Default.WaferMirrorX;
-                        WaferTurn90 = Settings.Default.WaferAngle90;
+                        MirrorX = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");
+                        WaferTurn90 = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
                         WaferOffsetX = 0;
                         WaferOffsetY = 0;
                         IgnoredLayers = new();

@@ -286,19 +286,19 @@ namespace NewLaserProject.ViewModels
                     vm.DefLayerFilters = defLayerResponse.DefaultLayerFilters.ToObservableCollection();
                     //vm.DefaultTechnologies = defEntTechResponse.DefaultLayerEntityTechnologies.ToObservableCollection();
                     //vm.Materials = materialResponse.Materials.ToObservableCollection();
-                    vm.DefaultHeight = Settings.Default.DefaultHeight;
-                    vm.DefaultWidth = Settings.Default.DefaultWidth;
-                    vm.IsMirrored = Settings.Default.IsMirrored;
-                    vm.IsRotated = Settings.Default.WaferAngle90;
+                    vm.DefaultHeight = _settingsManager.Settings.DefaultHeight ?? throw new ArgumentNullException("DefaultHeight is null");
+                    vm.DefaultWidth = _settingsManager.Settings.DefaultWidth ?? throw new ArgumentNullException("DefaultWidth is null");
+                    vm.IsMirrored = _settingsManager.Settings.IsMirrored ?? throw new ArgumentNullException("IsMirrored is null");
+                    vm.IsRotated = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
                 })
                 .GetCommonResultAsync<FileViewDialogVM>();//UNDONE this dialog doesn't save db
             if (result.Success)
             {
-                Settings.Default.DefaultWidth = result.CommonResult.DefaultWidth;
-                Settings.Default.DefaultHeight = result.CommonResult.DefaultHeight;
-                Settings.Default.IsMirrored = result.CommonResult.IsMirrored;
-                Settings.Default.WaferAngle90 = result.CommonResult.IsRotated;
-                Settings.Default.Save();
+                _settingsManager.Settings.DefaultWidth = result.CommonResult.DefaultWidth;
+                _settingsManager.Settings.DefaultHeight = result.CommonResult.DefaultHeight;
+                _settingsManager.Settings.IsMirrored = result.CommonResult.IsMirrored;
+                _settingsManager.Settings.WaferAngle90 = result.CommonResult.IsRotated;
+                _settingsManager.Save();
 
                 var newFilters = result.CommonResult.DefLayerFilters.Where(f => f.Id == 0).ToList();
                 var deletedFilters = defLayerResponse.DefaultLayerFilters.Except(result.CommonResult.DefLayerFilters).ToList();
@@ -343,8 +343,8 @@ namespace NewLaserProject.ViewModels
                             }
                         }
                     }
-                    vm.IsMirrored = Settings.Default.WaferMirrorX;
-                    vm.IsRotated = Settings.Default.WaferAngle90;
+                    vm.IsMirrored = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");
+                    vm.IsRotated = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
                 })
                 .GetCommonResultAsync<SpecimenSettingsVM>();
             if (result.Success)
@@ -361,9 +361,9 @@ namespace NewLaserProject.ViewModels
 
                 defProcFilter.SerializeObject(AppPaths.DefaultProcessFilter);
 
-                Settings.Default.WaferMirrorX = defSettings.IsMirrored;
-                Settings.Default.WaferAngle90 = defSettings.IsRotated;
-                Settings.Default.Save();
+                _settingsManager.Settings.WaferMirrorX = defSettings.IsMirrored;
+                _settingsManager.Settings.WaferAngle90 = defSettings.IsRotated;
+                _settingsManager.Save();
             }
         }
         [ICommand]
@@ -371,12 +371,12 @@ namespace NewLaserProject.ViewModels
         {
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Настройки приводов")
-                .SetDataContext(new MachineSettingsVM(XAxis.Position, YAxis.Position, ZAxis.Position), vm => vm.CopyFromSettings())
+                .SetDataContext(new MachineSettingsVM(XAxis.Position, YAxis.Position, ZAxis.Position), vm => vm.CopyFromSettings2(_settingsManager.Settings))
                 .GetCommonResultAsync<MachineSettingsVM>();
             if (result.Success)
             {
-                result.CommonResult.CopyToSettings();
-                Settings.Default.Save();
+                result.CommonResult.CopyToSettings2(_settingsManager.Settings);
+                _settingsManager.Save();
                 ImplementMachineSettings();
                 TuneCoorSystem();
             }
@@ -398,11 +398,10 @@ namespace NewLaserProject.ViewModels
                 WaferWidth = result.CommonResult.Width;
                 WaferHeight = result.CommonResult.Height;
                 WaferThickness = result.CommonResult.Thickness;
-
-                Settings.Default.WaferWidth = WaferWidth;
-                Settings.Default.WaferHeight = WaferHeight;
-                Settings.Default.WaferThickness = WaferThickness;
-                Settings.Default.Save();
+                _settingsManager.Settings.WaferWidth = WaferWidth;
+                _settingsManager.Settings.WaferHeight = WaferHeight;
+                _settingsManager.Settings.WaferThickness = WaferThickness;
+                _settingsManager.Save();
 
             }
         }
@@ -465,8 +464,8 @@ namespace NewLaserProject.ViewModels
         {
             _laserMachine.StopCamera();
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
-            Settings.Default.PreferedCameraCapabilities = CameraCapabilitiesIndex;
-            Settings.Default.Save();
+            _settingsManager.Settings.PreferredCameraCapabilities = CameraCapabilitiesIndex;
+            _settingsManager.Save();
         }
 
         [ICommand]

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NewLaserProject.Properties;
 
 namespace NewLaserProject.Classes;
 
@@ -47,6 +49,16 @@ internal class SettingsManager<T> : ISettingsManager<T>
         }
     }    
 }
+
+internal static class SettingsManagerExtensions
+{ 
+    public static K GetNonNull<T, K>(this ISettingsManager<T> settingsManager, Func<T,K> getProp)
+    {
+        var prop = getProp(settingsManager.Settings) ?? throw new ArgumentNullException("The property is null");
+        return (K)prop;
+    }
+}
+
 internal class LaserMachineSettings
 {
     public double? XVelLow { get; set; }
@@ -66,19 +78,19 @@ internal class LaserMachineSettings
     public double? ZDec { get; set; }
     public int? ZPPU { get; set; }
     public int? ZJerk { get; set; }
-    public double? UVelLow { get; set; }
-    public double? UVelHigh { get; set; }
-    public double? UAcc { get; set; }
-    public double? UDec { get; set; }
-    public int? UPPU { get; set; }
-    public int? UJerk { get; set; }
+    //public double? UVelLow { get; set; }
+    //public double? UVelHigh { get; set; }
+    //public double? UAcc { get; set; }
+    //public double? UDec { get; set; }
+    //public int? UPPU { get; set; }
+    //public int? UJerk { get; set; }
     public double? XVelService { get; set; }
     public double? YVelService { get; set; }
     public double? ZVelService { get; set; }
-    public double? UVelService { get; set; }
+    //public double? UVelService { get; set; }
     public double? YVelLow { get; set; }
-    public double? ZObjective { get; set; }
-    public bool? CoolantSensorDsbl { get; set; }
+    //public double? ZObjective { get; set; }
+    //public bool? CoolantSensorDsbl { get; set; }
     public double? XLoad { get; set; }
     public double? YLoad { get; set; }
     public double? CameraScale { get; set; }
@@ -99,8 +111,10 @@ internal class LaserMachineSettings
     public int? DefaultWidth { get; set; }
     public int? DefaultHeight { get; set; }
     public bool? IsMirrored { get; set; }
-    public bool? IsRotated { get; set; }
+    //public bool? IsRotated { get; set; }
     public double? WaferWidth { get; set; }
     public double? WaferHeight { get; set; }
     public double? WaferThickness { get; set; }
+    public int? PreferredCameraCapabilities { get; set; }
+    public double? PazAngle { get; set; }
 }
