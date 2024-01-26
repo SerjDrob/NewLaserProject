@@ -150,7 +150,7 @@ namespace NewLaserProject
             }.Show();
 
             viewModel?.OnInitialized();
-            AllocConsole();
+            //AllocConsole();
         }
 
         protected override void OnDeactivated(EventArgs e)

@@ -50,8 +50,8 @@ namespace NewLaserProject.Classes
             var config = new MapperConfiguration(expr =>
             {
                 expr.CreateMap<MachineSettingsVM,LaserMachineSettings>()
-                .ForMember(dest => dest.ZeroFocusPoint, opt => opt.MapFrom(source => source.ZLaser))
-                .ForMember(dest => dest.ZeroPiercePoint, opt => opt.MapFrom(source => source.ZCamera)); ;
+                .ForMember(dest => dest.ZeroFocusPoint, opt => opt.MapFrom(source => source.ZCamera))
+                .ForMember(dest => dest.ZeroPiercePoint, opt => opt.MapFrom(source => source.ZLaser)); ;
             });
             var mapper = new Mapper(config);
             var obj = mapper.Map(machineSettings, laserMachineSettings);
