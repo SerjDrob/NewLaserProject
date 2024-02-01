@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -53,6 +54,23 @@ namespace NewLaserProject
 
             var settingsManager = new SettingsManager<LaserMachineSettings>(AppPaths.LaserMachineSettings);
             settingsManager.Load();
+
+
+
+            var result = settingsManager.Settings.GetType().GetProperties().Any(p => p.GetValue(settingsManager.Settings)!= default);
+            if (!result)
+            {
+                var configs = new MapperConfiguration(conf =>
+                {
+                    conf.CreateMap<Settings,LaserMachineSettings>()
+                    .ForMember(ls=>ls.PreferredCameraCapabilities, opt=>opt.MapFrom(s=>s.PreferedCameraCapabilities));
+                });
+                var mapper = new Mapper(configs);
+                var settings = mapper.Map<LaserMachineSettings>(Settings.Default);
+                settingsManager.SetSettings(settings);
+                settingsManager.Save();
+            }
+
 
             MainIoC = new ServiceCollection();
 

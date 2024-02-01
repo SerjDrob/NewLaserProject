@@ -12,6 +12,7 @@ internal interface ISettingsManager<TSettings>
 {
     TSettings Settings { get; }
     void Save();
+    void SetSettings(TSettings settings);
     void Load();
 }
 internal class SettingsManager<T> : ISettingsManager<T>
@@ -47,7 +48,12 @@ internal class SettingsManager<T> : ISettingsManager<T>
 
             throw;
         }
-    }    
+    }
+
+    public void SetSettings(T settings)
+    {
+        Settings = settings;
+    }
 }
 
 internal static class SettingsManagerExtensions
