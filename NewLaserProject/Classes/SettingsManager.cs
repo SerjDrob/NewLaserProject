@@ -6,53 +6,55 @@ using System.Text;
 using System.Threading.Tasks;
 using NewLaserProject.Properties;
 
-namespace NewLaserProject.Classes;
-
-internal interface ISettingsManager<TSettings>
+namespace NewLaserProject.Classes
 {
-    TSettings Settings { get; }
-    void Save();
+
+    internal interface ISettingsManager<TSettings>
+    {
+        TSettings Settings { get; }
+        void Save();
     void SetSettings(TSettings settings);
-    void Load();
-}
-internal class SettingsManager<T> : ISettingsManager<T>
-{
-    private readonly string _settingsPath;
-    public T? Settings
-    {
-        get;
-        private set;
+        void Load();
     }
-    public SettingsManager(string settingsPath) => _settingsPath = settingsPath;
-    public void Load() 
+    internal class SettingsManager<T> : ISettingsManager<T>
     {
-        try
+        private readonly string _settingsPath;
+        public T? Settings
         {
-            var deserializer = new JsonDeserializer<T>();
-            Settings = deserializer.DeserializeFromFile(_settingsPath);
+            get;
+            private set;
         }
-        catch (Exception)
+        public SettingsManager(string settingsPath) => _settingsPath = settingsPath;
+        public void Load()
         {
+            try
+            {
+                var deserializer = new JsonDeserializer<T>();
+                Settings = deserializer.DeserializeFromFile(_settingsPath);
+            }
+            catch (Exception)
+            {
 
-            throw;
+                throw;
+            }
         }
-    }
-    public void Save()
-    {
-        try
+        public void Save()
         {
-            Settings?.SerializeObject(_settingsPath);
-        }
-        catch (Exception)
-        {
+            try
+            {
+                Settings?.SerializeObject(_settingsPath);
+            }
+            catch (Exception)
+            {
 
-            throw;
-        }
+                throw;
+            }
     }
 
     public void SetSettings(T settings)
     {
         Settings = settings;
+    }
     }
 }
 
