@@ -133,69 +133,77 @@ namespace NewLaserProject.Classes.Process
 
             async Task ProcessingTheWaferAsync(ICoorSystem coorSystem)
             {
-                if (_mainCancellationToken.IsCancellationRequested) return;
-                _subject.OnNext(new ProcessingStarted());
-                foreach (var item in _processing)
+                try
                 {
-                    _currentMicroProcCts = item.microProcess.GetCancellationTokenSource();
-                    for (var i = 0; i < item.microProcess.GetMainLoopCount(); i++)
+                    if (_mainCancellationToken.IsCancellationRequested) return;
+                    _subject.OnNext(new ProcessingStarted());
+                    foreach (var item in _processing)
                     {
-                        var currentObjects = item.microProcess.IsLoopShuffle ? item.procObjects.Shuffle() : item.procObjects;
-                        if (_mainCancellationToken.IsCancellationRequested) break;
-                        foreach (var pObject in currentObjects)
+                        _currentMicroProcCts = item.microProcess.GetCancellationTokenSource();
+                        for (var i = 0; i < item.microProcess.GetMainLoopCount(); i++)
                         {
-                            var procObject = _procWafer.GetProcObjectToWafer(pObject);
+                            var currentObjects = item.microProcess.IsLoopShuffle ? item.procObjects.Shuffle() : item.procObjects;
                             if (_mainCancellationToken.IsCancellationRequested) break;
-                            _subject.OnNext(new ProcObjectChanged(procObject));
-
-                            if (!_excludedObjects?.Any(o => o.Id == procObject.Id) ?? true)
+                            foreach (var pObject in currentObjects)
                             {
-                                var position = coorSystem.ToGlobal(procObject.X, procObject.Y);
-                                _laserMachine.SetVelocity(Velocity.Fast);
-                                await Task.WhenAll(
-                                     _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
-                                     _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true),
-                                     Task.Run(async () => { if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness); })
-                                     );
-                                procObject.IsBeingProcessed = true;
+                                var procObject = _procWafer.GetProcObjectToWafer(pObject);
+                                if (_mainCancellationToken.IsCancellationRequested) break;
                                 _subject.OnNext(new ProcObjectChanged(procObject));
-                                if (_inProcess && !_underCamera)
+
+                                if (!_excludedObjects?.Any(o => o.Id == procObject.Id) ?? true)
                                 {
-                                    try
+                                    var position = coorSystem.ToGlobal(procObject.X, procObject.Y);
+                                    _laserMachine.SetVelocity(Velocity.Fast);
+                                    await Task.WhenAll(
+                                         _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
+                                         _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true),
+                                         Task.Run(async () => { if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness); })
+                                         );
+                                    procObject.IsBeingProcessed = true;
+                                    _subject.OnNext(new ProcObjectChanged(procObject));
+                                    if (_inProcess && !_underCamera)
                                     {
-                                        await item.microProcess.InvokePierceFunctionForObjectAsync(procObject);
-                                    }
-                                    catch (MarkerException ex)
-                                    {
-                                        _subject.OnNext(new ProcessMessage(ex.Message, MsgType.Error));
-                                        Console.Error.WriteLine(ex.Message);
-                                        goto M1;
-                                    }
-                                }
-                                else
-                                {
-                                    await Task.Delay(1000);
-                                    var pointsLine = string.Empty;
-                                    var line = $" X: {Math.Round(procObject.X, 3),8} | Y: {Math.Round(procObject.Y, 3),8} | X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8} | X: {Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: {Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
-                                    if (HandyControl.Controls.MessageBox.Ask($" X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8}") == System.Windows.MessageBoxResult.OK)
-                                    {
-                                        pointsLine = "GOOD" + line;
+                                        try
+                                        {
+                                            await item.microProcess.InvokePierceFunctionForObjectAsync(procObject);
+                                        }
+                                        catch (MarkerException ex)
+                                        {
+                                            _subject.OnNext(new ProcessMessage(ex.Message, MsgType.Error));
+                                            Console.Error.WriteLine(ex.Message);
+                                            goto M1;
+                                        }
                                     }
                                     else
                                     {
-                                        pointsLine = $"BAD " + line;
+                                        await Task.Delay(1000);
+                                        var pointsLine = string.Empty;
+                                        var line = $" X: {Math.Round(procObject.X, 3),8} | Y: {Math.Round(procObject.Y, 3),8} | X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8} | X: {Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: {Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
+                                        if (HandyControl.Controls.MessageBox.Ask($" X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8}") == System.Windows.MessageBoxResult.OK)
+                                        {
+                                            pointsLine = "GOOD" + line;
+                                        }
+                                        else
+                                        {
+                                            pointsLine = $"BAD " + line;
+                                        }
                                     }
+                                    procObject.IsProcessed = true;
+                                    _subject.OnNext(new ProcObjectChanged(procObject));
                                 }
-                                procObject.IsProcessed = true;
-                                _subject.OnNext(new ProcObjectChanged(procObject));
                             }
                         }
                     }
+M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+                    var completeStatus = _mainCancellationToken.IsCancellationRequested ? CompletionStatus.Cancelled : CompletionStatus.Success;
+                    _subject.OnNext(new ProcessingStopped());
+                    _subject.OnNext(new ProcCompletionPreview(completeStatus, coorSystem));
                 }
- M1:            _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
-                var completeStatus = _mainCancellationToken.IsCancellationRequested ? CompletionStatus.Cancelled : CompletionStatus.Success;
-                _subject.OnNext(new ProcessingStopped());
-                _subject.OnNext(new ProcCompletionPreview(completeStatus, coorSystem));
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
             }
             _subject.OfType<SnapShotResult>()
                 .Select(result => Observable.FromAsync(async () =>

@@ -55,6 +55,10 @@
                 <views:MechanicView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewmodels:WorkTimeStatisticsVM}">
+                <views:WorkTimeStatisticsView/>
+            </DataTemplate>
+            
             <!--<DataTemplate DataType="{x:Type dialogvm:AskThicknessVM}">
                 
             </DataTemplate>-->

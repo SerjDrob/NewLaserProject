@@ -729,6 +729,16 @@
                     <ContentControl Content="{Binding LaserDbVM}"/>
                 </DockPanel>
             </TabItem>
+            <TabItem Header="Статистика" TabIndex="2">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="GotFocus">
+                        <i:ChangePropertyAction TargetObject="{Binding}" PropertyName="IsMainTabOpen" Value="False"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <DockPanel>
+                    <ContentControl Content="{Binding StatisticsVM}"/>
+                </DockPanel>
+            </TabItem>
         </TabControl>
     </Grid>
 </hc:GlowWindow>

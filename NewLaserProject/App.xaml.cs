@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data;
+using NewLaserProject.Data.Models;
 using NewLaserProject.Properties;
 using NewLaserProject.Repositories;
 using NewLaserProject.ViewModels;
@@ -81,7 +82,15 @@ namespace NewLaserProject
                        var connectionString = ConfigurationManager.ConnectionStrings["myDb"].ToString();
                        options.UseSqlite(connectionString);
                    }, ServiceLifetime.Singleton)
+                   .AddDbContext<WorkTimeDbContext>(options =>
+                   {
+                       var connectionString = ConfigurationManager.ConnectionStrings["worktimeDB"].ToString();
+                       options.UseSqlite(connectionString);
+                   })
                    .AddTransient(typeof(IRepository<>), typeof(LaserRepository<>))
+                   .AddSingleton<WorkTimeLogger>()
+                   .AddTransient<IRepository<WorkTimeLog>, WorkTimeLogRepository<WorkTimeLog>>()
+                   .AddTransient<IRepository<ProcTimeLog>, WorkTimeLogRepository<ProcTimeLog>>()
                    .AddSingleton<ISubject<IProcessNotify>, Subject<IProcessNotify>>()
                    .AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
@@ -95,6 +104,7 @@ namespace NewLaserProject
                    .AddSingleton<ExceptionsAgregator>()
                    .AddScoped<JCZLaser>()
                    .AddScoped<MockLaser>()
+                   .AddScoped<WorkTimeStatisticsVM>()
                    //.AddScoped<PWM3>()
                    .AddSingleton<PWM3>()
                    //.AddScoped<PWM2>()
@@ -141,20 +151,26 @@ namespace NewLaserProject
                    });
         }
 
-        private void Dispatcher_UnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+
+        private async void Dispatcher_UnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             _principleLogger.LogError(e.Exception, "An unhandled Exception was thrown");
+            await _workTimeLogger.LogAppFailed(e.Exception);
         }
         private ILogger _principleLogger;
-        protected override void OnStartup(StartupEventArgs e)
+        private WorkTimeLogger _workTimeLogger;
+        protected override async void OnStartup(StartupEventArgs e)//TODO Bad 
         {
             var provider = MainIoC.BuildServiceProvider();
             var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
             _principleLogger = loggerProvider.CreateLogger("AppLogger");
+            _workTimeLogger = provider.GetRequiredService<WorkTimeLogger>();
+            await _workTimeLogger.LogAppStarted(); 
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
             var viewModel = provider.GetService<MainViewModel>();
             var context = provider.GetService<DbContext>() as LaserDbContext;
+            var worktimeContext = provider.GetService<WorkTimeDbContext>();
             context?.LoadSetsAsync();
 
             base.OnStartup(e);
@@ -162,16 +178,19 @@ namespace NewLaserProject
             Trace.TraceInformation("The application started");
             Trace.Flush();
 
-            new MainView()
+            var mainView = new MainView()
             {
                 DataContext = viewModel
-            }.Show();
+            };
+
+            mainView.Closing += MainView_Closing;
+            mainView.Show();
 
             viewModel?.OnInitialized();
             //AllocConsole();
         }
 
-        protected override void OnDeactivated(EventArgs e)
+        private async void MainView_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             var sourceString = ConfigurationManager.ConnectionStrings["myDb"].ToString();
             var destString = ConfigurationManager.ConnectionStrings["myDbBackup"].ToString();
@@ -183,6 +202,11 @@ namespace NewLaserProject
                 destination.Open();
                 location.BackupDatabase(destination);
             }
+            await _workTimeLogger.LogAppStopped();
+        }
+
+        protected override void OnDeactivated(EventArgs e)
+        {
             base.OnDeactivated(e);
         }
     }

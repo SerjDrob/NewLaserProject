@@ -22,6 +22,8 @@ using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process.ProcessFeatures;
+using NewLaserProject.Data.Models;
+using NewLaserProject.Data.Models.WorkTimeFeatures.Create;
 using NewLaserProject.Properties;
 using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
@@ -39,20 +41,11 @@ namespace NewLaserProject.ViewModels
         public bool IsCentralPanelVisible { get; set; } = false;
         public bool IsLearningPanelVisible { get; set; } = false;
         public bool IsProcessPanelVisible { get; set; } = false;
-        public string TechInfo
-        {
-            get; set;
-        }
-        public string IconPath
-        {
-            get; set;
-        }
+        public string TechInfo { get; set; }
+        public string IconPath { get; set; }
         public bool OnProcess { get; set; } = false;
         public MessageType CurrentMessageType { get; private set; } = MessageType.Empty;
-        public BitmapImage CameraImage
-        {
-            get; set;
-        }
+        public BitmapImage CameraImage { get; set; }
         public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
         public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
@@ -61,20 +54,12 @@ namespace NewLaserProject.ViewModels
 
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
-        public object RightSideVM
-        {
-            get; set;
-        }
-        public object CentralSideVM
-        {
-            get; set;
-        }
+        public object RightSideVM  { get; set; }
+        public object CentralSideVM { get; set; }
+        public MechanicVM MechTableVM { get; set; }
+        public WorkTimeStatisticsVM StatisticsVM { get; set; }
 
-        public MechanicVM MechTableVM
-        {
-            get; set;
-        }
-
+        private readonly WorkTimeLogger? _workTimeLogger;
         private CameraVM _cameraVM;
 
         private readonly IMediator _mediator;
@@ -116,7 +101,8 @@ namespace NewLaserProject.ViewModels
             var workingDirectory = Environment.CurrentDirectory;
             _laserMachine.CameraPlugged += _laserMachine_CameraPlugged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
-
+            StatisticsVM = _serviceProvider.GetRequiredService<WorkTimeStatisticsVM>();
+            _workTimeLogger = _serviceProvider.GetService<WorkTimeLogger>();
 
             _coorSystem = GetCoorSystem(AppPaths.PureDeformation);
             TuneCoorSystem();
@@ -148,6 +134,19 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartMonitoringState();
             MechTableVM = new();
             _logger.Log(LogLevel.Information, "App started");
+
+            //var startLog = new WorkTimeLog()
+            //{
+            //    StartApp = DateTime.Now,
+            //    IsProcess = false
+            //};
+            //_mediator.Send(new CreateWorkTimeLogRequest(startLog))
+            //    .ContinueWith(t =>
+            //    {
+            //        var res = t.Result;
+            //    });
+
+
         }
 
         private void _laserMachine_CameraPlugged(object? sender, EventArgs e)

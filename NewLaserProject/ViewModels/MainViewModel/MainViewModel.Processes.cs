@@ -6,10 +6,10 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
-using System.Windows.Media;
 using HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Tools.Extension;
@@ -18,7 +18,6 @@ using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
-using MachineControlsLibrary.Classes;
 using MachineControlsLibrary.CommonDialog;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -26,43 +25,22 @@ using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models;
-using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using Newtonsoft.Json;
 using Path = System.IO.Path;
-using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
 {
 
     internal partial class MainViewModel
     {
-        public ObservableCollection<ProcObjTabVM> ProcessingObjects
-        {
-            get; set;
-        }
+        public ObservableCollection<ProcObjTabVM> ProcessingObjects { get; set; }
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
-
-        public IProcObject IsBeingProcessedObject
-        {
-            get; set;
-        }
-        public FileAlignment FileAlignment
-        {
-            get; set;
-        }
-        public Technology CurrentTechnology
-        {
-            get; set;
-        }
-        public string CurrentLayerFilter
-        {
-            get; set;
-        }
-        public LaserEntity CurrentEntityType
-        {
-            get; set;
-        }
+        public IProcObject IsBeingProcessedObject { get; set; }
+        public FileAlignment FileAlignment { get; set; }
+        public Technology CurrentTechnology { get; set; }
+        public string CurrentLayerFilter { get; set; }
+        public LaserEntity CurrentEntityType { get; set; }
         public bool IsWaferMark
         {
             get => _openedFileVM?.IsMarkTextVisible ?? false;
@@ -71,18 +49,20 @@ namespace NewLaserProject.ViewModels
                 if (_openedFileVM is not null) _openedFileVM.IsMarkTextVisible = value;
             }
         }
-        public MarkPosition MarkPosition
-        {
-            get; set;
-        }
-        public bool IsProcessLoaded
-        {
-            get;
-            private set;
-        }
-
+        public MarkPosition MarkPosition { get; set; }
+        public bool IsProcessLoaded { get; private set; }
 
         private List<IDisposable> _currentProcSubscriptions;
+        private DateTime _procStartTime;
+        private DateTime _procObjTempTime = new(0);
+        private Timer _processTimer;
+        private bool _currObjectStarted;
+        public string CurrentProcObjectTimer { get; set; }
+        public string LastProcObjectTimer { get; set; }
+        public string TotalProcessTimer { get; set; }
+
+        private bool _onProcessing = false;
+        public ObservableCollection<ObjectForProcessing> ChosenProcessingObjects { get; set; }
 
         [ICommand]
         private async Task StartStopProcess(object arg)
@@ -114,26 +94,7 @@ namespace NewLaserProject.ViewModels
             CurrentProcObjectTimer = _procObjTempTime.ToString("mm:ss");
         }
 
-        private DateTime _procStartTime;
-        private DateTime _procObjTempTime = new(0);
-        private Timer _processTimer;
-        private bool _currObjectStarted;
-        public string CurrentProcObjectTimer
-        {
-            get;
-            set;
-        }
-        public string LastProcObjectTimer
-        {
-            get;
-            set;
-        }
-        public string TotalProcessTimer
-        {
-            get;
-            set;
-        }
-        private bool _onProcessing = false;
+       
 
         [ICommand]
         private void DenyDownloadedProcess()
@@ -158,11 +119,7 @@ namespace NewLaserProject.ViewModels
             IsProcessLoaded = false;
             _openedFileVM.IsCircleButtonVisible = true;
         }
-        public ObservableCollection<ObjectForProcessing> ChosenProcessingObjects
-        {
-            get;
-            set;
-        }
+        
 
         private IEnumerable<IProcObject> ArrangeProcObjects(List<IProcObject> procObjects)
         {
@@ -237,7 +194,7 @@ namespace NewLaserProject.ViewModels
                     catch (Exception)
                     {
                     }
-                   
+
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
                     var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
 
@@ -331,12 +288,14 @@ namespace NewLaserProject.ViewModels
                                 MessageBox.Success("Процесс завершён");
                                 _signalColumn.TurnOff();
                                 _signalColumn.TurnOnLight(LightColumn.Light.Green);
+                                _workTimeLogger?.LogProcessEnded();
                                 break;
                             case CompletionStatus.Cancelled:
                                 _ = _signalColumn.BlinkLightAsync(LightColumn.Light.Red).ConfigureAwait(false);
                                 MessageBox.Fatal("Процесс отменён");
                                 _signalColumn.TurnOff();
                                 _signalColumn.TurnOnLight(LightColumn.Light.Green);
+                                _workTimeLogger?.LogProcessCanceled();
                                 break;
                             default:
                                 break;
@@ -441,12 +400,14 @@ namespace NewLaserProject.ViewModels
 
             var result = await Dialog.Show<CheckParamsDialog>()
                .SetDialogTitle("Запуск процесса")
-                .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
-                .GetCommonResultAsync<double>();
+               .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
+               .GetCommonResultAsync<double>();
+            
+            ProcessParams procParams;
 
             if (result.Success)
             {
-                var procParams = new ProcessParams(result.CommonResult);
+                 procParams = new ProcessParams(result.CommonResult);
                 _mainProcess?.ChangeParams(procParams);
             }
             else
@@ -472,6 +433,13 @@ namespace NewLaserProject.ViewModels
                     $"Layer's name for processing: {CurrentLayerFilter}" +
                     $"Entity type for processing: {CurrentEntityType}");
                 _signalColumn.TurnOnLight(LightColumn.Light.Yellow);
+
+                var techName =
+                    ChosenProcessingObjects.Aggregate(new StringBuilder(), 
+                    (acc, obj) => acc.AppendLine($"{obj.Layer} -> {obj.LaserEntity} -> {obj.Technology.ProgramName}"),
+                    acc=>acc.ToString());
+
+                _workTimeLogger?.LogProcessStarted(FileName, procParams.WaferThickness.ToString(), techName, WaferThickness);
                 await _mainProcess.StartAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
