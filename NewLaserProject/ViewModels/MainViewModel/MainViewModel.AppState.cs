@@ -5,7 +5,7 @@ using Stateless;
 
 namespace NewLaserProject.ViewModels
 {
-    internal partial class MainViewModel
+    public partial class MainViewModel
     {
         private StateMachine<AppState, AppTrigger> _appStateMachine;
         public bool IsMainTabOpen { get; set; } = true;

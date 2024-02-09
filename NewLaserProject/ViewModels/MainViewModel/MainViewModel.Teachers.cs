@@ -29,7 +29,7 @@ using MachineClassLibrary.Laser.Parameters;
 namespace NewLaserProject.ViewModels
 {
 
-    internal partial class MainViewModel
+    public partial class MainViewModel
     {
         public double TeacherPointerX { get; set; }
         public double TeacherPointerY { get; set; }

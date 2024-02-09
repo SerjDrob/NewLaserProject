@@ -25,7 +25,7 @@ using NewLaserProject.ViewModels.DialogVM;
 
 namespace NewLaserProject.ViewModels
 {
-    internal partial class MainViewModel
+    public partial class MainViewModel
     {
         public ICommand? TestKeyCommand
         {

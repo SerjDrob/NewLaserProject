@@ -1,38 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-  
+
+
   <PropertyGroup>
-    
+
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-	<Platforms>AnyCPU;x86</Platforms>
+    <Platforms>AnyCPU;x86</Platforms>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <UseWPF>true</UseWPF>
-    <DefineConstants>TRACE;PCIInserted;DEBUGGING<!--InvertAngles--></DefineConstants>
+    <DefineConstants>
+      TRACE;PCIInserted;DEBUGGING<!--InvertAngles-->
+    </DefineConstants>
     <StartupObject></StartupObject>
     <ApplicationIcon>Views\Sources\Laser.ico</ApplicationIcon>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Product>УФЛ-1</Product>
-   
+
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-	<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-	<Optimize>false</Optimize>
-	<PlatformTarget>x86</PlatformTarget>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
-  
-  
+
+
   <ItemGroup>
-    <Compile Remove="Views\MainView2.xaml.cs" />	  
+    <Compile Remove="Views\MainView2.xaml.cs" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <None Remove="splashscreen2.png" />
     <None Remove="Views\Dictionaries\HatchAttr1.png" />
@@ -49,7 +51,7 @@
     <None Remove="Views\TableReady.png" />
     <None Remove="Views\WorkpieceTable.png" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Content Include="EZCAD\res\Company.bmp" />
     <Content Include="EZCAD\res\drawbar.bmp" />
@@ -155,7 +157,7 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
     <PackageReference Include="Tang.Library.Algorithm" Version="0.0.3" />
     <PackageReference Include="UnitsNet" Version="5.32.0" />
     <PackageReference Include="ValueConverters" Version="2.2.10" />
@@ -170,24 +172,24 @@
   </ItemGroup>
 
   <ItemGroup>
-	<None Update="EZCAD\MarkEzd.dll">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Update="AppSettings\*">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Update="Database\*">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Update="TechnologyFiles\*">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Update="TempFiles\*">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-	<None Update="LaserSplash.png">
-	  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	</None>
+    <None Update="EZCAD\MarkEzd.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AppSettings\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TechnologyFiles\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TempFiles\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="LaserSplash.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -198,57 +200,61 @@
     <Folder Include="Data\Models\MaterialFeatures\Update\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
-  
-    <ItemGroup>
-        <ContentWithTargetPath Include="EZCAD\**">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
-        </ContentWithTargetPath>
-    </ItemGroup>
-  
-    <ItemGroup>
-      <Compile Remove="Themes\**" />
-      <EmbeddedResource Remove="Themes\**" />
-      <None Remove="Themes\**" />
-      <Page Remove="Themes\**" />
-    </ItemGroup>
-  
-    <ItemGroup>
-      <ContentWithTargetPath Remove="EZCAD\MarkEzd.dll" />
-    </ItemGroup>
-  
-    <ItemGroup>
-      <Page Remove="Views\Dictionaries\Styles.xaml" />
-      <Page Remove="Views\MainView2.xaml" />
-    </ItemGroup>
-  
-    <ItemGroup>
-      <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
-      <ProjectReference Include="..\..\MachineControlsLibrary\MachineControlsLibrary.csproj" />
-    </ItemGroup>
-  
-    <ItemGroup>
-      <Resource Include="Views\Dictionaries\HatchAttr1.png" />
-      <Resource Include="Views\Dictionaries\Styles.xaml" />
-      <Resource Include="Views\HuarayBlock.png" />
-      <Resource Include="Views\TableReady.png" />
-      <Resource Include="Views\WorkpieceTable.png" />
-    </ItemGroup>
 
-	<ItemGroup>
-		<SplashScreen Include="splashscreen2.png">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</SplashScreen>
-	</ItemGroup>
-  
-    <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
-  
-    <ItemGroup>
-      <EditorConfigFiles Remove="C:\Users\Serj\source\repos\NewLaserProject\NewLaserProject\.editorconfig" />
-    </ItemGroup>
-  
-    <ItemGroup>
-      <None Include="C:\Users\Serj\source\repos\NewLaserProject\NewLaserProject\.editorconfig" />
-    </ItemGroup>
-  
+  <ItemGroup>
+    <ContentWithTargetPath Include="EZCAD\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Themes\**" />
+    <EmbeddedResource Remove="Themes\**" />
+    <None Remove="Themes\**" />
+    <Page Remove="Themes\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ContentWithTargetPath Remove="EZCAD\MarkEzd.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="Views\Dictionaries\Styles.xaml" />
+    <Page Remove="Views\MainView2.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
+    <ProjectReference Include="..\..\MachineControlsLibrary\MachineControlsLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Views\Dictionaries\HatchAttr1.png" />
+    <Resource Include="Views\Dictionaries\Styles.xaml" />
+    <Resource Include="Views\HuarayBlock.png" />
+    <Resource Include="Views\TableReady.png" />
+    <Resource Include="Views\WorkpieceTable.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SplashScreen Include="splashscreen2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </SplashScreen>
+  </ItemGroup>
+
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties />
+    </VisualStudio>
+  </ProjectExtensions>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\Serj\source\repos\NewLaserProject\NewLaserProject\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\Serj\source\repos\NewLaserProject\NewLaserProject\.editorconfig" />
+  </ItemGroup>
+
 </Project>

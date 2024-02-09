@@ -23,7 +23,20 @@ namespace NewLaserProject.ViewModels
             _mediator.Send(new GetFullWorkTimeLogRequest())
                 .ContinueWith(x =>
                 {
-                    WorkTimeLogs = x.Result?.Logs.Where(l=>l?.ProcTimeLogs.Any() ?? false).ToObservableCollection();
+                    //WorkTimeLogs = x.Result?.Logs.Where(l=>l?.ProcTimeLogs.Any() ?? false).ToObservableCollection();
+
+                    var wtLogs = x.Result?.Logs.Where(l => l?.ProcTimeLogs?.Any() ?? false);
+                    foreach (var wtlog in wtLogs)
+                    {
+                        var start = wtlog.StartTime;
+                        _ = wtlog?.ProcTimeLogs?.Aggregate(start, (acc, cur) =>
+                        {
+                            cur.YieldTime = cur.StartTime - acc;
+                            return cur.EndTime;
+                        });
+                    }
+
+                    WorkTimeLogs = wtLogs.ToObservableCollection();
 
                 }, TaskScheduler.Default).ConfigureAwait(false);
         }

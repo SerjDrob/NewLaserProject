@@ -24,7 +24,7 @@ using CommonDialog = MachineControlsLibrary.CommonDialog.CommonDialog;
 
 namespace NewLaserProject.ViewModels
 {
-    internal partial class MainViewModel
+    public partial class MainViewModel
     {
         [OnChangedMethod(nameof(FileScaleChanged))]
         public Scale DefaultFileScale { get; set; } = Scale.ThousandToOne;                

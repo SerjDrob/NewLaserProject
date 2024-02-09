@@ -2,7 +2,7 @@
 
 namespace NewLaserProject.ViewModels
 {
-    internal class ProcObjTabVM
+    public class ProcObjTabVM
     {
         public int Index
         {

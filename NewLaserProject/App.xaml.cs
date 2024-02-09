@@ -13,6 +13,7 @@ using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
+using MachineClassLibrary.Miscellaneous;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.Data.Sqlite;
@@ -101,13 +102,10 @@ namespace NewLaserProject
                        motionBoard.SetPrecision(machineconfigs.AxesTolerance);
                        return motionBoard;
                    })
-                   .AddSingleton<ExceptionsAgregator>()
                    .AddScoped<JCZLaser>()
                    .AddScoped<MockLaser>()
                    .AddScoped<WorkTimeStatisticsVM>()
-                   //.AddScoped<PWM3>()
                    .AddSingleton<PWM3>()
-                   //.AddScoped<PWM2>()
                    .AddSingleton(sp =>
                    {
                        return new LaserBoardFactory(sp, machineconfigs).GetPWM();
@@ -141,12 +139,12 @@ namespace NewLaserProject
                        var loggerProvider = sp.GetRequiredService<ILoggerProvider>();
                        return new(mediator, defaultParams, loggerProvider);
                    })
-                   .AddTransient<MarkSettingsVM>(sp =>
+                   .AddTransient(sp =>
                    {
                        var defLaserParams = ExtensionMethods
                             .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
                        var mapper = sp.GetService<IMapper>();
-                       var vm = mapper?.Map<MarkSettingsVM>(defLaserParams);
+                       var vm = mapper?.Map<MarkSettingsVM>(defLaserParams) ?? new();
                        return vm;
                    });
         }
@@ -171,6 +169,8 @@ namespace NewLaserProject
             var viewModel = provider.GetService<MainViewModel>();
             var context = provider.GetService<DbContext>() as LaserDbContext;
             var worktimeContext = provider.GetService<WorkTimeDbContext>();
+
+
             context?.LoadSetsAsync();
 
             base.OnStartup(e);

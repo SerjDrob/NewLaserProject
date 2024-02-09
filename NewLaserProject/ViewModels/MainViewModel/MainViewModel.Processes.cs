@@ -32,7 +32,7 @@ using Path = System.IO.Path;
 namespace NewLaserProject.ViewModels
 {
 
-    internal partial class MainViewModel
+    public partial class MainViewModel
     {
         public ObservableCollection<ProcObjTabVM> ProcessingObjects { get; set; }
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();

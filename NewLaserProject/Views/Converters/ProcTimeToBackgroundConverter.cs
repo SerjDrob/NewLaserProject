@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
+using System.Windows.Media;
 using NewLaserProject.Data.Models;
 
 namespace NewLaserProject.Views.Converters
 {
-    internal class ProcTimeToProcEndConverter : IValueConverter
+    internal class ProcTimeToBackgroundConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -18,23 +15,23 @@ namespace NewLaserProject.Views.Converters
                 var procTimeLog = (ProcTimeLog)value;
                 if (procTimeLog.Success)
                 {
-                    return "Завершён";
+                    return Brushes.YellowGreen;
                 }
                 else
                 {
-                    if (procTimeLog.ExceptionMessage!=null)
+                    if (procTimeLog.ExceptionMessage != null)
                     {
-                        return "Ошибка";
+                        return Brushes.Red;
                     }
                     else
                     {
-                        return "Отменён";
+                        return Brushes.Orange;
                     }
                 }
             }
             catch (Exception)
             {
-                return string.Empty;
+                throw;
             }
         }
 

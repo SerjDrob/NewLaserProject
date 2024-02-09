@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:NewLaserProject.Views"
              xmlns:vm="clr-namespace:NewLaserProject.ViewModels"
              xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -17,112 +18,110 @@
         <converters:ProcTimeToBackgroundConverter x:Key="ProcTimeBackgroundConverter"/>
     </UserControl.Resources>
     <Grid Background="Green">
+        <Grid.Resources>
+            <DataTemplate x:Key="TimeSpanTemplate" DataType="sys:TimeSpan">
+                <TextBlock Style="{StaticResource TextBlockDefault}">
+                    <Run Text="{Binding Hours, Mode=OneWay}"/>
+                    <Run Text="ч"/>
+                    <Run Text="{Binding Minutes, Mode=OneWay}"/>
+                    <Run Text="мин"/>
+                </TextBlock>
+            </DataTemplate>
+        </Grid.Resources>
         <GroupBox Header="Статистика рабочего времени">
-            <StackPanel>
-                <TreeViewItem>
-                    <TreeViewItem.Header>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition SharedSizeGroup="Task"/>
-                                <ColumnDefinition SharedSizeGroup="Toggle"/>
-                                <ColumnDefinition SharedSizeGroup="Toggle"/>
-                                <ColumnDefinition SharedSizeGroup="Duration"/>
-                                <ColumnDefinition SharedSizeGroup="Notes"/>
-                                <ColumnDefinition SharedSizeGroup="Load"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Дата" Foreground="{StaticResource AccentBrush}" Style="{StaticResource TextBlockBoldBaseStyle}"/>
-                            <TextBlock Grid.Column="1" Text="Начало" Foreground="{StaticResource AccentBrush}" Style="{StaticResource TextBlockBoldBaseStyle}"/>
-                            <TextBlock Grid.Column="2" Text="Завершение" Style="{StaticResource TextBlockBoldBaseStyle}"/>
-                            <TextBlock Grid.Column="3" Text="Работа приложения, мин." Style="{StaticResource TextBlockBoldBaseStyle}"/>
-                            <TextBlock Grid.Column="4" Text="Длительность процессов, мин." Style="{StaticResource TextBlockBoldBaseStyle}"/>
-                            <TextBlock Grid.Column="5" Text="Загруженность, %" Style="{StaticResource TextBlockBoldBaseStyle}"/>
-                        </Grid>
-                    </TreeViewItem.Header>
-                </TreeViewItem>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Style="{StaticResource ScrollViewerNativeBaseStyle}">
-                    <ItemsControl Style="{StaticResource BaseStyle}" ItemsSource="{Binding WorkTimeLogs}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Expander Style="{StaticResource BaseStyle}">
-                                    <Expander.Header>
-                                        <Border BorderThickness="1" Background="{StaticResource DarkMaskBrush}">
-                                            <Grid ShowGridLines="True" HorizontalAlignment="{Binding Path=HorizontalAlignment, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentPresenter}}, Mode=OneWayToSource}" >
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition SharedSizeGroup="Task"/>
-                                                    <ColumnDefinition SharedSizeGroup="Toggle"/>
-                                                    <ColumnDefinition SharedSizeGroup="Toggle"/>
-                                                    <ColumnDefinition SharedSizeGroup="Duration"/>
-                                                    <ColumnDefinition SharedSizeGroup="Notes"/>
-                                                    <ColumnDefinition SharedSizeGroup="Load"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.Resources>
-                                                    <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockBaseStyle}"/>
-                                                </Grid.Resources>
-                                                <TextBlock Text="{Binding StartTime, ConverterCulture=ru-RU, StringFormat=dd:MM:yy}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding StartTime, ConverterCulture=ru-RU, StringFormat=HH:MM}"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding EndTime, ConverterCulture=ru-RU, StringFormat=HH:MM}"/>
-                                                <TextBlock Grid.Column="3" Text="{Binding Duration.TotalMinutes, StringFormat={}{0:0}}"/>
-                                                <TextBlock Grid.Column="4" Text="{Binding ProcsTime.TotalMinutes, StringFormat={}{0:0}}"/>
-                                                <TextBlock Grid.Column="5" Text="{Binding WorkLoad, StringFormat=##}"/>
-                                            </Grid>
-                                        </Border>
-                                    </Expander.Header>
-                                    <Grid HorizontalAlignment="Right">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="auto"/>
-                                            <ColumnDefinition Width="auto"/>
-                                            <ColumnDefinition Width="auto"/>
-                                            <ColumnDefinition Width="auto"/>
-                                            <ColumnDefinition Width="auto"/>
-                                        </Grid.ColumnDefinitions>
+            <hc:ScrollViewer>
+                <StackPanel>
+                    <TreeViewItem>
+                        <TreeViewItem.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition SharedSizeGroup="Task"/>
+                                    <ColumnDefinition SharedSizeGroup="Toggle"/>
+                                    <ColumnDefinition SharedSizeGroup="Toggle"/>
+                                    <ColumnDefinition SharedSizeGroup="Duration"/>
+                                    <ColumnDefinition SharedSizeGroup="Notes"/>
+                                    <ColumnDefinition SharedSizeGroup="Load"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Дата" Style="{StaticResource TextBlockBoldBaseStyle}"/>
+                                <TextBlock Grid.Column="1" Text="Начало" Style="{StaticResource TextBlockBoldBaseStyle}"/>
+                                <TextBlock Grid.Column="2" Text="Завершение" Style="{StaticResource TextBlockBoldBaseStyle}"/>
+                                <TextBlock Grid.Column="3" Text="Работа приложения, мин." Style="{StaticResource TextBlockBoldBaseStyle}"/>
+                                <TextBlock Grid.Column="4" Text="Длительность процессов, мин." Style="{StaticResource TextBlockBoldBaseStyle}"/>
+                                <TextBlock Grid.Column="5" Text="Загруженность, %" Style="{StaticResource TextBlockBoldBaseStyle}"/>
+                            </Grid>
+                        </TreeViewItem.Header>
+                    </TreeViewItem>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Style="{StaticResource ScrollViewerNativeBaseStyle}">
+                        <ItemsControl Style="{StaticResource BaseStyle}" ItemsSource="{Binding WorkTimeLogs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Expander Style="{StaticResource BaseStyle}">
+                                        <Expander.Header>
+                                            <Border BorderThickness="1" Background="{StaticResource DarkMaskBrush}">
+                                                <Grid ShowGridLines="True" HorizontalAlignment="{Binding Path=HorizontalAlignment, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentPresenter}}, Mode=OneWayToSource}" >
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition SharedSizeGroup="Task"/>
+                                                        <ColumnDefinition SharedSizeGroup="Toggle"/>
+                                                        <ColumnDefinition SharedSizeGroup="Toggle"/>
+                                                        <ColumnDefinition SharedSizeGroup="Duration"/>
+                                                        <ColumnDefinition SharedSizeGroup="Notes"/>
+                                                        <ColumnDefinition SharedSizeGroup="Load"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.Resources>
+                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockBaseStyle}"/>
+                                                    </Grid.Resources>
+                                                    <TextBlock Text="{Binding StartTime, ConverterCulture=ru-RU, StringFormat=dd:MM:yy}"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding StartTime, ConverterCulture=ru-RU, StringFormat=HH:mm}"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding EndTime, ConverterCulture=ru-RU, StringFormat=HH:mm}"/>
+                                                    <ContentControl Grid.Column="3" Content="{Binding Duration}" ContentTemplate="{StaticResource TimeSpanTemplate}"/>
+                                                    <ContentControl Grid.Column="4" Content="{Binding ProcsTime}" ContentTemplate="{StaticResource TimeSpanTemplate}"/>
+                                                    <TextBlock Grid.Column="5" Text="{Binding WorkLoad, StringFormat=##}"/>
+                                                </Grid>
+                                            </Border>
+                                        </Expander.Header>
+                                        <Grid HorizontalAlignment="Right">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <DataGrid Grid.Column="1" AutoGenerateColumns="False" ItemsSource="{Binding ProcTimeLogs}"  Style="{StaticResource DataGridBaseStyle}">
-                                            <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Пауза, мин." Binding="{Binding YieldTime.TotalMinutes, StringFormat={}{0:0}}" IsReadOnly="True" Foreground="{StaticResource WarningBrush}"/>
-                                                <DataGridTextColumn Header="Старт"  Binding="{Binding StartTime, ConverterCulture=ru-RU, StringFormat=HH:mm}" IsReadOnly="True"/>
-                                                <DataGridTextColumn Header="Длительность, мин."  Binding="{Binding Duration.TotalMinutes, StringFormat={}{0:0}}" IsReadOnly="True"/>
-                                                <DataGridTextColumn Header="Стоп" Binding="{Binding EndTime, ConverterCulture=ru-RU, StringFormat=HH:mm}" IsReadOnly="True"/>
-                                                <DataGridTextColumn Header="Топология" Binding="{Binding FileName}"/>
-                                                <DataGridTextColumn Header="Технология"  Binding="{Binding TechnologyName}" IsReadOnly="True"/>
-                                                <DataGridTemplateColumn Header="Завершение">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding Converter={StaticResource ProcTimeEndConverter}}"
+                                            <DataGrid Grid.Column="1" AutoGenerateColumns="False" ItemsSource="{Binding ProcTimeLogs}"  Style="{StaticResource DataGridBaseStyle}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Пауза, мин." Binding="{Binding YieldTime.TotalMinutes, StringFormat={}{0:0}}" IsReadOnly="True" Foreground="{StaticResource WarningBrush}"/>
+                                                    <DataGridTextColumn Header="Старт"  Binding="{Binding StartTime, ConverterCulture=ru-RU, StringFormat=HH:mm}" IsReadOnly="True"/>
+                                                    <!--<DataGridTextColumn Header="Длительность, мин."  Binding="{Binding Duration.TotalMinutes, StringFormat=HH:mm}" IsReadOnly="True"/>-->
+                                                    <DataGridTemplateColumn Header="Длительность">
+                                                        <DataGridTemplateColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <ContentControl ContentTemplate="{StaticResource TimeSpanTemplate}" Content="{Binding Duration}"/>
+                                                            </DataTemplate>
+                                                        </DataGridTemplateColumn.CellTemplate>
+                                                    </DataGridTemplateColumn>
+                                                    <DataGridTextColumn Header="Стоп" Binding="{Binding EndTime, ConverterCulture=ru-RU, StringFormat=HH:mm}" IsReadOnly="True"/>
+                                                    <DataGridTextColumn Header="Топология" Binding="{Binding FileName}"/>
+                                                    <DataGridTextColumn Header="Технология"  Binding="{Binding TechnologyName}" IsReadOnly="True"/>
+                                                    <DataGridTemplateColumn Header="Завершение">
+                                                        <DataGridTemplateColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Converter={StaticResource ProcTimeEndConverter}}"
                                                                        Foreground="{Binding Converter={StaticResource ProcTimeBackgroundConverter}}"
                                                                />
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                </DataGridTemplateColumn>
-                                            </DataGrid.Columns>
-                                        </DataGrid>
-                                    </Grid>
-                                </Expander>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </StackPanel>
-            <!--<DataGrid ItemsSource="{Binding WorkTimeLogs}" Style="{StaticResource DataGrid.Small}" AutoGenerateColumns="False">
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="Событие">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <hc:ToggleBlock IsChecked="{Binding IsProcess}">
-                                    <hc:ToggleBlock.CheckedContent>
-                                        <TextBlock Text="{Binding FileName}"/>
-                                    </hc:ToggleBlock.CheckedContent>
-                                    <hc:ToggleBlock.UnCheckedContent>
-                                        <TextBlock Text="Приложение"/>
-                                    </hc:ToggleBlock.UnCheckedContent>
-                                </hc:ToggleBlock>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Время запуска" Binding="{Binding StartTime,  ConverterCulture=ru-RU}"/>
-                    <DataGridTextColumn Header="Время завершения" Binding="{Binding EndTime,  ConverterCulture=ru-RU}"/>
-                    <DataGridTextColumn Header="Технологии" Binding="{Binding TechnologyName}"/>
-                </DataGrid.Columns>
-            </DataGrid>-->
+                                                            </DataTemplate>
+                                                        </DataGridTemplateColumn.CellTemplate>
+                                                    </DataGridTemplateColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </Expander>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </hc:ScrollViewer>
         </GroupBox>
     </Grid>
 </UserControl>

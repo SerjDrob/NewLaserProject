@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -22,8 +24,6 @@ using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process.ProcessFeatures;
-using NewLaserProject.Data.Models;
-using NewLaserProject.Data.Models.WorkTimeFeatures.Create;
 using NewLaserProject.Properties;
 using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
@@ -32,7 +32,7 @@ namespace NewLaserProject.ViewModels
 {
 
     [AddINotifyPropertyChangedInterface]
-    internal partial class MainViewModel
+    public partial class MainViewModel
     {
         private readonly LaserMachine _laserMachine;
         public bool IsLaserInitialized { get; set; } = false;
@@ -54,10 +54,14 @@ namespace NewLaserProject.ViewModels
 
         private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
-        public object RightSideVM  { get; set; }
+        public object RightSideVM { get; set; }
         public object CentralSideVM { get; set; }
         public MechanicVM MechTableVM { get; set; }
         public WorkTimeStatisticsVM StatisticsVM { get; set; }
+        public bool MotionDeviceOk { get; set; }
+        public bool LaserDeviceOk { get; set; }
+        public bool VideoCaptureDeviceOk { get; set; }
+        public bool PWMDeviceOk { get; set; }
 
         private readonly WorkTimeLogger? _workTimeLogger;
         private CameraVM _cameraVM;
@@ -65,18 +69,9 @@ namespace NewLaserProject.ViewModels
         private readonly IMediator _mediator;
         private readonly IServiceProvider _serviceProvider;
         private readonly ISubject<IProcessNotify> _subjMediator;
-        public ObservableCollection<string> CameraCapabilities
-        {
-            get; set;
-        }
-        public int CameraCapabilitiesIndex
-        {
-            get; set;
-        }
-        public bool ShowVideo
-        {
-            get; set;
-        }
+        public ObservableCollection<string> CameraCapabilities { get; set; }
+        public int CameraCapabilitiesIndex { get; set; }
+        public bool ShowVideo { get; set; }
         //---------------------------------------------
         private CoorSystem<LMPlace> _coorSystem;
         private ITeacher _currentTeacher;
@@ -93,6 +88,14 @@ namespace NewLaserProject.ViewModels
         {
             _logger = loggerProvider.CreateLogger("MainVM");
             _laserMachine = laserMachine;
+            _laserMachine.OfType<DeviceStateChanged>()
+                .Subscribe(s =>
+                {
+                    LaserDeviceOk = _laserMachine.LaserDeviceOk;
+                    MotionDeviceOk = _laserMachine.MotionDeviceOk;
+                    PWMDeviceOk = _laserMachine.PWMDeviceOk;
+                    VideoCaptureDeviceOk = _laserMachine.VideoCaptureDeviceOk;
+                });
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _mediator = mediator;
             _subjMediator = subjMediator;
@@ -134,19 +137,6 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartMonitoringState();
             MechTableVM = new();
             _logger.Log(LogLevel.Information, "App started");
-
-            //var startLog = new WorkTimeLog()
-            //{
-            //    StartApp = DateTime.Now,
-            //    IsProcess = false
-            //};
-            //_mediator.Send(new CreateWorkTimeLogRequest(startLog))
-            //    .ContinueWith(t =>
-            //    {
-            //        var res = t.Result;
-            //    });
-
-
         }
 
         private void _laserMachine_CameraPlugged(object? sender, EventArgs e)
@@ -358,7 +348,7 @@ namespace NewLaserProject.ViewModels
                 }
                 //MechTableVM?.SetCoordinates(XAxis.Position - 85.876, YAxis.Position - 51.945);
                 var xoffset = _settingsManager.Settings.XOffset ?? 0;
-                var yoffset = _settingsManager.Settings.YOffset ?? 0;    
+                var yoffset = _settingsManager.Settings.YOffset ?? 0;
                 MechTableVM?.SetCoordinates(XAxis.Position + xoffset, YAxis.Position + yoffset);
             }
             catch (Exception ex)
@@ -544,7 +534,7 @@ namespace NewLaserProject.ViewModels
             var xright = _settingsManager.Settings.XRightPoint ?? throw new ArgumentNullException("XRightPoint is null");
             var yleft = _settingsManager.Settings.YLeftPoint ?? throw new ArgumentNullException("YLeftPoint is null");
             var yright = _settingsManager.Settings.YRightPoint ?? throw new ArgumentNullException("YRightPoint is null");
-            var xoffset  = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
+            var xoffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
             var yoffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
             var dx = xright - xleft;
             var dy = yright - yleft;

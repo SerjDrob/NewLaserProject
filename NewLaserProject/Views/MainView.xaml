@@ -15,7 +15,9 @@
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="ТЕМП-ЛР50"    
         WindowState="Maximized"
-        ResizeMode="CanResize">
+        ResizeMode="CanResize"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
+    >
     
     <hc:GlowWindow.InputBindings>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.SW}" Gesture="CTRL+1"/>
@@ -120,6 +122,51 @@
                         </Path>
                     </Border>
                 </Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefault}">
+                            <Setter Property="FontSize" Value="8"/>
+                            <Setter Property="Width" Value="20"/>
+                            <Setter Property="Margin" Value="2"/>
+                            <Setter Property="TextAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <hc:ToggleBlock IsChecked="{Binding PWMDeviceOk}">
+                        <hc:ToggleBlock.CheckedContent>
+                            <TextBlock Text="PWM" Background="{StaticResource SuccessBrush}"/>
+                        </hc:ToggleBlock.CheckedContent>
+                        <hc:ToggleBlock.UnCheckedContent>
+                            <TextBlock Text="PWM" Background="{StaticResource DangerBrush}"/>
+                        </hc:ToggleBlock.UnCheckedContent>
+                    </hc:ToggleBlock>
+
+                    <hc:ToggleBlock IsChecked="{Binding LaserDeviceOk}">
+                        <hc:ToggleBlock.CheckedContent>
+                            <TextBlock Text="LAS" Background="{StaticResource SuccessBrush}"/>
+                        </hc:ToggleBlock.CheckedContent>
+                        <hc:ToggleBlock.UnCheckedContent>
+                            <TextBlock Text="LAS" Background="{StaticResource DangerBrush}"/>
+                        </hc:ToggleBlock.UnCheckedContent>
+                    </hc:ToggleBlock>
+                    
+                    <hc:ToggleBlock IsChecked="{Binding MotionDeviceOk}">
+                        <hc:ToggleBlock.CheckedContent>
+                            <TextBlock Text="MOT" Background="{StaticResource SuccessBrush}"/>
+                        </hc:ToggleBlock.CheckedContent>
+                        <hc:ToggleBlock.UnCheckedContent>
+                            <TextBlock Text="MOT" Background="{StaticResource DangerBrush}"/>
+                        </hc:ToggleBlock.UnCheckedContent>
+                    </hc:ToggleBlock>
+
+                    <hc:ToggleBlock IsChecked="{Binding VideoCaptureDeviceOk}">
+                        <hc:ToggleBlock.CheckedContent>
+                            <TextBlock Text="VID" Background="{StaticResource SuccessBrush}"/>
+                        </hc:ToggleBlock.CheckedContent>
+                        <hc:ToggleBlock.UnCheckedContent>
+                            <TextBlock Text="VID" Background="{StaticResource DangerBrush}"/>
+                        </hc:ToggleBlock.UnCheckedContent>
+                    </hc:ToggleBlock>
+                </StackPanel>
                 <Menu Style="{StaticResource MenuBaseStyle}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <Menu.ItemsPanel>
                         <ItemsPanelTemplate>
