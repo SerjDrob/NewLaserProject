@@ -91,7 +91,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.OfType<DeviceStateChanged>()
                 .Subscribe(s =>
                 {
-                    LaserDeviceOk = _laserMachine.LaserDeviceOk;
+                    LaserDeviceOk = _laserMachine.LaserSourceOk;
                     MotionDeviceOk = _laserMachine.MotionDeviceOk;
                     PWMDeviceOk = _laserMachine.PWMDeviceOk;
                     VideoCaptureDeviceOk = _laserMachine.VideoCaptureDeviceOk;

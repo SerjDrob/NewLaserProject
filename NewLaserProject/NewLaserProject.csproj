@@ -178,9 +178,9 @@
     <None Update="AppSettings\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Database\*">
+    <!--<None Update="Database\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </None>-->
     <None Update="TechnologyFiles\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
