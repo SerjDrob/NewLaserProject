@@ -456,26 +456,6 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <hc:SimpleStackPanel>
-                            <!--<Border x:Name="ImportantMessage"
-                                BorderThickness="2" 
-                                BorderBrush="Blue"
-                                Padding="2"
-                                CornerRadius="3"
-                                Height="30"
-                                Margin="1"
-                                >
-                                <DockPanel>
-                                    <Image x:Name="ImportantIcon" Source="{Binding IconPath}" DockPanel.Dock="Left" Margin="0,0,5,0"/>
-                                    <TextBlock x:Name="ImportantText" Text="{Binding TechInfo}" FontWeight="Bold" FontSize="15" Foreground="Red">
-                                    <i:Interaction.Triggers>
-                                        <i:PropertyChangedTrigger Binding="{Binding Text, ElementName=ImportantText}">
-                                            <i:ControlStoryboardAction Storyboard="{StaticResource DangerMessage}"/>                                
-                                        </i:PropertyChangedTrigger>
-                                    </i:Interaction.Triggers>
-                                    </TextBlock>
-                                </DockPanel>
-                            </Border>-->
-
                             <ContentControl Content="{Binding RightSideVM}" 
                                         MinHeight="300"
                                         Visibility="{Binding IsRightPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}">

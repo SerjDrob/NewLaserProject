@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -8,7 +6,6 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.WorkTimeFeatures.Get;
-using Tang.Library.Common.Component.Extensions;
 
 namespace NewLaserProject.ViewModels
 {
@@ -23,8 +20,6 @@ namespace NewLaserProject.ViewModels
             _mediator.Send(new GetFullWorkTimeLogRequest())
                 .ContinueWith(x =>
                 {
-                    //WorkTimeLogs = x.Result?.Logs.Where(l=>l?.ProcTimeLogs.Any() ?? false).ToObservableCollection();
-
                     var wtLogs = x.Result?.Logs.Where(l => l?.ProcTimeLogs?.Any() ?? false);
                     foreach (var wtlog in wtLogs)
                     {
