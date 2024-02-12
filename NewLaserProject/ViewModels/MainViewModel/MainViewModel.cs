@@ -59,7 +59,8 @@ namespace NewLaserProject.ViewModels
         public MechanicVM MechTableVM { get; set; }
         public WorkTimeStatisticsVM StatisticsVM { get; set; }
         public bool MotionDeviceOk { get; set; }
-        public bool LaserDeviceOk { get; set; }
+        public bool LaserBoardOk { get; set; }
+        public bool LaserSourceOk { get; set; }
         public bool VideoCaptureDeviceOk { get; set; }
         public bool PWMDeviceOk { get; set; }
 
@@ -91,7 +92,8 @@ namespace NewLaserProject.ViewModels
             _laserMachine.OfType<DeviceStateChanged>()
                 .Subscribe(s =>
                 {
-                    LaserDeviceOk = _laserMachine.LaserSourceOk;
+                    LaserSourceOk = _laserMachine.LaserSourceOk;
+                    LaserBoardOk = _laserMachine.LaserBoardOk;
                     MotionDeviceOk = _laserMachine.MotionDeviceOk;
                     PWMDeviceOk = _laserMachine.PWMDeviceOk;
                     VideoCaptureDeviceOk = _laserMachine.VideoCaptureDeviceOk;

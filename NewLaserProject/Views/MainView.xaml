@@ -140,15 +140,24 @@
                         </hc:ToggleBlock.UnCheckedContent>
                     </hc:ToggleBlock>
 
-                    <hc:ToggleBlock IsChecked="{Binding LaserDeviceOk}">
+                    <hc:ToggleBlock IsChecked="{Binding LaserBoardOk}">
                         <hc:ToggleBlock.CheckedContent>
-                            <TextBlock Text="LAS" Background="{StaticResource SuccessBrush}"/>
+                            <TextBlock Text="LBD" Background="{StaticResource SuccessBrush}"/>
                         </hc:ToggleBlock.CheckedContent>
                         <hc:ToggleBlock.UnCheckedContent>
-                            <TextBlock Text="LAS" Background="{StaticResource DangerBrush}"/>
+                            <TextBlock Text="LBD" Background="{StaticResource DangerBrush}"/>
                         </hc:ToggleBlock.UnCheckedContent>
                     </hc:ToggleBlock>
-                    
+
+                    <hc:ToggleBlock IsChecked="{Binding LaserSourceOk}">
+                    <hc:ToggleBlock.CheckedContent>
+                        <TextBlock Text="LSC" Background="{StaticResource SuccessBrush}"/>
+                    </hc:ToggleBlock.CheckedContent>
+                    <hc:ToggleBlock.UnCheckedContent>
+                        <TextBlock Text="LSC" Background="{StaticResource DangerBrush}"/>
+                    </hc:ToggleBlock.UnCheckedContent>
+                    </hc:ToggleBlock>
+
                     <hc:ToggleBlock IsChecked="{Binding MotionDeviceOk}">
                         <hc:ToggleBlock.CheckedContent>
                             <TextBlock Text="MOT" Background="{StaticResource SuccessBrush}"/>
