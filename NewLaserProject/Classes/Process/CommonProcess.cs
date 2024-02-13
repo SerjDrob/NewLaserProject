@@ -173,6 +173,11 @@ namespace NewLaserProject.Classes.Process
                                             Console.Error.WriteLine(ex.Message);
                                             goto M1;
                                         }
+                                        catch(Exception ex)
+                                        {
+                                            Console.Error.WriteLine(ex.Message);
+                                            goto M1;
+                                        }
                                     }
                                     else
                                     {
