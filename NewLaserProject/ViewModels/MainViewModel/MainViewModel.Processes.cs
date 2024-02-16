@@ -60,8 +60,6 @@ namespace NewLaserProject.ViewModels
         public string CurrentProcObjectTimer { get; set; }
         public string LastProcObjectTimer { get; set; }
         public string TotalProcessTimer { get; set; }
-
-        private bool _onProcessing = false;
         public ObservableCollection<ObjectForProcessing> ChosenProcessingObjects { get; set; }
 
         [ICommand]
@@ -109,7 +107,7 @@ namespace NewLaserProject.ViewModels
                 _processTimer.Dispose();
             }
             OnProcess = false;
-            _onProcessing = false;
+            IsProcessing = false;
             //Growl.Clear();
             IsProcessPanelVisible = false;
             HideRightPanel(false);
@@ -157,6 +155,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task DownloadProcess()
         {
+            IsProcessing = false;
             CutMode = false;
             //TODO determine size by specified layer
             try
@@ -241,6 +240,7 @@ namespace NewLaserProject.ViewModels
                 _mainProcess.OfType<ProcessingStarted>()
                     .Subscribe(args =>
                     {
+                        IsProcessing = true;
                         _processTimer = new Timer(1000);
                         _procStartTime = DateTime.Now;
                         _processTimer.Elapsed += _processTimer_Elapsed;
@@ -251,6 +251,7 @@ namespace NewLaserProject.ViewModels
                 _mainProcess.OfType<ProcessingStopped>()
                     .Subscribe(args =>
                     {
+                        IsProcessing = false;
                         _processTimer?.Stop();
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
@@ -280,6 +281,7 @@ namespace NewLaserProject.ViewModels
                     .Select(args => Observable.FromAsync(async () =>
                     {
                         var status = args.Status;
+                        IsProcessing = false;
                         switch (status)
                         {
                             case CompletionStatus.Success:

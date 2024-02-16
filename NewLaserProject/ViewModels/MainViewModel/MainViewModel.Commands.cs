@@ -424,6 +424,7 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task GesturePressed(Compass direction)
         {
+            if (IsProcessing) return;
             var coordinates = direction switch
             {
                 Compass.NE => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth, WaferHeight),

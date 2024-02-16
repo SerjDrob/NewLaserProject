@@ -86,7 +86,7 @@ namespace NewLaserProject.ViewModels
         public MainViewModel(LaserMachine laserMachine, IMediator mediator,
             IServiceProvider serviceProvider, ILoggerProvider loggerProvider,
             ISubject<IProcessNotify> subjMediator)
-        {
+        {           
             _logger = loggerProvider.CreateLogger("MainVM");
             _laserMachine = laserMachine;
             _laserMachine.OfType<DeviceStateChanged>()
@@ -278,7 +278,7 @@ namespace NewLaserProject.ViewModels
 
         private async void _openedFileVM_OnFileClicked(object? sender, System.Windows.Point e)
         {
-            if (XAxis.MotionDone && YAxis.MotionDone && !_onProcessing)
+            if (XAxis.MotionDone && YAxis.MotionDone && !IsProcessing)
             {
                 var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, e.X, e.Y);
                 _laserMachine.SetVelocity(Velocity.Service);
@@ -299,6 +299,7 @@ namespace NewLaserProject.ViewModels
 
         private async void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
         {
+            if (IsProcessing) return;
             var caps = CameraCapabilities[CameraCapabilitiesIndex].Split(" ");
 
             if (double.TryParse(caps[0], out var xRatio) && double.TryParse(caps[2], out var yRatio))
