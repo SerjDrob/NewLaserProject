@@ -181,12 +181,12 @@ namespace NewLaserProject.ViewModels
                 }
                 catch (SwitchExpressionException ex)
                 {
-                    _logger.LogError(ex, $"Swallowed the exception in the {nameof(moveAsync)} method.");
+                    _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in the {nameof(moveAsync)} method.");
                     return;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Throwed the exception in the {nameof(moveAsync)} method.");
+                    _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(moveAsync)} method.");
                     throw;
                 }
             }
@@ -205,12 +205,12 @@ namespace NewLaserProject.ViewModels
                 }
                 catch (SwitchExpressionException ex)
                 {
-                    _logger.LogError(ex, $"Swallowed the exception in the {nameof(stopAsync)} method.");
+                    _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in the {nameof(stopAsync)} method.");
                     return Task.CompletedTask;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Throwed the exception in the {nameof(stopAsync)} method.");
+                    _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(stopAsync)} method.");
                     throw;
                 }
                 return Task.CompletedTask;
@@ -223,7 +223,7 @@ namespace NewLaserProject.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Throwed the exception in the {nameof(moveHomeAsync)} method.");
+                    _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(moveHomeAsync)} method.");
                     throw;
                 }
                 finally
@@ -490,7 +490,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Swallowed the exception in the {nameof(OpenMarkSettings)} method.");
+                _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in the {nameof(OpenMarkSettings)} method.");
             }
         }
     }

@@ -199,7 +199,7 @@ namespace NewLaserProject.Classes.Process
                             }
                         }
                     }
-M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
+M1:                 _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                     var completeStatus = _mainCancellationToken.IsCancellationRequested ? CompletionStatus.Cancelled : CompletionStatus.Success;
                     _subject.OnNext(new ProcessingStopped());
                     _subject.OnNext(new ProcCompletionPreview(completeStatus, coorSystem));

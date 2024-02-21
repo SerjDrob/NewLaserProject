@@ -22,12 +22,17 @@ using MachineControlsLibrary.CommonDialog;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.LogSinks;
 using NewLaserProject.Classes.Process;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models;
 using NewLaserProject.ViewModels.DialogVM;
 using Newtonsoft.Json;
 using Path = System.IO.Path;
+using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
+using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
+using DialogResult = System.Windows.Forms.DialogResult;
+using NewLaserProject.Data.Models.TechnologyFeatures.Get;
 
 namespace NewLaserProject.ViewModels
 {
@@ -79,7 +84,8 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Throwed the exception in the method {nameof(StartStopProcess)}.");
+                //_logger.LogError(ex, $"Throwed the exception in the method {nameof(StartStopProcess)}.");
+                _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the method {nameof(StartStopProcess)}.");
                 _processTimer?.Dispose();
                 throw;
             }
@@ -290,14 +296,18 @@ namespace NewLaserProject.ViewModels
                                 MessageBox.Success("Процесс завершён");
                                 _signalColumn.TurnOff();
                                 _signalColumn.TurnOnLight(LightColumn.Light.Green);
-                                _workTimeLogger?.LogProcessEnded();
+                                //_workTimeLogger?.LogProcessEnded();
+
+                                _logger.ForContext<MicroProcess>().Information(RepoSink.End, RepoSink.Proc);
+
                                 break;
                             case CompletionStatus.Cancelled:
                                 _ = _signalColumn.BlinkLightAsync(LightColumn.Light.Red).ConfigureAwait(false);
                                 MessageBox.Fatal("Процесс отменён");
                                 _signalColumn.TurnOff();
                                 _signalColumn.TurnOnLight(LightColumn.Light.Green);
-                                _workTimeLogger?.LogProcessCanceled();
+                                //_workTimeLogger?.LogProcessCancelled();
+                                _logger.Information(RepoSink.Cancelled, RepoSink.Proc);
                                 break;
                             default:
                                 break;
@@ -351,7 +361,9 @@ namespace NewLaserProject.ViewModels
             }
             catch (ArgumentOutOfRangeException ex)
             {
-                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                //_logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+
+                _logger.ForContext<MainViewModel>().Warning(ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
 
                 Growl.Error(new GrowlInfo()
                 {
@@ -361,17 +373,20 @@ namespace NewLaserProject.ViewModels
             }
             catch (FileNotFoundException ex)
             {
-                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                //_logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                _logger.ForContext<MainViewModel>().Information(ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 Growl.Error($"Файл технологии \"{CurrentTechnology?.ProgramName}\" не найден.");
             }
             catch (NullReferenceException ex)
             {
-                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                //_logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                _logger.ForContext<MainViewModel>().Information(ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 if (CurrentTechnology is null) Growl.Error($"Файл технологии не выбран.");
             }
             catch (ArgumentException ex)
             {
-                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                //_logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                _logger.ForContext<MainViewModel>().Information(ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 Growl.Error(new GrowlInfo()
                 {
                     WaitTime = 2,
@@ -381,7 +396,8 @@ namespace NewLaserProject.ViewModels
             }
             catch (JsonSerializationException ex)
             {
-                _logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                //_logger.LogInformation(new EventId(2, "Process"), ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                _logger.ForContext<MainViewModel>().Information(ex, $"Swallowed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 Growl.Error(new GrowlInfo()
                 {
                     Message = "В одной из заданных программ присутствует ошибка параметра.",
@@ -390,8 +406,102 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Throwed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                //_logger.LogError(ex, $"Throwed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
+                _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(MainViewModel.DownloadProcess)} method.");
                 throw;
+            }
+        }
+
+
+        [ICommand]
+        private void SaveWorkFile()
+        {
+            var objects = new List<(string,LaserEntity,int)>();
+            foreach (var item in ChosenProcessingObjects)
+            {
+                var (layer, entity, id) = item;
+                if (layer!=string.Empty && id!=-1)
+                {
+                    objects.Add((layer, entity, id));
+                }
+            }
+
+
+            var saved = new WorkProcUnit(
+                WaferWidth,
+                WaferHeight,
+                DefaultFileScale,
+                WaferTurn90,
+                MirrorX,
+                WaferOffsetX,
+                WaferOffsetY,
+                objects,
+                FileName,
+                FileAlignment,
+                IsWaferMark,
+                MarkPosition
+            );
+
+            var serialized = JsonConvert.SerializeObject(saved);
+
+            var saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Файлы обработки (*.wpu)|*.wpu";
+            saveFileDialog.DefaultExt = "*.wpu";
+            saveFileDialog.FileName = Path.GetFileNameWithoutExtension(FileName);
+            saveFileDialog.AddExtension = true;
+            if(saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                File.WriteAllText(saveFileDialog.FileName, serialized);
+            }
+        }
+
+
+        [ICommand]
+        private async Task OpenWPU()
+        {
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Файлы обработки (*.wpu)|*.wpu";
+            openFileDialog.DefaultExt = "*.wpu";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var serialized = File.ReadAllText(openFileDialog.FileName);
+                var wpu = JsonConvert.DeserializeObject<WorkProcUnit>(serialized);
+
+                if (wpu is not null)
+                {
+                    WaferWidth = wpu.WaferWidth;
+                    WaferHeight = wpu.WaferHeight;
+                    DefaultFileScale = wpu.DefaultFileScale;
+                    WaferTurn90 = wpu.WaferTurn90;
+                    MirrorX = wpu.MirrorX;
+                    WaferOffsetX = wpu.WaferOffsetX;
+                    WaferOffsetY = wpu.WaferOffsetY;
+                    FileName = wpu.FileName;
+                    FileAlignment = wpu.FileAlignment;
+                    IsWaferMark = wpu.IsWaferMark;
+                    MarkPosition = wpu.MarkPosition;
+                    await OpenChosenFile(true);
+                    var objs = new List<ObjectForProcessing>();
+                    foreach (var obj in wpu.Objects)
+                    {
+                        var technology = await _mediator.Send(new GetTechnologyByIdRequest(obj.Item3));
+                        if (technology?.Technology is not null)
+                        {
+                            var objForProc = new ObjectForProcessing
+                            {
+                                LaserEntity = obj.Item2,
+                                Layer = obj.Item1,
+                                Technology = technology.Technology
+                            }; 
+                            objs.Add(objForProc);
+                            LayersProcessingModel?.SetObjectChecked(obj.Item1, obj.Item2);
+                        }
+                        if (objs.Any())
+                        {
+                            ChosenProcessingObjects = new(objs);
+                        }
+                    }
+                }
             }
         }
 
@@ -430,10 +540,17 @@ namespace NewLaserProject.ViewModels
                 _laserMachine.SetMarkParams(laserParams);
 
                 OnProcess = true;
-                _logger.LogInformation(new EventId(1, "Process"), $"The process started." +
-                    $"File's name: {FileName}" +
-                    $"Layer's name for processing: {CurrentLayerFilter}" +
-                    $"Entity type for processing: {CurrentEntityType}");
+
+
+                //_logger.LogInformation(new EventId(1, "Process"), $"The process started." +
+                //    $"File's name: {FileName}" +
+                //    $"Layer's name for processing: {CurrentLayerFilter}" +
+                //    $"Entity type for processing: {CurrentEntityType}");
+
+
+                _logger.ForContext<MainViewModel>().Information("The process started. File's name: {FileName} Layer's name for processing: {CurrentLayerFilter} Entity type for processing: {CurrentEntityType}",
+                    FileName,CurrentLayerFilter,CurrentEntityType);
+
                 _signalColumn.TurnOnLight(LightColumn.Light.Yellow);
 
                 var techName =
@@ -441,12 +558,22 @@ namespace NewLaserProject.ViewModels
                     (acc, obj) => acc.AppendLine($"{obj.Layer} -> {obj.LaserEntity} -> {obj.Technology.ProgramName}"),
                     acc=>acc.ToString());
 
-                _workTimeLogger?.LogProcessStarted(FileName, procParams.WaferThickness.ToString(), techName, WaferThickness);
+                //_workTimeLogger?.LogProcessStarted(FileName, procParams.WaferThickness.ToString(), techName, WaferThickness);
+
+                _logger.ForContext<MicroProcess>().Information(RepoSink.ProcArgs, new ProcStartedArgs
+                {
+                    fileName= FileName,
+                    materialThickness = WaferThickness,
+                    technologyName = techName,
+                    materialName = procParams.WaferThickness.ToString()
+                });
+
                 await _mainProcess.StartAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Throwed the exception in the {nameof(StartProcessAsync)} method.");
+                //_logger.LogError(ex, $"Throwed the exception in the {nameof(StartProcessAsync)} method.");
+                _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(StartProcessAsync)} method.");
                 throw;
             }
 #endif
@@ -490,4 +617,5 @@ namespace NewLaserProject.ViewModels
 
     }
 
+    internal record WorkProcUnit(double WaferWidth, double WaferHeight, Scale DefaultFileScale, bool WaferTurn90, bool MirrorX, double WaferOffsetX, double WaferOffsetY, List<(string, LaserEntity, int)> Objects, string FileName, FileAlignment FileAlignment, bool IsWaferMark, MarkPosition MarkPosition);
 }

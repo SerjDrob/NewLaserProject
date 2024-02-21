@@ -8,16 +8,12 @@ using System.Threading.Tasks;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
-using MachineControlsLibrary.CommonDialog;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using MachineControlsLibrary.Controls.GraphWin;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Win32;
 using NewLaserProject.Classes;
-using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
-using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 using PropertyChanged;
 using CommonDialog = MachineControlsLibrary.CommonDialog.CommonDialog;
@@ -27,18 +23,13 @@ namespace NewLaserProject.ViewModels
     public partial class MainViewModel
     {
         [OnChangedMethod(nameof(FileScaleChanged))]
-        public Scale DefaultFileScale { get; set; } = Scale.ThousandToOne;                
+        public Scale DefaultFileScale { get; set; } = Scale.ThousandToOne;
         public bool IsFileLoaded { get; set; } = false;
         public bool MirrorX { get; set; } = true;
         public bool WaferTurn90 { get; set; } = true;
-        public double WaferOffsetX
-        {
-            get; set;
-        }
-        public double WaferOffsetY
-        {
-            get; set;
-        }
+        public double WaferOffsetX { get; set; }
+        public double WaferOffsetY { get; set; }
+
         [OnChangedMethod(nameof(WaferDimensionChanged))]
         public double WaferWidth { get; set; }
 
@@ -47,52 +38,25 @@ namespace NewLaserProject.ViewModels
         public double WaferThickness { get; set; }
 
         [OnChangedMethod(nameof(ViewFinderChanged))]
-        public double CameraViewfinderX
-        {
-            get; set;
-        }
+        public double CameraViewfinderX { get; set; }
         [OnChangedMethod(nameof(ViewFinderChanged))]
-        public double CameraViewfinderY
-        {
-            get; set;
-        }
-        public double LaserViewfinderX
-        {
-            get; set;
-        }
-        public double LaserViewfinderY
-        {
-            get; set;
-        }
+        public double CameraViewfinderY { get; set; }
+        public double LaserViewfinderX { get; set; }
+        public double LaserViewfinderY { get; set; }
         [OnChangedMethod(nameof(CutModeSwitched))]
-        public bool CutMode
-        {
-            get; set;
-        }
-        public string FileName
-        {
-            get; set;
-        }
+        public bool CutMode { get; set; }
+        public string FileName { get; set; }
 
-        public Dictionary<string, bool> IgnoredLayers
-        {
-            get; set;
-        }
-        public LaserDbViewModel LaserDbVM
-        {
-            get; set;
-        }
+        public Dictionary<string, bool> IgnoredLayers { get; set; }
+        public LaserDbViewModel LaserDbVM { get; set; }
 
         private FileVM _openedFileVM;
-        public bool CanUndoCut
-        {
-            get; private set;
-        }
+        public bool CanUndoCut { get; private set; }
 
         private IDxfReader _dxfReader;
         private void FileScaleChanged()
         {
-            if(_openedFileVM is not null) _openedFileVM.FileScale = DefaultFileScale;
+            if (_openedFileVM is not null) _openedFileVM.FileScale = DefaultFileScale;
         }
 
         [ICommand]
@@ -106,67 +70,63 @@ namespace NewLaserProject.ViewModels
             if (openFileDialog.ShowDialog() ?? false)
             {
                 FileName = openFileDialog.FileName;
-                if (File.Exists(FileName))
-                {
-                    _openedFileVM?.ResetFileView();
-                    _openedFileVM.IsFileLoading = true;
-                    try
-                    {
-                        var dxfReader = new IMDxfReader(FileName);
-                        _dxfReader = new DxfEditor(dxfReader);
-                        MirrorX = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");
-                        WaferTurn90 = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
-                        WaferOffsetX = 0;
-                        WaferOffsetY = 0;
-                        IgnoredLayers = new();
-
-                        await LoadDbForFile();
-                        await Task.Factory.StartNew(
-                            () => _openedFileVM.SetFileView(_dxfReader, DefaultFileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers),
-                            CancellationToken.None,
-                            TaskCreationOptions.None,
-                            TaskScheduler.FromCurrentSynchronizationContext()
-                            );
-                        _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
-
-                        IsFileLoaded = true;
-                    }
-                    catch (DxfReaderException ex)
-                    {
-                        _logger.LogInformation(new EventId(1, "Dxf file broken"), ex, $"Swallowed the exception in the {nameof(MainViewModel.OpenFile)} method.");
-
-                        Growl.Error(new HandyControl.Data.GrowlInfo()
-                        {
-                            StaysOpen = true,
-                            Message = ex.Message,
-                        });
-                    }
-                }
-                else
-                {
-                    IsFileLoaded = false;
-                }
-                _openedFileVM.IsFileLoading = false;
+                await OpenChosenFile();
             }
 
         }
-        private Task _loadingContextTask;
-        //private Task LoadContext()
-        //{
-        //    return Task.WhenAll(
-        //            _db.Set<DefaultLayerFilter>().LoadAsync(),
-        //            _db.Set<Material>().LoadAsync(),
-        //            _db.Set<Technology>().LoadAsync(),
-        //            _db.Set<MaterialEntRule>().LoadAsync(),
-        //            _db.Set<DefaultLayerEntityTechnology>().LoadAsync()
-        //        );
-        //}
 
-        public LayersProcessingModel LayersProcessingModel
+        private async Task OpenChosenFile(bool byWPU = false)
         {
-            get;
-            set;
+            if (File.Exists(FileName))
+            {
+                _openedFileVM?.ResetFileView();
+                _openedFileVM.IsFileLoading = true;
+                try
+                {
+                    var dxfReader = new IMDxfReader(FileName);
+                    _dxfReader = new DxfEditor(dxfReader);
+                    if (!byWPU)
+                    {
+                        MirrorX = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");
+                        WaferTurn90 = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
+                        WaferOffsetX = 0;
+                        WaferOffsetY = 0; 
+                    }
+                    if (byWPU) _openedFileVM.TextPosition = (TextPosition)MarkPosition;
+                    IgnoredLayers = new();
+                    await LoadDbForFile();
+                    await Task.Factory.StartNew(
+                        () => _openedFileVM.SetFileView(_dxfReader, DefaultFileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers),
+                        CancellationToken.None,
+                        TaskCreationOptions.None,
+                        TaskScheduler.FromCurrentSynchronizationContext()
+                        );
+                    _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
+
+                    IsFileLoaded = true;
+                }
+                catch (DxfReaderException ex)
+                {
+                    //_logger.LogInformation(new EventId(1, "Dxf file broken"), ex, $"Swallowed the exception in the {nameof(MainViewModel.OpenFile)} method.");
+                    _logger.ForContext<MainViewModel>().Warning(ex, $"Swallowed the exception in the {nameof(MainViewModel.OpenFile)} method.");
+
+                    Growl.Error(new HandyControl.Data.GrowlInfo()
+                    {
+                        StaysOpen = true,
+                        Message = ex.Message,
+                    });
+                }
+            }
+            else
+            {
+                IsFileLoaded = false;
+            }
+            _openedFileVM.IsFileLoading = false;
         }
+
+        private Task _loadingContextTask;
+
+        public LayersProcessingModel LayersProcessingModel { get; set; }
 
         private async Task LoadDbForFile()
         {
@@ -226,7 +186,7 @@ namespace NewLaserProject.ViewModels
         }
         private void MainViewModel_TransformationChanged(object? sender, EventArgs e)
         {
-            var fileVM = _openedFileVM as FileVM;
+            var fileVM = _openedFileVM;
             if (fileVM is not null)
             {
                 WaferOffsetX = fileVM.FileOffsetX;

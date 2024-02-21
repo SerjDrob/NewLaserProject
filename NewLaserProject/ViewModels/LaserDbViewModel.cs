@@ -47,10 +47,10 @@ namespace NewLaserProject.ViewModels
         {
             get; set;
         }
-        public LaserDbViewModel(IMediator mediator, ExtendedParams defaultParams, ILoggerProvider loggerProvider)
+        public LaserDbViewModel(IMediator mediator, ExtendedParams defaultParams, Serilog.ILogger logger)
         {
             _mediator = mediator;
-            _logger = loggerProvider.CreateLogger("LaserDb");
+            _logger = logger;// logger.CreateLogger("LaserDb");
             _defaultParams = defaultParams;
             _mediator.Send(new GetFullMaterialRequest())
                 .ContinueWith(t =>
@@ -62,7 +62,7 @@ namespace NewLaserProject.ViewModels
                 .ConfigureAwait(false);
         }
         private readonly IMediator _mediator;
-        private readonly ILogger _logger;
+        private readonly Serilog.ILogger _logger;
         private readonly ExtendedParams _defaultParams;
 
         private void ReviseTechnologies() => Technologies = Materials.SelectMany(m => m.Technologies).ToObservableCollection();
@@ -179,7 +179,8 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "The exception was thrown in the EditCopyTechnologyAsync method");
+                //_logger.LogError(ex, "The exception was thrown in the EditCopyTechnologyAsync method");
+                _logger.ForContext<LaserDbViewModel>().Error(ex, "The exception was thrown in the EditCopyTechnologyAsync method");
                 MsgBox.Error("Файл программы не найден в базе.", "Технология");
                 return;
             }

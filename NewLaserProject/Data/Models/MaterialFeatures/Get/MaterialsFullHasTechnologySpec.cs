@@ -8,9 +8,10 @@ namespace NewLaserProject.Data.Models.MaterialFeatures.Get
     {
         public MaterialsFullHasTechnologySpec()
         {
-            Query.Include(m => m.Technologies)
-                .Where(m => m.Technologies != null)
-                .Where(m => m.Technologies.Any());
+            Query//.Include(m => m.Technologies)
+                //.Where(m => m.Technologies != null)
+                .Where(m => m.Technologies != null ? m.Technologies.Any() : false)
+                .Include(m => m.Technologies);
         }
     }
 }

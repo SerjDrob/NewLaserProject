@@ -32,5 +32,7 @@ namespace NewLaserProject
         public static string MarkTextParams => Path.Combine(SettingsFolder, "MarkTextParams.json");
         public static string LaserMachineSettings => Path.Combine(SettingsFolder, "LaserMachineSettings.json");
         public static string Applog => Path.Combine(TempFolder, "app.log");
+        public static string SerilogFile => Path.Combine(TempFolder, "serilog.log");
+
     }
 }

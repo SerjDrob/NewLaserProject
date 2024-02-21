@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
@@ -19,8 +20,12 @@ using MediatR;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic.Logging;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.LogSinks;
+using NewLaserProject.Classes.Process;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data;
 using NewLaserProject.Data.Models;
@@ -30,6 +35,13 @@ using NewLaserProject.ViewModels;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.ViewModels.DialogVM.Profiles;
 using NewLaserProject.Views;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
+using Serilog.Extensions.Hosting;
+using Serilog.Extensions.Logging;
+using Serilog.Filters;
+using SQLitePCL;
 
 namespace NewLaserProject
 {
@@ -72,7 +84,6 @@ namespace NewLaserProject
                 settingsManager.SetSettings(settings);
                 settingsManager.Save();
             }
-
 
             MainIoC = new ServiceCollection();
 
@@ -117,12 +128,24 @@ namespace NewLaserProject
                    .AddScoped<IVideoCapture, USBCamera>()
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
-                   .AddLogging(builder =>
+                   .AddSerilog((sp, lc) =>
                    {
-                       builder.AddFile(AppPaths.Applog);
-                       builder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
-                       builder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Error);
+                       var wtlogger = sp.GetRequiredService<WorkTimeLogger>();
+                       lc.WriteTo.Console(/*Serilog.Events.LogEventLevel.Information, "[{Timestamp:HH:mm:ss} {Level:u3}] {Properties} {Message:lj}{NewLine}{Exception}"*/)
+                         .WriteTo.Logger(lc => lc
+                         .Filter.ByExcluding(le => le.SourceContextEquals(typeof(MicroProcess)))
+                         .WriteTo.File(AppPaths.SerilogFile, Serilog.Events.LogEventLevel.Information))
+                         .WriteTo.RepoSink(wtlogger, Filters.OnlyForContextFilter<MicroProcess>())
+                         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                        //.CreateLogger()
+                        ;
                    })
+                   //.AddLogging(builder =>
+                   //{
+                   //    builder.AddFile(AppPaths.Applog);
+                   //    builder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+                   //    builder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Error);
+                   //})
                    .AddAutoMapper(cfg =>
                    {
                        cfg.AddProfile<ParamsProfile>();
@@ -136,8 +159,8 @@ namespace NewLaserProject
                        var mapper = sp.GetService<IMapper>();
                        var mediator = sp.GetService<IMediator>();
                        var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
-                       var loggerProvider = sp.GetRequiredService<ILoggerProvider>();
-                       return new(mediator, defaultParams, loggerProvider);
+                       var logger = sp.GetRequiredService<Serilog.ILogger>();
+                       return new(mediator, defaultParams, logger);
                    })
                    .AddTransient(sp =>
                    {
@@ -152,18 +175,28 @@ namespace NewLaserProject
 
         private async void Dispatcher_UnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            _principleLogger.LogError(e.Exception, "An unhandled Exception was thrown");
-            await _workTimeLogger.LogAppFailed(e.Exception);
+            _principleLogger.ForContext<App>().Fatal(e.Exception, "An unhandled Exception was thrown");
+            _principleLogger.ForContext<MicroProcess>().Fatal(e.Exception, RepoSink.Failed, RepoSink.App);
+            //await _workTimeLogger.LogAppFailed(e.Exception);
         }
-        private ILogger _principleLogger;
-        private WorkTimeLogger _workTimeLogger;
+        private Serilog.ILogger _principleLogger;
+        //private WorkTimeLogger _workTimeLogger;
         protected override async void OnStartup(StartupEventArgs e)//TODO Bad 
         {
+            AllocConsole();
+
             var provider = MainIoC.BuildServiceProvider();
-            var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
-            _principleLogger = loggerProvider.CreateLogger("AppLogger");
-            _workTimeLogger = provider.GetRequiredService<WorkTimeLogger>();
-            await _workTimeLogger.LogAppStarted(); 
+            //var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
+            //_principleLogger = loggerProvider.CreateLogger("AppLogger");
+            //_workTimeLogger = provider.GetRequiredService<WorkTimeLogger>();
+            //await _workTimeLogger.LogAppStarted(); 
+
+            
+            //_principleLogger = provider.GetRequiredService<Serilog.ILogger>();
+
+
+            //_principleLogger.ForContext<MicroProcess>().Information(RepoSink.Start, RepoSink.App);
+
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
             var viewModel = provider.GetService<MainViewModel>();
@@ -172,12 +205,11 @@ namespace NewLaserProject
 
 
             context?.LoadSetsAsync();
-
-            base.OnStartup(e);
-
+            
+            /*
             Trace.TraceInformation("The application started");
             Trace.Flush();
-
+            */
             var mainView = new MainView()
             {
                 DataContext = viewModel
@@ -187,7 +219,7 @@ namespace NewLaserProject
             mainView.Show();
 
             viewModel?.OnInitialized();
-            //AllocConsole();
+            base.OnStartup(e);
         }
 
         private async void MainView_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -202,7 +234,8 @@ namespace NewLaserProject
                 destination.Open();
                 location.BackupDatabase(destination);
             }
-            await _workTimeLogger.LogAppStopped();
+            //await _workTimeLogger.LogAppStopped();
+            
         }
 
         protected override void OnDeactivated(EventArgs e)

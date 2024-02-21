@@ -47,6 +47,14 @@ namespace NewLaserProject.ViewModels
             _subject?.OnNext((text.LayerName, entType, text.IsProcessed));
         }
 
+        public void SetObjectChecked(string layer, LaserEntity laserEntity)
+        {
+            var val = LaserEntDxfTypeAdapter.GetEntityName(laserEntity);
+            var text = Layers.SingleOrDefault(l => l.Name == layer)
+                ?.Objects.SingleOrDefault(obj=>obj.Value == val);
+            if(text is not null) text.IsProcessed = true;
+        }
+
         public void UnCheckItem((string layerName, LaserEntity entType) item)
         {
             var dxfEntName = LaserEntDxfTypeAdapter.GetEntityName(item.entType);

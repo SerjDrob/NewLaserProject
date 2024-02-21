@@ -18,5 +18,12 @@ namespace NewLaserProject.ViewModels
             get;
             set;
         }
+        
+        public void Deconstruct(out string layer, out LaserEntity laserEntity, out int technologyId)
+        {
+            layer = this.Layer ?? string.Empty;
+            laserEntity = this.LaserEntity;
+            technologyId = this.Technology?.Id ?? -1;
+        }
     }
 }

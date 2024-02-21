@@ -23,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.LogSinks;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
 using PropertyChanged;
@@ -64,7 +65,7 @@ namespace NewLaserProject.ViewModels
         public bool VideoCaptureDeviceOk { get; set; }
         public bool PWMDeviceOk { get; set; }
 
-        private readonly WorkTimeLogger? _workTimeLogger;
+        //private readonly WorkTimeLogger? _workTimeLogger;
         private CameraVM _cameraVM;
 
         private readonly IMediator _mediator;
@@ -80,14 +81,14 @@ namespace NewLaserProject.ViewModels
 
         private IProcess? _mainProcess;
         private double _waferAngle;
-        private readonly ILogger _logger;
+        private readonly Serilog.ILogger _logger;
         private readonly ISettingsManager<LaserMachineSettings> _settingsManager;
 
         public MainViewModel(LaserMachine laserMachine, IMediator mediator,
-            IServiceProvider serviceProvider, ILoggerProvider loggerProvider,
+            IServiceProvider serviceProvider, /*ILoggerProvider loggerProvider*/ Serilog.ILogger logger,
             ISubject<IProcessNotify> subjMediator)
-        {           
-            _logger = loggerProvider.CreateLogger("MainVM");
+        {
+            _logger = logger;// loggerProvider.CreateLogger("MainVM");
             _laserMachine = laserMachine;
             _laserMachine.OfType<DeviceStateChanged>()
                 .Subscribe(s =>
@@ -107,7 +108,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.CameraPlugged += _laserMachine_CameraPlugged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             StatisticsVM = _serviceProvider.GetRequiredService<WorkTimeStatisticsVM>();
-            _workTimeLogger = _serviceProvider.GetService<WorkTimeLogger>();
+            //_workTimeLogger = _serviceProvider.GetService<WorkTimeLogger>();
 
             _coorSystem = GetCoorSystem(AppPaths.PureDeformation);
             TuneCoorSystem();
@@ -138,7 +139,8 @@ namespace NewLaserProject.ViewModels
             _signalColumn?.TurnOnLight(LightColumn.Light.Red);
             _laserMachine.StartMonitoringState();
             MechTableVM = new();
-            _logger.Log(LogLevel.Information, "App started");
+            _logger.Information(RepoSink.Start,RepoSink.App);
+            //_logger.Log(LogLevel.Information, "App started");
         }
 
         private void _laserMachine_CameraPlugged(object? sender, EventArgs e)
@@ -186,29 +188,10 @@ namespace NewLaserProject.ViewModels
         private async Task CheckHatch()
         {
 
-            var reader = new IMDxfReader("D:/Test.dxf");
-            var curve = reader.GetAllCurves().Single();
-            var inflateCurve = curve.PObject.InflateCurve(200);
-            reader.WriteCurveToFile("D:/TestInflate.dxf", inflateCurve.First(), true);
-            var i = 0;
-            //_laserMachine.SwitchOnValve(Valves.RedLight);
-
-            //var laser = new JCZLaser(new PWM3());
-            //var defLaserParams = ExtensionMethods
-            //               .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
-
-            //var mapper = _serviceProvider.GetService<IMapper>();
-            //var mediator = _serviceProvider.GetService<IMediator>();
-            //var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
-
-            //var dialogResult = await Dialog.Show<MachineControlsLibrary.CommonDialog.CommonDialog>()
-            //    .SetDialogTitle("Параметры пера")
-            //    .SetDataContext(new EditExtendedParamsVM(defaultParams), vm => { })
-            //    .GetCommonResultAsync<ExtendedParams>();
-
-            //laser.SetMarkParams(defLaserParams);
-            //laser.SetExtMarkParams(new ExtParamsAdapter(dialogResult.CommonResult));
-            //await laser.PierceDxfObjectAsync("D:/TestHatch.dxf");
+            //var reader = new IMDxfReader("D:/Test.dxf");
+            //var curve = reader.GetAllCurves().Single();
+            //var inflateCurve = curve.PObject.InflateCurve(200);
+            //reader.WriteCurveToFile("D:/TestInflate.dxf", inflateCurve.First(), true);
         }
 
 
@@ -271,7 +254,8 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Throwed the exception in the {nameof(InitViews)} method.");
+                //_logger.LogError(ex, $"Throwed the exception in the {nameof(InitViews)} method.");
+                _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(InitViews)} method.");
                 throw;
             }
         }
@@ -356,7 +340,8 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Swallowed the exception in {nameof(_laserMachine_OnAxisMotionStateChanged)}");
+                //_logger.LogError(ex, $"Swallowed the exception in {nameof(_laserMachine_OnAxisMotionStateChanged)}");
+                _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in {nameof(_laserMachine_OnAxisMotionStateChanged)}");
                 //throw;
             }
         }
@@ -508,7 +493,8 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Throwed the exception in the {nameof(ImplementMachineSettings)} method.");
+                //_logger.LogError(ex, $"Throwed the exception in the {nameof(ImplementMachineSettings)} method.");
+                _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(ImplementMachineSettings)} method.");
                 throw;
             }
 
@@ -518,7 +504,8 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Throwed the exception in the {nameof(ImplementMachineSettings)} method when setting a velocity regime.");
+                //_logger.LogError(ex, $"Throwed the exception in the {nameof(ImplementMachineSettings)} method when setting a velocity regime.");
+                _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(ImplementMachineSettings)} method when setting a velocity regime.");
                 throw;
             }
 #endif

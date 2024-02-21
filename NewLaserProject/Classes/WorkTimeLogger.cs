@@ -8,7 +8,7 @@ using NewLaserProject.Data.Models.WorkTimeFeatures.Update;
 
 namespace NewLaserProject.Classes
 {
-    internal class WorkTimeLogger
+    public class WorkTimeLogger
     {
         private readonly IMediator _mediator;
 
@@ -52,7 +52,7 @@ namespace NewLaserProject.Classes
             };
         }
         public async Task LogProcessEnded() => await LogProcessEnded(null, true);
-        public async Task LogProcessCanceled() => await LogProcessEnded(null, false);
+        public async Task LogProcessCancelled() => await LogProcessEnded(null, false);
         public async Task LogProcessFailed(Exception exception) => await LogProcessEnded(exception, false);
         private async Task LogProcessEnded(Exception? exception, bool success)
         {

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser.Entities;
 using NewLaserProject.Classes;
-using NUnit.Framework;
 using Stateless;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NewLaserTest
 {
