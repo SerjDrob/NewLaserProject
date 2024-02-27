@@ -128,10 +128,13 @@ namespace NewLaserProject
                    .AddScoped<IVideoCapture, USBCamera>()
                    .AddSingleton<LaserMachine>()
                    .AddSingleton<MainViewModel>()
+                   .AddSingleton<WpfConsoleSink>()
                    .AddSerilog((sp, lc) =>
                    {
                        var wtlogger = sp.GetRequiredService<WorkTimeLogger>();
+                       var consoleSink = sp.GetRequiredService<WpfConsoleSink>();
                        lc.WriteTo.Console(/*Serilog.Events.LogEventLevel.Information, "[{Timestamp:HH:mm:ss} {Level:u3}] {Properties} {Message:lj}{NewLine}{Exception}"*/)
+                         .WriteTo.WpfConsoleSink(consoleSink)
                          .WriteTo.Logger(lc => lc
                          .Filter.ByExcluding(le => le.SourceContextEquals(typeof(MicroProcess)))
                          .WriteTo.File(AppPaths.SerilogFile, Serilog.Events.LogEventLevel.Information))

@@ -141,8 +141,11 @@ namespace NewLaserProject.ViewModels
             MechTableVM = new();
             _logger.Information(RepoSink.Start,RepoSink.App);
             //_logger.Log(LogLevel.Information, "App started");
+            WpfConsole = _serviceProvider.GetRequiredService<WpfConsoleSink>();
         }
 
+
+        public WpfConsoleSink WpfConsole { get; set; }
         private void _laserMachine_CameraPlugged(object? sender, EventArgs e)
         {
             //_laserMachine.StopCamera();

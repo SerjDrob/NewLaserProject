@@ -12,6 +12,7 @@
         xmlns:controls="clr-namespace:MachineControlsLibrary.Controls;assembly=MachineControlsLibrary"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:console="clr-namespace:ConsoleControl.WPF;assembly=ConsoleControl.WPF"
+        xmlns:wpfconsole="clr-namespace:NewLaserProject.Views.WpfConsole"
         mc:Ignorable="d"   
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="ТЕМП-ЛР50"    
@@ -782,10 +783,11 @@
                 </i:Interaction.Triggers>
                 <DockPanel>
                     <ContentControl Content="{Binding StatisticsVM}"/>
-                </DockPanel>
+                </DockPanel>                
             </TabItem>
             <TabItem Header="Console" TabIndex="3">
-                <console:ConsoleControl />
+                <!--<console:ConsoleControl />-->
+                    <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
             </TabItem>
         </TabControl>
     </Grid>
