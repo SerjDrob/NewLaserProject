@@ -1,4 +1,6 @@
-﻿using System.Windows.Media;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Media;
 using NewLaserProject.Classes.LogSinks.ConsoleSink;
 using Serilog.Events;
 
@@ -12,9 +14,9 @@ namespace NewLaserProject.Classes.LogSinks.TokenRenderers
         {
             _text = text;
         }
-        public override void Render(LogEvent logEvent, out MessageChunk output)
+        public override void Render(LogEvent logEvent, out IEnumerable<MessageChunk> output)
         {
-            output = new MessageChunk(_text, Brushes.Black, Brushes.White);
+            output = Enumerable.Repeat(new MessageChunk(_text, Brushes.Black, Brushes.White),1);
         }
     }
 }

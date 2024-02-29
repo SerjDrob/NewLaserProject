@@ -1,4 +1,6 @@
-﻿using System.Windows.Media;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Media;
 using NewLaserProject.Classes.LogSinks.ConsoleSink;
 using Serilog.Events;
 using Serilog.Parsing;
@@ -13,7 +15,7 @@ namespace NewLaserProject.Classes.LogSinks.TokenRenderers
         {
             _alignment = alignment;
         }
-        public override void Render(LogEvent logEvent, out MessageChunk output)
+        public override void Render(LogEvent logEvent, out IEnumerable<MessageChunk> output)
         {
             /*
             if (_alignment.HasValue)
@@ -21,7 +23,7 @@ namespace NewLaserProject.Classes.LogSinks.TokenRenderers
                 if(_alignment.Value.)
             }
             */
-            output = new MessageChunk("", Brushes.Black, Brushes.White, true);
+            output = Enumerable.Repeat(new MessageChunk("", Brushes.Black, Brushes.White, true),1);
         }
     }
 }
