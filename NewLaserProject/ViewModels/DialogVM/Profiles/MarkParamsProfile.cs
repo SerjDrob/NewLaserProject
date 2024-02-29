@@ -9,8 +9,12 @@ namespace NewLaserProject.ViewModels.DialogVM.Profiles
         {
             CreateMap<MarkLaserParams, MarkSettingsVM>()
             .IncludeMembers(s => s.PenParams, s => s.HatchParams);
-            CreateMap<PenParams, MarkSettingsVM>(MemberList.None);
-            CreateMap<HatchParams, MarkSettingsVM>(MemberList.None);
+             CreateMap<PenParams, MarkSettingsVM>(MemberList.None);
+             CreateMap<HatchParams, MarkSettingsVM>(MemberList.None)
+                .ForMember(m => m.HatchLoopDirection, options =>
+                   {
+                       options.Ignore();
+                   });
         }
     }
 }

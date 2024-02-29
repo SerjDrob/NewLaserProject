@@ -33,6 +33,7 @@ using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using DialogResult = System.Windows.Forms.DialogResult;
 using NewLaserProject.Data.Models.TechnologyFeatures.Get;
+using NewLaserProject.Classes.LogSinks.RepositorySink;
 
 namespace NewLaserProject.ViewModels
 {
@@ -562,10 +563,10 @@ namespace NewLaserProject.ViewModels
 
                 _logger.ForContext<MicroProcess>().Information(RepoSink.ProcArgs, new ProcStartedArgs
                 {
-                    fileName= FileName,
-                    materialThickness = WaferThickness,
-                    technologyName = techName,
-                    materialName = procParams.WaferThickness.ToString()
+                    FileName= FileName,
+                    MaterialThickness = WaferThickness,
+                    TechnologyName = techName,
+                    MaterialName = procParams.WaferThickness.ToString()
                 });
 
                 await _mainProcess.StartAsync().ConfigureAwait(false);

@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using NewLaserProject.Classes.LogSinks;
+using NewLaserProject.Classes.LogSinks.ConsoleSink;
 
 namespace NewLaserProject.Views.WpfConsole
 {
@@ -49,23 +50,29 @@ namespace NewLaserProject.Views.WpfConsole
         private static void ConsoleSinkChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var console = d as WPFConsole;
+            
             if (console != null) 
             {
                 console.ConsoleSink.OfType<ConsoleMessage>()
                     .Subscribe(msg =>
                     {
-                        var panel = new StackPanel { Orientation = Orientation.Horizontal };
-                        foreach (var chunk in msg.MsgChunks)
-                        {
-                            var text = new TextBlock { 
-                                Text = chunk.Text, 
-                                FontFamily = new FontFamily("Consolas"),
-                                Background = chunk.Background,
-                                Foreground = chunk.Foreground
-                            };
-                            panel.Children.Add(text);
-                        }
-                        console.SetMessage(panel);           
+                        Application.Current.Dispatcher.Invoke(() => {
+                            var block = new TextBlock { TextWrapping = TextWrapping.WrapWithOverflow };
+                            foreach (var chunk in msg.MsgChunks)
+                            {
+                                var run = new Run
+                                {
+                                    Text = chunk.Text,
+                                    FontFamily = new FontFamily("Consolas"),
+                                    Background = chunk.Background,
+                                    Foreground = chunk.Foreground,
+                                };
+                                if (chunk.newline) block.Inlines.Add(new LineBreak());
+                                block.Inlines.Add(run);
+                            }
+                            console.SetMessage(block);
+                        });
+                                  
                     });
             }
         }

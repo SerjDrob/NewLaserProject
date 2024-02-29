@@ -24,6 +24,8 @@ using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.LogSinks;
+using NewLaserProject.Classes.LogSinks.ConsoleSink;
+using NewLaserProject.Classes.LogSinks.RepositorySink;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
 using PropertyChanged;
@@ -378,6 +380,12 @@ namespace NewLaserProject.ViewModels
 
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
 
+
+            //axesConfigs.SerializeObject(AppPaths.AxesConfigs);
+
+
+            _laserMachine.SetVideoMirror(axesConfigs.XMirrorCamera, axesConfigs.YMirrorCamera);
+
             var xpar = new MotionDeviceConfigs
             {
                 maxAcc = 180,
@@ -388,7 +396,7 @@ namespace NewLaserProject.ViewModels
                 reset = axesConfigs.XHomeReset,
                 acc = _settingsManager.Settings.XAcc ?? throw new ArgumentNullException("XAcc is null"),
                 dec = _settingsManager.Settings.XDec ?? throw new ArgumentNullException("XDec is null"),
-                ppu = 4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
+                ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
                 denominator = 4,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = _settingsManager.Settings.XVelLow ?? throw new ArgumentNullException("XVelLow is null"),
@@ -404,7 +412,7 @@ namespace NewLaserProject.ViewModels
                 reset = axesConfigs.YHomeReset,
                 acc = _settingsManager.Settings.YAcc ?? throw new ArgumentNullException("YAcc is null"),
                 dec = _settingsManager.Settings.YDec ?? throw new ArgumentNullException("YDec is null"),
-                ppu = 3993,//Settings.Default.YPPU*2,
+                ppu = _settingsManager.Settings.YPPU ?? throw new ArgumentNullException("XAcc is null"),//3993,//Settings.Default.YPPU*2,
                 denominator = 4,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = _settingsManager.Settings.YVelLow ?? throw new ArgumentNullException("YVelLow is null"),
@@ -483,9 +491,12 @@ namespace NewLaserProject.ViewModels
                             [Valves.BlueLight] = (Ax.Y, Do.Out4),
                             [Valves.GreenLight] = (Ax.Y, Do.Out5),
                             [Valves.RedLight] = (Ax.U, Do.Out4),
-                            [Valves.YellowLight] = (Ax.U, Do.Out5)
+                            [Valves.YellowLight] = (Ax.U, Do.Out5),
+                            [Valves.Light] = (Ax.Y, Do.Out4) // TODO fix it!
                         }
                     );
+
+
 
                 _signalColumn = new LightColumn();
                 _signalColumn.AddLight(LightColumn.Light.Red, () => _laserMachine.SwitchOnValve(Valves.RedLight), () => _laserMachine.SwitchOffValve(Valves.RedLight));

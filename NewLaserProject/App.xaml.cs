@@ -25,6 +25,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic.Logging;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.LogSinks;
+using NewLaserProject.Classes.LogSinks.ConsoleSink;
+using NewLaserProject.Classes.LogSinks.Filters;
+using NewLaserProject.Classes.LogSinks.RepositorySink;
 using NewLaserProject.Classes.Process;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data;
@@ -117,6 +120,7 @@ namespace NewLaserProject
                    .AddScoped<MockLaser>()
                    .AddScoped<WorkTimeStatisticsVM>()
                    .AddSingleton<PWM3>()
+                   .AddSingleton<PWM2>()
                    .AddSingleton(sp =>
                    {
                        return new LaserBoardFactory(sp, machineconfigs).GetPWM();
@@ -195,7 +199,7 @@ namespace NewLaserProject
             //await _workTimeLogger.LogAppStarted(); 
 
             
-            //_principleLogger = provider.GetRequiredService<Serilog.ILogger>();
+            _principleLogger = provider.GetRequiredService<Serilog.ILogger>();
 
 
             //_principleLogger.ForContext<MicroProcess>().Information(RepoSink.Start, RepoSink.App);
