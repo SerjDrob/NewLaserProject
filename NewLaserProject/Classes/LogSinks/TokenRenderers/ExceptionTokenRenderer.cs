@@ -18,7 +18,7 @@ namespace NewLaserProject.Classes.LogSinks.TokenRenderers
         public override void Render(LogEvent logEvent, out IEnumerable<MessageChunk> output)
         {
             var ex = logEvent.Exception;
-            output = Enumerable.Repeat(new MessageChunk(ex?.ToString() ?? "", Brushes.Black, Brushes.Salmon),1);
+            output = Enumerable.Repeat(new MessageChunk(ex?.ToString(), Brushes.Black, Brushes.Salmon),1);
         }
     }
 }

@@ -43,7 +43,13 @@ namespace NewLaserProject.ViewModels
         {
 
             TestKeyCommand = new KeyProcessorCommands(parameter => true, typeof(TextBox))
-                .CreateAnyKeyDownCommand(moveAsync, () => IsMainTabOpen && !IsProcessing)
+                //.CreateAnyKeyDownCommand(moveAsync, () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.A, () => moveAxDirAsync((Ax.Y, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.Z, () => moveAxDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.X, () => moveAxDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.C, () => moveAxDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.V, () => moveAxDirAsync((Ax.Z, AxDir.Pos)), () => IsMainTabOpen)
+                .CreateKeyDownCommand(Key.B, () => moveAxDirAsync((Ax.Z, AxDir.Neg)), () => IsMainTabOpen)
                 .CreateAnyKeyUpCommand(stopAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.E, () =>
                 {
@@ -152,6 +158,18 @@ namespace NewLaserProject.ViewModels
                     _laserMachine.InvokeSettings();
                     return Task.CompletedTask;
                 }, () => false);
+
+            async Task moveAxDirAsync((Ax,AxDir) axDir)
+            {
+                if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(axDir.Item1, axDir.Item2);
+                if (VelocityRegime == Velocity.Step)
+                {
+                    var step = (axDir.Item2 == AxDir.Pos ? 1 : -1) * 0.005;
+                    await _laserMachine.MoveAxRelativeAsync(axDir.Item1, step, false);
+
+                }
+            }
+
 
             async Task moveAsync(KeyEventArgs key)
             {

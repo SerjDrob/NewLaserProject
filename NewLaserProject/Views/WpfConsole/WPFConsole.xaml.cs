@@ -1,21 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using NewLaserProject.Classes.LogSinks;
 using NewLaserProject.Classes.LogSinks.ConsoleSink;
 
 namespace NewLaserProject.Views.WpfConsole
@@ -29,10 +19,11 @@ namespace NewLaserProject.Views.WpfConsole
         {
             InitializeComponent();
             _controls = new();
+            _controls.CollectionChanged += _controls_CollectionChanged;
             ConsoleOutput.ItemsSource = _controls;
-            //var text = new TextBlock { Text = "Hello World", FontFamily = new FontFamily("Consolas") };
-            //_controls.Add(text);
         }
+
+        private void _controls_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => Scroller.ScrollToEnd();
 
         ObservableCollection<FrameworkElement> _controls;
         public void SetMessage(FrameworkElement control) => _controls.Add(control);
@@ -45,21 +36,25 @@ namespace NewLaserProject.Views.WpfConsole
 
         // Using a DependencyProperty as the backing store for ConsoleSink.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ConsoleSinkProperty =
-            DependencyProperty.Register("ConsoleSink", typeof(WpfConsoleSink), typeof(WpfConsole.WPFConsole), new PropertyMetadata(null, ConsoleSinkChanged));
+            DependencyProperty.Register("ConsoleSink", typeof(WpfConsoleSink), typeof(WPFConsole), new PropertyMetadata(null, ConsoleSinkChanged));
 
         private static void ConsoleSinkChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var console = d as WPFConsole;
-            
-            if (console != null) 
+
+            if (console != null)
             {
                 console.ConsoleSink.OfType<ConsoleMessage>()
                     .Subscribe(msg =>
                     {
-                        Application.Current.Dispatcher.Invoke(() => {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
                             var block = new TextBlock { TextWrapping = TextWrapping.WrapWithOverflow };
+                            var num = 0;
+                            var count = msg.MsgChunks.Count();
                             foreach (var chunk in msg.MsgChunks)
                             {
+                                num++;
                                 var run = new Run
                                 {
                                     Text = chunk.Text,
@@ -67,12 +62,11 @@ namespace NewLaserProject.Views.WpfConsole
                                     Background = chunk.Background,
                                     Foreground = chunk.Foreground,
                                 };
-                                if (chunk.newline) block.Inlines.Add(new LineBreak());
+                                if (chunk.newline && num != count) block.Inlines.Add(new LineBreak());
                                 block.Inlines.Add(run);
                             }
                             console.SetMessage(block);
                         });
-                                  
                     });
             }
         }

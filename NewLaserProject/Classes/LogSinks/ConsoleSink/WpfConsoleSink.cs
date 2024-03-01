@@ -25,7 +25,7 @@ namespace NewLaserProject.Classes.LogSinks.ConsoleSink
             foreach (var render in _list)
             {
                 render.Render(logEvent, out var messageChunk);
-                chunks.AddRange(messageChunk);
+                chunks.AddRange(messageChunk.Where(c => c.Text != null));
             }
             _subject.OnNext(new ConsoleMessage(chunks));
         }
