@@ -12,7 +12,6 @@ using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineControlsLibrary.CommonDialog;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Data.Models.DefaultLayerEntityTechnologyFeatures.Get;
@@ -20,7 +19,6 @@ using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Create;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Delete;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.DTOs;
-using NewLaserProject.Properties;
 using NewLaserProject.ViewModels.DialogVM;
 
 namespace NewLaserProject.ViewModels
@@ -50,6 +48,8 @@ namespace NewLaserProject.ViewModels
                 .CreateKeyDownCommand(Key.C, () => moveAxDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.V, () => moveAxDirAsync((Ax.Z, AxDir.Pos)), () => IsMainTabOpen)
                 .CreateKeyDownCommand(Key.B, () => moveAxDirAsync((Ax.Z, AxDir.Neg)), () => IsMainTabOpen)
+                .CreateKeyUpCommand(Key.V, () => Task.Run(() => _laserMachine.Stop(Ax.Z)), () => IsMainTabOpen)
+                .CreateKeyUpCommand(Key.B, () => Task.Run(() => _laserMachine.Stop(Ax.Z)), () => IsMainTabOpen)
                 .CreateAnyKeyUpCommand(stopAsync, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.E, () =>
                 {
@@ -159,7 +159,7 @@ namespace NewLaserProject.ViewModels
                     return Task.CompletedTask;
                 }, () => false);
 
-            async Task moveAxDirAsync((Ax,AxDir) axDir)
+            async Task moveAxDirAsync((Ax, AxDir) axDir)
             {
                 if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(axDir.Item1, axDir.Item2);
                 if (VelocityRegime == Velocity.Step)
