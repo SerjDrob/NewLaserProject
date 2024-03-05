@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -19,11 +18,9 @@ using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
-using NewLaserProject.Classes.LogSinks;
 using NewLaserProject.Classes.LogSinks.ConsoleSink;
 using NewLaserProject.Classes.LogSinks.RepositorySink;
 using NewLaserProject.Classes.Process.ProcessFeatures;
@@ -141,7 +138,7 @@ namespace NewLaserProject.ViewModels
             _signalColumn?.TurnOnLight(LightColumn.Light.Red);
             _laserMachine.StartMonitoringState();
             MechTableVM = new();
-            _logger.Information(RepoSink.Start,RepoSink.App);
+            _logger.Information(RepoSink.Start, RepoSink.App);
             //_logger.Log(LogLevel.Information, "App started");
             WpfConsole = _serviceProvider.GetRequiredService<WpfConsoleSink>();
         }

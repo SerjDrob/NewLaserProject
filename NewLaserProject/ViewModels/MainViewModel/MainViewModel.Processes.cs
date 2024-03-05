@@ -19,21 +19,20 @@ using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineControlsLibrary.CommonDialog;
-using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.LogSinks;
+using NewLaserProject.Classes.LogSinks.RepositorySink;
 using NewLaserProject.Classes.Process;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models;
+using NewLaserProject.Data.Models.TechnologyFeatures.Get;
 using NewLaserProject.ViewModels.DialogVM;
 using Newtonsoft.Json;
+using DialogResult = System.Windows.Forms.DialogResult;
+using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using Path = System.IO.Path;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
-using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
-using DialogResult = System.Windows.Forms.DialogResult;
-using NewLaserProject.Data.Models.TechnologyFeatures.Get;
-using NewLaserProject.Classes.LogSinks.RepositorySink;
 
 namespace NewLaserProject.ViewModels
 {
@@ -99,7 +98,7 @@ namespace NewLaserProject.ViewModels
             CurrentProcObjectTimer = _procObjTempTime.ToString("mm:ss");
         }
 
-       
+
 
         [ICommand]
         private void DenyDownloadedProcess()
@@ -124,7 +123,7 @@ namespace NewLaserProject.ViewModels
             IsProcessLoaded = false;
             _openedFileVM.IsCircleButtonVisible = true;
         }
-        
+
 
         private IEnumerable<IProcObject> ArrangeProcObjects(List<IProcObject> procObjects)
         {
@@ -417,11 +416,11 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void SaveWorkFile()
         {
-            var objects = new List<(string,LaserEntity,int)>();
+            var objects = new List<(string, LaserEntity, int)>();
             foreach (var item in ChosenProcessingObjects)
             {
                 var (layer, entity, id) = item;
-                if (layer!=string.Empty && id!=-1)
+                if (layer != string.Empty && id != -1)
                 {
                     objects.Add((layer, entity, id));
                 }
@@ -450,7 +449,7 @@ namespace NewLaserProject.ViewModels
             saveFileDialog.DefaultExt = "*.wpu";
             saveFileDialog.FileName = Path.GetFileNameWithoutExtension(FileName);
             saveFileDialog.AddExtension = true;
-            if(saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 File.WriteAllText(saveFileDialog.FileName, serialized);
             }
@@ -493,7 +492,7 @@ namespace NewLaserProject.ViewModels
                                 LaserEntity = obj.Item2,
                                 Layer = obj.Item1,
                                 Technology = technology.Technology
-                            }; 
+                            };
                             objs.Add(objForProc);
                             LayersProcessingModel?.SetObjectChecked(obj.Item1, obj.Item2);
                         }
@@ -515,12 +514,12 @@ namespace NewLaserProject.ViewModels
                .SetDialogTitle("Запуск процесса")
                .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
                .GetCommonResultAsync<double>();
-            
+
             ProcessParams procParams;
 
             if (result.Success)
             {
-                 procParams = new ProcessParams(result.CommonResult);
+                procParams = new ProcessParams(result.CommonResult);
                 _mainProcess?.ChangeParams(procParams);
             }
             else
@@ -550,20 +549,20 @@ namespace NewLaserProject.ViewModels
 
 
                 _logger.ForContext<MainViewModel>().Information("The process started. File's name: {FileName} Layer's name for processing: {CurrentLayerFilter} Entity type for processing: {CurrentEntityType}",
-                    FileName,CurrentLayerFilter,CurrentEntityType);
+                    FileName, CurrentLayerFilter, CurrentEntityType);
 
                 _signalColumn.TurnOnLight(LightColumn.Light.Yellow);
 
                 var techName =
-                    ChosenProcessingObjects.Aggregate(new StringBuilder(), 
+                    ChosenProcessingObjects.Aggregate(new StringBuilder(),
                     (acc, obj) => acc.AppendLine($"{obj.Layer} -> {obj.LaserEntity} -> {obj.Technology.ProgramName}"),
-                    acc=>acc.ToString());
+                    acc => acc.ToString());
 
                 //_workTimeLogger?.LogProcessStarted(FileName, procParams.WaferThickness.ToString(), techName, WaferThickness);
 
                 _logger.ForContext<MicroProcess>().Information(RepoSink.ProcArgs, new ProcStartedArgs
                 {
-                    FileName= FileName,
+                    FileName = FileName,
                     MaterialThickness = WaferThickness,
                     TechnologyName = techName,
                     MaterialName = procParams.WaferThickness.ToString()

@@ -20,28 +20,20 @@ using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Delete;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.ViewModels.DialogVM;
+using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
 {
     public partial class MainViewModel
     {
-        public ICommand? TestKeyCommand
-        {
-            get; protected set;
-        }
-        public double TestX
-        {
-            get; set;
-        }
-        public double TestY
-        {
-            get; set;
-        }
+        public ICommand? TestKeyCommand { get; protected set; }
+        public double TestX { get;set; }
+        public double TestY { get; set; }
+        private bool _isKeyProcCommandsBlocked;
         private void InitCommands()
         {
 
-            TestKeyCommand = new KeyProcessorCommands(parameter => true, typeof(TextBox))
-                //.CreateAnyKeyDownCommand(moveAsync, () => IsMainTabOpen && !IsProcessing)
+            TestKeyCommand = new KeyProcessorCommands(parameter => !_isKeyProcCommandsBlocked, typeof(TextBox))
                 .CreateKeyDownCommand(Key.A, () => moveAxDirAsync((Ax.Y, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.Z, () => moveAxDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.X, () => moveAxDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
@@ -169,45 +161,6 @@ namespace NewLaserProject.ViewModels
 
                 }
             }
-
-
-            async Task moveAsync(KeyEventArgs key)
-            {
-                try
-                {
-                    var res = key.Key switch
-                    {
-                        Key.A => (Ax.Y, AxDir.Pos),
-                        Key.Z => (Ax.Y, AxDir.Neg),
-                        Key.X => (Ax.X, AxDir.Neg),
-                        Key.C => (Ax.X, AxDir.Pos),
-                        Key.V => (Ax.Z, AxDir.Pos),
-                        Key.B => (Ax.Z, AxDir.Neg),
-                    };
-
-                    if (!key.IsRepeat)
-                    {
-                        if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(res.Item1, res.Item2);
-                        if (VelocityRegime == Velocity.Step)
-                        {
-                            var step = (res.Item2 == AxDir.Pos ? 1 : -1) * 0.005;
-                            await _laserMachine.MoveAxRelativeAsync(res.Item1, step, false);
-
-                        }
-                    }
-                    key.Handled = true;
-                }
-                catch (SwitchExpressionException ex)
-                {
-                    _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in the {nameof(moveAsync)} method.");
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    _logger.ForContext<MainViewModel>().Error(ex, $"Throwed the exception in the {nameof(moveAsync)} method.");
-                    throw;
-                }
-            }
             Task stopAsync(KeyEventArgs key)
             {
                 try
@@ -276,16 +229,16 @@ namespace NewLaserProject.ViewModels
                 if (_canTeach)
                 {
                     Growl.Clear();
-                    return _currentTeacher?.Next();
+                    return _currentTeacher?.Next() ?? Task.CompletedTask;
                 }
-                return _mainProcess?.Next();
+                return _mainProcess?.Next() ?? Task.CompletedTask;
             }
             Task deny()
             {
                 if (_canTeach)
                 {
                     Growl.Clear();
-                    return _currentTeacher?.Deny();
+                    return _currentTeacher?.Deny() ?? Task.CompletedTask;
                 }
                 return Task.CompletedTask;
             }
@@ -309,7 +262,7 @@ namespace NewLaserProject.ViewModels
                     vm.IsMirrored = _settingsManager.Settings.IsMirrored ?? throw new ArgumentNullException("IsMirrored is null");
                     vm.IsRotated = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
                 })
-                .GetCommonResultAsync<FileViewDialogVM>();//UNDONE this dialog doesn't save db
+                .GetCommonResultAsync<FileViewDialogVM>(ToggleKeyProcCommands);//UNDONE this dialog doesn't save db
             if (result.Success)
             {
                 _settingsManager.Settings.DefaultWidth = result.CommonResult.DefaultWidth;
@@ -322,6 +275,14 @@ namespace NewLaserProject.ViewModels
                 var deletedFilters = defLayerResponse.DefaultLayerFilters.Except(result.CommonResult.DefLayerFilters).ToList();
                 if (newFilters.Any()) await _mediator.Send(new CreateDefaultLayerFiltersRequest(newFilters));
                 if (deletedFilters.Any()) await _mediator.Send(new DeleteDefaultLayerFiltersRequest(deletedFilters));
+
+                if(MsgBox.Ask("Изменить параметры подложки и отображения файла?") == System.Windows.MessageBoxResult.OK)
+                {
+                    WaferWidth = result.CommonResult.DefaultWidth;
+                    WaferHeight = result.CommonResult.DefaultHeight;
+                    _openedFileVM.MirrorX = result.CommonResult.IsMirrored;
+                    _openedFileVM.WaferTurn90 = result.CommonResult.IsRotated;
+                }
             }
         }
         [ICommand]
@@ -364,7 +325,7 @@ namespace NewLaserProject.ViewModels
                     vm.IsMirrored = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");
                     vm.IsRotated = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
                 })
-                .GetCommonResultAsync<SpecimenSettingsVM>();
+                .GetCommonResultAsync<SpecimenSettingsVM>(ToggleKeyProcCommands);
             if (result.Success)
             {
                 var defSettings = result.CommonResult;
@@ -390,7 +351,7 @@ namespace NewLaserProject.ViewModels
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Настройки приводов")
                 .SetDataContext(new MachineSettingsVM(XAxis.Position, YAxis.Position, ZAxis.Position), vm => vm.CopyFromSettings2(_settingsManager.Settings))
-                .GetCommonResultAsync<MachineSettingsVM>();
+                .GetCommonResultAsync<MachineSettingsVM>(ToggleKeyProcCommands);
             if (result.Success)
             {
                 result.CommonResult.CopyToSettings2(_settingsManager.Settings);
@@ -399,6 +360,13 @@ namespace NewLaserProject.ViewModels
                 TuneCoorSystem();
             }
         }
+
+        private void ToggleKeyProcCommands()
+        {
+            _isKeyProcCommandsBlocked ^= true;
+        }
+
+
         [ICommand]
         private async Task ChooseMaterial()
         {
@@ -410,7 +378,7 @@ namespace NewLaserProject.ViewModels
                     vm.Height = WaferHeight;
                     vm.Thickness = WaferThickness;
                 })
-                .GetCommonResultAsync<WaferVM>();
+                .GetCommonResultAsync<WaferVM>(ToggleKeyProcCommands);
             if (result.Success)
             {
                 WaferWidth = result.CommonResult.Width;
@@ -431,7 +399,7 @@ namespace NewLaserProject.ViewModels
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Настройка пера и штриховки")
                 .SetDataContext(msVM, vm => { })
-                .GetCommonResultAsync<MarkSettingsVM>();
+                .GetCommonResultAsync<MarkSettingsVM>(ToggleKeyProcCommands);
 
             if (result.Success)
             {
@@ -499,7 +467,7 @@ namespace NewLaserProject.ViewModels
                 var result = await Dialog.Show<CommonDialog>()
                     .SetDialogTitle("Параметры пера")
                     .SetDataContext(new EditExtendedParamsVM(markParams), vm => { })
-                    .GetCommonResultAsync<ExtendedParams>();
+                    .GetCommonResultAsync<ExtendedParams>(ToggleKeyProcCommands);
 
                 if (result.Success)
                 {
