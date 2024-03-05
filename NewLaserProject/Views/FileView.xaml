@@ -13,6 +13,27 @@
              MinHeight="300"
              >
     <Grid>
+        <StackPanel Orientation="Horizontal"
+                    Margin="10,30"
+                    Panel.ZIndex="100"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    >
+            <StackPanel.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="Red"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="FontFamily" Value="Futur"/>
+                    <Setter Property="Margin" Value="0,0,5,0"/>
+                </Style>
+            </StackPanel.Resources>
+            <TextBlock Text="M" 
+                       Visibility="{Binding MirrorX, Converter={StaticResource Boolean2VisibilityConverter}}" 
+                       />
+            <TextBlock Text="90&#186;" 
+                       Visibility="{Binding WaferTurn90, Converter={StaticResource Boolean2VisibilityConverter}}" 
+                       />
+        </StackPanel>
         <uc:GraphWindow                         
                            x:Name="GraphWin"
                            LayGeoms="{Binding DataContext.LayGeoms, RelativeSource={RelativeSource AncestorType={x:Type UserControl}, Mode=FindAncestor}}"                                            
