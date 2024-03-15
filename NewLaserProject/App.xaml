@@ -43,6 +43,7 @@
             <Localconverters:MarkPositionConverter x:Key="MarkPositionConverter"/>
             <Localconverters:GetDictValueConverter x:Key="GetDictValueConverter"/>
             <Localconverters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+            <Localconverters:EnumToIntConverter x:Key="EnumToIntConverter"/>
             <cnvrt:DivideConverter x:Key="DivideConverter"/>
             <cnvrt:MulConvereter x:Key="MulConvereter"/>
             <clr:Boolean x:Key="TRUE">True</clr:Boolean>

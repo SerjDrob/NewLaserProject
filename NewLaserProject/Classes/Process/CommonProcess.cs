@@ -139,9 +139,11 @@ namespace NewLaserProject.Classes.Process
                     _subject.OnNext(new ProcessingStarted());
                     foreach (var item in _processing)
                     {
+                        item.microProcess.Subscribe(_subject);//TODO using
                         _currentMicroProcCts = item.microProcess.GetCancellationTokenSource();
                         for (var i = 0; i < item.microProcess.GetMainLoopCount(); i++)
                         {
+                            _subject.OnNext(new MainLoopChanged(i + 1));
                             var currentObjects = item.microProcess.IsLoopShuffle ? item.procObjects.Shuffle() : item.procObjects;
                             if (_mainCancellationToken.IsCancellationRequested) break;
                             foreach (var pObject in currentObjects)
@@ -171,11 +173,13 @@ namespace NewLaserProject.Classes.Process
                                         {
                                             _subject.OnNext(new ProcessMessage(ex.Message, MsgType.Error));
                                             Console.Error.WriteLine(ex.Message);
+                                            item.microProcess.Dispose();
                                             goto M1;
                                         }
                                         catch(Exception ex)
                                         {
                                             Console.Error.WriteLine(ex.Message);
+                                            item.microProcess.Dispose();
                                             goto M1;
                                         }
                                     }
@@ -198,6 +202,7 @@ namespace NewLaserProject.Classes.Process
                                 }
                             }
                         }
+                        item.microProcess.Dispose();
                     }
 M1:                 _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                     var completeStatus = _mainCancellationToken.IsCancellationRequested ? CompletionStatus.Cancelled : CompletionStatus.Success;

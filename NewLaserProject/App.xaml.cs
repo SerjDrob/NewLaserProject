@@ -190,7 +190,7 @@ namespace NewLaserProject
         //private WorkTimeLogger _workTimeLogger;
         protected override async void OnStartup(StartupEventArgs e)//TODO Bad 
         {
-            AllocConsole();
+            //AllocConsole();
 
             var provider = MainIoC.BuildServiceProvider();
             //var loggerProvider = provider.GetRequiredService<ILoggerProvider>();

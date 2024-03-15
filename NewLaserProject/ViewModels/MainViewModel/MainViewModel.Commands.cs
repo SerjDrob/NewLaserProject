@@ -85,66 +85,9 @@ namespace NewLaserProject.ViewModels
                 }, () => false)
                 .CreateKeyDownCommand(Key.L, () =>
                 {
-                    //Dialog.Show<MaterialDialogControl>()
-                    //.SetDataContext<AskLearnFocus>()
-                    //.Initialize<AskLearnFocus>(vm =>
-                    //{
-                    //    vm.Height = 15;
-                    //    vm.Speed = 1000;
-                    //})
-                    //.GetResultAsync<AskLearnFocus>()
-                    //.ContinueWith(result =>
-                    //{
-                    //    //    var w = result.Result;
-
-                    //    //        MarkSpeed=10000,
-                    //    //        PWMFrequency=100,
-                    //    //        PWMDutyCycle=90,
-                    //    //        QPulseWidth=1,
-                    //    //        PowerRatio=50
-                    //    //    }));
-                    //    //    double xOffset = Settings.Default.XOffset;
-                    //    //    double yOffset = Settings.Default.YOffset;
-                    //    //    await Task.WhenAll(
-                    //    //       _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
-                    //    //       _laserMachine.MoveAxInPosAsync(Ax.Z, Settings.Default.ZeroPiercePoint - WaferThickness)
-                    //    //       );
-                    //    //    await _laserMachine.MoveAxRelativeAsync(Ax.Z, -10);
-                    //    //    for (int i = 1; i < 41; i++)
-                    //    ////    _laserMachine.SetExtMarkParams(new MachineClassLibrary.Laser.ExtParamsAdapter(new()
-                    //    ////    {
-                    //    //    {
-                    //    //        await _laserMachine.PierceLineAsync(0, -5, 0, 5);
-                    //    //        await _laserMachine.MoveAxRelativeAsync(Ax.X, 0.2);
-                    //    //        await _laserMachine.MoveAxRelativeAsync(Ax.Z, 0.2);
-                    //    ////        Freq = 40000,
-                    //    //    }
-
-                    //    //    await Task.WhenAll(
-                    //    //      _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true),
-                    //    //      _laserMachine.MoveAxInPosAsync(Ax.Z, Settings.Default.ZeroFocusPoint - WaferThickness)
-                    //    //      );
-                    //});
-
-                    //Dialog.Show<AskThicknessDialog>()
-                    //.SetDataContext<AskThicknessVM>()
-                    //.Initialize<AskThicknessVM>(vm =>
-                    //{
-                    //    vm.Thickness = 0.5;
-                    //})
-                    //.GetResultAsync<AskThicknessVM>()
-                    //.ContinueWith(result =>
-                    //{
-                    //    var t = result.Result.Thickness;
-                    //});
-
-                    Growl.Ask("WTF?", s =>
-                    {
-                        return true;
-                    });
-
+                    SwitchArr ^= true;
                     return Task.CompletedTask;
-                }, () => false)
+                }, () => true)
                 .CreateKeyDownCommand(Key.F7, () =>
                 {
                     _laserMachine.InvokeSettings();
@@ -243,6 +186,9 @@ namespace NewLaserProject.ViewModels
                 return Task.CompletedTask;
             }
         }
+
+        public bool SwitchArr { get; set; }
+
         [ICommand]
         private async Task OpenFileViewSettingsWindow()
         {

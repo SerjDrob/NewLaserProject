@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:dd="urn:gong-wpf-dragdrop"
                     xmlns:pblocks="clr-namespace:NewLaserProject.Classes.ProgBlocks"
+                    xmlns:classes="clr-namespace:NewLaserProject.Classes"
                     xmlns:hc="https://handyorg.github.io/handycontrol"
                     >
     <ResourceDictionary.MergedDictionaries>
@@ -164,4 +165,15 @@
             </Button>
         </ItemsControl>
     </DataTemplate>
+
+    <DataTemplate DataType="{x:Type classes:CurrentPierceBlock}">
+        <TextBlock>
+            <Run Text="{Binding MarkLoop, StringFormat=L:{0}}"/>
+            <Run Text="{Binding MarkSpeed, StringFormat=SP:{0}}"/>
+            <Run Text="{Binding PWMFrequency, StringFormat=PWMF:{0}}"/>
+            <Run Text="{Binding PWMDutyCycle, StringFormat=PWMD:{0}}"/>
+            <Run Text="{Binding HatchWidth, StringFormat=W:{0}}"/>
+        </TextBlock>
+    </DataTemplate>
+    
 </ResourceDictionary>

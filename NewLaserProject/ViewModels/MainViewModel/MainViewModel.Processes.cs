@@ -156,7 +156,11 @@ namespace NewLaserProject.ViewModels
             return result.Select(r => procObjects.Single(p => p.Id.ToString() == r.Item1));
         }
 
-
+        public string CurrentProcBlock { get; set; }
+        public int CurrentProcMainLoopCount { get; set; }
+        public CurrentPierceBlock CurrentPierceBlock { get; set; }
+        private Dictionary<CurrentPierceBlock, CurrentPierceBlock> _pierceBlocks { get; set; } = new();
+        public ObservableCollection<CurrentPierceBlock> PierceBlocks { get; set; } = new();
 
         [ICommand]
         private async Task DownloadProcess()
@@ -242,6 +246,32 @@ namespace NewLaserProject.ViewModels
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
+                _mainProcess.OfType<PiercingWithParams>()
+                    .Subscribe(args =>
+                    {
+                        var p = args.ExtParams;
+                        CurrentProcBlock = $"SP:{p.MarkSpeed}|L:{p.MarkLoop}|PWMF:{p.PWMFrequency}|PWMD{p.PWMDutyCycle}%|W:{p.HatchWidth}";
+                        CurrentPierceBlock = new(p.MarkSpeed, p.MarkLoop, p.PWMFrequency, p.PWMDutyCycle, p.HatchWidth);
+                        if (_pierceBlocks.TryGetValue(CurrentPierceBlock, out var cb))
+                        {
+                            _pierceBlocks[CurrentPierceBlock] = cb with { MarkLoop = cb.MarkLoop + CurrentPierceBlock.MarkLoop };
+                        }
+                        else
+                        {
+                            _pierceBlocks[CurrentPierceBlock] = CurrentPierceBlock;      
+                        }
+                        PierceBlocks = new(_pierceBlocks.Values);
+                    })
+                    .AddSubscriptionTo(_currentProcSubscriptions);
+
+
+                _mainProcess.OfType<MainLoopChanged>()
+                    .Subscribe(args =>
+                    {
+                        CurrentProcMainLoopCount = args.Loop;
+                    })
+                    .AddSubscriptionTo(_currentProcSubscriptions);
+
 
                 _mainProcess.OfType<ProcessingStarted>()
                     .Subscribe(args =>
@@ -271,6 +301,8 @@ namespace NewLaserProject.ViewModels
                         _procObjTempTime = new(0);
                         var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
                         if (o is not null) ProcessingObjects.Remove(o);
+                        _pierceBlocks.Clear();
+                        PierceBlocks.Clear();
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
