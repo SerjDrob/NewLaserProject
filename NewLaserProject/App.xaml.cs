@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Configuration;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using AutoMapper;
 using MachineClassLibrary.Laser;
@@ -14,15 +14,11 @@ using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
-using MachineClassLibrary.Miscellaneous;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.Logging;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.LogSinks;
 using NewLaserProject.Classes.LogSinks.ConsoleSink;
@@ -39,12 +35,7 @@ using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.ViewModels.DialogVM.Profiles;
 using NewLaserProject.Views;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
-using Serilog.Extensions.Hosting;
-using Serilog.Extensions.Logging;
-using Serilog.Filters;
-using SQLitePCL;
 
 namespace NewLaserProject
 {
@@ -74,13 +65,13 @@ namespace NewLaserProject
 
 
 
-            var result = settingsManager.Settings.GetType().GetProperties().Any(p => p.GetValue(settingsManager.Settings)!= default);
+            var result = settingsManager.Settings.GetType().GetProperties().Any(p => p.GetValue(settingsManager.Settings) != default);
             if (!result)
             {
                 var configs = new MapperConfiguration(conf =>
                 {
-                    conf.CreateMap<Settings,LaserMachineSettings>()
-                    .ForMember(ls=>ls.PreferredCameraCapabilities, opt=>opt.MapFrom(s=>s.PreferedCameraCapabilities));
+                    conf.CreateMap<Settings, LaserMachineSettings>()
+                    .ForMember(ls => ls.PreferredCameraCapabilities, opt => opt.MapFrom(s => s.PreferedCameraCapabilities));
                 });
                 var mapper = new Mapper(configs);
                 var settings = mapper.Map<LaserMachineSettings>(Settings.Default);
@@ -198,7 +189,7 @@ namespace NewLaserProject
             //_workTimeLogger = provider.GetRequiredService<WorkTimeLogger>();
             //await _workTimeLogger.LogAppStarted(); 
 
-            
+
             _principleLogger = provider.GetRequiredService<Serilog.ILogger>();
 
 
@@ -212,7 +203,7 @@ namespace NewLaserProject
 
 
             context?.LoadSetsAsync();
-            
+
             /*
             Trace.TraceInformation("The application started");
             Trace.Flush();
@@ -242,7 +233,7 @@ namespace NewLaserProject
                 location.BackupDatabase(destination);
             }
             //await _workTimeLogger.LogAppStopped();
-            
+
         }
 
         protected override void OnDeactivated(EventArgs e)

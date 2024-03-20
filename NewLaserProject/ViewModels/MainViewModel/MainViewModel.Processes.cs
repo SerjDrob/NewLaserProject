@@ -226,7 +226,7 @@ namespace NewLaserProject.ViewModels
                     waferThickness: WaferThickness,
                     dX: _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null"),
                     dY: _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null"),
-                    pazAngle: 0,//Settings.Default.PazAngle,
+                    pazAngle: _settingsManager.Settings.PazAngle ?? throw new ArgumentNullException("PazAngle is null"),//Settings.Default.PazAngle,
                     subject: _subjMediator,
                     baseCoorSystem: _coorSystem,
                     underCamera: false,

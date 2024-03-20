@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Windows.Input;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
@@ -14,11 +16,13 @@ using MachineControlsLibrary.CommonDialog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
+using NewLaserProject.Classes.Process;
 using NewLaserProject.Data.Models.DefaultLayerEntityTechnologyFeatures.Get;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Create;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Delete;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.DTOs;
+using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.ViewModels.DialogVM;
 using MsgBox = HandyControl.Controls.MessageBox;
 
@@ -27,7 +31,7 @@ namespace NewLaserProject.ViewModels
     public partial class MainViewModel
     {
         public ICommand? TestKeyCommand { get; protected set; }
-        public double TestX { get;set; }
+        public double TestX { get; set; }
         public double TestY { get; set; }
         private bool _isKeyProcCommandsBlocked;
         private void InitCommands()
@@ -188,7 +192,9 @@ namespace NewLaserProject.ViewModels
         }
 
         public bool SwitchArr { get; set; }
-
+        public ObjectForProcessing IndividualProcObject { get; private set; }
+        public double IndividualProcDiameter { get; set; }
+        public bool IsIndividualProcessing { get; private set; } = false;
         [ICommand]
         private async Task OpenFileViewSettingsWindow()
         {
@@ -222,7 +228,7 @@ namespace NewLaserProject.ViewModels
                 if (newFilters.Any()) await _mediator.Send(new CreateDefaultLayerFiltersRequest(newFilters));
                 if (deletedFilters.Any()) await _mediator.Send(new DeleteDefaultLayerFiltersRequest(deletedFilters));
 
-                if(MsgBox.Ask("Изменить параметры подложки и отображения файла?") == System.Windows.MessageBoxResult.OK)
+                if (MsgBox.Ask("Изменить параметры подложки и отображения файла?") == System.Windows.MessageBoxResult.OK)
                 {
                     WaferWidth = result.CommonResult.DefaultWidth;
                     WaferHeight = result.CommonResult.DefaultHeight;
@@ -423,6 +429,80 @@ namespace NewLaserProject.ViewModels
             catch (Exception ex)
             {
                 _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in the {nameof(OpenMarkSettings)} method.");
+            }
+        }
+
+        [ICommand]
+        private async Task ChooseIndividualTech()
+        {
+            var response = await _mediator.Send(new GetFullMaterialHasTechnologyRequest());
+            var availableMaterials = response.Materials;
+            var result = await Dialog.Show<CommonDialog>()
+                            .SetDialogTitle("Выбор технологии обработки")
+                            .SetDataContext<AddProcObjectsVM>(vm =>
+                            {
+                                var tempTechnology = availableMaterials.FirstOrDefault()?.Technologies?.FirstOrDefault();
+                                vm.ObjectForProcessing = new()
+                                {
+                                    Layer = "",
+                                    LaserEntity = LaserEntity.Circle,
+                                    Technology = tempTechnology
+                                };
+                                vm.Material = tempTechnology?.Material;
+                                vm.Materials = new(availableMaterials);
+                            })
+                            .GetCommonResultAsync<ObjectForProcessing>();
+            if (result.Success && result.CommonResult is not null)
+            {
+                IndividualProcObject = result.CommonResult;
+            }
+        }
+
+        [ICommand]
+        private async Task PierceIndividual()
+        {
+            IsIndividualProcessing = true;
+            try
+            {
+                var teachPosition = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 10, 10);
+                var xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
+                var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
+                var zCamera = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
+                var zLaser = _settingsManager.Settings.ZeroPiercePoint ?? throw new ArgumentNullException("ZeroPiercePoint is null");
+                var vel = VelocityRegime;
+                var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{IndividualProcObject.Technology?.ProcessingProgram}.json"));
+                var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
+
+                var microProc = new MicroProcess(json, preparator, _laserMachine, z =>
+                {
+                    return _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
+                });
+
+                _laserMachine.SetVelocity(Velocity.Fast);
+                await Task.WhenAll(
+                        _laserMachine.MoveGpRelativeAsync(Groups.XY, [xOffset, yOffset], true),
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - WaferThickness)
+                        );
+
+
+                var pObject = new PCircle(0, 0, 0, new Circle { CenterX = 0, CenterY = 0, Radius = IndividualProcDiameter / 2 }, "", 0);
+                await microProc.InvokePierceFunctionForObjectAsync(pObject);
+
+
+                await Task.WhenAll(
+                                _laserMachine.MoveGpRelativeAsync(Groups.XY, [-xOffset, -yOffset], true),
+                                _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - WaferThickness)
+                                );
+                _laserMachine.SetVelocity(vel);
+                Growl.Info("Прошивка выполнена.");
+            }
+            catch (Exception ex)
+            {
+                _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in the {nameof(PierceIndividual)} method.");
+            }
+            finally
+            {
+                IsIndividualProcessing = false;
             }
         }
     }

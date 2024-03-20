@@ -71,7 +71,7 @@ namespace NewLaserProject.ViewModels
             if (!CanExecute(parameter)) return;
             if (parameter is KeyProcessorArgs args)
             {
-                if (notProcessingControls.Any(t=>t.IsEquivalentTo(args.KeyEventArgs.OriginalSource.GetType()))) return;
+                if (notProcessingControls.Any(t=>t.IsEquivalentTo(args.KeyEventArgs.OriginalSource.GetType().BaseType))) return;
                 if (args.IsKeyDown)
                 {
                     if (!(DownKeys?.Keys.Any(key => key == args.KeyEventArgs.Key) ?? false) & _anyKeyDownCommand is not null)

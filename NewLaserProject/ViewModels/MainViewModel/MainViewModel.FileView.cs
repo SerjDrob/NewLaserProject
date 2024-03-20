@@ -124,8 +124,6 @@ namespace NewLaserProject.ViewModels
             _openedFileVM.IsFileLoading = false;
         }
 
-        private Task _loadingContextTask;
-
         public LayersProcessingModel LayersProcessingModel { get; set; }
 
         private async Task LoadDbForFile()

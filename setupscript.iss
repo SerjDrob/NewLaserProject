@@ -8,6 +8,10 @@
 #define AdvantechDriverExec "Advantech Common Motion Driver and Utility_20220316.exe"
 #define dotnetruntimeinstaller "windowsdesktop-runtime-7.0.12-win-x64.exe"
 #define dotnetruntime6 "windowsdesktop-runtime-6.0.23-win-x64.exe"
+#define gitsetup "Git-2.44.0-64-bit.exe"
+#define kdiffsetup "KDiff3-64bit-Setup_0.9.98-2.exe"
+#define gitextensionsetup "GitExtensions-4.2.1.17611-b0c0b2848.msi"
+#define advantechnavisetup "Advantech MotionNavi Driver and Utility_20220929.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -37,15 +41,18 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Components]
-Name: "advantechdrivers"; Description: "Установить драйверы Advantech"; 
-Name: "lmcboard"; Description: "Установить драйверы LMCV4-DIGIT";
-Name: "dotnetruntime7"; Description: "Установить .Net7 Runtime";
-Name: "dotnetruntime6"; Description: "Установить .Net6 Runtime";
+Name: "advantechdrivers"; Description: "Установить драйверы Advantech"
+Name: "lmcboard"; Description: "Установить драйверы LMCV4-DIGIT"
+Name: "dotnetruntime7"; Description: "Установить .Net7 Runtime"
+Name: "dotnetruntime6"; Description: "Установить .Net6 Runtime"
+Name: "advantechNavi"; Description: "Установить драйверы AdvantechNavi"
+Name: "gitExtensions"; Description: "Установить пакет GitExtensons"
+Name: "LR50"; Description: "Установить программу лазера"
 
 [Files]
 Source: "D:\Software\{#AdvantechDriverExec}"; DestDir: "{app}\drivers"; Flags: ignoreversion; Components: advantechdrivers
-Source: "NewLaserProject\bin\Debug\net6.0-windows\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion; Permissions: admins-full
-Source: "NewLaserProject\bin\Debug\net6.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Permissions: admins-full
+Source: "NewLaserProject\bin\x86\Debug\net6.0-windows\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion; Permissions: admins-full
+Source: "NewLaserProject\bin\x86\Debug\net6.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Permissions: admins-full
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "D:\Software\LMCV4_20230423\LMCV4_20230423\WIN7_64\Lmcv4u.sys"; DestDir: "{app}\drivers"
 Source: "D:\Software\LMCV4_20230423\LMCV4_20230423\WIN7_64\Lmcv4u.inf"; DestDir: "{app}\drivers"
@@ -53,6 +60,10 @@ Source: "D:\Software\LMCV4_20230423\LMCV4_20230423\WIN7_64\LMCV4U.cat"; DestDir:
 Source: "D:\Software\LMCV4_20230423\LMCV4_20230423\WIN7_64\WdfCoInstaller01009.dll"; DestDir: "{app}\drivers"
 Source: "D:\Software\{#dotnetruntimeinstaller}"; DestDir: "{app}\drivers"; Flags: 64bit
 Source: "D:\Software\{#dotnetruntime6}"; DestDir: "{app}\drivers"; Flags: 64bit
+Source: "D:\Software\{#advantechnavisetup}"; DestDir: "{app}\drivers"; Flags: ignoreversion; Components: advantechNavi
+Source: "D:\Software\{#gitsetup}"; DestDir: "{app}\drivers"; Flags: ignoreversion
+Source: "D:\Software\{#kdiffsetup}"; DestDir: "{app}\drivers"; Flags: ignoreversion
+Source: "D:\Software\{#gitextensionsetup}"; DestDir: "{app}\drivers"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -60,7 +71,11 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\drivers\{#AdvantechDriverExec}"; Flags: skipifsilent nowait; StatusMsg: "Installing Advantech drivers"; Components: advantechdrivers
+Filename: "{app}\drivers\{#advantechnavisetup}"; Flags: nowait skipifsilent; StatusMsg: "Installing AdvantechNavi"; Components: advantechNavi
 Filename: "{sys}\rundll32.exe"; Parameters: "SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 {app}\drivers\Lmcv4u.inf"; WorkingDir: "{app}\drivers"; StatusMsg: "Installing LMCV4-DIGIT drivers"; Components: lmcboard
 Filename: "{app}\drivers\{#dotnetruntimeinstaller}"; Flags: skipifsilent nowait; StatusMsg: "Installing .Net runtime"; Components: dotnetruntime7
 Filename: "{app}\drivers\{#dotnetruntime6}"; Flags: skipifsilent nowait; StatusMsg: "Installing .Net runtime"; Components: dotnetruntime6
-Filename: "{app}\{#MyAppExeName}"; Flags: runascurrentuser nowait postinstall skipifsilent; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"
+Filename: "{app}\{#MyAppExeName}"; Flags: runascurrentuser nowait postinstall skipifsilent; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Components: LR50
+Filename: "{app}\drivers\{#gitsetup}"; Flags: nowait skipifsilent; StatusMsg: "Installing Git-2.44.0-64-bit"; Components: gitExtensions
+Filename: "{app}\drivers\{#kdiffsetup}"; Flags: nowait skipifsilent; StatusMsg: "Installing KDiff3-64bit"; Components: gitExtensions
+Filename: "{app}\drivers\{#gitextensionsetup}"; Flags: nowait skipifsilent; StatusMsg: "Installing GitExtensions-4.2.1.17611-b0c0b2848"; Components: gitExtensions

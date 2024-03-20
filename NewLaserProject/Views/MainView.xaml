@@ -21,7 +21,7 @@
         ResizeMode="CanResize"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
     >
-    
+
     <hc:GlowWindow.InputBindings>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.SW}" Gesture="CTRL+1"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.SE}" Gesture="CTRL+2"/>
@@ -35,11 +35,11 @@
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterH}" Modifiers="Ctrl" Key="H"/>
         <!--<KeyBinding Command="{Binding ChangeMechViewCommand}" Key="W"/>-->
     </hc:GlowWindow.InputBindings>
-    
-    <hc:GlowWindow.Resources>        
+
+    <hc:GlowWindow.Resources>
         <CollectionViewSource x:Key="FileLayers" Source="{Binding LayGeoms}"/>
-        <CollectionViewSource x:Key="ProcObjects" Source="{Binding ProcessingObjects}"/>  
-        
+        <CollectionViewSource x:Key="ProcObjects" Source="{Binding ProcessingObjects}"/>
+
     </hc:GlowWindow.Resources>
 
     <i:Interaction.Triggers>
@@ -154,12 +154,12 @@
                     </hc:ToggleBlock>
 
                     <hc:ToggleBlock IsChecked="{Binding LaserSourceOk}">
-                    <hc:ToggleBlock.CheckedContent>
-                        <TextBlock Text="LSC" Background="{StaticResource SuccessBrush}"/>
-                    </hc:ToggleBlock.CheckedContent>
-                    <hc:ToggleBlock.UnCheckedContent>
-                        <TextBlock Text="LSC" Background="{StaticResource DangerBrush}"/>
-                    </hc:ToggleBlock.UnCheckedContent>
+                        <hc:ToggleBlock.CheckedContent>
+                            <TextBlock Text="LSC" Background="{StaticResource SuccessBrush}"/>
+                        </hc:ToggleBlock.CheckedContent>
+                        <hc:ToggleBlock.UnCheckedContent>
+                            <TextBlock Text="LSC" Background="{StaticResource DangerBrush}"/>
+                        </hc:ToggleBlock.UnCheckedContent>
                     </hc:ToggleBlock>
 
                     <hc:ToggleBlock IsChecked="{Binding MotionDeviceOk}">
@@ -448,11 +448,11 @@
                     </Border>
                 </DockPanel>
             </ToolBar>
-            
+
             <ToolBar>
                 <cntrl:SpeedIndicator Speed="{Binding VelocityRegime, Converter={StaticResource EnumToIntConverter}}"/>
             </ToolBar>
-            
+
             <ToolBar>
                 <ToggleButton HorizontalAlignment="Stretch" Height="70">
                     <DockPanel LastChildFill="True">
@@ -477,7 +477,7 @@
                             <i:InvokeCommandAction Command="{Binding ChangeMechViewCommand}"/>
                         </i:PropertyChangedTrigger>
                     </i:Interaction.Triggers>
-                </ToggleButton>                
+                </ToggleButton>
             </ToolBar>
             <!--<ToolBar>
                 <gauge:CircularGaugeControl
@@ -525,178 +525,185 @@
                                         Visibility="{Binding IsRightPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
                             </ContentControl>
                         </hc:SimpleStackPanel>
-                        <hc:SimpleStackPanel Grid.Row="1">
-                            <hc:Divider Orientation="Horizontal" Style="{StaticResource DividerBaseStyle}"/>
-                            <Border BorderBrush="{StaticResource PrimaryBrush}" CornerRadius="5" BorderThickness="1">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <hc:ElementGroup Orientation="Horizontal">
-                                        <Button Command="{Binding OpenFileCommand}" Content="Топология" Style="{StaticResource ButtonPrimary.Small}"/>
-                                        <hc:Divider Orientation="Vertical" Width="2" Margin="0" Style="{StaticResource DividerBaseStyle}"/>
-                                        <Button Command="{Binding OpenWPUCommand}" Content="Обработка"  Style="{StaticResource ButtonPrimary.Small}"/>
-                                    </hc:ElementGroup>
-                                    <TextBlock Text="{Binding DataContext.FileName, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
+                        <hc:TabControl Grid.Row="1" Grid.RowSpan="2">
+                            <hc:TabItem Header="Работа с файлом">
+                                <Grid Grid.Column="1" VerticalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <hc:SimpleStackPanel>
+                                        <hc:Divider Orientation="Horizontal" Style="{StaticResource DividerBaseStyle}"/>
+                                        <Border BorderBrush="{StaticResource PrimaryBrush}" CornerRadius="5" BorderThickness="1">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <hc:ElementGroup Orientation="Horizontal">
+                                                    <Button Command="{Binding OpenFileCommand}" Content="Топология" Style="{StaticResource ButtonPrimary.Small}"/>
+                                                    <hc:Divider Orientation="Vertical" Width="2" Margin="0" Style="{StaticResource DividerBaseStyle}"/>
+                                                    <Button Command="{Binding OpenWPUCommand}" Content="Обработка"  Style="{StaticResource ButtonPrimary.Small}"/>
+                                                </hc:ElementGroup>
+                                                <TextBlock Text="{Binding DataContext.FileName, RelativeSource={RelativeSource AncestorType={x:Type Window}, Mode=FindAncestor}}"
                                            Margin="5,0"
                                            Style="{StaticResource TextBlockDefault}"
                                            />
-                                </StackPanel>
-                            </Border>
-                        </hc:SimpleStackPanel>
-                        <GroupBox x:Name="ProcessPanel"
-                                  Header="Текущий процесс" 
-                                  Grid.Row="2"
-                                  >
-                            <i:Interaction.Triggers>
-                                <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
-                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
-                                </i:DataTrigger>
-                                <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="True">
-                                    <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
-                                </i:DataTrigger>
-                            </i:Interaction.Triggers>
+                                            </StackPanel>
+                                        </Border>
+                                    </hc:SimpleStackPanel>
+                                    <GroupBox x:Name="ProcessPanel"
+                                              Header="Текущий процесс" 
+                                              Grid.Row="1"
+                                              >
+                                        <i:Interaction.Triggers>
+                                            <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
+                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Collapsed"/>
+                                            </i:DataTrigger>
+                                            <i:DataTrigger Binding="{Binding IsFileLoaded}" Value="True">
+                                                <i:ChangePropertyAction PropertyName="Visibility" Value="Visible"/>
+                                            </i:DataTrigger>
+                                        </i:Interaction.Triggers>
 
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <hc:SimpleStackPanel>                                    
-                                    <WrapPanel IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                        <StackPanel x:Name="FileScale" Orientation="Horizontal">
-                                            <StackPanel.Resources>
-                                                <x:Array x:Key="Scales" Type="sys:Object">
-                                                    <x:Static Member="classes:Scale.ThousandToOne"/>
-                                                    <x:Static Member="classes:Scale.HundredToOne"/>
-                                                    <x:Static Member="classes:Scale.OneToOne"/>
-                                                    <x:Static Member="classes:Scale.OneToHundred"/>
-                                                </x:Array>
-                                            </StackPanel.Resources>
-                                            <hc:ComboBox ItemsSource="{Binding Source={StaticResource Scales}}" 
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <hc:SimpleStackPanel>
+                                                <WrapPanel IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                                    <StackPanel x:Name="FileScale" Orientation="Horizontal">
+                                                        <StackPanel.Resources>
+                                                            <x:Array x:Key="Scales" Type="sys:Object">
+                                                                <x:Static Member="classes:Scale.ThousandToOne"/>
+                                                                <x:Static Member="classes:Scale.HundredToOne"/>
+                                                                <x:Static Member="classes:Scale.OneToOne"/>
+                                                                <x:Static Member="classes:Scale.OneToHundred"/>
+                                                            </x:Array>
+                                                        </StackPanel.Resources>
+                                                        <hc:ComboBox ItemsSource="{Binding Source={StaticResource Scales}}" 
                                                          SelectedItem="{Binding DefaultFileScale}"
                                                          SelectedIndex="0"
                                                          hc:TitleElement.Title="Масштаб файла"
                                                          hc:TitleElement.TitlePlacement="Left"
                                                          hc:TitleElement.Background="Black"
                                                          Width="180"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <StackPanel.Resources>
-                                                <x:Array x:Key="FileAlignments" Type="{x:Type sys:Enum}">
-                                                    <classes:FileAlignment>AlignByCorner</classes:FileAlignment>
-                                                    <classes:FileAlignment>AlignByThreePoint</classes:FileAlignment>
-                                                    <classes:FileAlignment>AlignByTwoPoint</classes:FileAlignment>
-                                                </x:Array>
-                                            </StackPanel.Resources>
-                                            <controls:ItemsButton DockPanel.Dock="Right"
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <StackPanel.Resources>
+                                                            <x:Array x:Key="FileAlignments" Type="{x:Type sys:Enum}">
+                                                                <classes:FileAlignment>AlignByCorner</classes:FileAlignment>
+                                                                <classes:FileAlignment>AlignByThreePoint</classes:FileAlignment>
+                                                                <classes:FileAlignment>AlignByTwoPoint</classes:FileAlignment>
+                                                            </x:Array>
+                                                        </StackPanel.Resources>
+                                                        <controls:ItemsButton DockPanel.Dock="Right"
                                                                  Width="40"
                                                                  ItemSelector="{StaticResource AligningSelector}"
                                                                  Items="{StaticResource FileAlignments}"
                                                                  SelectedItem="{Binding FileAlignment, Mode=TwoWay}"
                                                                  HorizontalAlignment="Stretch"
                                                                 >
-                                            </controls:ItemsButton>
-                                            <Label Content="Тип совмещения"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <CheckBox IsChecked="{Binding IsWaferMark, Mode=TwoWay}"
+                                                        </controls:ItemsButton>
+                                                        <Label Content="Тип совмещения"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <CheckBox IsChecked="{Binding IsWaferMark, Mode=TwoWay}"
                                                   Content="Маркировать"
                                                   Margin="5,0,5,0"/>
-                                            <Button Command="{Binding SetMarkPositionCommand}" Width="36" IsEnabled="{Binding IsWaferMark}">
-                                                <Grid >
-                                                    <Path x:Name="grid" Data="{StaticResource DownGeometry}" Stretch="Uniform"  RenderTransformOrigin="0.5 0.5"  Fill="{StaticResource TextIconBrush}"/>
-                                                </Grid>
-                                                <i:Interaction.Triggers>
-                                                    <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.W}">
-                                                        <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
-                                                            <i:ChangePropertyAction.Value>
-                                                                <RotateTransform Angle="90"/>
-                                                            </i:ChangePropertyAction.Value>
-                                                        </i:ChangePropertyAction>
-                                                    </i:DataTrigger>
-                                                    <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.N}">
-                                                        <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
-                                                            <i:ChangePropertyAction.Value>
-                                                                <RotateTransform Angle="180"/>
-                                                            </i:ChangePropertyAction.Value>
-                                                        </i:ChangePropertyAction>
-                                                    </i:DataTrigger>
-                                                    <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.E}">
-                                                        <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
-                                                            <i:ChangePropertyAction.Value>
-                                                                <RotateTransform Angle="-90"/>
-                                                            </i:ChangePropertyAction.Value>
-                                                        </i:ChangePropertyAction>
-                                                    </i:DataTrigger>
-                                                    <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.S}">
-                                                        <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
-                                                            <i:ChangePropertyAction.Value>
-                                                                <RotateTransform Angle="0"/>
-                                                            </i:ChangePropertyAction.Value>
-                                                        </i:ChangePropertyAction>
-                                                    </i:DataTrigger>
-                                                </i:Interaction.Triggers>
-                                            </Button>
-                                        </StackPanel>
+                                                        <Button Command="{Binding SetMarkPositionCommand}" Width="36" IsEnabled="{Binding IsWaferMark}">
+                                                            <Grid >
+                                                                <Path x:Name="grid" Data="{StaticResource DownGeometry}" Stretch="Uniform"  RenderTransformOrigin="0.5 0.5"  Fill="{StaticResource TextIconBrush}"/>
+                                                            </Grid>
+                                                            <i:Interaction.Triggers>
+                                                                <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.W}">
+                                                                    <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
+                                                                        <i:ChangePropertyAction.Value>
+                                                                            <RotateTransform Angle="90"/>
+                                                                        </i:ChangePropertyAction.Value>
+                                                                    </i:ChangePropertyAction>
+                                                                </i:DataTrigger>
+                                                                <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.N}">
+                                                                    <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
+                                                                        <i:ChangePropertyAction.Value>
+                                                                            <RotateTransform Angle="180"/>
+                                                                        </i:ChangePropertyAction.Value>
+                                                                    </i:ChangePropertyAction>
+                                                                </i:DataTrigger>
+                                                                <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.E}">
+                                                                    <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
+                                                                        <i:ChangePropertyAction.Value>
+                                                                            <RotateTransform Angle="-90"/>
+                                                                        </i:ChangePropertyAction.Value>
+                                                                    </i:ChangePropertyAction>
+                                                                </i:DataTrigger>
+                                                                <i:DataTrigger Binding="{Binding MarkPosition}" Value="{x:Static vm:MarkPosition.S}">
+                                                                    <i:ChangePropertyAction TargetObject="{Binding ElementName=grid}" PropertyName="RenderTransform">
+                                                                        <i:ChangePropertyAction.Value>
+                                                                            <RotateTransform Angle="0"/>
+                                                                        </i:ChangePropertyAction.Value>
+                                                                    </i:ChangePropertyAction>
+                                                                </i:DataTrigger>
+                                                            </i:Interaction.Triggers>
+                                                        </Button>
+                                                    </StackPanel>
 
-                                        <StackPanel Orientation="Horizontal">
-                                            <ToggleButton IsChecked="{Binding CutMode}">
-                                                <ToggleButton.Resources>
-                                                    <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonDefault}">
-                                                        <Style.Triggers>
-                                                            <Trigger Property="IsChecked" Value="True">
-                                                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
-                                                            </Trigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </ToggleButton.Resources>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <ToggleButton IsChecked="{Binding CutMode}">
+                                                            <ToggleButton.Resources>
+                                                                <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonDefault}">
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsChecked" Value="True">
+                                                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </ToggleButton.Resources>
 
-                                                <Path Data="{StaticResource ScissorGeometry}" Stretch="Uniform" 
+                                                            <Path Data="{StaticResource ScissorGeometry}" Stretch="Uniform" 
                                                           Fill="{StaticResource PrimaryTextBrush}" 
                                                           RenderTransformOrigin="0.5 0.5">
-                                                    <Path.RenderTransform>
-                                                        <ScaleTransform ScaleY="-1"/>
-                                                    </Path.RenderTransform>
-                                                </Path>
-                                            </ToggleButton>
-                                            <Button Command="{Binding UndoCutCommand}"
+                                                                <Path.RenderTransform>
+                                                                    <ScaleTransform ScaleY="-1"/>
+                                                                </Path.RenderTransform>
+                                                            </Path>
+                                                        </ToggleButton>
+                                                        <Button Command="{Binding UndoCutCommand}"
                                                 IsEnabled="{Binding CanUndoCut, Mode=OneWay}"
                                                 hc:IconElement.Geometry="{StaticResource UndoArrowGeometry}"
                                                 RenderTransformOrigin="0.5 0.5">
-                                                <Button.RenderTransform>
-                                                    <ScaleTransform ScaleY="-1"/>
-                                                </Button.RenderTransform>
-                                            </Button>
-                                        </StackPanel>
-                                    </WrapPanel>
-                                    <UniformGrid Columns="2" 
+                                                            <Button.RenderTransform>
+                                                                <ScaleTransform ScaleY="-1"/>
+                                                            </Button.RenderTransform>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </WrapPanel>
+                                                <UniformGrid Columns="2" 
                                                      IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                        <ContentControl Content="{Binding LayersProcessingModel}"/>
-                                        <DataGrid ItemsSource="{Binding ChosenProcessingObjects}" 
+                                                    <ContentControl Content="{Binding LayersProcessingModel}"/>
+                                                    <DataGrid ItemsSource="{Binding ChosenProcessingObjects}" 
                                                   IsEnabled="False">
-                                            <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Слой" Binding="{Binding Layer}"/>
-                                                <DataGridTemplateColumn Header="Тип">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <ContentControl Content="{Binding LaserEntity}" ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                </DataGridTemplateColumn>
-                                                <DataGridTextColumn Header="Материал" Binding="{Binding Technology.Material.Name}"/>
-                                                <DataGridTextColumn Header="Технология" Binding="{Binding Technology.ProgramName}"/>
-                                            </DataGrid.Columns>
-                                        </DataGrid>
-                                    </UniformGrid>
-                                    <hc:SimpleStackPanel Orientation="Horizontal">
-                                        <hc:ToggleBlock HorizontalAlignment="Left" IsChecked="{Binding IsProcessPanelVisible}">
-                                            <hc:ToggleBlock.UnCheckedContent>
-                                                <Button hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                        <DataGrid.Columns>
+                                                            <DataGridTextColumn Header="Слой" Binding="{Binding Layer}"/>
+                                                            <DataGridTemplateColumn Header="Тип">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <ContentControl Content="{Binding LaserEntity}" ContentTemplateSelector="{StaticResource EntitySelector}"/>
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                            </DataGridTemplateColumn>
+                                                            <DataGridTextColumn Header="Материал" Binding="{Binding Technology.Material.Name}"/>
+                                                            <DataGridTextColumn Header="Технология" Binding="{Binding Technology.ProgramName}"/>
+                                                        </DataGrid.Columns>
+                                                    </DataGrid>
+                                                </UniformGrid>
+                                                <hc:SimpleStackPanel Orientation="Horizontal">
+                                                    <hc:ToggleBlock HorizontalAlignment="Left" IsChecked="{Binding IsProcessPanelVisible}">
+                                                        <hc:ToggleBlock.UnCheckedContent>
+                                                            <Button hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                     Command="{Binding DownloadProcessCommand}"/>
-                                            </hc:ToggleBlock.UnCheckedContent>
-                                            <hc:ToggleBlock.CheckedContent>
-                                                <hc:ToggleBlock IsChecked="{Binding OnProcess}">
-                                                    <hc:ToggleBlock.UnCheckedContent>
-                                                        <hc:ElementGroup Orientation="Horizontal">
-                                                            <ToggleButton Command="{Binding StartStopProcessCommand}"
+                                                        </hc:ToggleBlock.UnCheckedContent>
+                                                        <hc:ToggleBlock.CheckedContent>
+                                                            <hc:ToggleBlock IsChecked="{Binding OnProcess}">
+                                                                <hc:ToggleBlock.UnCheckedContent>
+                                                                    <hc:ElementGroup Orientation="Horizontal">
+                                                                        <ToggleButton Command="{Binding StartStopProcessCommand}"
                                                                       CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
                                                                       IsChecked="{Binding OnProcess}"
                                                                       hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
@@ -704,20 +711,20 @@
                                                                       RenderTransformOrigin="0,0.5"
                                                                       Style="{StaticResource ToggleButtonIcon}"
                                                                       >
-                                                                <ToggleButton.RenderTransform>
-                                                                    <ScaleTransform ScaleY="-1"/>
-                                                                </ToggleButton.RenderTransform>
-                                                            </ToggleButton>
-                                                            <Button hc:IconElement.Geometry="{StaticResource RemoveGeometry}"
+                                                                            <ToggleButton.RenderTransform>
+                                                                                <ScaleTransform ScaleY="-1"/>
+                                                                            </ToggleButton.RenderTransform>
+                                                                        </ToggleButton>
+                                                                        <Button hc:IconElement.Geometry="{StaticResource RemoveGeometry}"
                                                                 Command="{Binding DenyDownloadedProcessCommand}"
                                                                 Style="{StaticResource ButtonDashedDanger.Small}"
                                                                 ToolTip="Отменить"
                                                                 hc:TipElement.Placement="TopLeft"
                                                                 />
-                                                        </hc:ElementGroup>
-                                                    </hc:ToggleBlock.UnCheckedContent>
-                                                    <hc:ToggleBlock.CheckedContent>
-                                                        <ToggleButton Command="{Binding StartStopProcessCommand}"
+                                                                    </hc:ElementGroup>
+                                                                </hc:ToggleBlock.UnCheckedContent>
+                                                                <hc:ToggleBlock.CheckedContent>
+                                                                    <ToggleButton Command="{Binding StartStopProcessCommand}"
                                                           CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
                                                           IsChecked="{Binding OnProcess}"
                                                           hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
@@ -725,93 +732,93 @@
                                                           RenderTransformOrigin="0,0.5"
                                                           Style="{StaticResource ToggleButtonIcon}"
                                                           >
-                                                            <ToggleButton.RenderTransform>
-                                                                <ScaleTransform ScaleY="-1"/>
-                                                            </ToggleButton.RenderTransform>
-                                                        </ToggleButton>
-                                                    </hc:ToggleBlock.CheckedContent>
-                                                </hc:ToggleBlock>
-                                            </hc:ToggleBlock.CheckedContent>
-                                        </hc:ToggleBlock>
-                                        <Button Command="{Binding SaveWorkFileCommand}" 
+                                                                        <ToggleButton.RenderTransform>
+                                                                            <ScaleTransform ScaleY="-1"/>
+                                                                        </ToggleButton.RenderTransform>
+                                                                    </ToggleButton>
+                                                                </hc:ToggleBlock.CheckedContent>
+                                                            </hc:ToggleBlock>
+                                                        </hc:ToggleBlock.CheckedContent>
+                                                    </hc:ToggleBlock>
+                                                    <Button Command="{Binding SaveWorkFileCommand}" 
                                                 Content="Сохранить обработку"
                                                 Visibility="{Binding ChosenProcessingObjects.Count, Converter={StaticResource CountToVisibilityConverter}}"/>
-                                    </hc:SimpleStackPanel>
-                                </hc:SimpleStackPanel>
-                                <UniformGrid Rows="2" Grid.Row="1">
-                                    <DataGrid x:Name="ProcObjGrid"
+                                                </hc:SimpleStackPanel>
+                                            </hc:SimpleStackPanel>
+                                            <UniformGrid Rows="2" Grid.Row="1">
+                                                <DataGrid x:Name="ProcObjGrid"
                                               ItemsSource="{Binding ProcessingObjects}"
                                               SelectionMode="Single"     
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                               >
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn IsReadOnly="True" Width="80" CanUserResize="False" Binding="{Binding Index}" Header="№"/>
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn IsReadOnly="True" Width="80" CanUserResize="False" Binding="{Binding Index}" Header="№"/>
 
-                                            <DataGridTextColumn Header="Слой" Binding="{Binding ProcObject.LayerName}"/>
-                                            <DataGridTemplateColumn Header="Тип">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <ContentControl Content="{Binding ProcObject, Converter={StaticResource IProcTypeToEntityConverter}}" 
+                                                        <DataGridTextColumn Header="Слой" Binding="{Binding ProcObject.LayerName}"/>
+                                                        <DataGridTemplateColumn Header="Тип">
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <ContentControl Content="{Binding ProcObject, Converter={StaticResource IProcTypeToEntityConverter}}" 
                                                                             ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-                                            <DataGridTemplateColumn Header="Координаты">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock >
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                        <DataGridTemplateColumn Header="Координаты">
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock >
                                                                 <Run Text="{Binding ProcObject.X, StringFormat='{}{0:#.###}'}"/>
                                                                 <Run Text="&#215;"/>
                                                                 <Run Text="{Binding ProcObject.Y, StringFormat='{}{0:#.###}'}"/>
-                                                        </TextBlock>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                    <GroupBox Grid.Row="1"
+                                                                    </TextBlock>
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                                <GroupBox Grid.Row="1"
                                         Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                               >
-                                        <GroupBox.Header>
-                                            <hc:SimpleStackPanel Orientation="Horizontal">
-                                                <hc:Shield Subject="Цикл" Status="{Binding CurrentProcMainLoopCount}" Color="{StaticResource LightInfoBrush}" Margin="0,0,2,0"/>
-                                                <hc:Shield Subject="Процесс" Status="{Binding TotalProcessTimer}" Color="{StaticResource LightPrimaryBrush}" Margin="0,0,2,0"/>
-                                                <hc:Shield Subject="Пред. элемент" Status="{Binding LastProcObjectTimer, FallbackValue='00:00'}" Color="{StaticResource WarningBrush}"  Margin="0,0,2,0"/>
-                                                <hc:Shield Subject="Тек. элемент" Status="{Binding CurrentProcObjectTimer}" Color="{StaticResource SuccessBrush}"  Margin="0,0,20,0"/>
-                                                <TextBlock Text="{Binding IsBeingProcessedIndex, StringFormat=N3}"/>
-                                                <TextBlock Text="{Binding IsBeingProcessedObject.LayerName, StringFormat=N3}"/>
-                                                <ContentControl Content="{Binding IsBeingProcessedObject,
+                                                    <GroupBox.Header>
+                                                        <hc:SimpleStackPanel Orientation="Horizontal">
+                                                            <hc:Shield Subject="Цикл" Status="{Binding CurrentProcMainLoopCount}" Color="{StaticResource LightInfoBrush}" Margin="0,0,2,0"/>
+                                                            <hc:Shield Subject="Процесс" Status="{Binding TotalProcessTimer}" Color="{StaticResource LightPrimaryBrush}" Margin="0,0,2,0"/>
+                                                            <hc:Shield Subject="Пред. элемент" Status="{Binding LastProcObjectTimer, FallbackValue='00:00'}" Color="{StaticResource WarningBrush}"  Margin="0,0,2,0"/>
+                                                            <hc:Shield Subject="Тек. элемент" Status="{Binding CurrentProcObjectTimer}" Color="{StaticResource SuccessBrush}"  Margin="0,0,20,0"/>
+                                                            <TextBlock Text="{Binding IsBeingProcessedIndex, StringFormat=N3}"/>
+                                                            <TextBlock Text="{Binding IsBeingProcessedObject.LayerName, StringFormat=N3}"/>
+                                                            <ContentControl Content="{Binding IsBeingProcessedObject,
                                                 Converter={StaticResource IProcTypeToEntityConverter}}" 
                                                 ContentTemplateSelector="{StaticResource EntitySelector}"/>
-                                                <TextBlock>
+                                                            <TextBlock>
                                                 <Run Text="{Binding IsBeingProcessedObject.X, StringFormat=N3}"/>
                                                 <Run Text="&#215;"/>
                                                 <Run Text="{Binding IsBeingProcessedObject.Y, StringFormat=N3}"/>
-                                                </TextBlock>
-                                            </hc:SimpleStackPanel>
-                                        </GroupBox.Header>
-                                        <Border 
+                                                            </TextBlock>
+                                                        </hc:SimpleStackPanel>
+                                                    </GroupBox.Header>
+                                                    <Border 
                                              BorderBrush="{DynamicResource BorderBrush}"
                                              BorderThickness="2"
                                              Padding="20">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <!--<TextBlock Text="{Binding CurrentProcBlock}"/>-->
-                                                <StackPanel>
-                                                    <ContentControl Content="{Binding CurrentPierceBlock}"/>
-                                                    <ItemsControl ItemsSource="{Binding PierceBlocks}">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <ContentControl Content="{Binding}"/>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </StackPanel>
-                                                <Path Data="{Binding IsBeingProcessedObject, Converter={StaticResource IProcToGeometryConverter}}" 
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <!--<TextBlock Text="{Binding CurrentProcBlock}"/>-->
+                                                            <StackPanel>
+                                                                <ContentControl Content="{Binding CurrentPierceBlock}"/>
+                                                                <ItemsControl ItemsSource="{Binding PierceBlocks}">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <ContentControl Content="{Binding}"/>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                            </StackPanel>
+                                                            <Path Data="{Binding IsBeingProcessedObject, Converter={StaticResource IProcToGeometryConverter}}" 
                                               Stretch="Uniform"
                                               Fill="red"
                                               Stroke="White"
@@ -819,16 +826,59 @@
                                               RenderTransformOrigin="0.5 0.5"
                                                       Grid.Column="1"
                                               >
-                                                    <Path.RenderTransform>
-                                                        <ScaleTransform ScaleY="-1"/>
-                                                    </Path.RenderTransform>
-                                                </Path>
-                                            </Grid>
-                                        </Border>
+                                                                <Path.RenderTransform>
+                                                                    <ScaleTransform ScaleY="-1"/>
+                                                                </Path.RenderTransform>
+                                                            </Path>
+                                                        </Grid>
+                                                    </Border>
+                                                </GroupBox>
+                                            </UniformGrid>
+                                        </Grid>
                                     </GroupBox>
-                                </UniformGrid>
-                            </Grid>
-                        </GroupBox>
+                                </Grid>
+                            </hc:TabItem>
+                            <hc:TabItem Header="Прицельная прошивка" IsEnabled="{Binding IsProcessing, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                    <Grid VerticalAlignment="Top" ShowGridLines="False" HorizontalAlignment="Left" Margin="10,10">
+                                        <Grid.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                <Setter Property="Margin" Value="5"/>
+                                            </Style>
+                                        </Grid.Resources>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Диаметр, мм"/>
+                                        <hc:NumericUpDown Grid.Column="1"
+                                                          Value="{Binding IndividualProcDiameter}"
+                                                      DecimalPlaces="3"
+                                                      Minimum="0.05"
+                                                      Maximum="50"
+                                                      Increment="0.01"
+                                                      Width="100"
+                                                      HorizontalAlignment="Left"
+                                                      Style="{StaticResource NumericUpDownExtend}"/>
+                                        <TextBlock Text="Технология" Grid.Row="1"/>
+                                        <Border BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1" Grid.Row="1" Grid.Column="1">
+                                            <TextBlock Text="{Binding IndividualProcObject.Technology.ProgramName}" MinWidth="200"/>
+                                        </Border>
+                                        <Button Content="Выбрать" Grid.Row="1" Grid.Column="2" Command="{Binding ChooseIndividualTechCommand}"/>
+                                        <Button Content="Прошить"
+                                                Command="{Binding PierceIndividualCommand}"
+                                                IsEnabled="{Binding IndividualProcObject, Converter={StaticResource Object2BooleanConverter}}"
+                                                Grid.Row="2" 
+                                                Style="{StaticResource ButtonWarning}"/>
+                                    </Grid>
+                            </hc:TabItem>
+                        </hc:TabControl>
                     </Grid>
                 </Grid>
             </TabItem>
@@ -855,11 +905,11 @@
                 </i:Interaction.Triggers>
                 <DockPanel>
                     <ContentControl Content="{Binding StatisticsVM}"/>
-                </DockPanel>                
+                </DockPanel>
             </TabItem>
             <TabItem Header="Console" TabIndex="3">
                 <!--<console:ConsoleControl />-->
-                    <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
+                <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
             </TabItem>
         </TabControl>
     </Grid>
