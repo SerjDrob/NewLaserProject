@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MachineClassLibrary.Laser.Parameters;
@@ -12,11 +14,13 @@ namespace NewLaserProject.Classes.Process
     {
         protected readonly ProgTreeParser _progTreeParser;
         protected readonly Func<Task> _pierceFunction;
+        protected readonly ProcessingSequence _procSequence;
         protected readonly CancellationTokenSource _cancellationTokenSource;
 
         public BaseLaserProcess(string jsonPierce)
         {
             _cancellationTokenSource = new();
+            /*
             _progTreeParser = new(jsonPierce, _cancellationTokenSource.Token);
 
             _progTreeParser
@@ -28,7 +32,28 @@ namespace NewLaserProject.Classes.Process
             _pierceFunction = _progTreeParser
                .GetTree()
                .GetFunc();
+            */
+
+            _procSequence = ProgTreeParser2.GetProgBlocksSequence(jsonPierce);
+
         }
+
+        protected async Task ProcessSequenceAsync()
+        {
+            foreach (var block in _procSequence)
+            {
+                if (_cancellationTokenSource.Token.IsCancellationRequested) continue;
+                await (block switch
+                {
+                    TaperBlock t => FuncForTapperBlockAsync(t.Tapper),
+                    AddZBlock z => FuncForAddZBlockAsync(z.DeltaZ),
+                    PierceBlock p => FuncForPierseBlockAsync(p.MarkParams),
+                    DelayBlock d => FuncForDelayBlockAsync(d.DelayTime),
+                    _ => Task.CompletedTask
+                });
+            }
+        }
+
         public CancellationTokenSource GetCancellationTokenSource() => _cancellationTokenSource;
         protected abstract Task FuncForTapperBlockAsync(double tapper);
         protected abstract Task FuncForAddZBlockAsync(double z);

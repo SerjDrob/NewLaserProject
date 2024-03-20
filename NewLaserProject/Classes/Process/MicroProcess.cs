@@ -33,10 +33,12 @@ namespace NewLaserProject.Classes.Process
         public async Task InvokePierceFunctionForObjectAsync(IProcObject procObject)
         {
             _currentProcObject = procObject;
-            await _pierceFunction.Invoke();
+            //await _pierceFunction.Invoke();
+
+            await ProcessSequenceAsync();
         }
-        public int GetMainLoopCount() => _progTreeParser.MainLoopCount;
-        public bool IsLoopShuffle => _progTreeParser.MainLoopShuffle;
+        public int GetMainLoopCount() => _procSequence.MainLoopCount; //_progTreeParser.MainLoopCount;
+        public bool IsLoopShuffle => _procSequence.MainLoopShuffle; //_progTreeParser.MainLoopShuffle;
         protected override Task FuncForTapperBlockAsync(double tapper)
         {
             _entityPreparator.SetEntityContourOffset(tapper);
