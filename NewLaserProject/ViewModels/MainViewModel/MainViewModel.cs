@@ -237,12 +237,15 @@ namespace NewLaserProject.ViewModels
                 CentralSideVM = _openedFileVM;
 
 
-                var count = _laserMachine.AvailableVideoCaptureDevices.Count;//TODO what if there is no any devices
-                if (count != 0)
+                if ((_laserMachine.AvailableVideoCaptureDevices?.Count ?? 0) > 0)
                 {
                     CameraCapabilities = new(_laserMachine.AvailableVideoCaptureDevices[0].Item2);
                     CameraCapabilitiesIndex = _settingsManager.Settings.PreferredCameraCapabilities ?? throw new ArgumentNullException("PreferredCameraCapabilities is null");
                     _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
+                }
+                else
+                {
+                    _logger.ForContext<MainViewModel>().Information("There is no available video capture devices");
                 }
 
 
