@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows;
 using AutoMapper;
 using MachineClassLibrary.Laser;
@@ -101,6 +100,7 @@ namespace NewLaserProject
                    .AddScoped<MotDevMock>()
                    .AddScoped<MotionDevicePCI1240U>()
                    .AddScoped<MotionDevicePCI1245E>()
+                   .AddScoped<MotionDevicePCIE1245>()
                    .AddSingleton(sp =>
                    {
                        var motionBoard = new MotionBoardFactory(sp, machineconfigs).GetMotionBoard();
