@@ -378,7 +378,11 @@ namespace NewLaserProject.ViewModels
             var axesConfigs = ExtensionMethods
                 .DeserilizeObject<LaserMachineAxesConfiguration>(AppPaths.AxesConfigs);
 
+            var machineconfigs = ExtensionMethods
+                .DeserilizeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs);
+
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
+            Guard.IsNotNull(machineconfigs, nameof(machineconfigs));
 
 
             //axesConfigs.SerializeObject(AppPaths.AxesConfigs);
@@ -485,18 +489,40 @@ namespace NewLaserProject.ViewModels
                     .SetPositionAfterHoming((_settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null")) - WaferThickness)
                     .Configure();
 
-                _laserMachine.ConfigureValves(
-                        new()
-                        {
-                            [Valves.BlueLight] = (Ax.Y, Do.Out4),
-                            [Valves.GreenLight] = (Ax.Y, Do.Out5),
-                            [Valves.RedLight] = (Ax.U, Do.Out4),
-                            [Valves.YellowLight] = (Ax.U, Do.Out5),
-                            [Valves.Light] = (Ax.Y, Do.Out4) // TODO fix it!
-                        }
-                    );
+                //_laserMachine.ConfigureValves(
+                //        new()
+                //        {
+                //            [Valves.BlueLight] = (Ax.Y, Do.Out4),
+                //            [Valves.GreenLight] = (Ax.Y, Do.Out5),
+                //            [Valves.RedLight] = (Ax.U, Do.Out4),
+                //            [Valves.YellowLight] = (Ax.U, Do.Out5),
+                //            [Valves.Light] = (Ax.Y, Do.Out4) // TODO fix it!
+                //        }
+                //    );
 
 
+                if (machineconfigs.IsPCI1240U || machineconfigs.IsPCI1245E || machineconfigs.IsMOCKBOARD)
+                {
+                    var switcher = PCI1240ValveSwitcher.GetSwitcherBuilder()
+                        .AddValve(Valves.BlueLight, Ax.Y, Do.Out4)
+                        .AddValve(Valves.GreenLight, Ax.Y, Do.Out5)
+                        .AddValve(Valves.RedLight, Ax.U, Do.Out4)
+                        .AddValve(Valves.YellowLight, Ax.U, Do.Out5)
+                        .AddValve(Valves.Light, Ax.Y, Do.Out4)
+                        .Build();
+                    _laserMachine.ConfigureValves(switcher);
+                }
+                else if(machineconfigs.IsPCIE1245)
+                {
+                    var switcher = PCIE1245ValveSwitcher.GetSwitcherBuilder()
+                        .AddValve(Valves.BlueLight, 0)
+                        .AddValve(Valves.GreenLight, 1)
+                        .AddValve(Valves.RedLight, 2)
+                        .AddValve(Valves.YellowLight, 3)
+                        .AddValve(Valves.Light, 4)
+                        .Build();
+                    _laserMachine.ConfigureValves(switcher);
+                }
 
                 _signalColumn = new LightColumn();
                 _signalColumn.AddLight(LightColumn.Light.Red, () => _laserMachine.SwitchOnValve(Valves.RedLight), () => _laserMachine.SwitchOffValve(Valves.RedLight));
