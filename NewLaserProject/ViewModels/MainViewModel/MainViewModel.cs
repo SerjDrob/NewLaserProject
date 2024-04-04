@@ -98,6 +98,18 @@ namespace NewLaserProject.ViewModels
                     PWMDeviceOk = _laserMachine.PWMDeviceOk;
                     VideoCaptureDeviceOk = _laserMachine.VideoCaptureDeviceOk;
                 });
+            _laserMachine.OfType<SensorStateChanged>()
+                .Subscribe(s =>
+                {
+                    switch (s.Sensor)
+                    {
+                        case Sensors.Air:
+                            IsAirPressureOK = s.state;
+                            break;
+                        default:
+                            break;
+                    }
+                });
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _mediator = mediator;
             _subjMediator = subjMediator;
@@ -161,6 +173,8 @@ namespace NewLaserProject.ViewModels
             get;
             set;
         }
+        public bool IsAirPressureOK { get; set; }
+
         [ICommand]
         private void ChangeMechView()
         {
@@ -511,6 +525,10 @@ namespace NewLaserProject.ViewModels
                         .AddValve(Valves.Light, Ax.Y, Do.Out4)
                         .Build();
                     _laserMachine.ConfigureValves(switcher);
+                    var sensors = PCI1240SensorsDetector.GetSensorsDetectorBuilder()
+                        .AddSensor(Sensors.Air,Ax.X,Di.In1)
+                        .Build();
+                    _laserMachine.ConfigureSensors(sensors);
                 }
                 else if(machineconfigs.IsPCIE1245)
                 {
@@ -520,8 +538,12 @@ namespace NewLaserProject.ViewModels
                         .AddValve(Valves.RedLight, 2)
                         .AddValve(Valves.YellowLight, 3)
                         .AddValve(Valves.Light, 4)
-                        .Build();
+                        .Build(); 
                     _laserMachine.ConfigureValves(switcher);
+                    var sensors = PCIE1245SensorsDetector.GetSensorsDetectorBuilder()
+                        .AddSensor(Sensors.Air, 0)
+                        .Build();
+                    _laserMachine.ConfigureSensors(sensors);
                 }
 
                 _signalColumn = new LightColumn();

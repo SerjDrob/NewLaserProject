@@ -126,15 +126,15 @@
                         </Path>
                     </Border>
                 </Grid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <StackPanel.Resources>
+                <WrapPanel Orientation="Horizontal" MaxWidth="100">
+                    <WrapPanel.Resources>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefault}">
                             <Setter Property="FontSize" Value="8"/>
                             <Setter Property="Width" Value="20"/>
                             <Setter Property="Margin" Value="2"/>
                             <Setter Property="TextAlignment" Value="Center"/>
                         </Style>
-                    </StackPanel.Resources>
+                    </WrapPanel.Resources>
                     <hc:ToggleBlock IsChecked="{Binding PWMDeviceOk}">
                         <hc:ToggleBlock.CheckedContent>
                             <TextBlock Text="PWM" Background="{StaticResource SuccessBrush}"/>
@@ -179,7 +179,15 @@
                             <TextBlock Text="VID" Background="{StaticResource DangerBrush}"/>
                         </hc:ToggleBlock.UnCheckedContent>
                     </hc:ToggleBlock>
-                </StackPanel>
+                    <hc:ToggleBlock IsChecked="{Binding IsAirPressureOK}">
+                        <hc:ToggleBlock.CheckedContent>
+                            <TextBlock Text="AIR" Background="{StaticResource SuccessBrush}"/>
+                        </hc:ToggleBlock.CheckedContent>
+                        <hc:ToggleBlock.UnCheckedContent>
+                            <TextBlock Text="AIR" Background="{StaticResource DangerBrush}"/>
+                        </hc:ToggleBlock.UnCheckedContent>
+                    </hc:ToggleBlock>
+                </WrapPanel>
                 <!--<Menu Style="{StaticResource MenuBaseStyle}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <Menu.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -450,7 +458,7 @@
             </ToolBar>
 
             <ToolBar>
-                <cntrl:SpeedIndicator Speed="{Binding VelocityRegime, Converter={StaticResource EnumToIntConverter}}"/>
+                <cntrl:SpeedIndicator Speed="{Binding VelocityRegime, Converter={StaticResource EnumToIntConverter}}"/>           
             </ToolBar>
 
             <ToolBar>
