@@ -103,8 +103,11 @@ namespace NewLaserProject.ViewModels
                 {
                     switch (s.Sensor)
                     {
-                        case Sensors.Air:
+                        case LaserSensor.Air:
                             IsAirPressureOK = s.state;
+                            break;
+                        case LaserSensor.LaserSourceFault:
+                            IsLaserSourceFault = s.state;
                             break;
                         default:
                             break;
@@ -174,6 +177,7 @@ namespace NewLaserProject.ViewModels
             set;
         }
         public bool IsAirPressureOK { get; set; }
+        public bool IsLaserSourceFault { get; set; }
 
         [ICommand]
         private void ChangeMechView()
@@ -526,7 +530,7 @@ namespace NewLaserProject.ViewModels
                         .Build();
                     _laserMachine.ConfigureValves(switcher);
                     var sensors = PCI1240SensorsDetector.GetSensorsDetectorBuilder()
-                        .AddSensor(Sensors.Air,Ax.X,Di.In1)
+                        .AddSensor(LaserSensor.Air,Ax.X,Di.In1)
                         .Build();
                     _laserMachine.ConfigureSensors(sensors);
                 }
@@ -541,7 +545,8 @@ namespace NewLaserProject.ViewModels
                         .Build(); 
                     _laserMachine.ConfigureValves(switcher);
                     var sensors = PCIE1245SensorsDetector.GetSensorsDetectorBuilder()
-                        .AddSensor(Sensors.Air, 0)
+                        .AddSensor(LaserSensor.Air, 0)
+                        .AddSensor(LaserSensor.LaserSourceFault, 1)
                         .Build();
                     _laserMachine.ConfigureSensors(sensors);
                 }

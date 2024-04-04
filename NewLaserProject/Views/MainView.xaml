@@ -71,7 +71,7 @@
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                     </Style>
                 </ToolBar.Resources>
-                <Grid MinHeight="45">
+                <Grid MinHeight="45" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="auto"/>
@@ -153,12 +153,12 @@
                         </hc:ToggleBlock.UnCheckedContent>
                     </hc:ToggleBlock>
 
-                    <hc:ToggleBlock IsChecked="{Binding LaserSourceOk}">
+                    <hc:ToggleBlock IsChecked="{Binding IsLaserSourceFault}">
                         <hc:ToggleBlock.CheckedContent>
-                            <TextBlock Text="LSC" Background="{StaticResource SuccessBrush}"/>
+                            <TextBlock Text="LSC" Background="{StaticResource DangerBrush}"/>
                         </hc:ToggleBlock.CheckedContent>
                         <hc:ToggleBlock.UnCheckedContent>
-                            <TextBlock Text="LSC" Background="{StaticResource DangerBrush}"/>
+                            <TextBlock Text="LSC" Background="{StaticResource SuccessBrush}"/>
                         </hc:ToggleBlock.UnCheckedContent>
                     </hc:ToggleBlock>
 
