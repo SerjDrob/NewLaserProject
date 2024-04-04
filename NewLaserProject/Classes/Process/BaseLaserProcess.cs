@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MachineClassLibrary.Laser.Parameters;
-using NewLaserProject.Classes.Process.Utility;
 using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures;
 
@@ -12,7 +9,7 @@ namespace NewLaserProject.Classes.Process
 {
     public abstract class BaseLaserProcess
     {
-        protected readonly ProgTreeParser _progTreeParser;
+        //protected readonly ProgTreeParser _progTreeParser;
         protected readonly Func<Task> _pierceFunction;
         protected readonly ProcessingSequence _procSequence;
         protected readonly CancellationTokenSource _cancellationTokenSource;

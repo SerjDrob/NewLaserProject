@@ -13,15 +13,24 @@ namespace NewLaserProject.ViewModels
 
         private void InitAppState()
         {
-            _appStateMachine = new StateMachine<AppState, AppTrigger>(AppState.Default, FiringMode.Queued);
+            _appStateMachine = new StateMachine<AppState, AppTrigger>(AppState.Ready, FiringMode.Queued);
 
-            _appStateMachine.Configure(AppState.Default)
+            _appStateMachine.Configure(AppState.Ready)
                 .OnEntry(() =>
                 {
                     IsProcessPanelVisible = false;
                 })
                 .Permit(AppTrigger.StartLearning, AppState.Learning)
                 .PermitIf(AppTrigger.StartProcess, AppState.Processing, () => IsFileLoaded)
+                .Permit(AppTrigger.HealthProblem, AppState.NotReady)
+                .Ignore(AppTrigger.EndLearning)
+                .Ignore(AppTrigger.EndProcess);
+
+            _appStateMachine.Configure(AppState.NotReady)
+                .OnEntry(() => { })
+                .Permit(AppTrigger.HealthOK, AppState.Ready)
+                .Ignore(AppTrigger.StartLearning)
+                .Ignore(AppTrigger.StartProcess)
                 .Ignore(AppTrigger.EndLearning)
                 .Ignore(AppTrigger.EndProcess);
 
@@ -36,7 +45,7 @@ namespace NewLaserProject.ViewModels
                     await StartProcessAsync();
                 })
                 .OnExit(DenyDownloadedProcess)
-                .Permit(AppTrigger.EndProcess, AppState.Default)
+                .Permit(AppTrigger.EndProcess, AppState.Ready)
                 .Ignore(AppTrigger.EndLearning)
                 .Ignore(AppTrigger.StartLearning)
                 .Ignore(AppTrigger.StartProcess);
@@ -99,7 +108,7 @@ namespace NewLaserProject.ViewModels
                     HideRightPanel(false);
                     ChangeViews();
                 })
-                .Permit(AppTrigger.EndLearning, AppState.Default)
+                .Permit(AppTrigger.EndLearning, AppState.Ready)
                 .Ignore(AppTrigger.EndProcess)
                 .Ignore(AppTrigger.StartProcess)
                 .Ignore(AppTrigger.StartLearning);
@@ -114,7 +123,8 @@ namespace NewLaserProject.ViewModels
 
         enum AppState
         {
-            Default,
+            Ready,
+            NotReady,
             Processing,
             Learning
         }
@@ -123,7 +133,9 @@ namespace NewLaserProject.ViewModels
             StartProcess,
             StartLearning,
             EndProcess,
-            EndLearning
+            EndLearning,
+            HealthProblem,
+            HealthOK
         }
     }
 }

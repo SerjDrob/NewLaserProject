@@ -1,11 +1,9 @@
-﻿using MachineClassLibrary.Laser;
-using Microsoft.Toolkit.Diagnostics;
-using System;
-using System.Linq.Expressions;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes.Process.Utility
 {
+    [Obsolete]
     public class FuncProxy<T> : IFuncProxy<T>
     {
         private readonly Func<T, Task> _func;

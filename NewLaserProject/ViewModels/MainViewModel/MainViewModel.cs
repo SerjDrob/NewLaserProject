@@ -97,6 +97,14 @@ namespace NewLaserProject.ViewModels
                     MotionDeviceOk = _laserMachine.MotionDeviceOk;
                     PWMDeviceOk = _laserMachine.PWMDeviceOk;
                     VideoCaptureDeviceOk = _laserMachine.VideoCaptureDeviceOk;
+                    if(!(LaserBoardOk | MotionDeviceOk | PWMDeviceOk | VideoCaptureDeviceOk))
+                    {
+                        if(_appStateMachine?.IsInState(AppState.Ready) ?? false) _appStateMachine?.Fire(AppTrigger.HealthProblem);
+                    }
+                    else
+                    {
+                        if (_appStateMachine?.IsInState(AppState.NotReady) ?? false) _appStateMachine?.Fire(AppTrigger.HealthOK);
+                    }
                 });
             _laserMachine.OfType<SensorStateChanged>()
                 .Subscribe(s =>
@@ -112,6 +120,21 @@ namespace NewLaserProject.ViewModels
                         default:
                             break;
                     }
+
+                    if (!IsAirPressureOK && IsLaserSourceFault)
+                    {
+                        if (_appStateMachine?.IsInState(AppState.Ready) ?? false) _appStateMachine?.Fire(AppTrigger.HealthProblem);
+                        if (_appStateMachine?.IsInState(AppState.Processing) ?? false)
+                        {
+                            _mainProcess?.Deny();
+                            _appStateMachine?.Fire(AppTrigger.HealthProblem);
+                        }
+                    }
+                    else
+                    {
+                        if (_appStateMachine?.IsInState(AppState.NotReady) ?? false) _appStateMachine?.Fire(AppTrigger.HealthOK);
+                    }
+
                 });
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _mediator = mediator;
