@@ -547,6 +547,8 @@ namespace NewLaserProject.ViewModels
                     var sensors = PCIE1245SensorsDetector.GetSensorsDetectorBuilder()
                         .AddSensor(LaserSensor.Air, 0)
                         .AddSensor(LaserSensor.LaserSourceFault, 1)
+                        .AddSensor(LaserSensor.LaserCoolantFault, 2)
+                        .AddSensor(LaserSensor.LaserOnEmission,3)
                         .Build();
                     _laserMachine.ConfigureSensors(sensors);
                 }
