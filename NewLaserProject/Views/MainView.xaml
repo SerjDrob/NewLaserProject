@@ -187,6 +187,22 @@
                             <TextBlock Text="AIR" Background="{StaticResource DangerBrush}"/>
                         </hc:ToggleBlock.UnCheckedContent>
                     </hc:ToggleBlock>
+                    <hc:ToggleBlock IsChecked="{Binding IsLaserCoolantFault}">
+                        <hc:ToggleBlock.UnCheckedContent>
+                            <TextBlock Text="CLT" Background="{StaticResource SuccessBrush}"/>
+                        </hc:ToggleBlock.UnCheckedContent>
+                        <hc:ToggleBlock.CheckedContent>
+                            <TextBlock Text="CLT" Background="{StaticResource DangerBrush}"/>
+                        </hc:ToggleBlock.CheckedContent>
+                    </hc:ToggleBlock>
+                    <hc:ToggleBlock IsChecked="{Binding IsLaserOnEmission}">
+                        <hc:ToggleBlock.CheckedContent>
+                            <TextBlock Text="EMN" Background="{StaticResource SuccessBrush}"/>
+                        </hc:ToggleBlock.CheckedContent>
+                        <hc:ToggleBlock.UnCheckedContent>
+                            <TextBlock Text="EMN" Background="{StaticResource DangerBrush}"/>
+                        </hc:ToggleBlock.UnCheckedContent>
+                    </hc:ToggleBlock>
                 </WrapPanel>
                 <!--<Menu Style="{StaticResource MenuBaseStyle}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <Menu.ItemsPanel>

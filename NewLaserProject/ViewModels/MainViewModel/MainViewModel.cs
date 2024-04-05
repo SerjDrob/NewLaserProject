@@ -117,6 +117,12 @@ namespace NewLaserProject.ViewModels
                         case LaserSensor.LaserSourceFault:
                             IsLaserSourceFault = s.state;
                             break;
+                        case LaserSensor.LaserCoolantFault:
+                            IsLaserCoolantFault = s.state;
+                            break;
+                        case LaserSensor.LaserOnEmission:
+                            IsLaserOnEmission = s.state;
+                            break;
                         default:
                             break;
                     }
@@ -201,6 +207,8 @@ namespace NewLaserProject.ViewModels
         }
         public bool IsAirPressureOK { get; set; }
         public bool IsLaserSourceFault { get; set; }
+        public bool IsLaserCoolantFault { get; set; }
+        public bool IsLaserOnEmission { get; set; }
 
         [ICommand]
         private void ChangeMechView()

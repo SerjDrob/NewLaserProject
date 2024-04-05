@@ -66,6 +66,9 @@
                     <DataGridTextColumn Header="Программа" Binding="{Binding ProgramName}"/>
                     <DataGridTextColumn Header="Материал" IsReadOnly="True" Binding="{Binding Material.Name}"/>
                     <DataGridTextColumn Header="Толщина" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
+                    <DataGridTextColumn Header="Толщина" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
+                    <DataGridTextColumn Header="Дата создания" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
+                    <DataGridTextColumn Header="Дата изменения" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
