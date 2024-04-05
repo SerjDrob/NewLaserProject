@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
 using System.Threading;
 using MachineClassLibrary.BehaviourTree;
 using MachineClassLibrary.Laser.Parameters;
@@ -10,6 +7,7 @@ using NewLaserProject.Classes.Process.Utility;
 
 namespace NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures
 {
+    [Obsolete]
     public class ProgTreeParser
     {
         private readonly MainLoop _progModules;
@@ -73,73 +71,6 @@ namespace NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures
             }
             return mainLoop.EndLoop;
         }
-    }
-
-
-
-    public static class ProgTreeParser2
-    {
-        public static ProcessingSequence GetProgBlocksSequence(string jsonTree)
-        {
-            var mainLoop = new JsonDeserializer<MainLoop>()
-                .SetKnownType<AddZBlock>()
-                .SetKnownType<DelayBlock>()
-                .SetKnownType<LoopBlock>()
-                .SetKnownType<PierceBlock>()
-                .SetKnownType<TaperBlock>()
-                .SetKnownType<RepairZBlock>()
-                .SetKnownType<MarkLaserParams>()
-                .SetKnownType<PenParams>()
-                .SetKnownType<HatchParams>()
-                .SetKnownType<ExtendedParams>()
-                .Deserialize(jsonTree);
-
-            var seq = Enumerable.Repeat(Parse(mainLoop.Children), mainLoop.LoopCount).SelectMany(x => x);
-            
-            return new ProcessingSequence(seq, mainLoop.LoopCount, mainLoop.Shuffle);
-
-            IEnumerable<IProgBlock> Parse(IEnumerable<IProgBlock> progBlocks)
-            {
-                var blocks = Enumerable.Empty<IProgBlock>();
-                foreach (var progBlock in progBlocks)
-                {
-                    if (progBlock is LoopBlock loop)
-                    {
-                        var loopBlock = Enumerable.Repeat(Parse(loop.Children), loop.LoopCount)
-                            .SelectMany(x => x);
-                        blocks = blocks.Concat(loopBlock);
-                    }
-                    else
-                    {
-                        blocks = blocks.Append(progBlock);
-                    }
-                }
-                return blocks;
-            }
-        }
-    }
-
-
-    public class ProcessingSequence : IEnumerable<IProgBlock>
-    {
-        private readonly IEnumerable<IProgBlock> _progBlocks;
-
-        public ProcessingSequence(IEnumerable<IProgBlock> progBlocks, int mainLoopCount, bool mainLoopShuffle)
-        {
-            _progBlocks = progBlocks;
-            MainLoopCount = mainLoopCount;
-            MainLoopShuffle = mainLoopShuffle;
-        }
-
-        public int MainLoopCount { get; init; }
-        public bool MainLoopShuffle { get; init; }
-
-        public IEnumerator<IProgBlock> GetEnumerator()
-        {
-            return _progBlocks.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
 }

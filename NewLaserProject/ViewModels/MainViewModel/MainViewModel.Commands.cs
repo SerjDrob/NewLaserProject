@@ -505,6 +505,95 @@ namespace NewLaserProject.ViewModels
                 IsIndividualProcessing = false;
             }
         }
+
+        [ICommand]
+        private async Task AxisSettings(string axis)
+        {
+            
+            
+
+            var title = axis switch
+            {
+                "x" => "Привод X",
+                "y" => "Привод Y",
+                "z" => "Привод Z",
+                _ => null
+            };
+            var acc = (string axis) =>
+            axis switch
+            {
+                "x" => _settingsManager.Settings.XAcc,
+                "y" => _settingsManager.Settings.YAcc,
+                "z" => _settingsManager.Settings.ZAcc,
+                _ => null
+            };
+            var vellow = (string axis) =>
+            axis switch
+            {
+                "x" => _settingsManager.Settings.XVelLow,
+                "y" => _settingsManager.Settings.YVelLow,
+                "z" => _settingsManager.Settings.ZVelLow,
+                _ => null
+            }; 
+            var velhigh = (string axis) =>
+            axis switch
+            {
+                "x" => _settingsManager.Settings.XVelHigh,
+                "y" => _settingsManager.Settings.YVelHigh,
+                "z" => _settingsManager.Settings.ZVelHigh,
+                _ => null
+            }; 
+            var velservice = (string axis) =>
+            axis switch
+            {
+                "x" => _settingsManager.Settings.XVelService,
+                "y" => _settingsManager.Settings.YVelService,
+                "z" => _settingsManager.Settings.ZVelService,
+                _ => null
+            };
+            if (title is null) return;
+            try
+            {
+                var result = await Dialog.Show<CommonDialog>()
+                        .SetDialogTitle(title)
+                        .SetDataContext<AxisSettingsVM>(vm =>
+                        {
+                            vm.Acc = acc(axis) ?? throw new ArgumentNullException();
+                            vm.VelLow = vellow(axis) ?? throw new ArgumentNullException();
+                            vm.VelHigh = velhigh(axis) ?? throw new ArgumentNullException();
+                            vm.VelService = velservice(axis) ?? throw new ArgumentNullException();
+                        })
+                        .GetCommonResultAsync<AxisSettingsVM>(ToggleKeyProcCommands);
+                if (result.Success)
+                {
+                    switch (axis)
+                    {
+                        case "x":
+                            _settingsManager.Settings.XVelService = result.CommonResult.VelService;
+                            _settingsManager.Settings.XAcc = result.CommonResult.Acc;
+                            _settingsManager.Settings.XVelLow = result.CommonResult.VelLow;
+                            _settingsManager.Settings.XVelHigh = result.CommonResult.VelHigh;
+                            break;
+                        case "y":
+                            _settingsManager.Settings.YVelService = result.CommonResult.VelService;
+                            _settingsManager.Settings.YAcc = result.CommonResult.Acc;
+                            _settingsManager.Settings.YVelLow = result.CommonResult.VelLow;
+                            _settingsManager.Settings.YVelHigh = result.CommonResult.VelHigh;
+                            break;
+                        case "z":
+                            _settingsManager.Settings.ZVelService = result.CommonResult.VelService;
+                            _settingsManager.Settings.ZAcc = result.CommonResult.Acc;
+                            _settingsManager.Settings.ZVelLow = result.CommonResult.VelLow;
+                            _settingsManager.Settings.ZVelHigh = result.CommonResult.VelHigh;
+                            break;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return;
+            }
+        }
     }
 }
 

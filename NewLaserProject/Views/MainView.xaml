@@ -348,27 +348,33 @@
                         </StackPanel>
                     </StackPanel>
                 </Button>
-                <controls:AxisState CoordinateName="X"
+                <Button Command="{Binding AxisSettingsCommand}" CommandParameter="x" Style="{StaticResource BaseStyle}" Padding="0" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <controls:AxisState CoordinateName="X"
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.Position}"  
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.MotionDone}" 
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.CmdPosition}"
                                   />
-                <controls:AxisState CoordinateName="Y"
+                </Button>
+                <Button Command="{Binding AxisSettingsCommand}" CommandParameter="y" Style="{StaticResource BaseStyle}" Padding="0" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <controls:AxisState CoordinateName="Y"
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.Position}"
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.CmdPosition}"
                                   />
-                <controls:AxisState CoordinateName="Z"
+                </Button>
+                <Button Command="{Binding AxisSettingsCommand}" CommandParameter="z" Style="{StaticResource BaseStyle}" Padding="0" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <controls:AxisState CoordinateName="Z"
                                   Coordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.Position}"
                                   LmtNeg="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.NLmt}"
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.CmdPosition}"
                                   />
+                </Button>
                 <DockPanel Visibility="Collapsed">
                     <Border
                         DockPanel.Dock="Top"
