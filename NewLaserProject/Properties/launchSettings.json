@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NewLaserProject": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -46,9 +46,9 @@ namespace NewLaserProject.ViewModels
         public bool OnProcess { get; set; } = false;
         public MessageType CurrentMessageType { get; private set; } = MessageType.Empty;
         public BitmapImage CameraImage { get; set; }
-        public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
-        public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
-        public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false);
+        public AxisStateView XAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false, false);
+        public AxisStateView YAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false, false);
+        public AxisStateView ZAxis { get; set; } = new AxisStateView(0, 0, false, false, true, false, false);
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
         public double ScaleMarkersRatioSecond => 1 - ScaleMarkersRatioFirst;
 
@@ -374,17 +374,17 @@ namespace NewLaserProject.ViewModels
                 switch (e.Axis)
                 {
                     case Ax.X:
-                        XAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                        XAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart, e.EZ);
                         LaserViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderLaser, XAxis.Position, YAxis.Position)[0] * DefaultFileScale ?? 0;
                         CameraViewfinderX = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[0] * DefaultFileScale ?? 0;
                         break;
                     case Ax.Y:
-                        YAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                        YAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart, e.EZ);
                         LaserViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderLaser, XAxis.Position, YAxis.Position)[1] * DefaultFileScale ?? 0;
                         CameraViewfinderY = _coorSystem?.FromSub(LMPlace.FileOnWaferUnderCamera, XAxis.Position, YAxis.Position)[1] * DefaultFileScale ?? 0;
                         break;
                     case Ax.Z:
-                        ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart);
+                        ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart, e.EZ);
                         break;
                 }
                 //MechTableVM?.SetCoordinates(XAxis.Position - 85.876, YAxis.Position - 51.945);
@@ -441,9 +441,9 @@ namespace NewLaserProject.ViewModels
 
             var xpar = new MotionDeviceConfigs
             {
-                maxAcc = 180,
-                maxDec = 180,
-                maxVel = 30,
+                maxAcc = 1000,
+                maxDec = 1000,
+                maxVel = 500,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.XHomeReset,
@@ -452,14 +452,14 @@ namespace NewLaserProject.ViewModels
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
                 denominator = 4,
                 plsInMde = (int)PlsInMode.AB_4X,
-                homeVelLow = _settingsManager.Settings.XVelLow ?? throw new ArgumentNullException("XVelLow is null"),
+                homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null")
             };
             var ypar = new MotionDeviceConfigs
             {
-                maxAcc = 180,
-                maxDec = 180,
-                maxVel = 30,
+                maxAcc = 1000,
+                maxDec = 1000,
+                maxVel = 500,
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.YRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.YHomeReset,
@@ -468,7 +468,7 @@ namespace NewLaserProject.ViewModels
                 ppu = _settingsManager.Settings.YPPU ?? throw new ArgumentNullException("XAcc is null"),//3993,//Settings.Default.YPPU*2,
                 denominator = 4,
                 plsInMde = (int)PlsInMode.AB_4X,
-                homeVelLow = _settingsManager.Settings.YVelLow ?? throw new ArgumentNullException("YVelLow is null"),
+                homeVelLow = _settingsManager.Settings.YHomeVelLow ?? throw new ArgumentNullException("YVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")
             };
             var zpar = new MotionDeviceConfigs
@@ -482,12 +482,14 @@ namespace NewLaserProject.ViewModels
                 acc = _settingsManager.Settings.ZAcc ?? throw new ArgumentNullException("ZAcc is null"),
                 dec = _settingsManager.Settings.ZDec ?? throw new ArgumentNullException("ZDec is null"),
                 ppu = _settingsManager.Settings.ZPPU ?? throw new ArgumentNullException("ZPPU is null"),
-                homeVelLow = _settingsManager.Settings.ZVelLow ?? throw new ArgumentNullException("ZVelLow is null"),
+                homeVelLow = _settingsManager.Settings.ZHomeVelLow ?? throw new ArgumentNullException("ZVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null")
             };
 
             try
             {
+                _laserMachine.AddAxis(Ax.U, 0d).WithConfigs(xpar).Build();
+
                 _laserMachine.AddAxis(Ax.X, axesConfigs.XLine)
                     .WithConfigs(xpar)
                     .WithVelRegime(Velocity.Fast, _settingsManager.Settings.XVelHigh ?? throw new ArgumentNullException("ZVelService is null"))
@@ -509,9 +511,8 @@ namespace NewLaserProject.ViewModels
                     .WithVelRegime(Velocity.Service, _settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null"))
                     .Build();
 
-                _laserMachine.AddAxis(Ax.U, 0d).WithConfigs(xpar).Build();
 
-                _laserMachine.AddGroup(Groups.XY, Ax.X, Ax.Y);
+                //_laserMachine.AddGroup(Groups.XY, Ax.X, Ax.Y);
 
                 _laserMachine.ConfigureGeometryFor(LMPlace.Loading)
                     .SetCoordinateForPlace(Ax.X, _settingsManager.Settings.XLoad ?? throw new ArgumentNullException("XLoad is null"))

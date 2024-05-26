@@ -100,7 +100,10 @@ namespace NewLaserProject.ViewModels
 
             async Task moveAxDirAsync((Ax, AxDir) axDir)
             {
-                if (VelocityRegime != Velocity.Step) _laserMachine.GoWhile(axDir.Item1, axDir.Item2);
+                if (VelocityRegime != Velocity.Step)
+                {
+                    _laserMachine.GoWhile(axDir.Item1, axDir.Item2);
+                }
                 if (VelocityRegime == Velocity.Step)
                 {
                     var step = (axDir.Item2 == AxDir.Pos ? 1 : -1) * 0.005;
@@ -137,6 +140,7 @@ namespace NewLaserProject.ViewModels
             {
                 try
                 {
+                    _laserMachine.SetVelocity(Velocity.Service);
                     await _laserMachine.GoHomeAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -509,9 +513,6 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task AxisSettings(string axis)
         {
-            
-            
-
             var title = axis switch
             {
                 "x" => "Привод X",
@@ -587,6 +588,8 @@ namespace NewLaserProject.ViewModels
                             _settingsManager.Settings.ZVelHigh = result.CommonResult.VelHigh;
                             break;
                     }
+                    _settingsManager.Save();
+                    ImplementMachineSettings();
                 }
             }
             catch (Exception)
