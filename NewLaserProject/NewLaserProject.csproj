@@ -232,6 +232,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\MachineClassLibrary\MachineClassLibrary.csproj" />
     <ProjectReference Include="..\..\MachineControlsLibrary\MachineControlsLibrary.csproj" />
+    <ProjectReference Include="..\MotionLibrary\MotionLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

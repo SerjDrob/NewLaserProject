@@ -46,4 +46,7 @@
     public double? WaferThickness { get; set; }
     public int? PreferredCameraCapabilities { get; set; }
     public double? PazAngle { get; set; }
+    public double? XHomeVelLow { get; set; }
+    public double? YHomeVelLow { get; set; }
+    public double? ZHomeVelLow { get; set; }
 }

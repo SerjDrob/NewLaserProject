@@ -371,6 +371,7 @@
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.MotionDone}" 
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.CmdPosition}"
+                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.EZ}"
                                   />
                 </Button>
                 <Button Command="{Binding AxisSettingsCommand}" CommandParameter="y" Style="{StaticResource BaseStyle}" Padding="0" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -380,6 +381,7 @@
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.CmdPosition}"
+                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.EZ}"
                                   />
                 </Button>
                 <Button Command="{Binding AxisSettingsCommand}" CommandParameter="z" Style="{StaticResource BaseStyle}" Padding="0" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -389,6 +391,7 @@
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.CmdPosition}"
+                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.EZ}"
                                   />
                 </Button>
                 <DockPanel Visibility="Collapsed">
