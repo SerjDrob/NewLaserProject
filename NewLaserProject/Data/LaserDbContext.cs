@@ -1,5 +1,6 @@
 ﻿using System.Data.Common;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NewLaserProject.Data.Models;
 
@@ -13,6 +14,12 @@ namespace NewLaserProject.Data
         public LaserDbContext()
         {
         }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    var str = new SqliteConnectionStringBuilder(@"data source=Database\laserDatabase.db")
+        //        .ToString();
+        //    optionsBuilder.UseSqlite(@"data source=Database\laserDatabase.db");
+        //}
         public DbSet<Material> Material { get; set; }
         public DbSet<Technology> Technology { get; set; }
         public DbSet<MaterialEntRule> MaterialEntRule { get; set; }

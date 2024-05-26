@@ -7,6 +7,7 @@
              mc:Ignorable="d" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              DataContext="{Binding}"
+             xmlns:gl="clr-namespace:System.Globalization;assembly=mscorlib"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <CollectionViewSource x:Key="TechnologyBase"
@@ -45,11 +46,14 @@
         <GroupBox>
             <GroupBox.Header>
                 <Grid Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=GroupBox}, Path=ActualWidth}">
+
                     <hc:SimpleStackPanel Orientation="Horizontal">
-                        <TextBlock Text="Технологии" HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitleBold}"/>
-                        <hc:TextBox Width="70" Text="{Binding TechnologyFilter, UpdateSourceTrigger=PropertyChanged}" 
-                                    Margin="15,5,0,0" 
+                        <hc:TextBox Width="170" Text="{Binding TechnologyFilter, UpdateSourceTrigger=PropertyChanged}"
+                                    hc:TitleElement.Title="Технологии"
+                                    hc:TitleElement.TitlePlacement="Left"
+                                    hc:TitleElement.TitleWidth="70"
                                     hc:InfoElement.Placeholder="Поиск"
+                                    Margin="0,0,10,0"
                                     Style="{StaticResource TextBoxExtend.Small}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="TextChanged">
@@ -58,6 +62,10 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </hc:TextBox>
+                        <hc:ElementGroup Orientation="Horizontal">
+                            <Button Content="Выгрузить базу" Command="{Binding UploadDbCommand}" Style="{StaticResource ButtonDefault.Small}"/>
+                            <Button Content="Загрузить базу" Command="{Binding DownloadDbCommand}" Style="{StaticResource ButtonDefault.Small}"/>
+                        </hc:ElementGroup>
                     </hc:SimpleStackPanel>
                 </Grid>
             </GroupBox.Header>
@@ -67,8 +75,8 @@
                     <DataGridTextColumn Header="Материал" IsReadOnly="True" Binding="{Binding Material.Name}"/>
                     <DataGridTextColumn Header="Толщина" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
                     <DataGridTextColumn Header="Толщина" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
-                    <DataGridTextColumn Header="Дата создания" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
-                    <DataGridTextColumn Header="Дата изменения" IsReadOnly="True" Binding="{Binding Material.Thickness}"/>
+                    <DataGridTextColumn Header="Дата создания" IsReadOnly="True" Binding="{Binding Created, ConverterCulture={x:Static gl:CultureInfo.CurrentCulture}}"/>
+                    <DataGridTextColumn Header="Дата изменения" IsReadOnly="True" Binding="{Binding Altered, ConverterCulture={x:Static gl:CultureInfo.CurrentCulture}}"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

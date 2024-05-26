@@ -64,6 +64,10 @@
             <DataTemplate DataType="{x:Type dialogvm:AxisSettingsVM}">
                 <dialogviews:AxisSettingsView/>
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type dialogvm:DownloadDbVM}">
+                <dialogviews:DownloadDbView/>
+            </DataTemplate>
             <!--<DataTemplate DataType="{x:Type dialogvm:AskThicknessVM}">
                 
             </DataTemplate>-->

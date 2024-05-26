@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="NewLaserProject.Views.Dialogs.DownloadDbView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.ViewModels.DialogVM"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=local:DownloadDbVM}"
+             >
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="RadioButton" BasedOn="{StaticResource RadioButtonBaseStyle}">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Margin" Value="2"/>
+            </Style>
+        </Grid.Resources>
+        <StackPanel>
+            <hc:ElementGroup Orientation="Horizontal" Margin="5">
+                <TextBlock Text="Файл: "/>
+                <TextBlock Text="{Binding DatabasePath}" 
+                       HorizontalAlignment="Left"
+                       Style="{StaticResource TextBlockBoldBaseStyle}"/>
+            </hc:ElementGroup>
+            <RadioButton Content="Замена базы" IsChecked="{Binding RewriteDatabase}"/>
+            <RadioButton x:Name="mergeBases" Content="Слияние баз" IsChecked="True"/>
+            <GroupBox IsEnabled="{Binding ElementName=mergeBases, Path=IsChecked}" Style="{StaticResource GroupBoxOriginal}">
+                <GroupBox.Header>
+                    <TextBlock Text="Разрешение конфликтов" Style="{StaticResource TextBlockDefaultBold}"/>
+                </GroupBox.Header>
+                <StackPanel>
+                    <hc:Divider Content="Совпадение названий технологии" 
+                                Orientation="Horizontal"
+                                BorderThickness="1"/>
+                    <StackPanel>
+                        <RadioButton Content="Заменить на новую" IsChecked="{Binding MergeChangeOnNew}"/>
+                        <RadioButton Content="Не добавлять новую" IsChecked="{Binding MergeNotSave}"/>
+                        <RadioButton Content="Добавить с сохранением старой" IsChecked="{Binding MergeSaveBoth}"/>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
+</UserControl>

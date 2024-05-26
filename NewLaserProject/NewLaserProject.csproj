@@ -186,9 +186,9 @@
     <!--<None Update="Database\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>-->
-    <None Update="TechnologyFiles\*">
+    <!--<None Update="TechnologyFiles\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </None>-->
     <None Update="TempFiles\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -202,7 +202,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Models\MaterialFeatures\Update\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 
