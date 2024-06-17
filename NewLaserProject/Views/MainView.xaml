@@ -136,6 +136,9 @@
                         </Style>
                     </WrapPanel.Resources>
                     <hc:ToggleBlock IsChecked="{Binding PWMDeviceOk}">
+                        <hc:ToggleBlock.ToolTip>
+                            <ToolTip Content="{Binding PWMDeviceProblem}"/>
+                        </hc:ToggleBlock.ToolTip>
                         <hc:ToggleBlock.CheckedContent>
                             <TextBlock Text="PWM" Background="{StaticResource SuccessBrush}"/>
                         </hc:ToggleBlock.CheckedContent>
@@ -145,6 +148,9 @@
                     </hc:ToggleBlock>
 
                     <hc:ToggleBlock IsChecked="{Binding LaserBoardOk}">
+                        <hc:ToggleBlock.ToolTip>
+                            <ToolTip Content="{Binding LaserBoardHealthProblem}"/>
+                        </hc:ToggleBlock.ToolTip>
                         <hc:ToggleBlock.CheckedContent>
                             <TextBlock Text="LBD" Background="{StaticResource SuccessBrush}"/>
                         </hc:ToggleBlock.CheckedContent>
@@ -313,7 +319,7 @@
                         <StackPanel>
                             <MenuItem Command="{Binding StartTeachingCommand}"
                                       CommandParameter="{x:Static vm:Teacher.CameraOffset}"
-                                      Header="Смещение камеры" InputGestureText="F2">
+                                      Header="Смещение камеры">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
                                 </MenuItem.Icon>
@@ -325,13 +331,13 @@
                                     <Image Source="Sources/angle.png" Height="20" />
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Command="{Binding StartTeachingCommand}" 
+                            <!--<MenuItem Command="{Binding StartTeachingCommand}" 
                                       CommandParameter="{x:Static vm:Teacher.OrthXY}"
                                       Header="Ортогональность XY">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/orth.png" Height="20"/>
                                 </MenuItem.Icon>
-                            </MenuItem>
+                            </MenuItem>-->
                             <MenuItem Command="{Binding StartTeachingCommand}" 
                                       CommandParameter="{x:Static vm:Teacher.CameraScale}"
                                       Header="Масштаб видео">
@@ -371,7 +377,7 @@
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.MotionDone}" 
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.CmdPosition}"
-                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.EZ}"
+                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.ORG}"
                                   />
                 </Button>
                 <Button Command="{Binding AxisSettingsCommand}" CommandParameter="y" Style="{StaticResource BaseStyle}" Padding="0" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -381,7 +387,7 @@
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.CmdPosition}"
-                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.EZ}"
+                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.YAxis.ORG}"
                                   />
                 </Button>
                 <Button Command="{Binding AxisSettingsCommand}" CommandParameter="z" Style="{StaticResource BaseStyle}" Padding="0" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -391,7 +397,7 @@
                                   LmtPos="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.PLmt}"
                                   MotionDone="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.MotionDone}"
                                   CmdCoordinate="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.CmdPosition}"
-                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.XAxis.EZ}"
+                                  EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.ORG}"
                                   />
                 </Button>
                 <DockPanel Visibility="Collapsed">
@@ -483,7 +489,7 @@
             </ToolBar>
 
             <ToolBar>
-                <cntrl:SpeedIndicator Speed="{Binding VelocityRegime, Converter={StaticResource EnumToIntConverter}}"/>           
+                <cntrl:SpeedIndicator Speed="{Binding VelocityRegime, Converter={StaticResource EnumToIntConverter}}"/>
             </ToolBar>
 
             <ToolBar>
@@ -776,6 +782,7 @@
                                                     <Button Command="{Binding SaveWorkFileCommand}" 
                                                 Content="Сохранить обработку"
                                                 Visibility="{Binding ChosenProcessingObjects.Count, Converter={StaticResource CountToVisibilityConverter}}"/>
+                                                    <CheckBox Content="Под камерой" IsChecked="{Binding IsProcessUnderCamera}" Style="{StaticResource CheckBoxBaseStyle}"/>
                                                 </hc:SimpleStackPanel>
                                             </hc:SimpleStackPanel>
                                             <UniformGrid Rows="2" Grid.Row="1">
@@ -872,25 +879,25 @@
                                 </Grid>
                             </hc:TabItem>
                             <hc:TabItem Header="Прицельная прошивка" IsEnabled="{Binding IsProcessing, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                    <Grid VerticalAlignment="Top" ShowGridLines="False" HorizontalAlignment="Left" Margin="10,10">
-                                        <Grid.Resources>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="VerticalAlignment" Value="Center"/>
-                                                <Setter Property="Margin" Value="5"/>
-                                            </Style>
-                                        </Grid.Resources>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="Диаметр, мм"/>
-                                        <hc:NumericUpDown Grid.Column="1"
+                                <Grid VerticalAlignment="Top" ShowGridLines="False" HorizontalAlignment="Left" Margin="10,10">
+                                    <Grid.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Margin" Value="5"/>
+                                        </Style>
+                                    </Grid.Resources>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Диаметр, мм"/>
+                                    <hc:NumericUpDown Grid.Column="1"
                                                           Value="{Binding IndividualProcDiameter}"
                                                       DecimalPlaces="3"
                                                       Minimum="0.05"
@@ -899,17 +906,30 @@
                                                       Width="100"
                                                       HorizontalAlignment="Left"
                                                       Style="{StaticResource NumericUpDownExtend}"/>
-                                        <TextBlock Text="Технология" Grid.Row="1"/>
-                                        <Border BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1" Grid.Row="1" Grid.Column="1">
-                                            <TextBlock Text="{Binding IndividualProcObject.Technology.ProgramName}" MinWidth="200"/>
-                                        </Border>
-                                        <Button Content="Выбрать" Grid.Row="1" Grid.Column="2" Command="{Binding ChooseIndividualTechCommand}"/>
-                                        <Button Content="Прошить"
+                                    <TextBlock Text="Технология" Grid.Row="1"/>
+                                    <Border BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1" Grid.Row="1" Grid.Column="1">
+                                        <TextBlock Text="{Binding IndividualProcObject.Technology.ProgramName}" MinWidth="200"/>
+                                    </Border>
+                                    <Button Content="Выбрать" Grid.Row="1" Grid.Column="2" Command="{Binding ChooseIndividualTechCommand}"/>
+                                    <!--<Button Content="Прошить"
                                                 Command="{Binding PierceIndividualCommand}"
                                                 IsEnabled="{Binding IndividualProcObject, Converter={StaticResource Object2BooleanConverter}}"
                                                 Grid.Row="2" 
-                                                Style="{StaticResource ButtonWarning}"/>
-                                    </Grid>
+                                                Style="{StaticResource ButtonWarning}"/>-->
+                                    <ToggleButton Grid.Row="2" BorderThickness="0" HorizontalAlignment="Left" IsChecked="{Binding IsIndividualProcessing}" Grid.ColumnSpan="2" hc:StatusSwitchElement.HideUncheckedElement="True" Command="{Binding PierceIndividualCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}" Style="{StaticResource ToggleButtonCustom}">
+                                        <hc:StatusSwitchElement.CheckedElement>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Background="{DynamicResource DangerBrush}">
+                                                    <TextBlock Text="Стоп" HorizontalAlignment="Center" VerticalAlignment="Center"  Foreground="{DynamicResource TextIconBrush}"/>
+                                                </Border>
+                                                <hc:Shield Subject="Процесс" Status="{Binding TotalProcessTimer}" Color="{StaticResource LightPrimaryBrush}" Margin="0,0,2,0"/>
+                                            </StackPanel>
+                                        </hc:StatusSwitchElement.CheckedElement>
+                                        <Border Background="{DynamicResource PrimaryBrush}" HorizontalAlignment="Stretch">
+                                            <TextBlock Text="Прошить" HorizontalAlignment="Center" VerticalAlignment="Center"  Foreground="{DynamicResource TextIconBrush}"/>
+                                        </Border>
+                                    </ToggleButton>
+                                </Grid>
                             </hc:TabItem>
                         </hc:TabControl>
                     </Grid>

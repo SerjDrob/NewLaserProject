@@ -2,7 +2,9 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using HandyControl.Controls;
@@ -17,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process;
+using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models.DefaultLayerEntityTechnologyFeatures.Get;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Create;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Delete;
@@ -24,6 +27,7 @@ using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.ViewModels.DialogVM;
+using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
@@ -37,17 +41,17 @@ namespace NewLaserProject.ViewModels
         private void InitCommands()
         {
 
-            TestKeyCommand = new KeyProcessorCommands(parameter => !_isKeyProcCommandsBlocked, typeof(TextBox))
-                .CreateKeyDownCommand(Key.A, () => moveAxDirAsync((Ax.Y, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.Z, () => moveAxDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.X, () => moveAxDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.C, () => moveAxDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.V, () => moveAxDirAsync((Ax.Z, AxDir.Pos)), () => IsMainTabOpen)
-                .CreateKeyDownCommand(Key.B, () => moveAxDirAsync((Ax.Z, AxDir.Neg)), () => IsMainTabOpen)
+            TestKeyCommand = new KeyProcessorCommands(parameter => !_isKeyProcCommandsBlocked & IsMainTabOpen, typeof(TextBox))
+                .CreateKeyDownCommand(Key.A, ModifierKeys.None, () => moveAxDirAsync((Ax.Y, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.Z, ModifierKeys.None, () => moveAxDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.X, ModifierKeys.None, () => moveAxDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.C, ModifierKeys.None, () => moveAxDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.V, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Pos)), () => IsMainTabOpen)
+                .CreateKeyDownCommand(Key.B, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Neg)), () => IsMainTabOpen)
                 .CreateKeyUpCommand(Key.V, () => Task.Run(() => _laserMachine.Stop(Ax.Z)), () => IsMainTabOpen)
                 .CreateKeyUpCommand(Key.B, () => Task.Run(() => _laserMachine.Stop(Ax.Z)), () => IsMainTabOpen)
                 .CreateAnyKeyUpCommand(stopAsync, () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.E, () =>
+                .CreateKeyDownCommand(Key.E, ModifierKeys.None, () =>
                 {
                     if (_laserMachine.GetValveState(Valves.Light))
                     {
@@ -59,45 +63,94 @@ namespace NewLaserProject.ViewModels
                     }
                     return Task.CompletedTask;
                 }, () => true)
-                .CreateKeyDownCommand(Key.G, () => _laserMachine.GoThereAsync(LMPlace.Loading), () => IsMainTabOpen)
-                .CreateKeyDownCommand(Key.Home, async () =>
+                .CreateKeyDownCommand(Key.G, ModifierKeys.None, async () =>
+                {
+                    var vel = _laserMachine.SetVelocity(Velocity.Service);
+                    await _laserMachine.GoThereAsync(LMPlace.Loading);
+                    _laserMachine.SetVelocity(vel);
+                }, () => IsMainTabOpen)
+                .CreateKeyDownCommand(Key.Home, ModifierKeys.None, async () =>
                 {
                     await moveHomeAsync();
                     _signalColumn.TurnOnLight(LightColumn.Light.Green);
                     Growl.Clear();
                 }, () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.Add, changeVelocity, () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.Subtract, setStepVelocity, () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.Q, () =>
+                .CreateKeyDownCommand(Key.Add, ModifierKeys.None, changeVelocity, () => IsMainTabOpen/* && !IsProcessing*/)
+                .CreateKeyDownCommand(Key.Subtract, ModifierKeys.None, setStepVelocity, () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.Q, ModifierKeys.None, () =>
                 {
                     ChangeViews();
                     return Task.CompletedTask;
                 }, () => IsMainTabOpen)
-                .CreateKeyDownCommand(Key.W, () =>
+                .CreateKeyDownCommand(Key.W, ModifierKeys.None, () =>
                 {
                     ChangeMechView();
                     return Task.CompletedTask;
                 }, () => IsMainTabOpen)
-                .CreateKeyDownCommand(Key.Multiply, next, () => !IsProcessing)
-                .CreateKeyDownCommand(Key.Escape, deny, () => true)
-                .CreateKeyDownCommand(Key.P, async () =>
+                .CreateKeyDownCommand(Key.Multiply, ModifierKeys.None, next, () => !IsProcessing)
+                .CreateKeyDownCommand(Key.Escape, ModifierKeys.None, deny, () => true)
+                .CreateKeyDownCommand(Key.P, ModifierKeys.None, async () =>
                 {
                     await Task.WhenAll(
                         _laserMachine.MoveAxInPosAsync(Ax.X, TestX, true),
                         _laserMachine.MoveAxInPosAsync(Ax.Y, TestY, true)
                         );
                 }, () => false)
-                .CreateKeyDownCommand(Key.L, () =>
+                .CreateKeyDownCommand(Key.L, ModifierKeys.None, () =>
                 {
                     SwitchArr ^= true;
                     return Task.CompletedTask;
                 }, () => true)
-                .CreateKeyDownCommand(Key.F7, () =>
+                .CreateKeyDownCommand(Key.F7, ModifierKeys.None, () =>
                 {
                     _laserMachine.InvokeSettings();
                     return Task.CompletedTask;
-                }, () => false);
-
+                }, () => false)
+                .CreateKeyDownCommand(Key.A, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.Y, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.Z, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.X, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.C, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.S, ModifierKeys.None, ()=> { _cameraVM?.OpenTargetWindow(); return Task.CompletedTask; }, () => IsMainTabOpen && _isSnapAlowed)
+                .CreateKeyDownCommand(Key.T, ModifierKeys.None, async () => 
+                {
+                    var result = await Dialog.Show<CommonDialog>()
+                        .SetDialogTitle("Угол пластины")
+                        .SetDataContext(new TeachCornerVM(XAxis.Position, YAxis.Position, _settingsManager.Settings), 
+                        vm => { })
+                        .GetCommonResultAsync<(double leftX, double leftY, double rightX, double rightY)>(ToggleKeyProcCommands);
+                    if (result.Success)
+                    {
+                        _settingsManager.Settings.XLeftPoint = result.CommonResult.leftX;
+                        _settingsManager.Settings.YLeftPoint = result.CommonResult.leftY;
+                        _settingsManager.Settings.XRightPoint = result.CommonResult.rightX;
+                        _settingsManager.Settings.YRightPoint = result.CommonResult.rightY;
+                        _settingsManager.Save();
+                        ImplementMachineSettings();
+                        TuneCoorSystem();
+                    }
+                }, ()=>IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.F, ModifierKeys.None, async ()=>
+                {
+                    var result = await Dialog.Show<CommonDialog>()
+                        .SetDialogTitle("Фокус")
+                        .SetDataContext(new TeachFocusVM(ZAxis.Position, _settingsManager.Settings),
+                        vm => { })
+                        .GetCommonResultAsync<(double cameraFocus, double laserFocus)>(ToggleKeyProcCommands);
+                    if (result.Success)
+                    {
+                        _settingsManager.Settings.ZeroFocusPoint = result.CommonResult.cameraFocus;
+                        _settingsManager.Settings.ZeroPiercePoint = result.CommonResult.laserFocus;
+                        _settingsManager.Save();
+                        ImplementMachineSettings();
+                        TuneCoorSystem();
+                    }
+                },()=>true)
+                .CreateKeyDownCommand(Key.F, ModifierKeys.Control, async () => 
+                {
+                    var token = new CancellationTokenSource(TimeSpan.FromMilliseconds(15000)).Token;
+                    var res = await _laserMachine.FindCameraFocus(token);
+                },()=>false);
+                
             async Task moveAxDirAsync((Ax, AxDir) axDir)
             {
                 if (VelocityRegime != Velocity.Step)
@@ -111,6 +164,11 @@ namespace NewLaserProject.ViewModels
 
                 }
             }
+            async Task moveAxFastDirAsync((Ax, AxDir) axDir)
+            {
+                _laserMachine.SetVelocity(Velocity.Service);
+                _laserMachine.GoWhile(axDir.Item1, axDir.Item2);
+            }
             Task stopAsync(KeyEventArgs key)
             {
                 try
@@ -122,7 +180,11 @@ namespace NewLaserProject.ViewModels
                         Key.V or Key.B => Ax.Z,
                         _ => Ax.None
                     };
-                    if (axis != Ax.None) _laserMachine.Stop(axis);
+                    if (axis != Ax.None)
+                    {
+                        _laserMachine.Stop(axis);
+                        _laserMachine.SetVelocity(VelocityRegime);
+                    }
                 }
                 catch (SwitchExpressionException ex)
                 {
@@ -156,22 +218,22 @@ namespace NewLaserProject.ViewModels
             }
             Task changeVelocity()
             {
-                VelocityRegime = VelocityRegime switch
+                var vel = VelocityRegime switch
                 {
                     Velocity.Slow => Velocity.Fast,
                     Velocity.Fast => Velocity.Slow,
                     _ => Velocity.Fast
                 };
 #if PCIInserted
-                _laserMachine.SetVelocity(VelocityRegime);
+                _laserMachine.SetVelocity(vel);
 #endif
                 return Task.CompletedTask;
             }
             Task setStepVelocity()
             {
-                VelocityRegime = Velocity.Step;
+                //VelocityRegime = Velocity.Step;
 #if PCIInserted
-                _laserMachine.SetVelocity(Velocity.Slow);
+                _laserMachine.SetVelocity(Velocity.Step);
 #endif
                 return Task.CompletedTask;
             }
@@ -198,7 +260,7 @@ namespace NewLaserProject.ViewModels
         public bool SwitchArr { get; set; }
         public ObjectForProcessing IndividualProcObject { get; private set; }
         public double IndividualProcDiameter { get; set; }
-        public bool IsIndividualProcessing { get; private set; } = false;
+        public bool IsIndividualProcessing { get; set; } = false;
         [ICommand]
         private async Task OpenFileViewSettingsWindow()
         {
@@ -396,9 +458,9 @@ namespace NewLaserProject.ViewModels
                 var velTemp = _laserMachine.VelocityRegime;
                 _laserMachine.SetVelocity(Velocity.Service);
                 await Task.WhenAll(
-                      _laserMachine.MoveAxInPosAsync(Ax.X, coordinates[0]),
-                      _laserMachine.MoveAxInPosAsync(Ax.Y, coordinates[1])
-                  );
+                      _laserMachine.MoveAxInPosAsync(Ax.X, _xCoeffLine[coordinates[0]],/*false*/true),
+                      _laserMachine.MoveAxInPosAsync(Ax.Y, _yCoeffLine[coordinates[1]], /*false*/true)
+                  ).ConfigureAwait(false);
                 _laserMachine.SetVelocity(velTemp);
             }
         }
@@ -462,51 +524,77 @@ namespace NewLaserProject.ViewModels
             }
         }
 
+        private CancellationTokenSource _individualProcCancellationTokenSource;
+
         [ICommand]
-        private async Task PierceIndividual()
+        private async Task PierceIndividual(bool start)
         {
-            IsIndividualProcessing = true;
-            try
-            {
-                var teachPosition = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 10, 10);
-                var xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
-                var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
-                var zCamera = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
-                var zLaser = _settingsManager.Settings.ZeroPiercePoint ?? throw new ArgumentNullException("ZeroPiercePoint is null");
-                var vel = VelocityRegime;
-                var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{IndividualProcObject.Technology?.ProcessingProgram}.json"));
-                var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
-
-                var microProc = new MicroProcess(json, preparator, _laserMachine, z =>
+            if (start)
+            {                
+                try
                 {
-                    return _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
-                });
+                    var teachPosition = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 10, 10);
+                    var xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
+                    var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
+                    var zCamera = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
+                    var zLaser = _settingsManager.Settings.ZeroPiercePoint ?? throw new ArgumentNullException("ZeroPiercePoint is null");
+                    var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{IndividualProcObject.Technology?.ProcessingProgram}.json"));
+                    var preparator = new EntityPreparator(new IMDxfReader(), AppPaths.TempFolder);
 
-                _laserMachine.SetVelocity(Velocity.Fast);
-                await Task.WhenAll(
-                        _laserMachine.MoveGpRelativeAsync(Groups.XY, [xOffset, yOffset], true),
-                        _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - WaferThickness)
-                        );
+                    var microProc = new MicroProcess(json, preparator, _laserMachine, z =>
+                    {
+                        return _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
+                    });
+                    _individualProcCancellationTokenSource = microProc.GetCancellationTokenSource();
+
+                    IsProcessing = true;
+                    _processTimer = new System.Timers.Timer(1000);
+                    _procStartTime = DateTime.Now;
+                    _processTimer.Elapsed += _processTimer_Elapsed;
+                    _processTimer.Start();
 
 
-                var pObject = new PCircle(0, 0, 0, new Circle { CenterX = 0, CenterY = 0, Radius = IndividualProcDiameter / 2 }, "", 0);
-                await microProc.InvokePierceFunctionForObjectAsync(pObject);
+                    var vel = _laserMachine.SetVelocity(Velocity.Service);
+                    await Task.WhenAll(
+                            _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true),
+                            _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset, true),
+                            _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - WaferThickness)
+                            );
 
+                    var laserSettingsJson = File.ReadAllText(AppPaths.DefaultLaserParams);
+                    var laserParams = new JsonDeserializer<MarkLaserParams>()
+                        .SetKnownType<PenParams>()
+                        .SetKnownType<HatchParams>()
+                        .Deserialize(laserSettingsJson);
 
-                await Task.WhenAll(
-                                _laserMachine.MoveGpRelativeAsync(Groups.XY, [-xOffset, -yOffset], true),
-                                _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - WaferThickness)
-                                );
-                _laserMachine.SetVelocity(vel);
-                Growl.Info("Прошивка выполнена.");
+                    _laserMachine.SetMarkParams(laserParams);
+
+                    var pObject = new PCircle(0, 0, 0, new Circle { CenterX = 0, CenterY = 0, Radius = IndividualProcDiameter / 2 }, "", 0);
+                    await microProc.InvokePierceFunctionForObjectAsync(pObject);
+
+                    await Task.WhenAll(
+                                    _laserMachine.MoveAxRelativeAsync(Ax.X, -xOffset, true),
+                                    _laserMachine.MoveAxRelativeAsync(Ax.Y, -yOffset, true),
+                                    _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - WaferThickness)
+                                    );
+                    _laserMachine.SetVelocity(vel);
+                    Growl.Info($"Прошивка выполнена. Времы выполнения: {TotalProcessTimer}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in the {nameof(PierceIndividual)} method.");
+                }
+                finally
+                {
+                    IsIndividualProcessing = false;
+                    IsProcessing = false;
+                    TotalProcessTimer = TimeSpan.Zero.ToString();
+                    _processTimer?.Stop();
+                }
             }
-            catch (Exception ex)
+            else
             {
-                _logger.ForContext<MainViewModel>().Error(ex, $"Swallowed the exception in the {nameof(PierceIndividual)} method.");
-            }
-            finally
-            {
-                IsIndividualProcessing = false;
+                _individualProcCancellationTokenSource?.Cancel();
             }
         }
 

@@ -1,11 +1,5 @@
-﻿using NewLaserProject.Properties;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -25,7 +19,7 @@ namespace NewLaserProject.Views.Converters
                 var height = (double)control.ActualHeight;
                 var imgX = (device.GetPosition(control).X - (width / 2)) / width;
                 var imgY = (device.GetPosition(control).Y - (height / 2)) / height;
-                return (imgX,imgY); 
+                return (imgX, imgY);
             }
             return null;
         }
@@ -35,4 +29,6 @@ namespace NewLaserProject.Views.Converters
             throw new NotImplementedException();
         }
     }
+
+   
 }

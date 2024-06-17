@@ -13,7 +13,13 @@ namespace NewLaserProject.Views.Converters
                 var tw = (double)values[0];
                 var pos = (double)values[1];
                 var mechW = (double)values[2];
-                return tw * pos / mechW;
+                var sign = 1;
+                if(parameter is string str)
+                {
+                    if (int.TryParse(str, out var result)) sign = result;
+                }
+                var res =  sign * tw * pos / mechW;
+                return res;
             }
             catch (Exception)
             {

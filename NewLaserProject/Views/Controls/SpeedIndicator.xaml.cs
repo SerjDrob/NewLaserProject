@@ -35,7 +35,7 @@ namespace NewLaserProject.Views.Controls
 
         // Using a DependencyProperty as the backing store for FastSpeed.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SpeedProperty =
-            DependencyProperty.Register("Speed", typeof(int), typeof(SpeedIndicator), new PropertyMetadata(0, ArrowChanged));
+            DependencyProperty.Register("Speed", typeof(int), typeof(SpeedIndicator), new PropertyMetadata(2, ArrowChanged));
 
 
 

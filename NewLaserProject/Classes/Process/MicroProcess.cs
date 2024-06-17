@@ -46,7 +46,7 @@ namespace NewLaserProject.Classes.Process
         }
         protected async override Task FuncForAddZBlockAsync(double z)
         {
-            _subject.OnNext(new ChangingZ(z));
+            _subject?.OnNext(new ChangingZ(z));
             await _funcForZBlock(z).ConfigureAwait(false);
         }
         protected async override Task FuncForPierseBlockAsync(ExtendedParams extendedParams)
@@ -62,12 +62,12 @@ namespace NewLaserProject.Classes.Process
 
             using var fileHandler = _entityPreparator.GetPreparedEntityDxfHandler(_currentProcObject);
             _laserMachine.SetExtMarkParams(new ExtParamsAdapter(extendedParams));
-            _subject.OnNext(new PiercingWithParams(extendedParams));
+            _subject?.OnNext(new PiercingWithParams(extendedParams));
             var result = await _laserMachine.PierceDxfObjectAsync(fileHandler.FilePath).ConfigureAwait(false);
         }
         protected async override Task FuncForDelayBlockAsync(int delay)
         {
-            _subject.OnNext(new Delaying(delay));
+            _subject?.OnNext(new Delaying(delay));
             await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
         }
 

@@ -10,116 +10,117 @@
         <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Canvas x:Name="MechCanvas" Width="1000" Height="800"  UseLayoutRounding="True">
                 <Canvas Panel.ZIndex="1">
-                    <Grid Canvas.Top="{Binding ElementName=BlockImage, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=1.325}"
-                      Canvas.Left="{Binding ElementName=BlockImage, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=1.42}"
-                      Panel.ZIndex="2" Width="100" Height="100">
-                        <Rectangle VerticalAlignment="Center" HorizontalAlignment="Stretch" Fill="Green" Height="5"/>
-                        <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Center" Fill="Green" Width="5"/>
-                        <Grid.RenderTransform>
-                            <TransformGroup>
-                                <TranslateTransform X="-50" Y="-50"/>
-                            </TransformGroup>
-                        </Grid.RenderTransform>
-                    </Grid>
-                    <Grid Canvas.Top="{Binding ElementName=BlockImage, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=1.325}"
-                      Canvas.Left="{Binding ElementName=BlockImage, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=1.42}"
-                      Panel.ZIndex="2" Width="100" Height="100">
-                        <Rectangle VerticalAlignment="Center" HorizontalAlignment="Stretch" Fill="Red" Height="5"/>
-                        <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Center" Fill="Red" Width="5"/>
-                        <Grid.RenderTransform>
-                            <TransformGroup>
-                                <TranslateTransform X="-50" Y="-50"/>
-                                
-                                <TranslateTransform>
-                                    <TranslateTransform.X>
-                                        <MultiBinding Converter="{StaticResource MechanicScaleConverter}">
-                                            <Binding ElementName="TableImage" Path="ActualHeight"/>
-                                            <Binding Path="CameraLaserOffsetX"/>
-                                            <Binding Path="TableHeight"/>
-                                        </MultiBinding>
-                                    </TranslateTransform.X>
-                                    <TranslateTransform.Y>
-                                        <MultiBinding Converter="{StaticResource MechanicScaleConverter}">
-                                            <Binding ElementName="TableImage" Path="ActualHeight"/>
-                                            <Binding Path="CameraLaserOffsetY"/>
-                                            <Binding Path="TableHeight"/>
-                                        </MultiBinding>
-                                    </TranslateTransform.Y>
-                                </TranslateTransform>
-                                <ScaleTransform ScaleY="-1"/>
-                            </TransformGroup>
-                        </Grid.RenderTransform>
-                    </Grid>
-                    <Image x:Name="BlockImage" Opacity="0.8" Source="/Views/HuarayBlock.png"/>
+                    <Canvas Panel.ZIndex="2">
+                        <Grid Width="100" Height="100">
+                            <Rectangle VerticalAlignment="Center" HorizontalAlignment="Stretch" Fill="Green" Height="5"/>
+                            <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Center" Fill="Green" Width="5"/>
+                        </Grid>
+                        <Grid Width="100" Height="100">
+                            <Rectangle VerticalAlignment="Center" HorizontalAlignment="Stretch" Fill="Red" Height="5"/>
+                            <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Center" Fill="Red" Width="5"/>
+                            <Grid.RenderTransform>
+                                <TransformGroup>
+                                    <TranslateTransform>
+                                        <TranslateTransform.X>
+                                            <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="-1">
+                                                <Binding ElementName="TableImage" Path="ActualWidth"/>
+                                                <Binding Path="CameraLaserOffsetX"/>
+                                                <Binding Path="TableWidth"/>
+                                            </MultiBinding>
+                                        </TranslateTransform.X>
+                                        <TranslateTransform.Y>
+                                            <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="-1">
+                                                <Binding ElementName="TableImage" Path="ActualWidth"/>
+                                                <Binding Path="CameraLaserOffsetY"/>
+                                                <Binding Path="TableWidth"/>
+                                            </MultiBinding>
+                                        </TranslateTransform.Y>
+                                    </TranslateTransform>
+                                </TransformGroup>
+                            </Grid.RenderTransform>
+                        </Grid>
+                        <Canvas.RenderTransform>
+                            <TranslateTransform X="685" Y="860"/>
+                        </Canvas.RenderTransform>
+                    </Canvas>
+                    <Image x:Name="BlockImage" Width="1000" Opacity="0.8" Source="/Views/HuarayBlock.png" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </Canvas>
 
-                <!--<Canvas>
-                    <Image Panel.ZIndex="0" x:Name="TableImage"
-                   Source="/Views/WorkpieceTable.png" SnapsToDevicePixels="True" 
-                   >
-                    </Image>
-                    <Rectangle Width="10" Height="10" Fill="Red"
-                           Canvas.Top="{Binding ElementName=TableImage, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=1.33}"
-                           Canvas.Left="{Binding ElementName=TableImage, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2.569}"
-                           >
-                        <Rectangle.RenderTransform>
-                            <TranslateTransform X="-5" Y="-5"/>
-                        </Rectangle.RenderTransform>
-                    </Rectangle>
-                    <Canvas.RenderTransform>
-                        <TranslateTransform 
-                        X="{Binding ElementName=MechCanvas, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=1.693}" 
-                        Y="{Binding ElementName=MechCanvas, Path=
-                            ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-3}"
-                        />
-                    </Canvas.RenderTransform>
-                    <Canvas.Left>
-                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}">
-                        <Binding ElementName="TableImage" Path="ActualHeight"/>
-                        <Binding Path="TableX"/>
-                        <Binding Path="TableHeight"/>
-                    </MultiBinding>
-                </Canvas.Left>
-                <Canvas.Bottom>
-                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}">
-                        <Binding ElementName="TableImage" Path="ActualHeight"/>
-                        <Binding Path="TableY"/>
-                        <Binding Path="TableHeight"/>
-                    </MultiBinding>
-                </Canvas.Bottom>
-                </Canvas>-->
-
                 <Canvas>
-                    <Image Panel.ZIndex="0" x:Name="TableImage" Source="/Views/TableReady.png" SnapsToDevicePixels="True">
-                    </Image>
-                    <Rectangle Width="10" Height="10" Fill="Red"
+                    <Image Panel.ZIndex="0" x:Name="TableImage" Width="367" Source="/Views/TableReady.png" SnapsToDevicePixels="True"/>
+                    <!--<Rectangle Width="10" Height="10" Fill="Red"
                                Canvas.Top="{Binding ElementName=TableImage, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=1.45}"
                                Canvas.Left="{Binding ElementName=TableImage, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=4.5}"
                                >
                         <Rectangle.RenderTransform>
                             <TranslateTransform X="0" Y="0"/>
                         </Rectangle.RenderTransform>
-                    </Rectangle>
+                    </Rectangle>-->
                     <Canvas.RenderTransform>
-                        <TranslateTransform 
-                                    X="{Binding ElementName=MechCanvas, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=1.18}" 
-                                    Y="{Binding ElementName=MechCanvas, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=38}"
-                                    />
+                        <TransformGroup>
+                            <TranslateTransform X="685" Y="860"/>
+                            <TranslateTransform X="50" Y="50"/>
+                            <TranslateTransform>
+                                <TranslateTransform.Y>
+                                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="-1">
+                                        <Binding ElementName="TableImage" Path="ActualWidth"/>
+                                        <Binding Path="TableHeight"/>
+                                        <Binding Path="TableWidth"/>
+                                    </MultiBinding>
+                                </TranslateTransform.Y>
+                            </TranslateTransform>
+                            <TranslateTransform>
+                                <TranslateTransform.Y>
+                                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}">
+                                        <Binding ElementName="TableImage" Path="ActualWidth"/>
+                                        <Binding Path="WaferOriginY"/>
+                                        <Binding Path="TableWidth"/>
+                                    </MultiBinding>
+                                </TranslateTransform.Y>
+                            </TranslateTransform>
+                            <TranslateTransform>
+                                <TranslateTransform.X>
+                                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="-1">
+                                        <Binding ElementName="TableImage" Path="ActualWidth"/>
+                                        <Binding Path="WaferOriginX"/>
+                                        <Binding Path="TableWidth"/>
+                                    </MultiBinding>
+                                </TranslateTransform.X>
+                            </TranslateTransform>
+                            <TranslateTransform>
+                                <TranslateTransform.Y>
+                                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="1">
+                                        <Binding ElementName="TableImage" Path="ActualWidth"/>
+                                        <Binding Path="TableOriginY"/>
+                                        <Binding Path="TableWidth"/>
+                                    </MultiBinding>
+                                </TranslateTransform.Y>
+                            </TranslateTransform>
+                            <TranslateTransform>
+                                <TranslateTransform.X>
+                                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="1">
+                                        <Binding ElementName="TableImage" Path="ActualWidth"/>
+                                        <Binding Path="TableOriginX"/>
+                                        <Binding Path="TableWidth"/>
+                                    </MultiBinding>
+                                </TranslateTransform.X>
+                            </TranslateTransform>
+                        </TransformGroup>
                     </Canvas.RenderTransform>
                     <Canvas.Left>
-                        <MultiBinding Converter="{StaticResource MechanicScaleConverter}">
-                            <Binding ElementName="TableImage" Path="ActualHeight"/>
+                        <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="-1">
+                            <Binding ElementName="TableImage" Path="ActualWidth"/>
                             <Binding Path="TableX"/>
-                            <Binding Path="TableHeight"/>
+                            <Binding Path="TableWidth"/>
                         </MultiBinding>
                     </Canvas.Left>
-                    <Canvas.Bottom>
-                        <MultiBinding Converter="{StaticResource MechanicScaleConverter}">
-                            <Binding ElementName="TableImage" Path="ActualHeight"/>
+                    <Canvas.Top>
+                        <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="-1">
+                            <Binding ElementName="TableImage" Path="ActualWidth"/>
                             <Binding Path="TableY"/>
-                            <Binding Path="TableHeight"/>
+                            <Binding Path="TableWidth"/>
                         </MultiBinding>
-                    </Canvas.Bottom>
+                    </Canvas.Top>
                 </Canvas>
 
                 <Canvas.RenderTransform>

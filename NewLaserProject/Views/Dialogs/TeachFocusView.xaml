@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="NewLaserProject.Views.Dialogs.TeachFocusView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" 
+             >
+    <Grid>
+        <StackPanel>
+            <GroupBox Header="Точка 0 фокусировки" Margin="5">
+                <StackPanel Orientation="Horizontal">
+                    <hc:TextBox  hc:TitleElement.Title="Z" hc:TitleElement.TitlePlacement="Left" IsEnabled="False" Text="{Binding ZCamera, StringFormat=F3}" Grid.Column="1"/>
+                    <Button Command="{Binding TeachZCameraCommand}" hc:IconElement.Geometry="{StaticResource LeftGeometry}" Style="{StaticResource ButtonSuccess.Small}"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Точка 0 прошивки" Margin="5">
+                <StackPanel Orientation="Horizontal">
+                    <hc:TextBox hc:TitleElement.Title="Z" hc:TitleElement.TitlePlacement="Left"  IsEnabled="False" Text="{Binding ZLaser, StringFormat=F3}"/>
+                    <Button Command="{Binding TeachZLaserCommand}" hc:IconElement.Geometry="{StaticResource LeftGeometry}" Style="{StaticResource ButtonSuccess.Small}"/>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
+</UserControl>

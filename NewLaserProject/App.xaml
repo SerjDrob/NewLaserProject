@@ -39,11 +39,13 @@
             <Localconverters:FileAlignmentConverter x:Key="FileAlignmentConverter"/>
             <Localconverters:KeyProcessorArgsConverter x:Key="KeyProcessorArgsConverter"/>
             <Localconverters:MouseEventArgsConverter x:Key="MouseEventArgsConverter"/>
+            <Localconverters:SizeChangedEventArgsConverter x:Key="SizeChangedEventArgsConverter"/>
             <Localconverters:PointSpecWinConverter x:Key="PointSpecWinConverter"/>
             <Localconverters:MarkPositionConverter x:Key="MarkPositionConverter"/>
             <Localconverters:GetDictValueConverter x:Key="GetDictValueConverter"/>
             <Localconverters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
             <Localconverters:EnumToIntConverter x:Key="EnumToIntConverter"/>
+            <Localconverters:TargetHeightConverter x:Key="TargetHeightConverter"/>
             <cnvrt:DivideConverter x:Key="DivideConverter"/>
             <cnvrt:MulConvereter x:Key="MulConvereter"/>
             <clr:Boolean x:Key="TRUE">True</clr:Boolean>
@@ -52,6 +54,14 @@
 
             <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
             <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
+
+            <DataTemplate DataType="{x:Type dialogvm:TeachCornerVM}">
+                <dialogviews:TeachCornerView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type dialogvm:TeachFocusVM}">
+                <dialogviews:TeachFocusView/>
+            </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewmodels:MechanicVM}">
                 <views:MechanicView/>

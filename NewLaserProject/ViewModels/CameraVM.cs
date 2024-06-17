@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace NewLaserProject.ViewModels
@@ -25,6 +26,8 @@ namespace NewLaserProject.ViewModels
                 {
                     SnapShotButtonVisible = result.Permited;
                 });
+            _mediator.OfType<SnapNotAlowed>()
+                .Subscribe(s => SnapShotButtonVisible = false);
             _mediator.OfType<SnapShotResult>()
                 .Subscribe(result => SnapshotVisible = false);
         }
@@ -34,7 +37,10 @@ namespace NewLaserProject.ViewModels
         public double ScaleMarkersRatioSecond { get => 1 - ScaleMarkersRatioFirst; }
         public bool TeachScaleMarkerEnable { get; set; } = false;
         public SnapShot SnapShot { get; set; }
-
+        public double CameraScale { get; set; }
+        public double TargetWidth { get; set; } = 500;
+        public double TargetHeight { get; set; } = 500;
+        public double ImageActualHeight { get; set; }
         public BitmapImage? CameraImage { get; set; }
         public event EventHandler<(double x, double y)>? VideoClicked;
         public void OnVideoSourceBmpChanged(object? sender, VideoCaptureEventArgs e)
@@ -45,17 +51,25 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void VideoClick((double x, double y) coordinates) => VideoClicked?.Invoke(this, coordinates);
 
-        [ICommand]
-        private void OpenTargetWindow()
+        //[ICommand]
+        public void OpenTargetWindow()
         {
             _mediator.OnNext(new ReadyForSnap());
         }
-
+        //private double _initialHeight;
+        //public double TargetScale { get; set; }
+        //[ICommand]
+        //private void TargetSizeChanged(double args)
+        //{
+        //    if (_initialHeight == 0) _initialHeight = args;
+        //    TargetScale = args / _initialHeight;
+        //}
         public void Handle(SnapShot notification)
         {
             SnapShot = notification;
             SnapshotVisible = true;
         }
+        public void SetCameraScale(double scale)=>CameraScale=scale;
     }
 
 }

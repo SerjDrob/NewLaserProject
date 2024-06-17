@@ -56,12 +56,14 @@ namespace NewLaserProject.ViewModels
         }
         public MarkPosition MarkPosition { get; set; }
         public bool IsProcessLoaded { get; private set; }
+        public bool IsProcessUnderCamera { get; set; }
 
         private List<IDisposable> _currentProcSubscriptions;
         private DateTime _procStartTime;
         private DateTime _procObjTempTime = new(0);
         private Timer _processTimer;
         private bool _currObjectStarted;
+        private bool _isSnapAlowed;
         public string CurrentProcObjectTimer { get; set; }
         public string LastProcObjectTimer { get; set; }
         public string TotalProcessTimer { get; set; }
@@ -226,10 +228,10 @@ namespace NewLaserProject.ViewModels
                     waferThickness: WaferThickness,
                     dX: _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null"),
                     dY: _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null"),
-                    pazAngle: _settingsManager.Settings.PazAngle ?? throw new ArgumentNullException("PazAngle is null"),//Settings.Default.PazAngle,
+                    pazAngle: 0,//_settingsManager.Settings.PazAngle ?? throw new ArgumentNullException("PazAngle is null"),//Settings.Default.PazAngle,
                     subject: _subjMediator,
                     baseCoorSystem: _coorSystem,
-                    underCamera: false,
+                    underCamera: IsProcessUnderCamera,
                     aligningPoints: FileAlignment,
                     waferAngle: _waferAngle,
                     scale: DefaultFileScale);
@@ -344,7 +346,9 @@ namespace NewLaserProject.ViewModels
                             default:
                                 break;
                         }
+                        var tempVel = _laserMachine.SetVelocity(MachineClassLibrary.Machine.Velocity.Service);
                         await _laserMachine.GoThereAsync(LMPlace.Loading);
+                        _laserMachine.SetVelocity(tempVel);
                         await _appStateMachine.FireAsync(AppTrigger.EndProcess);
                     }))
                     .Concat()
@@ -385,7 +389,21 @@ namespace NewLaserProject.ViewModels
                         }
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
-
+                _mainProcess.OfType<ProcessException>()
+                    .Subscribe(pe =>
+                    {
+                        _logger.ForContext<MainViewModel>().Warning(pe.Message);
+                    });
+                _mainProcess.OfType<PermitSnap>()
+                    .Subscribe(r => 
+                    {
+                        _isSnapAlowed = true;
+                    });
+                _mainProcess.OfType<SnapNotAlowed>()
+                    .Subscribe(s => 
+                    {
+                        _isSnapAlowed = false; 
+                    });
                 HideProcessPanel(false);
                 _mainProcess.CreateProcess();
                 IsProcessLoaded = true;
@@ -648,6 +666,4 @@ namespace NewLaserProject.ViewModels
         }
 
     }
-
-    internal record WorkProcUnit(double WaferWidth, double WaferHeight, Scale DefaultFileScale, bool WaferTurn90, bool MirrorX, double WaferOffsetX, double WaferOffsetY, List<(string, LaserEntity, int)> Objects, string FileName, FileAlignment FileAlignment, bool IsWaferMark, MarkPosition MarkPosition);
 }

@@ -80,7 +80,7 @@ namespace NewLaserProject.ViewModels
             tcb.SetOnGoLoadPointAction(() => Task.Run(async () =>
             {
                 StepIndex++;
-                _laserMachine.SetVelocity(Velocity.Fast);
+                _laserMachine.SetVelocity(Velocity.Service);
                 await _laserMachine.GoThereAsync(LMPlace.Loading);                
                 Growl.Info(new GrowlInfo
                 {
@@ -92,9 +92,11 @@ namespace NewLaserProject.ViewModels
                 .SetOnGoUnderCameraAction(async () =>
                 {
                     StepIndex++;
-                    _laserMachine.SetVelocity(Velocity.Fast);
+                    _laserMachine.SetVelocity(Velocity.Service);
                     await Task.WhenAll(
-                        _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition),
+                        //_laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition),
+                        _laserMachine.MoveAxInPosAsync(Ax.X, teachPosition[0]),
+                        _laserMachine.MoveAxInPosAsync(Ax.Y, teachPosition[1]),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                         );
                     //techMessager.RealeaseMessage("Выбирете место прожига и нажмите * чтобы продолжить", MessageType.Info);
@@ -108,9 +110,11 @@ namespace NewLaserProject.ViewModels
                 .SetOnGoToShotAction(async () =>
                 {
                     Growl.Clear();
-                    _laserMachine.SetVelocity(Velocity.Fast);
+                    _laserMachine.SetVelocity(Velocity.Service);
                     await Task.WhenAll(
-                            _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
+                            //_laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
+                            _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset,true),
+                            _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset,true),
                             _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - waferThickness)
                             );
 
@@ -147,7 +151,8 @@ namespace NewLaserProject.ViewModels
 
                     _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
                     await Task.WhenAll(
-                             _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { -xOffset, -yOffset }, true),
+                             _laserMachine.MoveAxRelativeAsync(Ax.X, -xOffset, true),
+                             _laserMachine.MoveAxRelativeAsync(Ax.Y, -yOffset, true),
                              _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                              );
                     await _currentTeacher.Accept();
@@ -235,14 +240,16 @@ namespace NewLaserProject.ViewModels
 
             tcb.SetGoUnderCameraAction(() => Task.Run(async () =>
              {
-                 _laserMachine.SetVelocity(Velocity.Fast);
+                 _laserMachine.SetVelocity(Velocity.Service);
+                 var coors = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, waferWidth / 2, waferHeight / 2);
                  await Task.WhenAll(
-                 _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, waferWidth / 2, waferHeight / 2)),
-                 _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera));
+                 _laserMachine.MoveAxInPosAsync(Ax.X, coors[0]),
+                 _laserMachine.MoveAxInPosAsync(Ax.Y, coors[1]),
+                 _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)).ConfigureAwait(false);
                                 
                  Growl.Info(new GrowlInfo
                  {
-                     Message = "Выберете место на пластине для прожига горизонтальной линии",
+                     Message = "Выберете место на пластине для прожига горизонтальной линии и нажмите *",
                      ShowDateTime = false,
                      StaysOpen = true
                  });
@@ -250,13 +257,14 @@ namespace NewLaserProject.ViewModels
              }))
                 .SetGoAtFirstPointAction(async () =>
                 {
-                    _laserMachine.SetVelocity(Velocity.Fast);
+                    _laserMachine.SetVelocity(Velocity.Service);
                     var xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
                     var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
 
                     await Task.WhenAll(
-                        _laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
-                        _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser));
+                        _laserMachine.MoveAxRelativeAsync(Ax.X,xOffset,true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.Y,yOffset,true),
+                        _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser)).ConfigureAwait(false);
 
                     var matrix = new System.Drawing.Drawing2D.Matrix();
                     matrix.Rotate((float)(_settingsManager.Settings.PazAngle ?? throw new ArgumentNullException("PAZAngle is null")) * 180 / MathF.PI);
@@ -264,20 +272,24 @@ namespace NewLaserProject.ViewModels
                     matrix.TransformPoints(points);
                     tempX = points[0].X + waferWidth / 2;
                     tempY = points[0].Y;
-                    await _laserMachine.PierceLineAsync(-waferWidth / 2, 0, waferWidth / 2, 0);
 
-                    //await Task.WhenAll( 
-                    //    _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)),
-                    //    _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - WaferThickness));
+                    var defLaserParams = ExtensionMethods
+                          .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+                    var pen = defLaserParams.PenParams;
+                    var hatch = defLaserParams.HatchParams;
 
 
+                    _laserMachine.SetMarkParams(new(pen, hatch));
+
+
+                    var result = await _laserMachine.PierceLineAsync(-waferWidth / 2, 0, waferWidth / 2, 0);
 
                     await Task.WhenAll
                     (
                         _laserMachine.MoveAxInPosAsync(Ax.X, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)[0], true),
                         _laserMachine.MoveAxRelativeAsync(Ax.Y, -tempY - (_settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null")), true),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
-                        );
+                        ).ConfigureAwait(false);
                     
                     Growl.Info(new GrowlInfo
                     {
@@ -291,8 +303,8 @@ namespace NewLaserProject.ViewModels
                 })
                 .SetGoAtSecondPointAction(() => Task.Run(async () =>
                 {
-                    _currentTeacher.SetParams(new double[] { XAxis.Position, YAxis.Position });
-                    _laserMachine.SetVelocity(Velocity.Fast);
+                    _currentTeacher.SetParams([XAxis.Position, YAxis.Position]);
+                    _laserMachine.SetVelocity(Velocity.Service);
 
                     //await Task.WhenAll(
                     //    _laserMachine.MoveGpInPosAsync(Groups.XY, _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, tempX, waferHeight / 2)),
@@ -352,6 +364,8 @@ namespace NewLaserProject.ViewModels
                     double AC = second[0] - first[0];
                     double CB = second[1] - first[1];
                     _angle =  Math.Atan2(CB, AC);
+                    var alpha = _angle * 180 / Math.PI;
+                    //_laserMachine.SetSystemAngle(alpha);
                     _settingsManager.Settings.PazAngle = _angle;
                     _settingsManager.Save();
                     MsgBox.Info("Новое значение установлено", "Обучение");
@@ -491,7 +505,7 @@ namespace NewLaserProject.ViewModels
         private async Task<ITeacher> TeachCameraScaleAsync()
         {
             var teachPosition = new double[] { 1, 1 };
-
+            Velocity tempVelocity = Velocity.Slow;
             var tcs = CameraScaleTeacher.GetBuilder()
                 .SetOnRequestPermissionToStartAction(() => Task.Run(async () => //TODO looks like pornogrphy
                 {
@@ -506,6 +520,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnGoLoadPointAction(() => Task.Run(async () =>
                 {
+                    tempVelocity = _laserMachine.SetVelocity(Velocity.Service);
                     await _laserMachine.GoThereAsync(LMPlace.Loading);
                     Growl.Info(new GrowlInfo
                     {
@@ -516,7 +531,10 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnGoNAskFirstMarkerAction(() => Task.Run(async () =>
                 {
-                    await _laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition);
+                    await Task.WhenAll(
+                        _laserMachine.MoveAxInPosAsync(Ax.X, teachPosition[0]),
+                        _laserMachine.MoveAxInPosAsync(Ax.Y, teachPosition[1]));
+                    _laserMachine.SetVelocity(Velocity.Fast);
                     _cameraVM.TeachScaleMarkerEnable = true;
                     Growl.Info(new GrowlInfo
                     {
@@ -554,6 +572,7 @@ namespace NewLaserProject.ViewModels
                 .SetOnScaleToughtAction(() => Task.Run(async () =>
                 {
                     Growl.Info("Обучение отменено");
+                    _laserMachine.SetVelocity(tempVelocity);
                     _canTeach = false;
                 }))
                 .SetOnHasResultAction(() => Task.Run(async () =>
@@ -561,6 +580,7 @@ namespace NewLaserProject.ViewModels
                     _settingsManager.Settings.CameraScale = _currentTeacher.GetParams()[0];
                     _settingsManager.Save();
                     Growl.Info("Новое значение установлено");
+                    _laserMachine.SetVelocity(tempVelocity);
                     _canTeach = false;
                 }));
             return tcs.Build();            

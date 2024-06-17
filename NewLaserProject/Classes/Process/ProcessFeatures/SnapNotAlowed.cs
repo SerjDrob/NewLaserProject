@@ -1,6 +1,4 @@
 ﻿namespace NewLaserProject.Classes.Process.ProcessFeatures
 {
-    public interface IProcessNotify
-    {
-    }
+    public record SnapNotAlowed():IProcessNotify;
 }

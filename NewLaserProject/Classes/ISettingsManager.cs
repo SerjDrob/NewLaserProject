@@ -1,6 +1,8 @@
-﻿namespace NewLaserProject.Classes
+﻿using System;
+
+namespace NewLaserProject.Classes
 {
-    internal interface ISettingsManager<TSettings>
+    internal interface ISettingsManager<TSettings>: IObservable<TSettings>, IDisposable
     {
         TSettings Settings { get; }
         void Save();

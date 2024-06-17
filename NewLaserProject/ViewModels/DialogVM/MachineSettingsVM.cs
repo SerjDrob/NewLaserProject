@@ -13,8 +13,6 @@ using HandyControl.Tools.Extension;
 using MachineControlsLibrary.CommonDialog;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Views;
-using NewLaserProject.Views.Dialogs;
 using PropertyChanged;
 
 namespace NewLaserProject.ViewModels.DialogVM

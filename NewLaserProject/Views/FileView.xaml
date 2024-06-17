@@ -13,6 +13,21 @@
              MinHeight="300"
              >
     <Grid>
+        <!--<Grid.ContextMenu>
+            <ContextMenu Style="{StaticResource ContextMenuBaseStyle}" Background="Transparent">
+                <MenuItem Header="Вырезать">
+                    <MenuItem.Icon>
+                        <Path Data="{StaticResource ScissorGeometry}" Stretch="Uniform" 
+                              Fill="{StaticResource PrimaryTextBrush}" 
+                              RenderTransformOrigin="0.5 0.5">
+                            <Path.RenderTransform>
+                                <ScaleTransform ScaleY="-1"/>
+                            </Path.RenderTransform>
+                        </Path>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </ContextMenu>
+        </Grid.ContextMenu>-->
         <StackPanel Orientation="Horizontal"
                     Margin="10,30"
                     Panel.ZIndex="100"

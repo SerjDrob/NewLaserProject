@@ -8,39 +8,100 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <ScaleTransform x:Key="ImageScale" ScaleX="-1" ScaleY="-1"/>
+        <ScaleTransform x:Key="ImageScale" ScaleX="-2" ScaleY="-2"/>
         <ControlTemplate x:Key="ResizeDecoratorTemplate" TargetType="{x:Type Control}">
             <Grid>
-                <s:ResizeThumb Height="3" Width="7" Cursor="SizeNS" Opacity="0"
+                <s:ResizeThumb Height="5" Width="10" Cursor="SizeNS" Opacity="0"
                        VerticalAlignment="Top" HorizontalAlignment="Center"/>
-                <s:ResizeThumb Width="3" Height="7" Cursor="SizeWE" Opacity="0"
+                <s:ResizeThumb Width="5" Height="10" Cursor="SizeWE" Opacity="0"
                        VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                <s:ResizeThumb Width="3" Height="7" Cursor="SizeWE" Opacity="0"
+                <s:ResizeThumb Width="5" Height="10" Cursor="SizeWE" Opacity="0"
                        VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                <s:ResizeThumb Height="3" Width="7" Cursor="SizeNS" Opacity="0"
+                <s:ResizeThumb Height="5" Width="10" Cursor="SizeNS" Opacity="0"
                        VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+            </Grid>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="Resize2DecoratorTemplate" TargetType="{x:Type Control}">
+            <Grid>
+                <s:ResizeThumb2 Height="5" Width="10" Cursor="SizeNS" Opacity="0"
+               VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                <s:ResizeThumb2 Width="5" Height="10" Cursor="SizeWE" Opacity="0"
+               VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <s:ResizeThumb2 Width="5" Height="10" Cursor="SizeWE" Opacity="0"
+               VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <s:ResizeThumb2 Height="5" Width="10" Cursor="SizeNS" Opacity="0"
+               VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+
+                <s:ResizeThumb2 Width="10" Height="10" Cursor="SizeNWSE"  Opacity="0"
+                                VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+            </Grid>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="RotateDecoratorTemplate" TargetType="{x:Type Control}">
+            <Grid>
+                <s:RotateThumb Width="5" Height="10" Cursor="SizeNS" Opacity="0"
+                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
             </Grid>
         </ControlTemplate>
 
         <!-- Designer Item Template-->
         <ControlTemplate x:Key="DesignerItemTemplate" TargetType="ContentControl">
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Control Template="{StaticResource ResizeDecoratorTemplate}"/>
                 <ContentPresenter Content="{TemplateBinding ContentControl.Content}"/>
+                <Control Template="{StaticResource ResizeDecoratorTemplate}"/>
+            </Grid>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="DesignerItemTemplate2" TargetType="ContentControl">
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <ContentPresenter Content="{TemplateBinding ContentControl.Content}"/>
+                <Control Template="{StaticResource Resize2DecoratorTemplate}"/>
+            </Grid>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="DesignerItemTemplate3" TargetType="ContentControl">
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <ContentPresenter Content="{TemplateBinding ContentControl.Content}"/>
+                <Control Template="{StaticResource RotateDecoratorTemplate}"/>
             </Grid>
         </ControlTemplate>
 
     </UserControl.Resources>
     <Grid>
         <Border Background="{DynamicResource RegionBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
-            <Grid>
-                <Button Content="Снимок" 
+            <Grid ClipToBounds="True">
+                <Grid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="Red"/>
+                        <Setter Property="FontSize" Value="16"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                    </Style>
+                </Grid.Resources>
+                <TextBlock Text='"S" - снимок' 
                         Visibility="{Binding SnapShotButtonVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
-                        Command="{Binding OpenTargetWindowCommand}"
                         HorizontalAlignment="Left"
+                        Margin="20"
                         VerticalAlignment="Top"
                         Panel.ZIndex="10"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                           VerticalAlignment="Top"
+                           Margin="20"
+                           Panel.ZIndex="10">
 
+                    <TextBlock Text="D = " Foreground="GreenYellow"/>
+                    <TextBlock Foreground="Red" FontSize="16" FontWeight="Bold">
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{StaticResource SizeChangedEventArgsConverter}">
+                                <Binding ElementName="VideoCamera" Path="ActualHeight"/>
+                                <Binding ElementName="TheTarget" Path="ActualHeight"/>
+                                <Binding RelativeSource="{RelativeSource AncestorType=UserControl, Mode=FindAncestor}" Path="DataContext.CameraScale"/>
+                                <Binding Source="{StaticResource ImageScale}"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock Text=" мкм"/>
+                </StackPanel>
                 <Image x:Name="VideoCamera" 
                        Panel.ZIndex="1" 
                        Source="{Binding CameraImage}"
@@ -58,15 +119,15 @@
                     </i:Interaction.Triggers>
                 </Image>
                 <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1" UseLayoutRounding="True">
-                    <Line Stroke="Red" Fill="Red" SnapsToDevicePixels="True"
+                    <Line Stroke="LawnGreen" Fill="LawnGreen" SnapsToDevicePixels="True"
                                               StrokeThickness="1" 
-                                              X1="-25" X2="25" Y1="0" Y2="0" 
+                                              X1="-200" X2="200" Y1="0" Y2="0" 
                                               Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                               Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                               />
-                    <Line Stroke="Red" Fill="Red" SnapsToDevicePixels="True"
+                    <Line Stroke="LawnGreen" Fill="LawnGreen" SnapsToDevicePixels="True"
                                               StrokeThickness="1" 
-                                              X1="0" X2="0" Y1="-25" Y2="25" 
+                                              X1="0" X2="0" Y1="-200" Y2="200" 
                                               Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                               Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                                               >
@@ -74,28 +135,115 @@
                 </Canvas>
                 <Canvas Panel.ZIndex="1" UseLayoutRounding="True" ClipToBounds="True">
                     <ContentControl 
-                        Width="25"
                         MinWidth="20"
-                        Height="25"
                         MinHeight="20"
+                        Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Height}"
                         SnapsToDevicePixels="True"
                         Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                         Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
                         Template="{StaticResource DesignerItemTemplate}">
+                        <ContentControl.Height>
+                            <MultiBinding Converter="{StaticResource TargetHeightConverter}" Mode="TwoWay">
+                                <Binding ElementName="VideoCamera" Path="ActualHeight"/>
+                                <Binding RelativeSource="{RelativeSource AncestorType=UserControl, Mode=FindAncestor}" Mode="TwoWay" Path="DataContext.TargetHeight"/>
+                                <Binding RelativeSource="{RelativeSource AncestorType=UserControl, Mode=FindAncestor}" Path="DataContext.CameraScale"/>
+                            </MultiBinding>
+                        </ContentControl.Height>
 
-                        <Grid>
+                        <Grid x:Name="TheTarget" SnapsToDevicePixels="True">
                             <Ellipse Stroke="Red" StrokeThickness="1" SnapsToDevicePixels="True" IsHitTestVisible="False"/>
-                            <Rectangle Width="1" Stroke="Yellow" Fill="Yellow" SnapsToDevicePixels="True" VerticalAlignment="Stretch"/>
-                            <Rectangle Height="1" Stroke="Yellow" Fill="Yellow" SnapsToDevicePixels="True" HorizontalAlignment="Stretch"/>
                         </Grid>
+
                         <ContentControl.RenderTransform>
-                            <TranslateTransform
+                            <TransformGroup>
+                                <TranslateTransform
                                     X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
                                     Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
                                     />
+                                <ScaleTransform ScaleX="{Binding TargetScale}" ScaleY="{Binding TargetScale}"/>
+
+                            </TransformGroup>
                         </ContentControl.RenderTransform>
                     </ContentControl>
+
+
+                    <!--<ContentControl     MinWidth="20"
+                                        MinHeight="20"
+                                        Width="25"
+                                        Height="25"
+                                        SnapsToDevicePixels="True"
+                                        Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                        Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                        Template="{StaticResource DesignerItemTemplate2}">
+                        
+                        <Grid x:Name="TheTarget2" SnapsToDevicePixels="True">
+                            <Rectangle Stroke="Red" StrokeThickness="1"/>
+                        </Grid>
+
+                        <ContentControl.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                                    Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                                    />
+                                <ScaleTransform ScaleX="{Binding TargetScale}" ScaleY="{Binding TargetScale}"/>
+                            </TransformGroup>
+                        </ContentControl.RenderTransform>
+                    </ContentControl>-->
+
+
+
+
+
+
+                    <!--<ContentControl MinWidth="400"
+                                    MinHeight="400"
+                                    RenderTransformOrigin="0.5 0.5"
+                                    SnapsToDevicePixels="True"
+                                    Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                    Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                                    Template="{StaticResource DesignerItemTemplate3}">
+
+                        <Grid x:Name="CrossTarget" SnapsToDevicePixels="True">
+                            <Canvas VerticalAlignment="Stretch" Panel.ZIndex="1" UseLayoutRounding="True">
+                                <Line Stroke="LawnGreen" Fill="LawnGreen" SnapsToDevicePixels="True"
+                              StrokeThickness="1" 
+                              X1="-200" X2="200" Y1="0" Y2="0" 
+                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              />
+                                <Line Stroke="LawnGreen" Fill="LawnGreen" SnapsToDevicePixels="True"
+                              StrokeThickness="1" 
+                              X1="0" X2="0" Y1="-200" Y2="200" 
+                              Canvas.Left="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              Canvas.Top="{Binding RelativeSource={RelativeSource AncestorType=Canvas, Mode=FindAncestor}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=2}" 
+                              >
+                                </Line>
+                            </Canvas>
+                        </Grid>
+
+                        <ContentControl.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                Y="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=-2}"
+                                />
+                                <ScaleTransform ScaleX="{Binding TargetScale}" ScaleY="{Binding TargetScale}"/>
+                            </TransformGroup>
+                        </ContentControl.RenderTransform>
+                    </ContentControl>-->
+
+
+
+
+
+
+
+
+
+
+
+
                 </Canvas>
+                
                 <Canvas x:Name="ScaleMarkers" Panel.ZIndex="1" 
                         Visibility="{Binding Converter={StaticResource Boolean2VisibilityConverter}, 
                         Path=TeachScaleMarkerEnable}"

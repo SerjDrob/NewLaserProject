@@ -31,6 +31,8 @@ namespace NewLaserProject
         public static string TeachingDeformation => Path.Combine(SettingsFolder, "TeachingDeformation.json");
         public static string MarkTextParams => Path.Combine(SettingsFolder, "MarkTextParams.json");
         public static string LaserMachineSettings => Path.Combine(SettingsFolder, "LaserMachineSettings.json");
+        public static string CoefLineX => Path.Combine(SettingsFolder, "CoefLineX.json");
+        public static string CoefLineY => Path.Combine(SettingsFolder, "CoefLineY.json");
         public static string Applog => Path.Combine(TempFolder, "app.log");
         public static string SerilogFile => Path.Combine(TempFolder, "serilog.log");
 

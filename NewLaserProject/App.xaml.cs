@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using AutoMapper;
+using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Markers;
 using MachineClassLibrary.Laser.Parameters;
@@ -48,11 +49,11 @@ namespace NewLaserProject
         {
             get; private set;
         }
-        [DllImport("Kernel32")]
-        public static extern void AllocConsole();
+        //[DllImport("Kernel32")]
+        //public static extern void AllocConsole();
 
-        [DllImport("Kernel32")]
-        public static extern void FreeConsole();
+        //[DllImport("Kernel32")]
+        //public static extern void FreeConsole();
         public App()
         {
             var machineconfigs = ExtensionMethods
@@ -176,38 +177,25 @@ namespace NewLaserProject
             _principleLogger.ForContext<App>().Fatal(e.Exception, "An unhandled Exception was thrown");
             _principleLogger.ForContext<MicroProcess>().Fatal(e.Exception, RepoSink.Failed, RepoSink.App);
             //await _workTimeLogger.LogAppFailed(e.Exception);
+            _principleLogger.Information(e.Exception, RepoSink.Failed, RepoSink.App);
+            var motionDevice = _provider.GetRequiredService<IMotionDevicePCI1240U>();
+            motionDevice.CloseDevice();
         }
+
+        private ServiceProvider _provider;
         private Serilog.ILogger _principleLogger;
         //private WorkTimeLogger _workTimeLogger;
         protected override async void OnStartup(StartupEventArgs e)//TODO Bad 
         {
-            //AllocConsole();
 
-            var provider = MainIoC.BuildServiceProvider();
-            //var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
-            //_principleLogger = loggerProvider.CreateLogger("AppLogger");
-            //_workTimeLogger = provider.GetRequiredService<WorkTimeLogger>();
-            //await _workTimeLogger.LogAppStarted(); 
-
-
-            _principleLogger = provider.GetRequiredService<Serilog.ILogger>();
-
-
-            //_principleLogger.ForContext<MicroProcess>().Information(RepoSink.Start, RepoSink.App);
-
+            _provider = MainIoC.BuildServiceProvider();
+            _principleLogger = _provider.GetRequiredService<Serilog.ILogger>();
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
-            var viewModel = provider.GetService<MainViewModel>();
-            var context = provider.GetService<DbContext>() as LaserDbContext;
-            var worktimeContext = provider.GetService<WorkTimeDbContext>();
-
-
+            var viewModel = _provider.GetService<MainViewModel>();
+            var context = _provider.GetService<DbContext>() as LaserDbContext;
+            var worktimeContext = _provider.GetService<WorkTimeDbContext>();
             context?.LoadSetsAsync();
-
-            /*
-            Trace.TraceInformation("The application started");
-            Trace.Flush();
-            */
             var mainView = new MainView()
             {
                 DataContext = viewModel
@@ -233,7 +221,9 @@ namespace NewLaserProject
                 location.BackupDatabase(destination);
             }
             //await _workTimeLogger.LogAppStopped();
-
+            _principleLogger.Information(RepoSink.End, RepoSink.App);
+            var motionDevice = _provider.GetRequiredService<IMotionDevicePCI1240U>();
+            motionDevice.CloseDevice();
         }
 
         protected override void OnDeactivated(EventArgs e)

@@ -8,7 +8,8 @@ using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser.Entities;
 using NewLaserProject.Classes;
 using Stateless;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace NewLaserTest
 {
@@ -295,8 +296,9 @@ namespace NewLaserTest
             }
 
             var point = wafer[0];
-            Assert.AreEqual(point.X, x2, 0.0001);
-            Assert.AreEqual(point.Y, y2, 0.0001);
+            ClassicAssert.AreEqual(point.X, x2, 0.0001);
+            ClassicAssert.AreEqual(point.Y, y2, 0.0001);
+            
         }
         public enum Transformation
         {
