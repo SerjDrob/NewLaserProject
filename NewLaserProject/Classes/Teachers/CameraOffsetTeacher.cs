@@ -92,15 +92,16 @@ namespace NewLaserProject.Classes
             _newOffset = _newOffset.init ? (false, _newOffset.dx - ps[0], _newOffset.dy - ps[1]) : (true, ps[0], ps[1]);
         }
         //public (double dx, double dy) GetOffset() => (_newOffset.dx,_newOffset.dy);
-
-        public double[] GetParams()
-        {
-            return new double[] { _newOffset.dx, _newOffset.dy };
-        }
+        public double[] GetParams() => [_newOffset.dx, _newOffset.dy];
 
         public async Task StartTeach()
         {
             await _stateMachine.ActivateAsync();
+        }
+
+        public void SetResult(double result)
+        {
+            throw new NotImplementedException();
         }
 
         public class CameraBiasTeacherBuilder

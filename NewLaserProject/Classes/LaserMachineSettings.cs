@@ -1,4 +1,7 @@
-﻿internal class LaserMachineSettings
+﻿using System.Collections;
+using System.Collections.Generic;
+
+internal class LaserMachineSettings
 {
     public double? XVelLow { get; set; }
     public double? XVelHigh { get; set; }
@@ -49,4 +52,8 @@
     public double? XHomeVelLow { get; set; }
     public double? YHomeVelLow { get; set; }
     public double? ZHomeVelLow { get; set; }
+    public List<OffsetPoint>? OffsetPoints { get; set; }
+
 }
+
+public record OffsetPoint(double X, double Y, double dx, double dy);

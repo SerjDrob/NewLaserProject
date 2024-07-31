@@ -1,14 +1,4 @@
-﻿using MachineClassLibrary.Classes;
-using MachineClassLibrary.GeometryUtility;
-using MachineClassLibrary.Laser;
-using MachineClassLibrary.Laser.Entities;
-using MachineClassLibrary.Machine;
-using Microsoft.Toolkit.Diagnostics;
-using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Classes;
-using NewLaserProject.Classes.Teachers;
-using NewLaserProject.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -16,15 +6,22 @@ using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using MsgBox = HandyControl.Controls.MessageBox;
-using Growl = HandyControl.Controls.Growl;
 using HandyControl.Data;
-using Dialog = HandyControl.Controls.Dialog;
 using HandyControl.Tools.Extension;
-using NewLaserProject.ViewModels.DialogVM;
-using NewLaserProject.Views.Dialogs;
-using MachineControlsLibrary.CommonDialog;
+using MachineClassLibrary.Classes;
+using MachineClassLibrary.GeometryUtility;
+using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
+using MachineClassLibrary.Machine;
+using MachineControlsLibrary.CommonDialog;
+using Microsoft.Toolkit.Diagnostics;
+using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Classes;
+using NewLaserProject.Classes.Teachers;
+using NewLaserProject.ViewModels.DialogVM;
+using Dialog = HandyControl.Controls.Dialog;
+using Growl = HandyControl.Controls.Growl;
+using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
 {
@@ -44,18 +41,18 @@ namespace NewLaserProject.ViewModels
         {
             try
             {
-               
-                _startTeachTrigger ??=  _appStateMachine.SetTriggerParameters<Teacher>(AppTrigger.StartLearning); 
-                await _appStateMachine.FireAsync( _startTeachTrigger, teacher);
+
+                _startTeachTrigger ??= _appStateMachine.SetTriggerParameters<Teacher>(AppTrigger.StartLearning);
+                await _appStateMachine.FireAsync(_startTeachTrigger, teacher);
             }
             catch (Exception ex)
             {
 
                 throw;
             }
-           
+
         }
-               
+
         private async Task<ITeacher> TeachCameraOffsetAsync()
         {
             //if(_canTeach) return;
@@ -74,19 +71,20 @@ namespace NewLaserProject.ViewModels
             var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
             var zCamera = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
             var zLaser = _settingsManager.Settings.ZeroPiercePoint ?? throw new ArgumentNullException("ZeroPiercePoint is null");
-            var waferThickness = WaferThickness;            
+            var waferThickness = WaferThickness;
+            _settingsManager.Settings.OffsetPoints ??= new List<OffsetPoint>();
             var tcb = CameraOffsetTeacher.GetBuilder();
 
             tcb.SetOnGoLoadPointAction(() => Task.Run(async () =>
             {
                 StepIndex++;
                 _laserMachine.SetVelocity(Velocity.Service);
-                await _laserMachine.GoThereAsync(LMPlace.Loading);                
+                await _laserMachine.GoThereAsync(LMPlace.Loading);
                 Growl.Info(new GrowlInfo
                 {
-                    Message= "Установите подложку и нажмите * чтобы продолжить",
-                    ShowDateTime=false,
-                    StaysOpen=true
+                    Message = "Установите подложку и нажмите * чтобы продолжить",
+                    ShowDateTime = false,
+                    StaysOpen = true
                 });
             }))
                 .SetOnGoUnderCameraAction(async () =>
@@ -113,8 +111,8 @@ namespace NewLaserProject.ViewModels
                     _laserMachine.SetVelocity(Velocity.Service);
                     await Task.WhenAll(
                             //_laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
-                            _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset,true),
-                            _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset,true),
+                            _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true),
+                            _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset, true),
                             _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - waferThickness)
                             );
 
@@ -149,7 +147,7 @@ namespace NewLaserProject.ViewModels
                     //for(var i=0; i<25; i++) await _laserMachine.PierceCircleAsync(0.05);
 
 
-                    _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                    _currentTeacher.SetParams(_laserMachine.GetAxActual(Ax.X), _laserMachine.GetAxActual(Ax.Y));
                     await Task.WhenAll(
                              _laserMachine.MoveAxRelativeAsync(Ax.X, -xOffset, true),
                              _laserMachine.MoveAxRelativeAsync(Ax.Y, -yOffset, true),
@@ -159,7 +157,7 @@ namespace NewLaserProject.ViewModels
                 })
                 .SetOnSearchScorchAction(() =>
                 {
-                    StepIndex++;                    
+                    StepIndex++;
                     Growl.Info(new GrowlInfo
                     {
                         Message = "Совместите место прожига с перекрестием камеры и нажмите * чтобы продолжить",
@@ -181,7 +179,8 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(async () =>
                 {
-                    _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                    _currentTeacher.SetParams(_laserMachine.GetAxActual(Ax.X), _laserMachine.GetAxActual(Ax.Y));
+
                     if (MsgBox.Ask($"Принять новое смещение камеры от объектива лазера {_currentTeacher}?", "Обучение") == MessageBoxResult.OK)
                     {
                         await _currentTeacher.Accept();
@@ -192,13 +191,13 @@ namespace NewLaserProject.ViewModels
                     }
                 }))
                 .SetOnBiasToughtAction(() => Task.Run(() =>
-                {                    
+                {
                     Growl.Warning(new GrowlInfo
                     {
                         Message = "Обучение отменено",
                         ShowDateTime = false,
                         StaysOpen = false
-                    });                    
+                    });
                     TeachingSteps = new();
                     _canTeach = false;
                 }))
@@ -206,7 +205,13 @@ namespace NewLaserProject.ViewModels
                 {
                     _settingsManager.Settings.XOffset = _currentTeacher.GetParams()[0];
                     _settingsManager.Settings.YOffset = _currentTeacher.GetParams()[1];
-                    _settingsManager.Save();                    
+                    _settingsManager.Settings.OffsetPoints.Add(new(
+                        _laserMachine.GetAxActual(Ax.X),
+                        _laserMachine.GetAxActual(Ax.Y),
+                        _currentTeacher.GetParams()[0],
+                        _currentTeacher.GetParams()[1]
+                        ));
+                    _settingsManager.Save();
                     Growl.Info(new GrowlInfo
                     {
                         Message = "Новое значение установлено",
@@ -246,7 +251,7 @@ namespace NewLaserProject.ViewModels
                  _laserMachine.MoveAxInPosAsync(Ax.X, coors[0]),
                  _laserMachine.MoveAxInPosAsync(Ax.Y, coors[1]),
                  _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)).ConfigureAwait(false);
-                                
+
                  Growl.Info(new GrowlInfo
                  {
                      Message = "Выберете место на пластине для прожига горизонтальной линии и нажмите *",
@@ -262,8 +267,8 @@ namespace NewLaserProject.ViewModels
                     var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
 
                     await Task.WhenAll(
-                        _laserMachine.MoveAxRelativeAsync(Ax.X,xOffset,true),
-                        _laserMachine.MoveAxRelativeAsync(Ax.Y,yOffset,true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true),
+                        _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset, true),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser)).ConfigureAwait(false);
 
                     var matrix = new System.Drawing.Drawing2D.Matrix();
@@ -290,7 +295,7 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxRelativeAsync(Ax.Y, -tempY - (_settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null")), true),
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera)
                         ).ConfigureAwait(false);
-                    
+
                     Growl.Info(new GrowlInfo
                     {
                         Message = "Установите перекрестие на первую точку линии и нажмите *",
@@ -338,15 +343,25 @@ namespace NewLaserProject.ViewModels
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(() =>
                 {
                     _currentTeacher.SetParams(XAxis.Position, YAxis.Position);
+                    var result = _currentTeacher.GetParams();
+                    var first = _coorSystem.FromGlobal(result[0], result[1]);
+                    var second = _coorSystem.FromGlobal(result[2], result[3]);
+                    double AC = second[0] - first[0];
+                    double CB = second[1] - first[1];
+                    _angle = Math.Atan2(CB, AC);
+                    var alpha = _angle * 180 / Math.PI;
+                    _currentTeacher.SetResult(alpha);
+
                     if (MsgBox.Ask($"Принять новое значение горизонтальности сканатора {_currentTeacher}?", "Обучение") == MessageBoxResult.OK)
                     {
+
                         _currentTeacher.Accept();
                     }
                     else
                     {
                         _currentTeacher.Deny();
                     }
-                   // Growl.Clear();
+                    // Growl.Clear();
                 }))
                 .SetOnLaserHorizontToughtAction(() => Task.Run(() =>
                 {
@@ -356,15 +371,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
                 {
-                    var result = _currentTeacher.GetParams();
 
-                    var first = _coorSystem.FromGlobal(result[0], result[1]);
-                    var second = _coorSystem.FromGlobal(result[2], result[3]);
-
-                    double AC = second[0] - first[0];
-                    double CB = second[1] - first[1];
-                    _angle =  Math.Atan2(CB, AC);
-                    var alpha = _angle * 180 / Math.PI;
                     //_laserMachine.SetSystemAngle(alpha);
                     _settingsManager.Settings.PazAngle = _angle;
                     _settingsManager.Save();
@@ -373,10 +380,6 @@ namespace NewLaserProject.ViewModels
                 }));
             return tcb.Build();
         }
-        public override string ToString()
-        {
-            return $"A = {_angle}";
-        }
         private async Task<ITeacher> TeachOrthXYAsync()
         {
             //TODO not all transformations are set on default
@@ -384,7 +387,7 @@ namespace NewLaserProject.ViewModels
             WaferTurn90 = false;
             var waferThickness = WaferThickness;
             var zFocus = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
-            
+
             var result = await Dialog.Show<CommonDialog>()
                 .SetDialogTitle("Толщина подложки")
                 .SetDataContext<AskThicknessVM>(vm => vm.Thickness = 0.5d)
@@ -425,7 +428,7 @@ namespace NewLaserProject.ViewModels
                     await Task.WhenAll(
                         _laserMachine.MoveGpInPosAsync(Groups.XY, sys.ToGlobal(point.X, point.Y), true)/*,
                         _laserMachine.MoveAxInPosAsync(Ax.Z, zFocus - waferThickness)*/).ConfigureAwait(false);
-             
+
                     Growl.Info(new GrowlInfo
                     {
                         Message = "Совместите перекрестие визира с ориентиром и нажмите *",
@@ -452,7 +455,7 @@ namespace NewLaserProject.ViewModels
                     {
                         _currentTeacher.Deny();
                     }
-                    
+
                 }))
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(() =>
                 {
@@ -474,7 +477,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnHasResultAction(() => Task.Run(() =>
                 {
-                    TeacherPointerVisibility = false;                    
+                    TeacherPointerVisibility = false;
                     Growl.Clear();
                     var resultPoints = _currentTeacher.GetParams();
 
@@ -545,7 +548,7 @@ namespace NewLaserProject.ViewModels
                 }))
                 .SetOnAskSecondMarkerAction(() => Task.Run(async () =>
                 {
-                    _currentTeacher.SetParams(new double[] { YAxis.Position });
+                    _currentTeacher.SetParams([YAxis.Position]);
                     Growl.Info(new GrowlInfo
                     {
                         Message = "Подведите второй маркер к этому ориентиру и нажмите * чтобы продолжить",
@@ -583,7 +586,7 @@ namespace NewLaserProject.ViewModels
                     _laserMachine.SetVelocity(tempVelocity);
                     _canTeach = false;
                 }));
-            return tcs.Build();            
+            return tcs.Build();
         }
 
 

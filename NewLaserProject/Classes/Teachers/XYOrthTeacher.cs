@@ -99,6 +99,11 @@ namespace NewLaserProject.Classes
             await _stateMachine.ActivateAsync();
         }
 
+        public void SetResult(double result)
+        {
+            throw new NotImplementedException();
+        }
+
         public class XYOrthTeacherBuilder
         {
             public XYOrthTeacherBuilder()

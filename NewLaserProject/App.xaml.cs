@@ -49,8 +49,8 @@ namespace NewLaserProject
         {
             get; private set;
         }
-        //[DllImport("Kernel32")]
-        //public static extern void AllocConsole();
+        [DllImport("Kernel32")]
+        public static extern void AllocConsole();
 
         //[DllImport("Kernel32")]
         //public static extern void FreeConsole();
@@ -59,6 +59,7 @@ namespace NewLaserProject
             var machineconfigs = ExtensionMethods
                 .DeserilizeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs)
                 ?? throw new NullReferenceException("The machine configs are null");
+                    
 
             var settingsManager = new SettingsManager<LaserMachineSettings>(AppPaths.LaserMachineSettings);
             settingsManager.Load();
@@ -187,7 +188,7 @@ namespace NewLaserProject
         //private WorkTimeLogger _workTimeLogger;
         protected override async void OnStartup(StartupEventArgs e)//TODO Bad 
         {
-
+            //AllocConsole();
             _provider = MainIoC.BuildServiceProvider();
             _principleLogger = _provider.GetRequiredService<Serilog.ILogger>();
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;

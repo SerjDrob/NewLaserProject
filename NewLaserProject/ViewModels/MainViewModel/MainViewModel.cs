@@ -366,7 +366,7 @@ namespace NewLaserProject.ViewModels
             {
                 var k = xRatio / yRatio;
                 var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
-                var offset = new[] { -e.x * scale * k, -e.y * scale };
+                var offset = new[] { -e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
                 try
                 {
                     var vel  = _laserMachine.SetVelocity(Velocity.Service);
@@ -411,9 +411,6 @@ namespace NewLaserProject.ViewModels
                         ZAxis = new AxisStateView(Math.Round(e.Position, 3), Math.Round(e.CmdPosition, 3), e.NLmt, e.PLmt, e.MotionDone, e.MotionStart, e.EZ, e.ORG);
                         break;
                 }
-                //MechTableVM?.SetCoordinates(XAxis.Position - 85.876, YAxis.Position - 51.945);
-                var xoffset = _settingsManager.Settings.XOffset ?? 0;
-                var yoffset = _settingsManager.Settings.YOffset ?? 0;
                 MechTableVM?.SetCoordinates(XAxis.Position, YAxis.Position);
             }
             catch (Exception ex)
@@ -468,13 +465,14 @@ namespace NewLaserProject.ViewModels
                 maxAcc = 1000,
                 maxDec = 1000,
                 maxVel = 500,
+                jerk = _settingsManager.Settings.XJerk ?? throw new ArgumentNullException("XJerk is null"), 
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.XHomeReset,
                 acc = _settingsManager.Settings.XAcc ?? throw new ArgumentNullException("XAcc is null"),
                 dec = _settingsManager.Settings.XDec ?? throw new ArgumentNullException("XDec is null"),
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
-                denominator = 100,
+                denominator = 1,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null")
@@ -484,13 +482,14 @@ namespace NewLaserProject.ViewModels
                 maxAcc = 1000,
                 maxDec = 1000,
                 maxVel = 500,
+                jerk = _settingsManager.Settings.YJerk ?? throw new ArgumentNullException("YJerk is null"),
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.YRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.YHomeReset,
                 acc = _settingsManager.Settings.YAcc ?? throw new ArgumentNullException("YAcc is null"),
                 dec = _settingsManager.Settings.YDec ?? throw new ArgumentNullException("YDec is null"),
                 ppu = _settingsManager.Settings.YPPU ?? throw new ArgumentNullException("XAcc is null"),//3993,//Settings.Default.YPPU*2,
-                denominator = 100,
+                denominator = 1,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = _settingsManager.Settings.YHomeVelLow ?? throw new ArgumentNullException("YVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")
@@ -500,6 +499,7 @@ namespace NewLaserProject.ViewModels
                 maxAcc = 180,
                 maxDec = 180,
                 maxVel = 8,
+                jerk = _settingsManager.Settings.ZJerk ?? throw new ArgumentNullException("ZJerk is null"),
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.ZRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.ZHomeReset,
@@ -657,11 +657,11 @@ namespace NewLaserProject.ViewModels
             var yright = _settingsManager.Settings.YRightPoint ?? throw new ArgumentNullException("YRightPoint is null");
             var xoffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
             var yoffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
-            
-            var yline = ExtensionMethods.DeserilizeObject < (double orig, double derived)[] >(AppPaths.CoefLineY);
-            var xline = ExtensionMethods.DeserilizeObject<(double orig, double derived)[]>(AppPaths.CoefLineX);
 
-            
+            var xline = ExtensionMethods.DeserilizeObject<(double orig, double derived)[]>(AppPaths.CoefLineX);
+            var yline = ExtensionMethods.DeserilizeObject<(double orig, double derived)[]>(AppPaths.CoefLineY);
+
+
 
             _xCoeffLine = new CoeffLine(xline);
             _yCoeffLine = new CoeffLine(yline);

@@ -96,6 +96,11 @@ namespace NewLaserProject.Classes
             await _stateMachine.ActivateAsync();
         }
 
+        public void SetResult(double result)
+        {
+            throw new NotImplementedException();
+        }
+
         public class CameraScaleTeacherBuilder
         {
             public CameraScaleTeacher Build()
