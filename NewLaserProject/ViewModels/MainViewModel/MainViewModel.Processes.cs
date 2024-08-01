@@ -236,6 +236,7 @@ namespace NewLaserProject.ViewModels
                     waferThickness: WaferThickness,
                     dX: _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null"),
                     dY: _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null"),
+                    offsetPoints: _settingsManager.Settings.OffsetPoints ?? throw new ArgumentNullException("OffsetPoints is null"),
                     pazAngle: 0,//_settingsManager.Settings.PazAngle ?? throw new ArgumentNullException("PazAngle is null"),//Settings.Default.PazAngle,
                     subject: _subjMediator,
                     baseCoorSystem: _coorSystem,
@@ -310,7 +311,8 @@ namespace NewLaserProject.ViewModels
                         LastProcObjectTimer = CurrentProcObjectTimer;
                         _procObjTempTime = new(0);
                         var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
-                        if (o is not null) ProcessingObjects.Remove(o);
+                        o.Visibility = System.Windows.Visibility.Collapsed;
+                        if (o is not null) ProcessingObjects.Remove(o);//TODO make it thread safe
                         _pierceBlocks.Clear();
                         PierceBlocks.Clear();
                     })

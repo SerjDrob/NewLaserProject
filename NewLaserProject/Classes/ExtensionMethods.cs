@@ -1,16 +1,15 @@
-﻿using AutoMapper;
-using NewLaserProject.Properties;
-using NewLaserProject.ViewModels;
-using NewLaserProject.ViewModels.DialogVM;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AutoMapper;
+using MachineClassLibrary.Classes;
+using MachineClassLibrary.Machine.Machines;
+using NewLaserProject.Properties;
+using NewLaserProject.ViewModels.DialogVM;
+using Newtonsoft.Json;
 
 namespace NewLaserProject.Classes
 {
@@ -49,7 +48,7 @@ namespace NewLaserProject.Classes
         {
             var config = new MapperConfiguration(expr =>
             {
-                expr.CreateMap<MachineSettingsVM,LaserMachineSettings>()
+                expr.CreateMap<MachineSettingsVM, LaserMachineSettings>()
                 .ForMember(dest => dest.ZeroFocusPoint, opt => opt.MapFrom(source => source.ZCamera))
                 .ForMember(dest => dest.ZeroPiercePoint, opt => opt.MapFrom(source => source.ZLaser)); ;
             });
@@ -79,17 +78,17 @@ namespace NewLaserProject.Classes
             machineSettings.YLoad = Settings.Default.YLoad;
             machineSettings.ZCamera = Settings.Default.ZeroFocusPoint;
             machineSettings.ZLaser = Settings.Default.ZeroPiercePoint;
-            machineSettings.XLeftPoint=Settings.Default.XLeftPoint;
-            machineSettings.YLeftPoint=Settings.Default.YLeftPoint;
-            machineSettings.XRightPoint=Settings.Default.XRightPoint;
-            machineSettings.YRightPoint=Settings.Default.YRightPoint;
+            machineSettings.XLeftPoint = Settings.Default.XLeftPoint;
+            machineSettings.YLeftPoint = Settings.Default.YLeftPoint;
+            machineSettings.XRightPoint = Settings.Default.XRightPoint;
+            machineSettings.YRightPoint = Settings.Default.YRightPoint;
         }
         internal static void CopyFromSettings2(this MachineSettingsVM machineSettings, LaserMachineSettings laserMachineSettings)
         {
             var config = new MapperConfiguration(expr =>
             {
                 expr.CreateMap<LaserMachineSettings, MachineSettingsVM>()
-                .ForMember(dest=>dest.ZCamera, opt=>opt.MapFrom(source=>source.ZeroFocusPoint))
+                .ForMember(dest => dest.ZCamera, opt => opt.MapFrom(source => source.ZeroFocusPoint))
                 .ForMember(dest => dest.ZLaser, opt => opt.MapFrom(source => source.ZeroPiercePoint));
             });
             var mapper = new Mapper(config);
@@ -98,7 +97,7 @@ namespace NewLaserProject.Classes
 
         internal static void SerializeObject(this object obj, string filePath)
         {
-            var json = JsonConvert.SerializeObject(obj);          
+            var json = JsonConvert.SerializeObject(obj);
             using var writer = new StreamWriter(filePath, false);
             var l = new TextWriterTraceListener(writer);
             l.WriteLine(json);
@@ -114,6 +113,24 @@ namespace NewLaserProject.Classes
             return new ObservableCollection<T>(en);
         }
         internal static void AddSubscriptionTo(this IDisposable subscription, IList<IDisposable> subscriptions) => subscriptions?.Add(subscription);
+
+
+        internal static void GetOffsetByCurCoor(this IEnumerable<OffsetPoint> offsetPoints, double curX, double curY, ref double xOffset, ref double yOffset)
+        {
+            try
+            {
+                var sortResult = offsetPoints
+                                .OrderBy(x => Math.Abs(x.X - curX))
+                                .ThenBy(y => Math.Abs(y.Y - curY))
+                                .First();
+                if (sortResult != null)
+                {
+                    xOffset = sortResult.dx;
+                    yOffset = sortResult.dy;
+                }
+            }
+            catch (Exception) { }
+        }
     }
-    
+
 }

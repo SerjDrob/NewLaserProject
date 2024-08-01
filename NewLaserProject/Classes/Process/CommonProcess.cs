@@ -39,8 +39,9 @@ namespace NewLaserProject.Classes.Process
         private readonly double _zeroZPiercing;
         private readonly double _zeroZCamera;
         private double _waferThickness;
-        private readonly double _dX;
-        private readonly double _dY;
+        private double _dX;
+        private double _dY;
+        private readonly IEnumerable<OffsetPoint> _offsetPoints;
         private readonly double _pazAngle;
         private readonly double _waferAngle;
         private readonly Scale _scale;
@@ -64,7 +65,7 @@ namespace NewLaserProject.Classes.Process
         public CommonProcess(IEnumerable<(IEnumerable<IProcObject> procObjects, MicroProcess microProcess)> processing,
                LaserWafer wafer, LaserMachine laserMachine,
                double zeroZPiercing, double zeroZCamera, double waferThickness,
-               double dX, double dY, double pazAngle,
+               double dX, double dY, IEnumerable<OffsetPoint> offsetPoints, double pazAngle,
                ISubject<IProcessNotify> subject, ICoorSystem<LMPlace> baseCoorSystem,
                bool underCamera, FileAlignment aligningPoints, double waferAngle, Scale scale)
         {
@@ -75,6 +76,7 @@ namespace NewLaserProject.Classes.Process
             _waferThickness = waferThickness;
             _dX = dX;
             _dY = dY;
+            _offsetPoints = offsetPoints;
             _pazAngle = pazAngle;
             _subject = subject;
             _pureCoorSystem = new PureCoorSystem<LMPlace>(baseCoorSystem.GetMainMatrixElements().GetMatrix3());
@@ -180,11 +182,15 @@ namespace NewLaserProject.Classes.Process
                                     {
                                         var y = _yCoeffLine[position[1]];
                                         var x = _xCoeffLine[position[0]];
+                                        _offsetPoints.GetOffsetByCurCoor(x, y, ref _dX, ref _dY);
+                                        x = _underCamera ? x : x + _dX;
+                                        y = _underCamera ? y : y + _dY;
+
                                         var precise = true;
                                         await Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.Y, y, precise),
-                                                           _laserMachine.MoveAxInPosAsync(Ax.X, x, precise),
-                                                           Task.Run(async () => { if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness); })
-                                                           );
+                                                           _laserMachine.MoveAxInPosAsync(Ax.X, x, precise));//.ConfigureAwait(false);
+                                        if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness);//.ConfigureAwait(false);
+
                                     }
                                     catch (MotionException ex) when (ex.MotionExStatus == MotionExStatus.AccuracyNotReached)
                                     {
@@ -200,7 +206,7 @@ namespace NewLaserProject.Classes.Process
                                     {
                                         try
                                         {
-                                            await item.microProcess.InvokePierceFunctionForObjectAsync(procObject);
+                                            await item.microProcess.InvokePierceFunctionForObjectAsync(procObject);//.ConfigureAwait(false);
                                         }
                                         catch (MarkerException ex)
                                         {
@@ -257,7 +263,8 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                    var dbly = _laserMachine.GetAxActual(Ax.Y);
                    var x = (float)(dblx + (_underCamera ? 0 : _dX));
                    var y = (float)(dbly + (_underCamera ? 0 : _dY));
-                   resultPoints.Add(new(x, y));
+                   //resultPoints.Add(new(x, y));
+                   resultPoints.Add(new((float)dblx, (float)dbly));
                    _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                    _subject.OnNext(new SnapNotAlowed());
                    if (resultPoints.Count == properPointsCount(_fileAlignment))
@@ -281,7 +288,8 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                                .UseYCoeffLine(_yCoeffLine)
                                .FormWorkMatrix(-1, -1)// TODO fix it
                                .Build(),
-                           FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
+                           //FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
+                           FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera),
                            _ => throw new InvalidOperationException()
                        };
                        //_matrixAngle = coorSys.GetMatrixAngle2();
@@ -329,7 +337,8 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                         //item.SetEntityAngle(_waferAngle - _pazAngle);
                         item.SetEntityAngle(-_waferAngle);
                     }
-                    await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
+                    //await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
+                    await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera));
                 })
                 .Permit(Trigger.Next, State.Working);
 

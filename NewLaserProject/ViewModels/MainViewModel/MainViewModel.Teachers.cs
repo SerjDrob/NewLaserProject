@@ -109,6 +109,8 @@ namespace NewLaserProject.ViewModels
                 {
                     Growl.Clear();
                     _laserMachine.SetVelocity(Velocity.Service);
+                    GetPropOffsets(ref xOffset, ref yOffset);
+
                     await Task.WhenAll(
                             //_laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
                             _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true),
@@ -154,6 +156,29 @@ namespace NewLaserProject.ViewModels
                              _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                              );
                     await _currentTeacher.Accept();
+
+                    void GetPropOffsets(ref double xOffset, ref double yOffset)
+                    {
+                        var curX = _laserMachine.GetAxActual(Ax.X);
+                        var curY = _laserMachine.GetAxActual(Ax.Y);
+
+                        try
+                        {
+                            var sortResult = _settingsManager.Settings.OffsetPoints
+                                            .OrderBy(x => Math.Abs(x.X - curX))
+                                            .ThenBy(y => Math.Abs(y.Y - curY))
+                                            .First();
+                            if (sortResult != null)
+                            {
+                                xOffset = sortResult.dx;
+                                yOffset = sortResult.dy;
+                            }
+                        }
+                        catch (Exception) {}
+
+                        //xOffset = _settingsManager.Settings.OffsetPoints.MinBy(x => Math.Abs(x.X - curX))?.dx ?? xOffset;
+                        //yOffset = _settingsManager.Settings.OffsetPoints.MinBy(y => Math.Abs(y.Y - curY))?.dy ?? yOffset;
+                    }
                 })
                 .SetOnSearchScorchAction(() =>
                 {

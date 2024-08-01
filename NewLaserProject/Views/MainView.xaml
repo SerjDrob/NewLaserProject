@@ -792,9 +792,13 @@
                                               SelectionChanged="DataGrid_SelectionChanged"
                                               Visibility="{Binding IsProcessPanelVisible, Converter={StaticResource Boolean2VisibilityConverter}}"
                                               >
+                                                    <DataGrid.RowStyle>
+                                                        <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource DataGridRowStyle.Small}">
+                                                            <Setter Property="Visibility" Value="{Binding Visibility}"/>
+                                                        </Style>
+                                                    </DataGrid.RowStyle>
                                                     <DataGrid.Columns>
                                                         <DataGridTextColumn IsReadOnly="True" Width="80" CanUserResize="False" Binding="{Binding Index}" Header="№"/>
-
                                                         <DataGridTextColumn Header="Слой" Binding="{Binding ProcObject.LayerName}"/>
                                                         <DataGridTemplateColumn Header="Тип">
                                                             <DataGridTemplateColumn.CellTemplate>
