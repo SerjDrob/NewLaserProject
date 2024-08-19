@@ -135,7 +135,12 @@ namespace NewLaserProject.ViewModels.DialogVM
         [DisplayName("Штриховать среднюю линию")]
         [Browsable(false)]
         public bool HatchAverageLine { get; set; } = true;
-        
+
+        [Category("Параметры штриховки")]
+        [DisplayName("Начальный угол штриховки")]
+        [Browsable(true)]
+        public double HatchAngle { get; set; } = 0d;
+
         [Category("Параметры штриховки")]
         [DisplayName("Шаг штриховки, мкм")]
         [Editor(typeof(NumberPropertyEditor2),typeof(PropertyEditorBase))]
@@ -225,7 +230,7 @@ namespace NewLaserProject.ViewModels.DialogVM
                                     EndComp, AccDist, PointTime, PulsePointMode, PulseNum, FlySpeed);
 
             var hatch = new HatchParams(EnableContour, ParamIndex, EnableHatch, PenNo, HatchType, HatchAllCalc,
-                                        HatchEdge, HatchAverageLine, HatchLineDist, HatchEdgeDist, HatchStartOffset, HatchEndOffset,
+                                        HatchEdge, HatchAverageLine, HatchAngle, HatchLineDist, HatchEdgeDist, HatchStartOffset, HatchEndOffset,
                                         HatchLineReduction, HatchLoopDist, EdgeLoop, HatchLoopRev, HatchAutoRotate, HatchRotateAngle, 
                                         HatchAttribute, HatchContourFirst);
 

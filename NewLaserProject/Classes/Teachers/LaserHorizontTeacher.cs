@@ -12,6 +12,7 @@ namespace NewLaserProject.Classes
     {
         private StateMachine<MyState, MyTrigger> _stateMachine;
         private List<double> _points = new();
+        private double _result;
 
         public event EventHandler TeachingCompleted;
 
@@ -74,7 +75,12 @@ namespace NewLaserProject.Classes
         public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);
         public async Task Deny() => await _stateMachine.FireAsync(MyTrigger.Deny);
 
-        public double[] GetParams() => _points.ToArray();                   
+        public double[] GetParams() => _points.ToArray();   
+        public void SetResult(double result) => _result = result;
+        public override string ToString()
+        {
+            return $"α = {_result}º";
+        }
 
         public void SetParams(params double[] ps)
         {

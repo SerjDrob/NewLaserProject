@@ -17,8 +17,8 @@ namespace NewLaserProject.ViewModels
         public double WaferOriginY { get; set; } = 17;
         public double LaserOriginX => 0;
         public double LaserOriginY => 0;
-        public void SetCoordinates(double x, double y) => (TableX, TableY) = (x, y);
-        public void SetOffsets(double dx, double dy) => (CameraLaserOffsetX, CameraLaserOffsetY) = (dx, dy);
-        public void SetTableOrigin(double orgX, double orgY) => (TableOriginX, TableOriginY) = (orgX, orgY);
+        public void SetCoordinates(double x, double y) => (TableX, TableY) = (-x, -y);
+        public void SetOffsets(double dx, double dy) => (CameraLaserOffsetX, CameraLaserOffsetY) = (-dx, dy);
+        public void SetTableOrigin(double orgX, double orgY) => (TableOriginX, TableOriginY) = (-orgX, -orgY);
     }
 }

@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <ScaleTransform x:Key="ImageScale" ScaleX="-2" ScaleY="-2"/>
+        <ScaleTransform x:Key="ImageScale" ScaleX="2" ScaleY="2"/>
         <ControlTemplate x:Key="ResizeDecoratorTemplate" TargetType="{x:Type Control}">
             <Grid>
                 <s:ResizeThumb Height="5" Width="10" Cursor="SizeNS" Opacity="0"

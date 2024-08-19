@@ -47,7 +47,7 @@ namespace NewLaserProject.Classes.Process
                     PierceBlock p => FuncForPierseBlockAsync(p.MarkParams),
                     DelayBlock d => FuncForDelayBlockAsync(d.DelayTime),
                     _ => Task.CompletedTask
-                });
+                });//.ConfigureAwait(false);
             }
         }
 

@@ -12,5 +12,6 @@ namespace NewLaserProject.Classes
         event EventHandler TeachingCompleted;
         void SetParams(params double[] ps);
         double[] GetParams();
+        void SetResult(double result);
     }
 }

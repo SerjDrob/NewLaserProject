@@ -69,7 +69,7 @@
                                   Minimum="50"
                                   Maximum="2000"
                                  />
-                    <hc:NumericUpDown Value="{Binding PWMDutyCycle}" hc:TitleElement.Title="Скважность, %"
+                    <hc:NumericUpDown Value="{Binding PWMDutyCycle}" hc:TitleElement.Title="Коэф. заполнения, %"
                                   Increment="1"
                                   Minimum="1"
                                   Maximum="100"
@@ -133,6 +133,11 @@
 
                         <TextBlock DockPanel.Dock="Left" Text="Проходить сначала контур"/>
                     </DockPanel>
+                    <hc:NumericUpDown Value="{Binding HatchAngle}" hc:TitleElement.Title="Начальный угол штриховки, град."
+                                      Increment="1"
+                                      Minimum="0"
+                                      Maximum="180"
+                                      />
                     <DockPanel>
                         <ToggleButton   Style="{StaticResource ToggleButtonSwitch}"
                                         IsChecked="{Binding HatchAutoRotate}"

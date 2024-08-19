@@ -39,8 +39,9 @@ namespace NewLaserProject.Classes.Process
         private readonly double _zeroZPiercing;
         private readonly double _zeroZCamera;
         private double _waferThickness;
-        private readonly double _dX;
-        private readonly double _dY;
+        private double _dX;
+        private double _dY;
+        private readonly IEnumerable<OffsetPoint> _offsetPoints;
         private readonly double _pazAngle;
         private readonly double _waferAngle;
         private readonly Scale _scale;
@@ -64,7 +65,7 @@ namespace NewLaserProject.Classes.Process
         public CommonProcess(IEnumerable<(IEnumerable<IProcObject> procObjects, MicroProcess microProcess)> processing,
                LaserWafer wafer, LaserMachine laserMachine,
                double zeroZPiercing, double zeroZCamera, double waferThickness,
-               double dX, double dY, double pazAngle,
+               double dX, double dY, IEnumerable<OffsetPoint> offsetPoints, double pazAngle,
                ISubject<IProcessNotify> subject, ICoorSystem<LMPlace> baseCoorSystem,
                bool underCamera, FileAlignment aligningPoints, double waferAngle, Scale scale)
         {
@@ -75,6 +76,7 @@ namespace NewLaserProject.Classes.Process
             _waferThickness = waferThickness;
             _dX = dX;
             _dY = dY;
+            _offsetPoints = offsetPoints;
             _pazAngle = pazAngle;
             _subject = subject;
             _pureCoorSystem = new PureCoorSystem<LMPlace>(baseCoorSystem.GetMainMatrixElements().GetMatrix3());
@@ -86,33 +88,23 @@ namespace NewLaserProject.Classes.Process
             _waferAngle = waferAngle;
             _scale = scale;
             _processing = processing;
-            _yCoeffLine = new((30.028,30.028),
-                (28.678,28.683),(24.578,24.588),(20.478,20.485),(16.378,16.389),
-                (12.278,12.291),(8.178,8.180),(4.078,4.086),(-0.022,-0.016),
-                (-4.122,-4.122),(-8.222,-8.228),(-12.322,-12.325),
-                (-16.422,-16.428),(-20.522,-20.531),(-24.622,-24.630));
-            //_xCoeffLine = new((-61.325, -61.325), (-59.975, -59.973), 
-            //    (-55.875, -55.867), (-51.775, -51.763), (-47.675, -47.659),
-            //    (-43.575, -43.556), (-39.475, -39.458), (-35.375, -35.357), 
-            //    (-31.275, -31.256), (-27.175, -27.160), (-23.075, -23.056), 
-            //    (-18.975, -18.956), (-14.875, -14.856), (-10.775, -10.752), 
-            //    (-6.675, -6.649), (-2.675, -2.647), (-1.325, -1.299));
-            _xCoeffLine = new((0,0), /*(-1.35,-1.352), (-5.35,-5.35), (-5.45,-5.454), (-9.45,-9.449), 
-                (-9.55,-9.555), (-13.55,-13.553), (-13.65,-13.658), (-17.65,-17.653), (-17.75,-17.759), 
-                (-21.75,-21.753), (-21.85,-21.856), (-25.85,-25.856), (-25.95,-25.962), (-29.95,-29.955), (-30.05,-30.057), 
-                (-34.05,-34.05), (-34.15,-34.153), (-38.15,-38.15), (-38.25,-38.255), (-42.25,-42.246), (-42.35,-42.351), 
-                (-46.35,-46.35), (-46.45,-46.456), (-50.45,-50.453), (-50.55,-50.558), (-54.55,-54.555), (-54.65,-54.661), 
-                (-58.65,-58.66),*/ (-60,-60.011),//----------------------
-                (-3.35,-3.359), (-4.55,-4.562), (-5.75,-5.766), (-6.95,-6.965), (-8.15,-8.162), 
-                (-9.35,-9.367), (-10.55,-10.566), (-11.75,-11.767), (-12.95,-12.968), (-14.15,-14.169), 
-                (-15.35,-15.369), (-16.55,-16.569), (-17.75,-17.771), (-18.95,-18.969), (-20.15,-20.167), 
-                (-21.35,-21.37), (-22.55,-22.568), (-23.75,-23.772), (-24.95,-24.972), (-26.15,-26.174),
-                (-27.35,-27.374), (-28.55,-28.572), (-29.75,-29.772), (-30.95,-30.969), (-32.15,-32.166), 
-                (-33.35,-33.37), (-34.55,-34.569), (-35.75,-35.769), (-36.95,-36.968), (-38.15,-38.168), 
-                (-39.35,-39.368), (-40.55,-40.465), (-41.75,-41.766), (-42.95,-42.967), (-44.15,-44.168), 
-                (-45.35,-45.371), (-46.55,-46.570), (-47.75,-47.768), (-48.95,-48.972), (-50.15,-50.172), 
-                (-51.35,-51.372), (-52.55,-52.573), (-53.75,-53.774), (-54.95,-54.977), (-56.15,-56.176), 
-                (-57.35,-57.378));
+            //_yCoeffLine = new((30.028,30.028),
+            //    (28.678,28.683),(24.578,24.588),(20.478,20.485),(16.378,16.389),
+            //    (12.278,12.291),(8.178,8.180),(4.078,4.086),(-0.022,-0.016),
+            //    (-4.122,-4.122),(-8.222,-8.228),(-12.322,-12.325),
+            //    (-16.422,-16.428),(-20.522,-20.531),(-24.622,-24.630));
+            //_xCoeffLine = new((0,0),(-60,-60.011), (-3.35,-3.359), (-4.55,-4.562), (-5.75,-5.766), (-6.95,-6.965), (-8.15,-8.162), 
+            //    (-9.35,-9.367), (-10.55,-10.566), (-11.75,-11.767), (-12.95,-12.968), (-14.15,-14.169), 
+            //    (-15.35,-15.369), (-16.55,-16.569), (-17.75,-17.771), (-18.95,-18.969), (-20.15,-20.167), 
+            //    (-21.35,-21.37), (-22.55,-22.568), (-23.75,-23.772), (-24.95,-24.972), (-26.15,-26.174),
+            //    (-27.35,-27.374), (-28.55,-28.572), (-29.75,-29.772), (-30.95,-30.969), (-32.15,-32.166), 
+            //    (-33.35,-33.37), (-34.55,-34.569), (-35.75,-35.769), (-36.95,-36.968), (-38.15,-38.168), 
+            //    (-39.35,-39.368), (-40.55,-40.465), (-41.75,-41.766), (-42.95,-42.967), (-44.15,-44.168), 
+            //    (-45.35,-45.371), (-46.55,-46.570), (-47.75,-47.768), (-48.95,-48.972), (-50.15,-50.172), 
+            //    (-51.35,-51.372), (-52.55,-52.573), (-53.75,-53.774), (-54.95,-54.977), (-56.15,-56.176), 
+            //    (-57.35,-57.378));
+            _yCoeffLine = new((-200, -200), (200, 200));
+            _xCoeffLine = new((-200, -200), (200, 200));
         }
 
         enum State
@@ -190,11 +182,15 @@ namespace NewLaserProject.Classes.Process
                                     {
                                         var y = _yCoeffLine[position[1]];
                                         var x = _xCoeffLine[position[0]];
+                                        _offsetPoints.GetOffsetByCurCoor(x, y, ref _dX, ref _dY);
+                                        x = _underCamera ? x : x + _dX;
+                                        y = _underCamera ? y : y + _dY;
+
                                         var precise = true;
                                         await Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.Y, y, precise),
-                                                           _laserMachine.MoveAxInPosAsync(Ax.X, x, precise),
-                                                           Task.Run(async () => { if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness); })
-                                                           );
+                                                           _laserMachine.MoveAxInPosAsync(Ax.X, x, precise));//.ConfigureAwait(false);
+                                        if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness);//.ConfigureAwait(false);
+
                                     }
                                     catch (MotionException ex) when (ex.MotionExStatus == MotionExStatus.AccuracyNotReached)
                                     {
@@ -210,7 +206,7 @@ namespace NewLaserProject.Classes.Process
                                     {
                                         try
                                         {
-                                            await item.microProcess.InvokePierceFunctionForObjectAsync(procObject);
+                                            await item.microProcess.InvokePierceFunctionForObjectAsync(procObject);//.ConfigureAwait(false);
                                         }
                                         catch (MarkerException ex)
                                         {
@@ -267,7 +263,8 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                    var dbly = _laserMachine.GetAxActual(Ax.Y);
                    var x = (float)(dblx + (_underCamera ? 0 : _dX));
                    var y = (float)(dbly + (_underCamera ? 0 : _dY));
-                   resultPoints.Add(new(x, y));
+                   //resultPoints.Add(new(x, y));
+                   resultPoints.Add(new((float)dblx, (float)dbly));
                    _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                    _subject.OnNext(new SnapNotAlowed());
                    if (resultPoints.Count == properPointsCount(_fileAlignment))
@@ -287,12 +284,16 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                                .GetTwoPointSystemBuilder()
                                .SetFirstPointPair(originPoints[0], resultPoints[0])
                                .SetSecondPointPair(originPoints[1], resultPoints[1])
-                               .FormWorkMatrix(1, 1)
+                               .UseXCoeffLine(_xCoeffLine)
+                               .UseYCoeffLine(_yCoeffLine)
+                               .FormWorkMatrix(-1, -1)// TODO fix it
                                .Build(),
-                           FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
+                           //FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
+                           FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera),
                            _ => throw new InvalidOperationException()
                        };
-                       _matrixAngle = coorSys.GetMatrixAngle2();
+                       //_matrixAngle = coorSys.GetMatrixAngle2();
+                       _matrixAngle = coorSys.GetMatrixAngle();
 
 
                        foreach (var item in _processing.Select(p => p.microProcess))
@@ -317,7 +318,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                 {
                     var position = _teachingPointsCoorSystem.FromGlobal(_laserMachine.GetAxActual(Ax.X), _laserMachine.GetAxActual(Ax.Y));
                     var point = _procWafer.GetPointFromWafer(new((float)position[0], (float)position[1]));
-                    var request = new ScopedGeomsRequest(5 * _scale, 5 * _scale, point.X, point.Y);
+                    var request = new ScopedGeomsRequest(2.5 * _scale, 2.5 * _scale, point.X, point.Y);
                     _subject.OnNext(request);
                 })
                 .AddSubscriptionTo(_subscriptions);
@@ -336,7 +337,8 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                         //item.SetEntityAngle(_waferAngle - _pazAngle);
                         item.SetEntityAngle(-_waferAngle);
                     }
-                    await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
+                    //await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
+                    await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera));
                 })
                 .Permit(Trigger.Next, State.Working);
 
@@ -428,19 +430,6 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
             _stateMachine.Configure(State.Exit)
                  .OnEntryAsync(() =>
                  {
-                     //Trace.WriteLine(xLineSb.ToString());
-                     //Trace.WriteLine(yLineSb.ToString());
-                     //var ser = JsonSerializer.CreateDefault();
-                     //var writer = System.IO.TextWriter.Null;
-                     //ser.Serialize(writer, xLCollection);
-                     //writer.Flush();
-                     //var xstr = writer.ToString();
-
-                     //writer = System.IO.TextWriter.Null;
-                     //ser.Serialize(writer, yLCollection);
-                     //writer.Flush();
-                     //var ystr = writer.ToString();
-
                      _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateChanged;
                      _subject.OnNext(new ProcCompletionPreview(CompletionStatus.Success, _teachingLinesCoorSystem));
                      return Task.CompletedTask;

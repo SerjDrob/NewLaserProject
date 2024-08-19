@@ -92,6 +92,11 @@ namespace NewLaserProject.Classes.Teachers
             await _stateMachine.ActivateAsync();
         }
 
+        public void SetResult(double result)
+        {
+            throw new NotImplementedException();
+        }
+
         public class CameraBiasTeacherBuilder
         {
             public WorkingDimensionTeacher Build()

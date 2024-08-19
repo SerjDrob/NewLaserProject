@@ -33,6 +33,7 @@ using DialogResult = System.Windows.Forms.DialogResult;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using Path = System.IO.Path;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
+using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
 {
@@ -76,6 +77,13 @@ namespace NewLaserProject.ViewModels
             {
                 if ((bool)arg)
                 {
+                    if(!IsLaserInitialized & !IsProcessUnderCamera)  
+                    {
+                        if (MsgBox.Ask(PWMDeviceOk ? "Не подключена плата управления лазером" : "Не подключен ШИМ" + ", подложка не будет прошита. Всё равно продолжить?") != System.Windows.MessageBoxResult.OK) 
+                        {
+                            return; 
+                        }
+                    }
                     await _appStateMachine.FireAsync(AppTrigger.StartProcess);
                 }
                 else
@@ -210,9 +218,9 @@ namespace NewLaserProject.ViewModels
                     var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
 
                     //preparator.SetEntityAngle(Settings.Default.PazAngle); in case to take out the paz angle from the commonprocess ctor
-                    var mp = new MicroProcess(json, preparator, _laserMachine, z =>
+                    var mp = new MicroProcess(json, preparator, _laserMachine, async z =>
                     {
-                        return _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
+                        await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
                     });
                     processing.Add((objects, mp));
                 }
@@ -228,6 +236,7 @@ namespace NewLaserProject.ViewModels
                     waferThickness: WaferThickness,
                     dX: _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null"),
                     dY: _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null"),
+                    offsetPoints: _settingsManager.Settings.OffsetPoints ?? throw new ArgumentNullException("OffsetPoints is null"),
                     pazAngle: 0,//_settingsManager.Settings.PazAngle ?? throw new ArgumentNullException("PazAngle is null"),//Settings.Default.PazAngle,
                     subject: _subjMediator,
                     baseCoorSystem: _coorSystem,
@@ -302,7 +311,8 @@ namespace NewLaserProject.ViewModels
                         LastProcObjectTimer = CurrentProcObjectTimer;
                         _procObjTempTime = new(0);
                         var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
-                        if (o is not null) ProcessingObjects.Remove(o);
+                        o.Visibility = System.Windows.Visibility.Collapsed;
+                        if (o is not null) ProcessingObjects.Remove(o);//TODO make it thread safe
                         _pierceBlocks.Clear();
                         PierceBlocks.Clear();
                     })

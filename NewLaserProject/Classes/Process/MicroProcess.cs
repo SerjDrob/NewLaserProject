@@ -33,8 +33,6 @@ namespace NewLaserProject.Classes.Process
         public async Task InvokePierceFunctionForObjectAsync(IProcObject procObject)
         {
             _currentProcObject = procObject;
-            //await _pierceFunction.Invoke();
-
             await ProcessSequenceAsync();
         }
         public int GetMainLoopCount() => _procSequence.MainLoopCount; //_progTreeParser.MainLoopCount;

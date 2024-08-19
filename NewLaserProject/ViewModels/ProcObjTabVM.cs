@@ -1,4 +1,5 @@
-﻿using MachineClassLibrary.Laser.Entities;
+﻿using System.Windows;
+using MachineClassLibrary.Laser.Entities;
 
 namespace NewLaserProject.ViewModels
 {
@@ -14,5 +15,6 @@ namespace NewLaserProject.ViewModels
             get;
             set;
         }
+        public Visibility Visibility { get; set; } = Visibility.Visible;
     }
 }
