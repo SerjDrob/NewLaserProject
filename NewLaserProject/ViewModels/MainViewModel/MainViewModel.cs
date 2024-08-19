@@ -189,7 +189,7 @@ namespace NewLaserProject.ViewModels
                     }
                 }, TaskScheduler.Default);
             var defLaserParams = ExtensionMethods
-                .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+                .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
             _laserMachine.SetMarkParams(defLaserParams);
             InitViews();
             InitAppState();
@@ -449,10 +449,10 @@ namespace NewLaserProject.ViewModels
 #if PCIInserted
 
             var axesConfigs = ExtensionMethods
-                .DeserilizeObject<LaserMachineAxesConfiguration>(AppPaths.AxesConfigs);
+                .DeserializeObject<LaserMachineAxesConfiguration>(AppPaths.AxesConfigs);
 
             var machineconfigs = ExtensionMethods
-                .DeserilizeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs);
+                .DeserializeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs);
 
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
             Guard.IsNotNull(machineconfigs, nameof(machineconfigs));
@@ -642,7 +642,7 @@ namespace NewLaserProject.ViewModels
         }
         private static CoorSystem<LMPlace> GetCoorSystem(string path)
         {
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(path) ?? throw new NullReferenceException("CoorSystem in the file is invalid");
+            var matrixElements = ExtensionMethods.DeserializeObject<float[]>(path) ?? throw new NullReferenceException("CoorSystem in the file is invalid");
             var builder = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             builder.SetWorkMatrix(matrixElements);
             var sys = builder.Build();
@@ -658,13 +658,13 @@ namespace NewLaserProject.ViewModels
             var xoffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
             var yoffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
             
-            var yline = ExtensionMethods.DeserilizeObject < (double orig, double derived)[] >(AppPaths.CoefLineY);
-            var xline = ExtensionMethods.DeserilizeObject<(double orig, double derived)[]>(AppPaths.CoefLineX);
+            var yline = ExtensionMethods.DeserializeObject < (double orig, double derived)[] >(AppPaths.CoefLineY);
+            var xline = ExtensionMethods.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineX);
 
-            
 
-            _xCoeffLine = new CoeffLine(xline);
-            _yCoeffLine = new CoeffLine(yline);
+
+            _xCoeffLine = new CoeffLine(xline ?? [(0, 0), (60, 60)]);
+            _yCoeffLine = new CoeffLine(yline ?? [(0, 0), (60, 60)]);
 
             var xr = _xCoeffLine[xright, true];
             var xl = _xCoeffLine[xleft, true];

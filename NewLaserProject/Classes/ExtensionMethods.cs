@@ -104,10 +104,17 @@ namespace NewLaserProject.Classes
             l.WriteLine(json);
             l.Flush();
         }
-        internal static T? DeserilizeObject<T>(string filePath)
+        internal static T? DeserializeObject<T>(string filePath)
         {
-            var obj = JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(T));
-            return (T?)obj;
+            try
+            {
+                var obj = JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(T));
+                return (T?)obj;
+            }
+            catch (FileNotFoundException)
+            {
+                return default;
+            }
         }
         internal static ObservableCollection<T> ToObservableCollection<T>(this IEnumerable<T> en)
         {

@@ -400,6 +400,9 @@
                                   EZ="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ZAxis.ORG}"
                                   />
                 </Button>
+                <Border Style="{StaticResource BorderRegion}" IsEnabled="{Binding IsProcessing}">
+                    <CheckBox IsChecked="{Binding IsBlockZ}" Content="Блок. Z" Style="{StaticResource CheckBoxBaseStyle}"/>
+                </Border>
                 <DockPanel Visibility="Collapsed">
                     <Border
                         DockPanel.Dock="Top"
@@ -489,7 +492,10 @@
             </ToolBar>
 
             <ToolBar>
-                <cntrl:SpeedIndicator Speed="{Binding VelocityRegime, Converter={StaticResource EnumToIntConverter}}"/>
+                <cntrl:SpeedIndicator 
+                    Speed="{Binding VelocityRegime, Converter={StaticResource EnumToIntConverter}}"
+                    HorizontalAlignment="Stretch"
+                    />
             </ToolBar>
 
             <ToolBar>

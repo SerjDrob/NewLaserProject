@@ -317,7 +317,7 @@ namespace NewLaserProject.ViewModels
                       new DefaultTechSelector(k, col.GroupBy(g => g.EntityType)
                       .ToImmutableDictionary(k => k.Key, e => e.Select(g => g.Technology.Material))
                       )).ToObservableCollection();
-                    var defLayerProcDTO = ExtensionMethods.DeserilizeObject<DefaultProcessFilterDTO>(AppPaths.DefaultProcessFilter);
+                    var defLayerProcDTO = ExtensionMethods.DeserializeObject<DefaultProcessFilterDTO>(AppPaths.DefaultProcessFilter);
                     if (defLayerProcDTO is not null)
                     {
                         vm.DefaultHeight = defLayerProcDTO.DefaultHeight;
@@ -479,7 +479,7 @@ namespace NewLaserProject.ViewModels
             try
             {
                 var markParams = ExtensionMethods
-                                    .DeserilizeObject<ExtendedParams>(AppPaths.MarkTextParams);
+                                    .DeserializeObject<ExtendedParams>(AppPaths.MarkTextParams);
 
 
                 var result = await Dialog.Show<CommonDialog>()

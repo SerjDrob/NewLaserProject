@@ -57,7 +57,7 @@ namespace NewLaserProject
         public App()
         {
             var machineconfigs = ExtensionMethods
-                .DeserilizeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs)
+                .DeserializeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs)
                 ?? throw new NullReferenceException("The machine configs are null");
 
             var settingsManager = new SettingsManager<LaserMachineSettings>(AppPaths.LaserMachineSettings);
@@ -153,7 +153,7 @@ namespace NewLaserProject
                    .AddTransient<LaserDbViewModel>(sp =>
                    {
                        var defLaserParams = ExtensionMethods
-                            .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+                            .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
 
                        var mapper = sp.GetService<IMapper>();
                        var mediator = sp.GetService<IMediator>();
@@ -164,7 +164,7 @@ namespace NewLaserProject
                    .AddTransient(sp =>
                    {
                        var defLaserParams = ExtensionMethods
-                            .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+                            .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
                        var mapper = sp.GetService<IMapper>();
                        var vm = mapper?.Map<MarkSettingsVM>(defLaserParams) ?? new();
                        return vm;

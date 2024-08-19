@@ -13,13 +13,13 @@
             <ControlTemplate x:Key="baseTemplate" TargetType="{x:Type Label}">
                 <Grid Background="{TemplateBinding Background}">
                     <TextBlock Grid.Column="1" Text="{TemplateBinding Label.Content}"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
-                           Padding="{TemplateBinding Padding}"
-                           Background="{TemplateBinding Background}"
-                           Foreground="{TemplateBinding Foreground}"
-                           Width="{TemplateBinding Width}"
-                           Height="{TemplateBinding Height}"/>
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Padding="{TemplateBinding Padding}"
+                               Background="{TemplateBinding Background}"
+                               Foreground="{TemplateBinding Foreground}"
+                               Width="{TemplateBinding Width}"
+                               Height="{TemplateBinding Height}"/>
                 </Grid>
             </ControlTemplate>
             <LinearGradientBrush
@@ -31,25 +31,6 @@
                 <GradientStop Color="#00FFFFFF" Offset="0.7"/>
                 <GradientStop Color="#FFFFFFFF" Offset="1"/>
             </LinearGradientBrush>
-
-            <!--<Storyboard x:Key="GoToFast">
-                <DoubleAnimation Storyboard.TargetProperty="(Canvas.Left)" 
-                                 Storyboard.TargetName="SpeedArrow"
-                                 Duration="0:0:0.2"
-                                 To="65"/>
-            </Storyboard>
-            <Storyboard x:Key="GoToSlow">
-                <DoubleAnimation Storyboard.TargetProperty="(Canvas.Left)" 
-                     Storyboard.TargetName="SpeedArrow"
-                     Duration="0:0:0.2"
-                     To="112"/>
-            </Storyboard>
-            <Storyboard x:Key="GoToStep">
-                <DoubleAnimation Storyboard.TargetProperty="(Canvas.Left)" 
-                     Storyboard.TargetName="SpeedArrow"
-                     Duration="0:0:0.2"
-                     To="20"/>
-            </Storyboard>-->
             <Storyboard x:Key="GoToFast">
                 <DoubleAnimation Storyboard.TargetProperty="(Canvas.Top)" 
                      Storyboard.TargetName="stack"
@@ -90,8 +71,6 @@
                     <Style TargetType="Label">
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                         <Setter Property="Template" Value="{StaticResource baseTemplate}"/>
-                        <!--<Setter Property="Height" Value="30"/>
-                        <Setter Property="Width" Value="50"/>-->
                     </Style>
                 </StackPanel.Resources>
                 <Label Name="label" Content="ШАГ" Background="Yellow"/>
@@ -101,42 +80,6 @@
                     <TranslateTransform Y="5" X="5"/>
                 </StackPanel.RenderTransform>
             </StackPanel>
-            <!--<Border Grid.Row="1" Background="LightGray">
-                <Canvas>
-                    <Path Data="M 0,10 L5,0 L10,10 Z" 
-                          Fill="Black"
-                          x:Name="SpeedArrow"
-                          RenderTransformOrigin="0.5 0.5"
-                          Canvas.Left="0"
-                          >
-                    </Path>
-                </Canvas>
-            </Border>-->
         </Canvas>
-
-        <!--<Viewport3D Grid.Row="1">
-            <Viewport3D.Camera>
-                <PerspectiveCamera Position="-45,40,40" LookDirection="40,-40,-40 " 
-                         UpDirection="0,0,1" />
-            </Viewport3D.Camera>
-            <ModelVisual3D>
-                <ModelVisual3D.Content>
-                    <Model3DGroup>
-                        <DirectionalLight Color="White" Direction="-1,-1,-3" />
-                        <GeometryModel3D>
-                            <GeometryModel3D.Geometry>
-                                <MeshGeometry3D Positions="0,0,0 10,0,0 10,10,0 0,10,0 0,0,10 
-                        10,0,10 10,10,10 0,10,10"
-                        TriangleIndices="0 1 3 1 2 3  0 4 3 4 7 3  4 6 7 4 5 6 
-                                         0 4 1 1 4 5  1 2 6 6 5 1  2 3 7 7 6 2"/>
-                            </GeometryModel3D.Geometry>
-                            <GeometryModel3D.Material>
-                                <DiffuseMaterial Brush="Red"/>
-                            </GeometryModel3D.Material>
-                        </GeometryModel3D>
-                    </Model3DGroup>
-                </ModelVisual3D.Content>
-            </ModelVisual3D>
-        </Viewport3D>-->
     </Grid>
 </UserControl>

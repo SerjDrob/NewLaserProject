@@ -119,7 +119,7 @@ namespace NewLaserProject.ViewModels
                             );
 
                     var defLaserParams = ExtensionMethods
-                           .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+                           .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
                     var pen = defLaserParams.PenParams with
                     {
                         Freq = 50000,
@@ -274,7 +274,7 @@ namespace NewLaserProject.ViewModels
                     tempY = points[0].Y;
 
                     var defLaserParams = ExtensionMethods
-                          .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+                          .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
                     var pen = defLaserParams.PenParams;
                     var hatch = defLaserParams.HatchParams;
 
@@ -395,7 +395,7 @@ namespace NewLaserProject.ViewModels
                 waferThickness = result.CommonResult;
             }
 
-            var matrixElements = ExtensionMethods.DeserilizeObject<float[]>(AppPaths.TeachingDeformation);
+            var matrixElements = ExtensionMethods.DeserializeObject<float[]>(AppPaths.TeachingDeformation);
 
             var workMatrixBuilder = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             workMatrixBuilder.SetWorkMatrix(new Matrix3x2(
