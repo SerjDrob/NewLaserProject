@@ -1,4 +1,6 @@
-﻿using Microsoft.Toolkit.Diagnostics;
+﻿using MachineClassLibrary.GeometryUtility;
+using MachineClassLibrary.Machine.Machines;
+using Microsoft.Toolkit.Diagnostics;
 using Stateless;
 using System;
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace NewLaserProject.Classes
-{
+{   
 
     internal class CameraScaleTeacher : ITeacher
     {

@@ -41,7 +41,6 @@
         <CollectionViewSource x:Key="ProcObjects" Source="{Binding ProcessingObjects}"/>
 
     </hc:GlowWindow.Resources>
-
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
             <i:InvokeCommandAction Command="{Binding TestKeyCommand, Mode=OneWay}" 
@@ -323,6 +322,10 @@
                                 <MenuItem.Icon>
                                     <Image Source="Sources/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
                                 </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Command="{Binding StartTeachingCommand}"
+                                      CommandParameter="{x:Static vm:Teacher.CameraGroupOffset}"
+                                      Header="Групп. смещение камеры">
                             </MenuItem>
                             <MenuItem Command="{Binding StartTeachingCommand}" 
                                       CommandParameter="{x:Static vm:Teacher.ScanatorHorizont}"

@@ -47,7 +47,7 @@ namespace NewLaserProject.ViewModels
             }
             catch (Exception ex)
             {
-
+                _logger.Error(ex, $"Exception when start teaching.");
                 throw;
             }
 
@@ -713,6 +713,7 @@ namespace NewLaserProject.ViewModels
     {
         Corners,
         CameraOffset,
+        CameraGroupOffset,
         ScanatorHorizont,
         OrthXY,
         CameraScale

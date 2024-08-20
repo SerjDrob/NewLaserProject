@@ -143,6 +143,7 @@ public class ComLmc
                                                      nImportDpi,
                                                      bDisableMarkLowGrayPt,
                                                      nMinLowGrayPt);
+    /*
     public int MoveEntityBefore(int nMoveEnt, int GoalEnt);
     public int SetBitmapEntParam3(string strEntName,
                                                     double dDpiX,
@@ -866,6 +867,8 @@ public class ComLmc
     public int ClearLockInputPort();
     public int ReadLockPort(ref ushort data);
     #endregion
+    */
 #endregion
+    
 }
 

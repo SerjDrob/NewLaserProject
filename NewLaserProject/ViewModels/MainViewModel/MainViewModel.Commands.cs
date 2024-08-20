@@ -19,7 +19,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process;
-using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Data.Models.DefaultLayerEntityTechnologyFeatures.Get;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Create;
 using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Delete;
@@ -27,7 +26,6 @@ using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.ViewModels.DialogVM;
-using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
@@ -46,8 +44,8 @@ namespace NewLaserProject.ViewModels
                 .CreateKeyDownCommand(Key.Z, ModifierKeys.None, () => moveAxDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.X, ModifierKeys.None, () => moveAxDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.C, ModifierKeys.None, () => moveAxDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.V, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Pos)), () => IsMainTabOpen)
-                .CreateKeyDownCommand(Key.B, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Neg)), () => IsMainTabOpen)
+                .CreateKeyDownCommand(Key.V, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Pos)), () => IsMainTabOpen && !(IsBlockZ&IsProcessing))
+                .CreateKeyDownCommand(Key.B, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Neg)), () => IsMainTabOpen && !(IsBlockZ & IsProcessing))
                 .CreateKeyUpCommand(Key.V, () => Task.Run(() => _laserMachine.Stop(Ax.Z)), () => IsMainTabOpen)
                 .CreateKeyUpCommand(Key.B, () => Task.Run(() => _laserMachine.Stop(Ax.Z)), () => IsMainTabOpen)
                 .CreateAnyKeyUpCommand(stopAsync, () => IsMainTabOpen && !IsProcessing)
@@ -110,12 +108,12 @@ namespace NewLaserProject.ViewModels
                 .CreateKeyDownCommand(Key.Z, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.X, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.C, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.S, ModifierKeys.None, ()=> { _cameraVM?.OpenTargetWindow(); return Task.CompletedTask; }, () => IsMainTabOpen && _isSnapAlowed)
-                .CreateKeyDownCommand(Key.T, ModifierKeys.None, async () => 
+                .CreateKeyDownCommand(Key.S, ModifierKeys.None, () => { _cameraVM?.OpenTargetWindow(); return Task.CompletedTask; }, () => IsMainTabOpen && _isSnapAlowed)
+                .CreateKeyDownCommand(Key.T, ModifierKeys.None, async () =>
                 {
                     var result = await Dialog.Show<CommonDialog>()
                         .SetDialogTitle("Угол пластины")
-                        .SetDataContext(new TeachCornerVM(XAxis.Position, YAxis.Position, _settingsManager.Settings), 
+                        .SetDataContext(new TeachCornerVM(XAxis.Position, YAxis.Position, _settingsManager.Settings),
                         vm => { })
                         .GetCommonResultAsync<(double leftX, double leftY, double rightX, double rightY)>(ToggleKeyProcCommands);
                     if (result.Success)
@@ -128,8 +126,8 @@ namespace NewLaserProject.ViewModels
                         ImplementMachineSettings();
                         TuneCoorSystem();
                     }
-                }, ()=>IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.F, ModifierKeys.None, async ()=>
+                }, () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.F, ModifierKeys.None, async () =>
                 {
                     var result = await Dialog.Show<CommonDialog>()
                         .SetDialogTitle("Фокус")
@@ -144,13 +142,13 @@ namespace NewLaserProject.ViewModels
                         ImplementMachineSettings();
                         TuneCoorSystem();
                     }
-                },()=>true)
-                .CreateKeyDownCommand(Key.F, ModifierKeys.Control, async () => 
+                }, () => true)
+                .CreateKeyDownCommand(Key.F, ModifierKeys.Control, async () =>
                 {
                     var token = new CancellationTokenSource(TimeSpan.FromMilliseconds(15000)).Token;
                     var res = await _laserMachine.FindCameraFocus(token);
-                },()=>false);
-                
+                }, () => false);
+
             async Task moveAxDirAsync((Ax, AxDir) axDir)
             {
                 if (VelocityRegime != Velocity.Step)
@@ -530,7 +528,7 @@ namespace NewLaserProject.ViewModels
         private async Task PierceIndividual(bool start)
         {
             if (start)
-            {                
+            {
                 try
                 {
                     var teachPosition = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 10, 10);
@@ -623,7 +621,7 @@ namespace NewLaserProject.ViewModels
                 "y" => _settingsManager.Settings.YVelLow,
                 "z" => _settingsManager.Settings.ZVelLow,
                 _ => null
-            }; 
+            };
             var velhigh = (string axis) =>
             axis switch
             {
@@ -631,7 +629,7 @@ namespace NewLaserProject.ViewModels
                 "y" => _settingsManager.Settings.YVelHigh,
                 "z" => _settingsManager.Settings.ZVelHigh,
                 _ => null
-            }; 
+            };
             var velservice = (string axis) =>
             axis switch
             {

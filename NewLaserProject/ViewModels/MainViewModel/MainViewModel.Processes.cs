@@ -40,6 +40,7 @@ namespace NewLaserProject.ViewModels
 
     public partial class MainViewModel
     {
+        public bool IsBlockZ { get; set; } = true;
         public ObservableCollection<ProcObjTabVM> ProcessingObjects { get; set; }
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
         public IProcObject IsBeingProcessedObject { get; set; }

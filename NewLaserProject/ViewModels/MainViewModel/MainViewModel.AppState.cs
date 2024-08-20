@@ -1,5 +1,6 @@
 ﻿using System;
 using HandyControl.Controls;
+using NewLaserProject.Classes;
 using Stateless;
 
 
@@ -88,6 +89,11 @@ namespace NewLaserProject.ViewModels
                         case Teacher.CameraScale:
                             {
                                 _currentTeacher = await TeachCameraScaleAsync();
+                            }
+                            break;
+                        case Teacher.CameraGroupOffset:
+                            {
+                                _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem,_laserMachine,_settingsManager,WaferThickness);
                             }
                             break;
                         default:
