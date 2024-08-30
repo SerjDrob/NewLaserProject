@@ -7,7 +7,9 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 using HandyControl.Controls;
+using HandyControl.Data;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser;
@@ -259,6 +261,15 @@ namespace NewLaserProject.ViewModels
         public ObjectForProcessing IndividualProcObject { get; private set; }
         public double IndividualProcDiameter { get; set; }
         public bool IsIndividualProcessing { get; set; } = false;
+        [ICommand]
+        private void EraseOffsets()
+        {
+            if (MsgBox.Ask("Стереть все смещения?", "Смещение камеры") == System.Windows.MessageBoxResult.OK) 
+            {
+                _settingsManager.Settings.OffsetPoints?.Clear();
+                _settingsManager.Save();
+            }
+        }
         [ICommand]
         private async Task OpenFileViewSettingsWindow()
         {
@@ -531,9 +542,11 @@ namespace NewLaserProject.ViewModels
             {
                 try
                 {
-                    var teachPosition = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, 10, 10);
                     var xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
                     var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
+                    var x = _laserMachine.GetAxActual(Ax.X);
+                    var y = _laserMachine.GetAxActual(Ax.Y);
+                    _settingsManager.Settings.OffsetPoints?.GetOffsetByCurCoor(x, y, ref xOffset, ref yOffset);
                     var zCamera = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
                     var zLaser = _settingsManager.Settings.ZeroPiercePoint ?? throw new ArgumentNullException("ZeroPiercePoint is null");
                     var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{IndividualProcObject.Technology?.ProcessingProgram}.json"));
@@ -593,6 +606,7 @@ namespace NewLaserProject.ViewModels
             else
             {
                 _individualProcCancellationTokenSource?.Cancel();
+                await _laserMachine.CancelMarkingAsync();
             }
         }
 

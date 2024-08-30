@@ -17,7 +17,8 @@ namespace NewLaserProject.Views.Converters
                 var result = Math.Round(1000 * scale * targetWidth / width);
                 if (values?.Length == 4 && values[3] is ScaleTransform transform)
                 {
-                    result /= Math.Abs(transform.ScaleX);
+                    //result /= Math.Abs(transform.ScaleX);
+                    //result *= Math.Abs(transform.ScaleX);
                 }
                 return result.ToString();
             }

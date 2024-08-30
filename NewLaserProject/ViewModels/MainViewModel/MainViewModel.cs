@@ -173,6 +173,7 @@ namespace NewLaserProject.ViewModels
             //_workTimeLogger = _serviceProvider.GetService<WorkTimeLogger>();
             //_coorSystem = GetCoorSystem(AppPaths.PureDeformation);
             MechTableVM = new();
+            WaferThickness = _settingsManager.Settings.WaferThickness ?? Settings.Default.WaferThickness;
             TuneCoorSystem();
             ImplementMachineSettings();
             _ = _laserMachine.InitMarkDevice(Directory.GetCurrentDirectory())
@@ -300,7 +301,6 @@ namespace NewLaserProject.ViewModels
             {
                 WaferWidth = _settingsManager.Settings.WaferWidth ?? Settings.Default.WaferWidth;
                 WaferHeight = _settingsManager.Settings.WaferHeight ?? Settings.Default.WaferHeight;
-                WaferThickness = _settingsManager.Settings.WaferThickness ?? Settings.Default.WaferThickness;
 
                 _openedFileVM = new FileVM(WaferWidth, WaferHeight, _subjMediator);
                 _openedFileVM.CanUndoChanged += _openedFileVM_CanUndoChanged;
@@ -366,7 +366,7 @@ namespace NewLaserProject.ViewModels
             {
                 var k = xRatio / yRatio;
                 var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
-                var offset = new[] { -e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
+                var offset = new[] { e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
                 try
                 {
                     var vel  = _laserMachine.SetVelocity(Velocity.Service);
@@ -465,7 +465,7 @@ namespace NewLaserProject.ViewModels
                 maxAcc = 1000,
                 maxDec = 1000,
                 maxVel = 500,
-                jerk = _settingsManager.Settings.XJerk ?? throw new ArgumentNullException("XJerk is null"), 
+                jerk = _settingsManager.Settings.XJerk ?? throw new ArgumentNullException("XJerk is null"),
                 axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.XHomeReset,
@@ -474,8 +474,9 @@ namespace NewLaserProject.ViewModels
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
                 denominator = 1,
                 plsInMde = (int)PlsInMode.AB_4X,
+                plsInLogic = (int)PlsInLogic.INV_DIR,
                 homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
-                homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null")
+                homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"),
             };
             var ypar = new MotionDeviceConfigs
             {
@@ -547,21 +548,21 @@ namespace NewLaserProject.ViewModels
                     .SetCoordinateForPlace(Ax.X, _settingsManager.Settings.XLoad ?? throw new ArgumentNullException("XLoad is null"))
                     .SetCoordinateForPlace(Ax.Y, _settingsManager.Settings.YLoad ?? throw new ArgumentNullException("YLoad is null"))
                     .Build();
-
+                
                 _laserMachine.ConfigureHomingForAxis(Ax.X)
                     .SetHomingDirection((AxDir)axesConfigs.XHomeDirection)
                     .SetHomingMode((HmMode)axesConfigs.XHomeMode)
                     .SetPositionAfterHoming(_settingsManager.Settings.XLeftPoint ?? throw new ArgumentNullException("XLeftPoint is null"))
                     .SetHomingVelocity(_settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"))
                     .Configure();
-
+                
                 _laserMachine.ConfigureHomingForAxis(Ax.Y)
                     .SetHomingDirection((AxDir)axesConfigs.YHomeDirection)
                     .SetHomingMode((HmMode)axesConfigs.YHomeMode)
                     .SetPositionAfterHoming(_settingsManager.Settings.YLeftPoint ?? throw new ArgumentNullException("YLeftPoint is null"))
                     .SetHomingVelocity(_settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null"))
                     .Configure();
-
+                
                 _laserMachine.ConfigureHomingForAxis(Ax.Z)
                     .SetHomingDirection((AxDir)axesConfigs.ZHomeDirection)
                     .SetHomingVelocity(_settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null"))

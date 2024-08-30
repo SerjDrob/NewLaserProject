@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 using UnitsNet;
 
@@ -47,8 +48,9 @@ namespace NewLaserProject.Classes.Process
             _subject?.OnNext(new ChangingZ(z));
             await _funcForZBlock(z).ConfigureAwait(false);
         }
-        protected async override Task FuncForPierseBlockAsync(ExtendedParams extendedParams)
+        protected async override Task FuncForPierseBlockAsync(ExtendedParams extendedParams, CancellationTokenSource? cancellationTokenSource = null)
         {
+            if (cancellationTokenSource?.Token.IsCancellationRequested ?? false) return;
             if (extendedParams.EnableMilling) _entityPreparator.SetEntityContourWidth(0d);
 
             var offsetum = Length.FromMicrometers(extendedParams.ContourOffset);
