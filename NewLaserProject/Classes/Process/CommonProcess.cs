@@ -299,7 +299,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                        foreach (var item in _processing.Select(p => p.microProcess))
                        {
                            //item.SetEntityAngle(-_pazAngle + _matrixAngle);
-                           item.SetEntityAngle(/*-*/_matrixAngle);//TODO fix the sign's problem
+                           item.SetEntityAngle(-_matrixAngle);//TODO fix the sign's problem
                        }
 
                        await _stateMachine.FireAsync(workingTrigger, coorSys);
@@ -335,7 +335,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                     foreach (var item in _processing.Select(p => p.microProcess))
                     {
                         //item.SetEntityAngle(_waferAngle - _pazAngle);
-                        item.SetEntityAngle(/*-*/_waferAngle);//TODO fix signs's problem
+                        item.SetEntityAngle(-_waferAngle);//TODO fix sign's problem
                     }
                     //await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
                     await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera));

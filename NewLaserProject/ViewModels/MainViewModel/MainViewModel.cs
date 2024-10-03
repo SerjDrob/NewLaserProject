@@ -366,7 +366,7 @@ namespace NewLaserProject.ViewModels
             {
                 var k = xRatio / yRatio;
                 var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
-                var offset = new[] { e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
+                var offset = new[] { -e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
                 try
                 {
                     var vel  = _laserMachine.SetVelocity(Velocity.Service);
@@ -474,7 +474,7 @@ namespace NewLaserProject.ViewModels
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
                 denominator = 1,
                 plsInMde = (int)PlsInMode.AB_4X,
-                plsInLogic = (int)PlsInLogic.INV_DIR,
+                plsInLogic = (int)PlsInLogic.NO_INV_DIR,//TODO fix the coordinate sign's system
                 homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"),
             };

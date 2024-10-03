@@ -223,7 +223,7 @@ namespace NewLaserProject.ViewModels
                     {
                         await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
                     });
-                    processing.Add((objects, mp));
+                    processing.Add((objects/*.SplitOnClusters(new(0, 0, 60000, 48000), 2, 2).ToList()*/, mp));
                 }
 
 
@@ -650,9 +650,21 @@ namespace NewLaserProject.ViewModels
                 MarkPosition.W => (edgeGap + fontHeight / 2, WaferHeight / 2, Math.PI / 2),
             };
             var position = coorSystem.ToGlobal(x, y);
+
+            var dX = default(double);
+            var dY = default(double);
+
+            _settingsManager.Settings.OffsetPoints.GetOffsetByCurCoor(x, y, ref dX, ref dY);
+            var posX = position[0] + dX;
+            var posY = position[1] + dY;
+
+
             var theta = coorSystem.GetMatrixAngle();
-            var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Today.Date;
-            await _laserMachine.MoveGpInPosAsync(MachineClassLibrary.Machine.Groups.XY, position, true);
+            var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Now;
+            await Task.WhenAll(
+                _laserMachine.MoveAxInPosAsync(Ax.X, posX, true),
+                _laserMachine.MoveAxInPosAsync(Ax.Y, posY, true));
+
 
             var markTextJson = File.ReadAllText(AppPaths.MarkTextParams);
 

@@ -21,6 +21,10 @@ namespace NewLaserProject.Classes
         private readonly ISettingsManager<LaserMachineSettings> _settingsManager;
         private readonly double _waferThickness;
         private StateMachine<MyState, MyTrigger> _stateMachine;
+        private double _xOffset;
+        private double _yOffset;
+        private List<OffsetPoint> _offsetPoints = new();
+
 
         public event EventHandler TeachingCompleted;
 
@@ -32,20 +36,28 @@ namespace NewLaserProject.Classes
             {
                 var res = coorSystem.ToGlobal(x, y);
                 return (res[0], res[1]);
-            }));
+            })).ToList();
             _laserMachine = laserMachine;
             _settingsManager = settingsManager;
             _waferThickness = waferThickness;
             var zCamera = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
-            var xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
-            var yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
+            _xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
+            _yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
 
             var enumerator = _coordinates.GetEnumerator(); // TODO it is disposable
 
             _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
             (double x, double y) coordinate = (0,0);
-            var reentry = false;
-            if(reentry = enumerator.MoveNext()) throw new Exception("The sequence has no elements.");
+            var reentry = !enumerator.MoveNext();
+            if(reentry) throw new Exception("The sequence has no elements.");
+
+
+            _stateMachine.Configure(MyState.Begin)
+                .OnActivate(()=>Growl.Info(""" Для начала обучения нажмите "*" """))
+                .Permit(MyTrigger.Next, MyState.UnderCamera)
+                .Ignore(MyTrigger.Accept)
+                .Ignore(MyTrigger.Deny);
+
 
             _stateMachine.Configure(MyState.UnderCamera)
                 .OnEntryAsync(async () =>
@@ -53,20 +65,23 @@ namespace NewLaserProject.Classes
                     Growl.Clear();
                     coordinate = enumerator.Current;
                     await Task.WhenAll(
-                         _laserMachine.MoveAxInPosAsync(Ax.X, coordinate.x - xOffset, true),
-                         _laserMachine.MoveAxRelativeAsync(Ax.Y, coordinate.y - yOffset, true),
+                         _laserMachine.MoveAxInPosAsync(Ax.X, coordinate.x - _xOffset, true),
+                         _laserMachine.MoveAxInPosAsync(Ax.Y, coordinate.y - _yOffset, true),
                          _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                          );
-                    Growl.Info(""" Совместите перекрестие и нажмите "/" """);
+                    Growl.Info(""" Совместите перекрестие и нажмите "*" """);
                     reentry = enumerator.MoveNext();
                 })
                 .OnExit(() =>
                 {
-                    _settingsManager.Settings.OffsetPoints.Add(new(
+                    _xOffset = coordinate.x - _laserMachine.GetAxActual(Ax.X);
+                    _yOffset = coordinate.y - _laserMachine.GetAxActual(Ax.Y);
+                    _offsetPoints.Add(new(
                         _laserMachine.GetAxActual(Ax.X),
                         _laserMachine.GetAxActual(Ax.Y),
-                        coordinate.x,
-                        coordinate.y));
+                        _xOffset,
+                        _yOffset
+                        ));
                     Growl.Info("Смещение добавлено");
                 })
                 .PermitReentryIf(MyTrigger.Next, () => reentry)
@@ -75,11 +90,19 @@ namespace NewLaserProject.Classes
                 .Ignore(MyTrigger.Accept);
 
             _stateMachine.Configure(MyState.HasResult)
-                .OnEntry(() => { TeachingCompleted?.Invoke(this, EventArgs.Empty); })
-                .OnEntry(() => _settingsManager.Save());
+                .OnEntry(() => { 
+                    _settingsManager.Settings.OffsetPoints = _offsetPoints;
+                    TeachingCompleted?.Invoke(this, EventArgs.Empty); 
+                })
+                .OnEntry(() =>
+                {
+                    _settingsManager.Save();
+                });
 
             _stateMachine.Configure(MyState.End)
-                .OnEntry(() => { TeachingCompleted?.Invoke(this, EventArgs.Empty); });
+                .OnEntry(() => { 
+                    TeachingCompleted?.Invoke(this, EventArgs.Empty); 
+                });
         }
 
         public Task Accept()
@@ -95,9 +118,9 @@ namespace NewLaserProject.Classes
             throw new NotImplementedException();
         }
 
-        public Task Next()
+        public async Task Next()
         {
-            throw new NotImplementedException();
+            await _stateMachine.FireAsync(MyTrigger.Next);
         }
 
         public void SetParams(params double[] ps)
@@ -149,6 +172,7 @@ namespace NewLaserProject.Classes
 
             foreach ((double x, double y) coordinate in _coordinates)
             {
+                //continue;
                 await Task.WhenAll(
                     _laserMachine.MoveAxInPosAsync(Ax.X, coordinate.x, true),
                     _laserMachine.MoveAxInPosAsync(Ax.Y, coordinate.y, true),
@@ -166,6 +190,7 @@ namespace NewLaserProject.Classes
                 await _laserMachine.PierceLineAsync(-0.4, -0.4, -0.4, 0.4);
                 await _laserMachine.PierceLineAsync(0.4, -0.4, 0.4, 0.4);
             }
+            await _stateMachine.ActivateAsync();
         }
         private enum MyState
         {

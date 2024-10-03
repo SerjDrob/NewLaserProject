@@ -1,6 +1,9 @@
 ﻿using System;
 using HandyControl.Controls;
+using HandyControl.Tools.Extension;
+using MachineControlsLibrary.CommonDialog;
 using NewLaserProject.Classes;
+using NewLaserProject.ViewModels.DialogVM;
 using Stateless;
 
 
@@ -93,7 +96,14 @@ namespace NewLaserProject.ViewModels
                             break;
                         case Teacher.CameraGroupOffset:
                             {
-                                _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem,_laserMachine,_settingsManager,WaferThickness);
+                                var result = await Dialog.Show<CheckParamsDialog>()
+                                                           .SetDialogTitle("Обучение смещения")
+                                                           .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
+                                                           .GetCommonResultAsync<double>();
+                                if (result?.Success ?? false)
+                                {
+                                    _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem.ExtractSubSystem(MachineClassLibrary.Classes.LMPlace.FileOnWaferUnderLaser),_laserMachine,_settingsManager, result.CommonResult);
+                                }
                             }
                             break;
                         default:

@@ -352,6 +352,10 @@
                                             </MenuItem.Icon>
                                         </MenuItem>
                                         <MenuItem Command="{Binding EraseOffsetsCommand}" Header="Сбросить"/>
+                                        <MenuItem Command="{Binding StartTeachingCommand}"
+                                                  CommandParameter="{x:Static vm:Teacher.CameraGroupOffset}"
+                                                  Header="Групп. смещение камеры">
+                                        </MenuItem>
                                     </StackPanel>
                                 </hc:SplitButton.DropDownContent>
                             </hc:SplitButton>
@@ -980,7 +984,7 @@
                     <ContentControl Content="{Binding StatisticsVM}"/>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="Console" TabIndex="3" Visibility="Collapsed">
+            <TabItem Header="Console" TabIndex="3">
                 <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
             </TabItem>
         </TabControl>
