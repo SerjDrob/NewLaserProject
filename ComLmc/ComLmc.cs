@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
+using static ComLmc.JczLmc;
 
 namespace ComLmc;
 
@@ -94,7 +95,7 @@ public class ComLmc
     public int ScaleEnt(string strEntName, double dCenx, double dCeny, double dScaleX, double dScaleY) => JczLmc.ScaleEnt(strEntName, dCenx, dCeny, dScaleX, dScaleY);
     public int MirrorEnt(string strEntName, double dCenx, double dCeny, bool bMirrorX, bool bMirrorY) => JczLmc.MirrorEnt(strEntName, dCenx, dCeny, bMirrorX, bMirrorY);
     public int RotateEnt(string strEntName, double dCenx, double dCeny, double dAngle) => JczLmc.RotateEnt(strEntName, dCenx, dCeny, dAngle);
-    public int CopyEnt(string strEntName, string strNewEntName) => JczLmc.CopyEnt(strEntName,strNewEntName);
+    public int CopyEnt(string strEntName, string strNewEntName) => JczLmc.CopyEnt(strEntName, strNewEntName);
     internal int lmc1_GetEntityNameByIndex(int nEntityIndex, StringBuilder entname) => JczLmc.lmc1_GetEntityNameByIndex(nEntityIndex, entname);
     public string GetEntityNameByIndex(int nEntityIndex) => JczLmc.GetEntityNameByIndex(nEntityIndex);
     public int SetEntityNameByIndex(int nEntityIndex, string entname) => JczLmc.SetEntityNameByIndex(nEntityIndex, entname);
@@ -143,34 +144,34 @@ public class ComLmc
                                                      nImportDpi,
                                                      bDisableMarkLowGrayPt,
                                                      nMinLowGrayPt);
-    /*
-    public int MoveEntityBefore(int nMoveEnt, int GoalEnt);
+
+    public int MoveEntityBefore(int nMoveEnt, int GoalEnt) => JczLmc.MoveEntityBefore(nMoveEnt, GoalEnt);
     public int SetBitmapEntParam3(string strEntName,
                                                     double dDpiX,
                                                     double dDpiY,
-                                                    [MarshalAs(UnmanagedType.LPArray)] byte[] bGrayScaleBuf);
+                                                    [MarshalAs(UnmanagedType.LPArray)] byte[] bGrayScaleBuf) => JczLmc.SetBitmapEntParam3(strEntName, dDpiX, dDpiY, bGrayScaleBuf);
     public int GetBitmapEntParam3(string strEntName,
                                                       ref double dDpiX,
                                                       ref double dDpiY,
-                                                      byte[] bGrayScaleBuf);
+                                                      byte[] bGrayScaleBuf) => JczLmc.GetBitmapEntParam3(strEntName, ref dDpiX, ref dDpiY, bGrayScaleBuf);
 
-    public int MoveEntityAfter(int nMoveEnt, int GoalEnt);
-    public int ReverseAllEntOrder();
+    public int MoveEntityAfter(int nMoveEnt, int GoalEnt) => JczLmc.MoveEntityAfter(nMoveEnt, GoalEnt);
+    public int ReverseAllEntOrder() => JczLmc.ReverseAllEntOrder();
     #endregion
 
     #region ¶ЛїЪ
 
-    public int ReadPort(ref ushort data);
-    public int WritePort(ushort data);
-    public int GetOutPort(ref ushort data);
-    public int LaserOn(bool bOpen);
+    public int ReadPort(ref ushort data) => JczLmc.ReadPort(ref data);
+    public int WritePort(ushort data) => JczLmc.WritePort(data);
+    public int GetOutPort(ref ushort data) => JczLmc.GetOutPort(ref data);
+    public int LaserOn(bool bOpen) => JczLmc.LaserOn(bOpen);
 
     #endregion
 
     #region ОД±ѕ
-    public int ChangeTextByName(string EntName, string NewText);
-    public int GetTextByName(string strEntName, StringBuilder Text);
-    public int TextResetSn(string TextName);
+    public int ChangeTextByName(string EntName, string NewText) => JczLmc.ChangeTextByName(EntName, NewText);
+    public int GetTextByName(string strEntName, StringBuilder Text) => JczLmc.GetTextByName(strEntName, Text);
+    public int TextResetSn(string TextName) => JczLmc.TextResetSn(TextName);
 
     #region ЧЦМе
 
@@ -179,35 +180,17 @@ public class ComLmc
     public const uint LMC1_FONT_DMF = 4; //DotMatrixЧЦМе
     public const uint LMC1_FONT_BCF = 8; //BarcodeЧЦМе
 
-    public struct FontRecord
-    {
-        public string fontname;//ЧЦМеГыіЖ
-        public uint fontattrib;//ЧЦМеКфРФ
-    }
-    public int GetFontRecordCount(ref int fontCount);
-    public int GetFontRecordByIndex(int fontIndex, StringBuilder fontName, ref uint fontAttrib);
-    public static bool GetAllFontRecord(ref FontRecord[] fonts)
-    {
-        int fontnum = 0;
-        if (GetFontRecordCount(ref fontnum) != 0)
-        {
-            return false;
-        }
-        if (fontnum == 0)
-        {
-            return true;
-        }
-        fonts = new FontRecord[fontnum];
-        StringBuilder str = new StringBuilder("", 255);
-        uint fontAttrib = 0;
-        for (int i = 0; i < fontnum; i++)
-        {
-            GetFontRecordByIndex(i, str, ref fontAttrib);
-            fonts[i].fontname = str.ToString(); ;
-            fonts[i].fontattrib = fontAttrib;
-        }
-        return true;
-    }
+    //public struct FontRecord
+    //{
+    //    public string fontname;//ЧЦМеГыіЖ
+    //    public uint fontattrib;//ЧЦМеКфРФ
+    //}
+    public int GetFontRecordCount(ref int fontCount) => JczLmc.GetFontRecordCount(ref fontCount);
+    public int GetFontRecordByIndex(int fontIndex, StringBuilder fontName, ref uint fontAttrib) => JczLmc.GetFontRecordByIndex(fontIndex, fontName, ref fontAttrib);
+
+    public bool GetAllFontRecord(ref FontRecord[] fonts) => JczLmc.GetAllFontRecord(ref fonts);
+
+
     public int GetFontParam3(string strFontName,
                                                  ref double CharHeight,
                                                  ref double CharWidthRatio,
@@ -217,7 +200,16 @@ public class ComLmc
                                                  ref bool EqualCharWidth,
                                                  ref int nTextAlign,
                                                  ref bool bBold,
-                                                 ref bool bItalic);
+                                                 ref bool bItalic) => JczLmc.GetFontParam3(strFontName,
+                                                                                             ref CharHeight,
+                                                                                             ref CharWidthRatio,
+                                                                                             ref CharAngle,
+                                                                                             ref CharSpace,
+                                                                                             ref LineSpace,
+                                                                                             ref EqualCharWidth,
+                                                                                             ref nTextAlign,
+                                                                                             ref bBold,
+                                                                                             ref bItalic);
     public int SetFontParam3(string fontname,
                                                 double CharHeight,
                                                 double CharWidthRatio,
@@ -228,7 +220,17 @@ public class ComLmc
                                                 bool EqualCharWidth,
                                                 int nTextAlign,
                                                 bool bBold,
-                                                bool bItalic);
+                                                bool bItalic) => JczLmc.SetFontParam3(fontname,
+                                                                                      CharHeight,
+                                                                                      CharWidthRatio,
+                                                                                      CharAngle,
+                                                                                      CharSpace,
+                                                                                      LineSpace,
+                                                                                      spaceWidthRatio,
+                                                                                      EqualCharWidth,
+                                                                                      nTextAlign,
+                                                                                      bBold,
+                                                                                      bItalic);
     public int GetTextEntParam(string EntName,
                                                      StringBuilder FontName,
                                                   ref double CharHeight,
@@ -236,7 +238,14 @@ public class ComLmc
                                                   ref double CharAngle,
                                                   ref double CharSpace,
                                                   ref double LineSpace,
-                                                  ref bool EqualCharWidth);
+                                                  ref bool EqualCharWidth) => JczLmc.GetTextEntParam(EntName,
+                                                                                                      FontName,
+                                                                                                      ref CharHeight,
+                                                                                                      ref CharWidthRatio,
+                                                                                                      ref CharAngle,
+                                                                                                      ref CharSpace,
+                                                                                                      ref LineSpace,
+                                                                                                      ref EqualCharWidth);
 
     public int SetTextEntParam(string EntName,
                                                     double CharHeight,
@@ -244,7 +253,13 @@ public class ComLmc
                                                     double CharAngle,
                                                     double CharSpace,
                                                     double LineSpace,
-                                                    bool EqualCharWidth);
+                                                    bool EqualCharWidth) => JczLmc.SetTextEntParam(EntName,
+                                                                                                   CharHeight,
+                                                                                                   CharWidthRatio,
+                                                                                                   CharAngle,
+                                                                                                   CharSpace,
+                                                                                                   LineSpace,
+                                                                                                   EqualCharWidth);
 
     public int GetTextEntParam2(string EntName,
                                                     StringBuilder FontName,
@@ -254,7 +269,15 @@ public class ComLmc
                                                  ref double CharSpace,
                                                  ref double LineSpace,
                                                  ref double spaceWidthRatio,
-                                                 ref bool EqualCharWidth);
+                                                 ref bool EqualCharWidth) => JczLmc.GetTextEntParam2(EntName,
+                                                                                                     FontName,
+                                                                                                     ref CharHeight,
+                                                                                                     ref CharWidthRatio,
+                                                                                                     ref CharAngle,
+                                                                                                     ref CharSpace,
+                                                                                                     ref LineSpace,
+                                                                                                     ref spaceWidthRatio,
+                                                                                                     ref EqualCharWidth);
     public int SetTextEntParam2(string EntName,
                                                      string fontname,
                                                     double CharHeight,
@@ -263,7 +286,15 @@ public class ComLmc
                                                     double CharSpace,
                                                     double LineSpace,
                                                     double spaceWidthRatio,
-                                                    bool EqualCharWidth);
+                                                    bool EqualCharWidth) => JczLmc.SetTextEntParam2(EntName,
+                                                                                                    fontname,
+                                                                                                    CharHeight,
+                                                                                                    CharWidthRatio,
+                                                                                                    CharAngle,
+                                                                                                    CharSpace,
+                                                                                                    LineSpace,
+                                                                                                    spaceWidthRatio,
+                                                                                                    EqualCharWidth);
     public int GetTextEntParam4(string EntName,
                                                    StringBuilder FontName,
                                                    ref int nTextSpaceMode,
@@ -276,7 +307,19 @@ public class ComLmc
                                             ref double dNullCharWidthRatio,
                                             ref int nTextAlign,
                                             ref bool bBold,
-                                            ref bool bItalic);
+                                            ref bool bItalic) => JczLmc.GetTextEntParam4(EntName,
+                                                                                         FontName,
+                                                                                         ref nTextSpaceMode,
+                                                                                         ref dTextSpace,
+                                                                                         ref CharHeight,
+                                                                                         ref CharWidthRatio,
+                                                                                         ref CharAngle,
+                                                                                         ref CharSpace,
+                                                                                         ref LineSpace,
+                                                                                         ref dNullCharWidthRatio,
+                                                                                         ref nTextAlign,
+                                                                                         ref bBold,
+                                                                                         ref bItalic);
     public int SetTextEntParam4(string EntName,
                                                string fontname,
                                                int nTextSpaceMode,
@@ -289,7 +332,20 @@ public class ComLmc
                                               double spaceWidthRatio,
                                                 int nTextAlign,
                                                 bool bBold,
-                                                bool bItalic);
+                                                bool bItalic) => JczLmc.SetTextEntParam4(EntName,
+                                                                                         fontname,
+                                                                                         nTextSpaceMode,
+                                                                                         dTextSpace,
+                                                                                         CharHeight,
+                                                                                         CharWidthRatio,
+                                                                                         CharAngle,
+                                                                                         CharSpace,
+                                                                                         LineSpace,
+                                                                                         spaceWidthRatio,
+                                                                                         nTextAlign,
+                                                                                         bBold,
+                                                                                         bItalic);
+    
     public int GetCircleTextParam(string pEntName,
                                               ref double dCenX,
                                               ref double dCenY,
@@ -298,7 +354,15 @@ public class ComLmc
                                               ref double dCirBaseAngle,
                                               ref bool bCirEnableAngleLimit,
                                               ref double dCirAngleLimit,
-                                              ref int nCirTextFlag);
+                                              ref int nCirTextFlag) =>JczLmc.GetCircleTextParam(pEntName,
+                                                                                                ref dCenX,
+                                                                                                ref dCenY,
+                                                                                                ref dCenZ,
+                                                                                                ref dCirDiameter,
+                                                                                                ref dCirBaseAngle,
+                                                                                                ref bCirEnableAngleLimit,
+                                                                                                ref dCirAngleLimit,
+                                                                                                ref nCirTextFlag);
     public int SetCircleTextParam(string pEntName,
                                                 double dCenX,
                                                 double dCenY,
@@ -307,7 +371,15 @@ public class ComLmc
                                                 double dCirBaseAngle,
                                                 bool bCirEnableAngleLimit,
                                                 double dCirAngleLimit,
-                                                int nCirTextFlag);
+                                                int nCirTextFlag) => JczLmc.SetCircleTextParam(pEntName,
+                                                                                               dCenX,
+                                                                                               dCenY,
+                                                                                               dCenZ,
+                                                                                               dCirDiameter,
+                                                                                               dCirBaseAngle,
+                                                                                               bCirEnableAngleLimit,
+                                                                                               dCirAngleLimit,
+                                                                                               nCirTextFlag);
     #endregion
 
     #region ±КєЕ
@@ -330,7 +402,26 @@ public class ComLmc
                  ref double dPointTime,
                  ref bool bPulsePointMode,
                  ref int nPulseNum,
-                 ref double dFlySpeed);
+                 ref double dFlySpeed) => JczLmc.GetPenParam(nPenNo,
+                                                             ref nMarkLoop,
+                                                             ref dMarkSpeed,
+                                                             ref dPowerRatio,
+                                                             ref dCurrent,
+                                                             ref nFreq,
+                                                             ref dQPulseWidth,
+                                                             ref nStartTC,
+                                                             ref nLaserOffTC,
+                                                             ref nEndTC,
+                                                             ref nPolyTC,
+                                                             ref dJumpSpeed,
+                                                             ref nJumpPosTC,
+                                                             ref nJumpDistTC,
+                                                             ref dEndComp,
+                                                             ref dAccDist,
+                                                             ref dPointTime,
+                                                             ref bPulsePointMode,
+                                                             ref nPulseNum,
+                                                             ref dFlySpeed);
 
     public int GetPenParam2(int nPenNo,
                  ref int nMarkLoop,
@@ -350,10 +441,25 @@ public class ComLmc
                  ref int nSpiWave,
                  ref bool bWobbleMode,
                  ref double bWobbleDiameter,
-                 ref double bWobbleDist);
-
-
-    [DllImport("MarkEzd", EntryPoint = "lmc1_GetPenParam4", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
+                 ref double bWobbleDist) => JczLmc.GetPenParam2(nPenNo,
+                                                                ref nMarkLoop,
+                                                                ref dMarkSpeed,
+                                                                ref dPowerRatio,
+                                                                ref dCurrent,
+                                                                ref nFreq,
+                                                                ref dQPulseWidth,
+                                                                ref nStartTC,
+                                                                ref nLaserOffTC,
+                                                                ref nEndTC,
+                                                                ref nPolyTC,
+                                                                ref dJumpSpeed,
+                                                                ref nJumpPosTC,
+                                                                ref nJumpDistTC,
+                                                                ref dPointTime,
+                                                                ref nSpiWave,
+                                                                ref bWobbleMode,
+                                                                ref bWobbleDiameter,
+                                                                ref bWobbleDist);
     public int GetPenParam4(int nPenNo,
                                                     StringBuilder pStrName,
                                                     ref int clr,
@@ -385,7 +491,38 @@ public class ComLmc
                                                     ref double dBreakAngle,
                                                     ref bool bWobbleMode,
                                                     ref double bWobbleDiameter,
-                                                    ref double bWobbleDist);
+                                                    ref double bWobbleDist) => JczLmc.GetPenParam4(nPenNo,
+                                                                                                   pStrName,
+                                                                                                   ref clr,
+                                                                                                   ref bDisableMark,
+                                                                                                   ref bUseDefParam,
+                                                                                                   ref nMarkLoop,
+                                                                                                   ref dMarkSpeed,
+                                                                                                   ref dPowerRatio,
+                                                                                                   ref dCurrent,
+                                                                                                   ref nFreq,
+                                                                                                   ref dQPulseWidth,
+                                                                                                   ref nStartTC,
+                                                                                                   ref nLaserOffTC,
+                                                                                                   ref nEndTC,
+                                                                                                   ref nPolyTC,
+                                                                                                   ref dJumpSpeed,
+                                                                                                   ref nMinJumpDelayTCUs,
+                                                                                                   ref nMaxJumpDelayTCUs,
+                                                                                                   ref dJumpLengthLimit,
+                                                                                                   ref dPointTimeMs,
+                                                                                                   ref nSpiSpiContinueMode,
+                                                                                                   ref nSpiWave,
+                                                                                                   ref nYagMarkMode,
+                                                                                                   ref bPulsePointMode,
+                                                                                                   ref nPulseNum,
+                                                                                                   ref bEnableACCMode,
+                                                                                                   ref dEndComp,
+                                                                                                   ref dAccDist,
+                                                                                                   ref dBreakAngle,
+                                                                                                   ref bWobbleMode,
+                                                                                                   ref bWobbleDiameter,
+                                                                                                   ref bWobbleDist);
     public int SetPenParam(int nPenNo,
                          int nMarkLoop,
                          double dMarkSpeed,
@@ -405,32 +542,51 @@ public class ComLmc
                          double dPointTime,
                          bool bPulsePointMode,
                          int nPulseNum,
-                         double dFlySpeed);
+                         double dFlySpeed) => JczLmc.SetPenParam(nPenNo,
+                                                                 nMarkLoop,
+                                                                 dMarkSpeed,
+                                                                 dPowerRatio,
+                                                                 dCurrent,
+                                                                 nFreq,
+                                                                 dQPulseWidth,
+                                                                 nStartTC,
+                                                                 nLaserOffTC,
+                                                                 nEndTC,
+                                                                 nPolyTC,
+                                                                 dJumpSpeed,
+                                                                 nJumpPosTC,
+                                                                 nJumpDistTC,
+                                                                 dEndComp,
+                                                                 dAccDist,
+                                                                 dPointTime,
+                                                                 bPulsePointMode,
+                                                                 nPulseNum,
+                                                                 dFlySpeed);
 
 
-    public static int SetPenParams(PenParams penParams) => SetPenParam(
-                                         nPenNo: penParams.PenNo,
-                                         nMarkLoop: penParams.MarkLoop,
-                                         dMarkSpeed: penParams.MarkSpeed,
-                                         dPowerRatio: penParams.PowerRatio,
-                                         dCurrent: penParams.Current,
-                                         nFreq: penParams.Freq,
-                                         dQPulseWidth: penParams.QPulseWidth,
-                                         nStartTC: penParams.StartTC,
-                                         nLaserOffTC: penParams.LaserOffTC,
-                                         nEndTC: penParams.EndTC,
-                                         nPolyTC: penParams.PolyTC,
-                                         dJumpSpeed: penParams.JumpSpeed,
-                                         nJumpPosTC: penParams.JumpPosTC,
-                                         nJumpDistTC: penParams.JumpDistTC,
-                                         dEndComp: penParams.EndComp,
-                                         dAccDist: penParams.AccDist,
-                                         dPointTime: penParams.PointTime,
-                                         bPulsePointMode: penParams.PulsePointMode,
-                                         nPulseNum: penParams.PulseNum,
-                                         dFlySpeed: penParams.FlySpeed);
+    //public int SetPenParams(PenParams penParams) => SetPenParam(
+    //                                     nPenNo: penParams.PenNo,
+    //                                     nMarkLoop: penParams.MarkLoop,
+    //                                     dMarkSpeed: penParams.MarkSpeed,
+    //                                     dPowerRatio: penParams.PowerRatio,
+    //                                     dCurrent: penParams.Current,
+    //                                     nFreq: penParams.Freq,
+    //                                     dQPulseWidth: penParams.QPulseWidth,
+    //                                     nStartTC: penParams.StartTC,
+    //                                     nLaserOffTC: penParams.LaserOffTC,
+    //                                     nEndTC: penParams.EndTC,
+    //                                     nPolyTC: penParams.PolyTC,
+    //                                     dJumpSpeed: penParams.JumpSpeed,
+    //                                     nJumpPosTC: penParams.JumpPosTC,
+    //                                     nJumpDistTC: penParams.JumpDistTC,
+    //                                     dEndComp: penParams.EndComp,
+    //                                     dAccDist: penParams.AccDist,
+    //                                     dPointTime: penParams.PointTime,
+    //                                     bPulsePointMode: penParams.PulsePointMode,
+    //                                     nPulseNum: penParams.PulseNum,
+    //                                     dFlySpeed: penParams.FlySpeed);
 
-
+    
     public int SetPenParam2(int nPenNo,
                                                     int nMarkLoop,
                                                     double dMarkSpeed,
@@ -449,19 +605,31 @@ public class ComLmc
                                                     int nSpiWave,
                                                     bool bWobbleMode,
                                                     double bWobbleDiameter,
-                                                    double bWobbleDist);
+                                                    double bWobbleDist) => JczLmc.SetPenParam2(nPenNo,
+                                                                                               nMarkLoop,
+                                                                                               dMarkSpeed,
+                                                                                               dPowerRatio,
+                                                                                               dCurrent,
+                                                                                               nFreq,
+                                                                                               dQPulseWidth,
+                                                                                               nStartTC,
+                                                                                               nLaserOffTC,
+                                                                                               nEndTC,
+                                                                                               nPolyTC,
+                                                                                               dJumpSpeed,
+                                                                                               nJumpPosTC,
+                                                                                               nJumpDistTC,
+                                                                                               dPointTime,
+                                                                                               nSpiWave,
+                                                                                               bWobbleMode,
+                                                                                               bWobbleDiameter,
+                                                                                               bWobbleDist);
 
 
-    public static int ColorToCOLORREF(Color color)
-    {
-        return ((color.R | (color.G << 8)) | (color.B << 0x10));
-    }
-
-    public static Color COLORREFToColor(int colorRef)
-    {
-        byte[] _IntByte = BitConverter.GetBytes(colorRef);
-        return Color.FromArgb(_IntByte[0], _IntByte[1], _IntByte[2]);
-    }
+    public int ColorToCOLORREF(Color color) => JczLmc.ColorToCOLORREF(color);
+    
+    public Color COLORREFToColor(int colorRef) => JczLmc.COLORREFToColor(colorRef);
+    
     public int SetPenParam4(int nPenNo,//±КєЕ
                                                         string pStrName,    // ГыіЖ
                                                         int clr,//СХЙ«
@@ -493,25 +661,56 @@ public class ComLmc
                                                         double dBreakAngle,//ЦР¶ПЅЗ¶И
                                                         bool bWobbleMode,//¶¶¶ЇДЈКЅ
                                                         double bWobbleDiameter,//¶¶¶ЇЦ±ѕ¶
-                                                        double bWobbleDist);//¶¶¶ЇПЯјдѕа
-    public int SetPenDisableState(int nPenNo, bool bDisableMark);
-    public int GetPenDisableState(int nPenNo, ref bool bDisableMark);
-    public int GetPenNumberFromName(string strEntName);
-    public int GetPenNumberFromEnt(string strEntName);
-    public void SetEntAllChildPen(string strEntName, int nPenNo);
+                                                        double bWobbleDist) => JczLmc.SetPenParam4(nPenNo,
+                                                                                                   pStrName,
+                                                                                                   clr,
+                                                                                                   bDisableMark,
+                                                                                                   bUseDefParam,
+                                                                                                   nMarkLoop,
+                                                                                                   dMarkSpeed,
+                                                                                                   dPowerRatio,
+                                                                                                   dCurrent,
+                                                                                                   nFreq,
+                                                                                                   dQPulseWidth,
+                                                                                                   nStartTC,
+                                                                                                   nLaserOffTC,
+                                                                                                   nEndTC,
+                                                                                                   nPolyTC,
+                                                                                                   dJumpSpeed,
+                                                                                                   nMinJumpDelayTCUs,
+                                                                                                   nMaxJumpDelayTCUs,
+                                                                                                   dJumpLengthLimit,
+                                                                                                   dPointTimeMs,
+                                                                                                   nSpiSpiContinueMode,
+                                                                                                   nSpiWave,
+                                                                                                   nYagMarkMode,
+                                                                                                   bPulsePointMode,
+                                                                                                   nPulseNum,
+                                                                                                   bEnableACCMode,
+                                                                                                   dEndComp,
+                                                                                                   dAccDist,
+                                                                                                   dBreakAngle,
+                                                                                                   bWobbleMode,
+                                                                                                   bWobbleDiameter,
+                                                                                                   bWobbleDist);
+    public int SetPenDisableState(int nPenNo, bool bDisableMark) => JczLmc.SetPenDisableState(nPenNo, bDisableMark);
+    public int GetPenDisableState(int nPenNo, ref bool bDisableMark) => JczLmc.GetPenDisableState(nPenNo,ref bDisableMark);
+    public int GetPenNumberFromName(string strEntName) => JczLmc.GetPenNumberFromName(strEntName);
+    public int GetPenNumberFromEnt(string strEntName) => JczLmc.GetPenNumberFromEnt(strEntName);
+    public void SetEntAllChildPen(string strEntName, int nPenNo) => JczLmc.SetEntAllChildPen(strEntName,nPenNo);
 
     #endregion
 
     #region Моід
-    public const int HATCHATTRIB_ALLCALC = 0x01;//И«Ії¶ФПуХыМејЖЛг
-    public const int HATCHATTRIB_EDGE = 0x02;//ИЖ±ЯЧЯТ»ґО
-    public const int HATCHATTRIB_MINUP = 0x04;//ЧоЙЩЖр±К
-    public const int HATCHATTRIB_BIDIR = 0x08;//Л«ПтМоід
-    public const int HATCHATTRIB_LOOP = 0x10;//»·РРМоід
-    public const int HATCHATTRIB_OUT = 0x20;//»·РРУЙДЪПтНв
-    public const int HATCHATTRIB_AUTOROT = 0x40;//ЧФ¶ЇЅЗ¶ИРэЧЄ
-    public const int HATCHATTRIB_AVERAGELINE = 0x80;//ЧФ¶Ї·ЦІјМоідПЯ
-    public const int HATCHATTRIB_CROSSLINE = 0x400;//Ѕ»ІжМоід
+    //public const int HATCHATTRIB_ALLCALC = 0x01;//И«Ії¶ФПуХыМејЖЛг
+    //public const int HATCHATTRIB_EDGE = 0x02;//ИЖ±ЯЧЯТ»ґО
+    //public const int HATCHATTRIB_MINUP = 0x04;//ЧоЙЩЖр±К
+    //public const int HATCHATTRIB_BIDIR = 0x08;//Л«ПтМоід
+    //public const int HATCHATTRIB_LOOP = 0x10;//»·РРМоід
+    //public const int HATCHATTRIB_OUT = 0x20;//»·РРУЙДЪПтНв
+    //public const int HATCHATTRIB_AUTOROT = 0x40;//ЧФ¶ЇЅЗ¶ИРэЧЄ
+    //public const int HATCHATTRIB_AVERAGELINE = 0x80;//ЧФ¶Ї·ЦІјМоідПЯ
+    //public const int HATCHATTRIB_CROSSLINE = 0x400;//Ѕ»ІжМоід
     public int SetHatchParam(bool bEnableContour,
                       int bEnableHatch1,
                       int nPenNo1,
@@ -528,26 +727,43 @@ public class ComLmc
                       double dHatchLineDist2,
                       double dHatchStartOffset2,
                       double dHatchEndOffset2,
-                      double dHatchAngle2);
+                      double dHatchAngle2) => JczLmc.SetHatchParam(bEnableContour,
+                                                                   bEnableHatch1,
+                                                                   nPenNo1,
+                                                                   nHatchAttrib1,
+                                                                   dHatchEdgeDist1,
+                                                                   dHatchLineDist1,
+                                                                   dHatchStartOffset1,
+                                                                   dHatchEndOffset1,
+                                                                   dHatchAngle1,
+                                                                   bEnableHatch2,
+                                                                   nPenNo2,
+                                                                   nHatchAttrib2,
+                                                                   dHatchEdgeDist2,
+                                                                   dHatchLineDist2,
+                                                                   dHatchStartOffset2,
+                                                                   dHatchEndOffset2,
+                                                                   dHatchAngle2);
 
-    public static int sethatchparams(hatchparams hatchparams) => sethatchparam(
-       benablecontour: hatchparams.enablecontour,
-       benablehatch1: hatchparams.enablehatch ? 1 : 0,
-       npenno1: hatchparams.penno,
-       nhatchattrib1: hatchparams.hatchattribute,//hatchattrib_loop,//40
-       dhatchedgedist1: hatchparams.hatchedgedist,
-       dhatchlinedist1: hatchparams.hatchlinedist,
-       dhatchstartoffset1: hatchparams.hatchstartoffset,
-       dhatchendoffset1: hatchparams.hatchendoffset,
-       dhatchangle1: hatchparams.hatchrotateangle,
-       benablehatch2: 0,
-       npenno2: 0,
-       nhatchattrib2: 48,
-       dhatchedgedist2: 0,
-       dhatchlinedist2: 0,
-       dhatchstartoffset2: 0,
-       dhatchendoffset2: 0,
-       dhatchangle2: 0);
+    //public static int sethatchparams(hatchparams hatchparams) => sethatchparam(
+    //   benablecontour: hatchparams.enablecontour,
+    //   benablehatch1: hatchparams.enablehatch ? 1 : 0,
+    //   npenno1: hatchparams.penno,
+    //   nhatchattrib1: hatchparams.hatchattribute,//hatchattrib_loop,//40
+    //   dhatchedgedist1: hatchparams.hatchedgedist,
+    //   dhatchlinedist1: hatchparams.hatchlinedist,
+    //   dhatchstartoffset1: hatchparams.hatchstartoffset,
+    //   dhatchendoffset1: hatchparams.hatchendoffset,
+    //   dhatchangle1: hatchparams.hatchrotateangle,
+    //   benablehatch2: 0,
+    //   npenno2: 0,
+    //   nhatchattrib2: 48,
+    //   dhatchedgedist2: 0,
+    //   dhatchlinedist2: 0,
+    //   dhatchstartoffset2: 0,
+    //   dhatchendoffset2: 0,
+    //   dhatchangle2: 0);
+    
     public int SetHatchParam2(bool bEnableContour,//К№ДЬВЦАЄ±ѕЙн
                                                           int nParamIndex,//МоідІОКэРтєЕЦµОЄ1,2,3
                                                           int bEnableHatch,//К№ДЬМоід
@@ -567,7 +783,25 @@ public class ComLmc
                                                           bool nHatchLoopRev,//»·РО·ґЧЄ
                                                           bool bHatchAutoRotate,//КЗ·сЧФ¶ЇРэЧЄЅЗ¶И
                                                           double dHatchRotateAngle//ЧФ¶ЇРэЧЄЅЗ¶И   
-                                                       );
+                                                       ) => JczLmc.SetHatchParam2(bEnableContour,
+                                                                                  nParamIndex,
+                                                                                  bEnableHatch,
+                                                                                  nPenNo,
+                                                                                  nHatchType,
+                                                                                  bHatchAllCalc,
+                                                                                  bHatchEdge,
+                                                                                  bHatchAverageLine,
+                                                                                  dHatchAngle,
+                                                                                  dHatchLineDist,
+                                                                                  dHatchEdgeDist, 
+                                                                                  dHatchStartOffset,
+                                                                                  dHatchEndOffset,
+                                                                                  dHatchLineReduction,
+                                                                                  dHatchLoopDist,
+                                                                                  nEdgeLoop,
+                                                                                  nHatchLoopRev,
+                                                                                  bHatchAutoRotate,
+                                                                                  dHatchRotateAngle);
     public int SetHatchParam3(bool bEnableContour,//К№ДЬВЦАЄ±ѕЙн
                                                       int nParamIndex,//МоідІОКэРтєЕЦµОЄ1,2,3
                                                       int bEnableHatch,//К№ДЬМоід
@@ -696,6 +930,9 @@ public class ComLmc
                      ref double dHatchRotateAngle,
                      ref bool bHatchCrossMode,
                      ref int dCycCount);
+
+
+    /*
     public int HatchEnt(string strEntName, string strHatchEntName);
     public int UnHatchEnt(string strHatchEntName);
 
@@ -868,7 +1105,7 @@ public class ComLmc
     public int ReadLockPort(ref ushort data);
     #endregion
     */
-#endregion
-    
+    #endregion
+
 }
 

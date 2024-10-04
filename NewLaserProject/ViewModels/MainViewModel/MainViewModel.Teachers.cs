@@ -28,14 +28,18 @@ namespace NewLaserProject.ViewModels
 
     public partial class MainViewModel
     {
-        public double TeacherPointerX { get; set; }
-        public double TeacherPointerY { get; set; }
         private bool _tempMirrorX;
         private bool _tempWaferTurn90;
+        private Stateless.StateMachine<AppState, AppTrigger>.TriggerWithParameters<Teacher>? _startTeachTrigger;
+        private CoorSystem<LMPlace> _testCoorSys;
+        private double _angle;
+        public double TeacherPointerX { get; set; }
+        public double TeacherPointerY { get; set; }
+        
         public bool TeacherPointerVisibility { get; set; } = false;
         public List<string> TeachingSteps { get; set; }
         public int StepIndex { get; set; }
-        private Stateless.StateMachine<AppState, AppTrigger>.TriggerWithParameters<Teacher>? _startTeachTrigger;
+        
         [ICommand]
         private async Task StartTeaching(Teacher teacher)
         {
@@ -696,8 +700,7 @@ namespace NewLaserProject.ViewModels
             _canTeach = true;
         }
 
-        private CoorSystem<LMPlace> _testCoorSys;
-        private double _angle;
+       
 
         [ICommand]
         private async Task TestPierce()

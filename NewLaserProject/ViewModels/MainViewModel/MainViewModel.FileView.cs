@@ -22,6 +22,8 @@ namespace NewLaserProject.ViewModels
 {
     public partial class MainViewModel
     {
+        private FileVM _openedFileVM;
+        private IDxfReader _dxfReader;
         [OnChangedMethod(nameof(FileScaleChanged))]
         public Scale DefaultFileScale { get; set; } = Scale.ThousandToOne;
         public bool IsFileLoaded { get; set; } = false;
@@ -50,10 +52,10 @@ namespace NewLaserProject.ViewModels
         public Dictionary<string, bool> IgnoredLayers { get; set; }
         public LaserDbViewModel LaserDbVM { get; set; }
 
-        private FileVM _openedFileVM;
+        
         public bool CanUndoCut { get; private set; }
 
-        private IDxfReader _dxfReader;
+        
         private void FileScaleChanged()
         {
             if (_openedFileVM is not null) _openedFileVM.FileScale = DefaultFileScale;

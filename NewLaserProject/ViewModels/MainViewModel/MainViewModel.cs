@@ -35,6 +35,23 @@ namespace NewLaserProject.ViewModels
     public partial class MainViewModel
     {
         private readonly LaserMachine _laserMachine;
+        private string _pierceSequenceJson = string.Empty;
+        //private readonly WorkTimeLogger? _workTimeLogger;
+        private CameraVM _cameraVM;
+        private readonly IMediator _mediator;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ISubject<IProcessNotify> _subjMediator;
+        private CoorSystem<LMPlace> _coorSystem;
+        private ITeacher _currentTeacher;
+        private bool _canTeach = false;
+        private IProcess? _mainProcess;
+        private double _waferAngle;
+        private readonly Serilog.ILogger _logger;
+        private readonly ISettingsManager<LaserMachineSettings> _settingsManager;
+        private object _tempVM;
+        private LightColumn _signalColumn;
+        private CoeffLine _xCoeffLine;
+        private CoeffLine _yCoeffLine;
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
         public bool IsRightPanelVisible { get; set; } = true;
@@ -52,7 +69,6 @@ namespace NewLaserProject.ViewModels
         public double ScaleMarkersRatioFirst { get; private set; } = 0.1;
         public double ScaleMarkersRatioSecond => 1 - ScaleMarkersRatioFirst;
 
-        private string _pierceSequenceJson = string.Empty;
         public Velocity VelocityRegime { get; private set; } = Velocity.Fast;
         public object RightSideVM { get; set; }
         public object CentralSideVM { get; set; }
@@ -66,24 +82,12 @@ namespace NewLaserProject.ViewModels
         public bool PWMDeviceOk { get; set; }
         public string PWMDeviceProblem { get; private set; }
 
-        //private readonly WorkTimeLogger? _workTimeLogger;
-        private CameraVM _cameraVM;
-
-        private readonly IMediator _mediator;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ISubject<IProcessNotify> _subjMediator;
+        
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
         public bool ShowVideo { get; set; }
         //---------------------------------------------
-        private CoorSystem<LMPlace> _coorSystem;
-        private ITeacher _currentTeacher;
-        private bool _canTeach = false;
-
-        private IProcess? _mainProcess;
-        private double _waferAngle;
-        private readonly Serilog.ILogger _logger;
-        private readonly ISettingsManager<LaserMachineSettings> _settingsManager;
+        
 
         public MainViewModel(LaserMachine laserMachine, IMediator mediator,
             IServiceProvider serviceProvider, /*ILoggerProvider loggerProvider*/ Serilog.ILogger logger,
@@ -221,10 +225,7 @@ namespace NewLaserProject.ViewModels
             _laserMachine.StartCamera(0, CameraCapabilitiesIndex);
         }
 
-        private object _tempVM;
-        private LightColumn _signalColumn;
-        private CoeffLine _xCoeffLine;
-        private CoeffLine _yCoeffLine;
+       
 
         public bool IsMechViewChecked
         {

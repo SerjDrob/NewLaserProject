@@ -40,6 +40,12 @@ namespace NewLaserProject.ViewModels
 
     public partial class MainViewModel
     {
+        private List<IDisposable> _currentProcSubscriptions;
+        private DateTime _procStartTime;
+        private DateTime _procObjTempTime = new(0);
+        private Timer _processTimer;
+        private bool _currObjectStarted;
+        private bool _isSnapAllowed;
         public bool IsBlockZ { get; set; } = true;
         public ObservableCollection<ProcObjTabVM> ProcessingObjects { get; set; }
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
@@ -60,12 +66,7 @@ namespace NewLaserProject.ViewModels
         public bool IsProcessLoaded { get; private set; }
         public bool IsProcessUnderCamera { get; set; }
 
-        private List<IDisposable> _currentProcSubscriptions;
-        private DateTime _procStartTime;
-        private DateTime _procObjTempTime = new(0);
-        private Timer _processTimer;
-        private bool _currObjectStarted;
-        private bool _isSnapAlowed;
+       
         public string CurrentProcObjectTimer { get; set; }
         public string LastProcObjectTimer { get; set; }
         public string TotalProcessTimer { get; set; }
@@ -89,6 +90,7 @@ namespace NewLaserProject.ViewModels
                 }
                 else
                 {
+                    if (_mainProcess is null) throw new NullReferenceException("_mainProcess is null");
                     await _mainProcess.Deny().ConfigureAwait(false);
                     await _appStateMachine.FireAsync(AppTrigger.EndProcess).ConfigureAwait(false);
                 }
@@ -202,7 +204,6 @@ namespace NewLaserProject.ViewModels
                     _ => throw new ArgumentOutOfRangeException($"{CurrentEntityType} is not valid entity type for processing")
                 };
 
-
                 var processing = new List<(IEnumerable<IProcObject>, MicroProcess)>();
                 foreach (var ofp in ChosenProcessingObjects)
                 {
@@ -223,10 +224,8 @@ namespace NewLaserProject.ViewModels
                     {
                         await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
                     });
-                    processing.Add((objects, mp));
+                    processing.Add((objects/*.SplitOnClusters(new(0,0,60000,48000),2,2)*/, mp));
                 }
-
-
 
                 _mainProcess = new CommonProcess(
                     processing: processing,
@@ -408,12 +407,12 @@ namespace NewLaserProject.ViewModels
                 _mainProcess.OfType<PermitSnap>()
                     .Subscribe(r => 
                     {
-                        _isSnapAlowed = true;
+                        _isSnapAllowed = true;
                     });
                 _mainProcess.OfType<SnapNotAlowed>()
                     .Subscribe(s => 
                     {
-                        _isSnapAlowed = false; 
+                        _isSnapAllowed = false; 
                     });
                 HideProcessPanel(false);
                 _mainProcess.CreateProcess();

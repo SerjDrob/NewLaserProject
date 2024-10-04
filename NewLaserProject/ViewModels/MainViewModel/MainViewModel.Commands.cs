@@ -32,10 +32,10 @@ namespace NewLaserProject.ViewModels
 {
     public partial class MainViewModel
     {
+        private bool _isKeyProcCommandsBlocked;
         public ICommand? TestKeyCommand { get; protected set; }
         public double TestX { get; set; }
         public double TestY { get; set; }
-        private bool _isKeyProcCommandsBlocked;
         private void InitCommands()
         {
 
@@ -108,7 +108,7 @@ namespace NewLaserProject.ViewModels
                 .CreateKeyDownCommand(Key.Z, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.X, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.C, ModifierKeys.Shift, () => moveAxFastDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.S, ModifierKeys.None, () => { _cameraVM?.OpenTargetWindow(); return Task.CompletedTask; }, () => IsMainTabOpen && _isSnapAlowed)
+                .CreateKeyDownCommand(Key.S, ModifierKeys.None, () => { _cameraVM?.OpenTargetWindow(); return Task.CompletedTask; }, () => IsMainTabOpen && _isSnapAllowed)
                 .CreateKeyDownCommand(Key.T, ModifierKeys.None, async () =>
                 {
                     var result = await Dialog.Show<CommonDialog>()
@@ -522,7 +522,6 @@ namespace NewLaserProject.ViewModels
             }
         }
 
-        private CancellationTokenSource _individualProcCancellationTokenSource;
 
         [ICommand]
         private async Task PierceIndividual(bool start)

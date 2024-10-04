@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using HandyControl.Controls;
 using NewLaserProject.Classes;
 using Stateless;
@@ -9,6 +10,8 @@ namespace NewLaserProject.ViewModels
     public partial class MainViewModel
     {
         private StateMachine<AppState, AppTrigger> _appStateMachine;
+        private CancellationTokenSource _individualProcCancellationTokenSource;
+
         public bool IsMainTabOpen { get; set; } = true;
         public bool IsProcessing { get; set; } = false;
 
