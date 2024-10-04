@@ -48,14 +48,6 @@
 
                 <Canvas>
                     <Image Panel.ZIndex="0" x:Name="TableImage" Width="367" Source="/Views/TableReady.png" SnapsToDevicePixels="True"/>
-                    <!--<Rectangle Width="10" Height="10" Fill="Red"
-                               Canvas.Top="{Binding ElementName=TableImage, Path=ActualHeight, Converter={StaticResource DivideConverter}, ConverterParameter=1.45}"
-                               Canvas.Left="{Binding ElementName=TableImage, Path=ActualWidth, Converter={StaticResource DivideConverter}, ConverterParameter=4.5}"
-                               >
-                        <Rectangle.RenderTransform>
-                            <TranslateTransform X="0" Y="0"/>
-                        </Rectangle.RenderTransform>
-                    </Rectangle>-->
                     <Canvas.RenderTransform>
                         <TransformGroup>
                             <TranslateTransform X="685" Y="860"/>
@@ -89,7 +81,8 @@
                             </TranslateTransform>
                             <TranslateTransform>
                                 <TranslateTransform.Y>
-                                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="1">
+                                    <!--change the sign to change y's direction-->
+                                    <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="-1">
                                         <Binding ElementName="TableImage" Path="ActualWidth"/>
                                         <Binding Path="TableOriginY"/>
                                         <Binding Path="TableWidth"/>
@@ -115,7 +108,8 @@
                         </MultiBinding>
                     </Canvas.Left>
                     <Canvas.Top>
-                        <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="-1">
+                        <!--change the sign to change y's direction-->
+                        <MultiBinding Converter="{StaticResource MechanicScaleConverter}" ConverterParameter="1">
                             <Binding ElementName="TableImage" Path="ActualWidth"/>
                             <Binding Path="TableY"/>
                             <Binding Path="TableWidth"/>
@@ -127,10 +121,6 @@
                     <TransformGroup>
                         <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
                         <TranslateTransform X="200"/>
-                        <!--<TranslateTransform X="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=ActualWidth, ConverterParameter=2, Converter={StaticResource DivideConverter} }"/>
-                    <TranslateTransform Y="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=ActualHeight, ConverterParameter=2, Converter={StaticResource DivideConverter} }"/>
-                    <TranslateTransform Y="-300"/>
-                    <TranslateTransform X="-300"/>-->
                     </TransformGroup>
                 </Canvas.RenderTransform>
             </Canvas>

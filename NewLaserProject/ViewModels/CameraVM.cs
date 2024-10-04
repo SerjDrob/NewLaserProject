@@ -51,19 +51,10 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private void VideoClick((double x, double y) coordinates) => VideoClicked?.Invoke(this, coordinates);
 
-        //[ICommand]
         public void OpenTargetWindow()
         {
             _mediator.OnNext(new ReadyForSnap());
         }
-        //private double _initialHeight;
-        //public double TargetScale { get; set; }
-        //[ICommand]
-        //private void TargetSizeChanged(double args)
-        //{
-        //    if (_initialHeight == 0) _initialHeight = args;
-        //    TargetScale = args / _initialHeight;
-        //}
         public void Handle(SnapShot notification)
         {
             SnapShot = notification;

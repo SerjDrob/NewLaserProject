@@ -316,38 +316,49 @@
                 <hc:SplitButton hc:IconElement.Geometry="{StaticResource AcademicHatGeometry}" HorizontalAlignment="Stretch">
                     <hc:SplitButton.DropDownContent>
                         <StackPanel>
-                            <MenuItem Command="{Binding StartTeachingCommand}"
-                                      CommandParameter="{x:Static vm:Teacher.CameraOffset}"
-                                      Header="Смещение камеры">
-                                <MenuItem.Icon>
-                                    <Image Source="Sources/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Command="{Binding StartTeachingCommand}"
-                                      CommandParameter="{x:Static vm:Teacher.CameraGroupOffset}"
-                                      Header="Групп. смещение камеры">
-                            </MenuItem>
-                            <MenuItem Command="{Binding StartTeachingCommand}" 
-                                      CommandParameter="{x:Static vm:Teacher.ScanatorHorizont}"
-                                      Header="Горизонт сканатора">
+                            <!--<MenuItem Command="{Binding StartTeachingCommand}"
+          CommandParameter="{x:Static vm:Teacher.CameraGroupOffset}"
+          Header="Групп. смещение камеры">
+</MenuItem>-->
+                            <!--<MenuItem Command="{Binding StartTeachingCommand}" 
+          CommandParameter="{x:Static vm:Teacher.ScanatorHorizont}"
+          Header="Горизонт сканатора">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/angle.png" Height="20" />
                                 </MenuItem.Icon>
-                            </MenuItem>
-                            <!--<MenuItem Command="{Binding StartTeachingCommand}" 
-                                      CommandParameter="{x:Static vm:Teacher.OrthXY}"
-                                      Header="Ортогональность XY">
-                                <MenuItem.Icon>
-                                    <Image Source="Sources/orth.png" Height="20"/>
-                                </MenuItem.Icon>
                             </MenuItem>-->
+                            <!--<MenuItem Command="{Binding StartTeachingCommand}" 
+          CommandParameter="{x:Static vm:Teacher.OrthXY}"
+          Header="Ортогональность XY">
+    <MenuItem.Icon>
+        <Image Source="Sources/orth.png" Height="20"/>
+    </MenuItem.Icon>
+</MenuItem>-->
                             <MenuItem Command="{Binding StartTeachingCommand}" 
-                                      CommandParameter="{x:Static vm:Teacher.CameraScale}"
-                                      Header="Масштаб видео">
+          CommandParameter="{x:Static vm:Teacher.CameraScale}"
+          Header="Масштаб видео">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/scale.png" Height="20"/>
                                 </MenuItem.Icon>
                             </MenuItem>
+                            <hc:SplitButton Content="Смещение камеры" Style="{StaticResource SplitButtonBaseStyle}" HorizontalAlignment="Left" Margin="25,0">
+                                <hc:SplitButton.DropDownContent>
+                                    <StackPanel>
+                                        <MenuItem Command="{Binding StartTeachingCommand}"
+                                      CommandParameter="{x:Static vm:Teacher.CameraOffset}"
+                                      Header="Обучить">
+                                            <MenuItem.Icon>
+                                                <Image Source="Sources/distance-32.png" Height="20" RenderTransformOrigin="0.5,0.5"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Command="{Binding EraseOffsetsCommand}" Header="Сбросить"/>
+                                        <MenuItem Command="{Binding StartTeachingCommand}"
+                                                  CommandParameter="{x:Static vm:Teacher.CameraGroupOffset}"
+                                                  Header="Групп. смещение камеры">
+                                        </MenuItem>
+                                    </StackPanel>
+                                </hc:SplitButton.DropDownContent>
+                            </hc:SplitButton>
                         </StackPanel>
                     </hc:SplitButton.DropDownContent>
                 </hc:SplitButton>
@@ -929,7 +940,7 @@
                                                 IsEnabled="{Binding IndividualProcObject, Converter={StaticResource Object2BooleanConverter}}"
                                                 Grid.Row="2" 
                                                 Style="{StaticResource ButtonWarning}"/>-->
-                                    <ToggleButton Grid.Row="2" BorderThickness="0" HorizontalAlignment="Left" IsChecked="{Binding IsIndividualProcessing}" Grid.ColumnSpan="2" hc:StatusSwitchElement.HideUncheckedElement="True" Command="{Binding PierceIndividualCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}" Style="{StaticResource ToggleButtonCustom}">
+                                    <ToggleButton Grid.Row="2" BorderThickness="0" IsEnabled="{Binding IndividualProcObject, Converter={StaticResource Object2BooleanConverter}}" HorizontalAlignment="Left" IsChecked="{Binding IsIndividualProcessing}" Grid.ColumnSpan="2" hc:StatusSwitchElement.HideUncheckedElement="True" Command="{Binding PierceIndividualCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}" Style="{StaticResource ToggleButtonCustom}">
                                         <hc:StatusSwitchElement.CheckedElement>
                                             <StackPanel Orientation="Horizontal">
                                                 <Border Background="{DynamicResource DangerBrush}">
@@ -974,7 +985,6 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="Console" TabIndex="3">
-                <!--<console:ConsoleControl />-->
                 <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
             </TabItem>
         </TabControl>

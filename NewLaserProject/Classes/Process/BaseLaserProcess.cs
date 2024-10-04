@@ -44,7 +44,7 @@ namespace NewLaserProject.Classes.Process
                 {
                     TaperBlock t => FuncForTapperBlockAsync(t.Tapper),
                     AddZBlock z => FuncForAddZBlockAsync(z.DeltaZ),
-                    PierceBlock p => FuncForPierseBlockAsync(p.MarkParams),
+                    PierceBlock p => FuncForPierseBlockAsync(p.MarkParams, _cancellationTokenSource),
                     DelayBlock d => FuncForDelayBlockAsync(d.DelayTime),
                     _ => Task.CompletedTask
                 });//.ConfigureAwait(false);
@@ -54,7 +54,7 @@ namespace NewLaserProject.Classes.Process
         public CancellationTokenSource GetCancellationTokenSource() => _cancellationTokenSource;
         protected abstract Task FuncForTapperBlockAsync(double tapper);
         protected abstract Task FuncForAddZBlockAsync(double z);
-        protected abstract Task FuncForPierseBlockAsync(ExtendedParams extendedParams);
+        protected abstract Task FuncForPierseBlockAsync(ExtendedParams extendedParams, CancellationTokenSource? cancellationTokenSource = null);
         protected abstract Task FuncForDelayBlockAsync(int delay);
 
     }
