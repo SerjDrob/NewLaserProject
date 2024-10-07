@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="NewLaserProject.Views.Dialogs.ClusterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
+             mc:Ignorable="d" 
+             >
+    <Grid>
+        <hc:ElementGroup>
+            <hc:ElementGroup Orientation="Horizontal">
+                <Label Content="X"/>
+                <hc:NumericUpDown Value="{Binding XParts, Mode=OneWayToSource}" Minimum="1" Maximum="3"/>
+            </hc:ElementGroup>
+            <hc:ElementGroup Orientation="Horizontal">
+                <Label Content="Y"/>
+                <hc:NumericUpDown Value="{Binding YParts, Mode=OneWayToSource}" Minimum="1" Maximum="3"/>
+            </hc:ElementGroup>
+        </hc:ElementGroup>    
+    </Grid>
+</UserControl>

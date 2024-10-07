@@ -658,9 +658,20 @@
                                                                  Items="{StaticResource FileAlignments}"
                                                                  SelectedItem="{Binding FileAlignment, Mode=TwoWay}"
                                                                  HorizontalAlignment="Stretch"
+                                                                 ToolTip="Тип совмещения"
                                                                 >
                                                         </controls:ItemsButton>
-                                                        <Label Content="Тип совмещения"/>
+                                                        <ToggleButton Command="{Binding SplitOnClustersCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}" Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Height}" Padding="0">
+                                                            <hc:ToggleBlock IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=IsChecked}">
+                                                                <hc:ToggleBlock.UnCheckedContent>
+                                                                    <TextBlock Text="W"/>
+                                                                </hc:ToggleBlock.UnCheckedContent>
+                                                                <hc:ToggleBlock.CheckedContent>
+                                                                    <TextBlock Text="S"/>
+                                                                </hc:ToggleBlock.CheckedContent>
+                                                            </hc:ToggleBlock>
+                                                        </ToggleButton>
+                                                        <!--<Label Content="Тип совмещения"/>-->
                                                     </StackPanel>
                                                     <StackPanel Orientation="Horizontal">
                                                         <CheckBox IsChecked="{Binding IsWaferMark, Mode=TwoWay}"

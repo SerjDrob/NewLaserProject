@@ -28,6 +28,7 @@ using NewLaserProject.Data.Models.DefaultLayerFilterFeatures.Get;
 using NewLaserProject.Data.Models.DTOs;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
 using NewLaserProject.ViewModels.DialogVM;
+using NewLaserProject.Views.Dialogs;
 using MsgBox = HandyControl.Controls.MessageBox;
 
 namespace NewLaserProject.ViewModels
@@ -35,6 +36,8 @@ namespace NewLaserProject.ViewModels
     public partial class MainViewModel
     {
         private bool _isKeyProcCommandsBlocked;
+        private ClusterVM _cluster;
+
         public ICommand? TestKeyCommand { get; protected set; }
         public double TestX { get; set; }
         public double TestY { get; set; }
@@ -393,6 +396,28 @@ namespace NewLaserProject.ViewModels
             _isKeyProcCommandsBlocked ^= true;
         }
 
+        [ICommand]
+        private async Task SplitOnClusters(bool args)
+        {
+            if (args)
+            {
+                var result = await Dialog.Show<CommonDialog>()
+                        .SetDialogTitle("Секторы")
+                        .SetDataContext<ClusterVM>(vm =>
+                        {
+                            vm.Enable = true;
+                        })
+                        .GetCommonResultAsync<ClusterVM>(ToggleKeyProcCommands);
+                if (result.Success)
+                {
+                    _cluster = result.CommonResult;
+                } 
+            }
+            else
+            {
+                _cluster.Enable = false;
+            }
+        }
 
         [ICommand]
         private async Task ChooseMaterial()

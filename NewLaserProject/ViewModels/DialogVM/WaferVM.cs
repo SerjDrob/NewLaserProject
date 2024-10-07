@@ -30,5 +30,4 @@ namespace NewLaserProject.ViewModels.DialogVM
 
         public override void SetResult() => SetResult(this);
     }
-
 }

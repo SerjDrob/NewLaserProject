@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -24,6 +25,8 @@ namespace NewLaserProject.ViewModels
     {
         private FileVM _openedFileVM;
         private IDxfReader _dxfReader;
+        private (PointF minPoint, PointF maxPoint) _fileActualSize;
+
         [OnChangedMethod(nameof(FileScaleChanged))]
         public Scale DefaultFileScale { get; set; } = Scale.ThousandToOne;
         public bool IsFileLoaded { get; set; } = false;
@@ -87,6 +90,7 @@ namespace NewLaserProject.ViewModels
                 {
                     var dxfReader = new IMDxfReader(FileName);
                     _dxfReader = new DxfEditor(dxfReader);
+                    _fileActualSize = _dxfReader.GetSize2();
                     if (!byWPU)
                     {
                         MirrorX = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");

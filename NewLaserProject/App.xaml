@@ -59,6 +59,10 @@
                 <dialogviews:TeachCornerView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type dialogvm:ClusterVM}">
+                <dialogviews:ClusterView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type dialogvm:TeachFocusVM}">
                 <dialogviews:TeachFocusView/>
             </DataTemplate>

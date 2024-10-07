@@ -224,14 +224,11 @@ namespace NewLaserProject.ViewModels
                     {
                         await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
                     });
-                    if (_cluster.Enable)
-                    {
-                        processing.Add((objects.SplitOnClusters(new(_fileActualSize.minPoint.X, _fileActualSize.minPoint.Y, _fileActualSize.maxPoint.X, _fileActualSize.maxPoint.Y), _cluster.XParts, _cluster.YParts).ToList(), mp));
-                    }
-                    else
-                    {
-                        processing.Add((objects, mp));
-                    }
+<<<<<<< HEAD
+                    processing.Add((objects/*.SplitOnClusters(new(0,0,60000,48000),2,2)*/, mp));
+=======
+                    processing.Add((objects/*.SplitOnClusters(new(0, 0, 60000, 48000), 2, 2).ToList()*/, mp));
+>>>>>>> d4d8255f5637fbbb42475cf21a84bca6051d1882
                 }
 
                 _mainProcess = new CommonProcess(
