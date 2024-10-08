@@ -11,11 +11,11 @@
         <hc:ElementGroup>
             <hc:ElementGroup Orientation="Horizontal">
                 <Label Content="X"/>
-                <hc:NumericUpDown Value="{Binding XParts, Mode=OneWayToSource}" Minimum="1" Maximum="3"/>
+                <hc:NumericUpDown Value="{Binding XParts, Mode=OneWayToSource}" Minimum="1" Maximum="4"/>
             </hc:ElementGroup>
             <hc:ElementGroup Orientation="Horizontal">
                 <Label Content="Y"/>
-                <hc:NumericUpDown Value="{Binding YParts, Mode=OneWayToSource}" Minimum="1" Maximum="3"/>
+                <hc:NumericUpDown Value="{Binding YParts, Mode=OneWayToSource}" Minimum="1" Maximum="4"/>
             </hc:ElementGroup>
         </hc:ElementGroup>    
     </Grid>

@@ -224,7 +224,7 @@ namespace NewLaserProject.ViewModels
                     {
                         await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
                     });
-                    if (_cluster.Enable)
+                    if (_cluster?.Enable ?? false)
                     {
                         processing.Add((objects.SplitOnClusters(new(_fileActualSize.minPoint.X, _fileActualSize.minPoint.Y, _fileActualSize.maxPoint.X, _fileActualSize.maxPoint.Y), _cluster.XParts, _cluster.YParts).ToList(), mp));
                     }
@@ -678,7 +678,7 @@ namespace NewLaserProject.ViewModels
                 .Deserialize(markTextJson);
 
             _laserMachine.SetExtMarkParams(new ExtParamsAdapter(laserParams));
-            await _laserMachine.MarkTextAsync(markingText, 0.8, angle + theta);
+            await _laserMachine.MarkTextAsync(markingText, 0.8, angle /*+*/- theta);
         }
 
         [ICommand]
