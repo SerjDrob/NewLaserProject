@@ -33,6 +33,7 @@
                 hc:TitleElement.TitleWidth="230"
                 Minimum="0.5"
                 Maximum="3"
+                ValueFormat="N1"
                 Value="{Binding TextHeight, Mode=TwoWay}"
                 />
             <hc:NumericUpDown
@@ -41,6 +42,7 @@
                 hc:TitleElement.TitleWidth="230"
                 Minimum="0.1"
                 Maximum="1"
+                ValueFormat="N1"
                 Value="{Binding EdgeGap, Mode=TwoWay}"
                 />
             <CheckBox Content="Маркиоровать дату" IsChecked="{Binding IsDateEnable, Mode=TwoWay}"/>
