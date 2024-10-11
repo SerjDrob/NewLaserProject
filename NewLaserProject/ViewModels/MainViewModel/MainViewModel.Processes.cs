@@ -339,10 +339,16 @@ namespace NewLaserProject.ViewModels
                     {
                         var status = args.Status;
                         IsProcessing = false;
+                        var tempVel = _laserMachine.SetVelocity(MachineClassLibrary.Machine.Velocity.Service);
                         switch (status)
                         {
                             case CompletionStatus.Success:
-                                if (IsWaferMark) await MarkWaferAsync(MarkPosition, 1, 0.1, args.CoorSystem);
+
+                                var text = _markTextVM.MarkedText;
+                                text += _markTextVM.IsDateEnable ? " " + DateTime.Now.ToShortDateString() : "";
+                                text += _markTextVM.IsTimeEnable ? " " + DateTime.Now.ToShortTimeString() : "";
+
+                                if (IsWaferMark) await MarkWaferAsync(text, MarkPosition, _markTextVM.TextHeight, _markTextVM.EdgeGap, args.CoorSystem);
                                 _ = _signalColumn.BlinkLightAsync(LightColumn.Light.Blue).ConfigureAwait(false);
                                 MessageBox.Success("Процесс завершён");
                                 _signalColumn.TurnOff();
@@ -363,7 +369,6 @@ namespace NewLaserProject.ViewModels
                             default:
                                 break;
                         }
-                        var tempVel = _laserMachine.SetVelocity(MachineClassLibrary.Machine.Velocity.Service);
                         await _laserMachine.GoThereAsync(LMPlace.Loading);
                         _laserMachine.SetVelocity(tempVel);
                         await _appStateMachine.FireAsync(AppTrigger.EndProcess);
@@ -646,7 +651,7 @@ namespace NewLaserProject.ViewModels
 #endif
         }
 
-        private async Task MarkWaferAsync(MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem coorSystem)
+        private async Task MarkWaferAsync(string markingText, MarkPosition markPosition, double fontHeight, double edgeGap, ICoorSystem coorSystem)
         {
             var (x, y, angle) = markPosition switch
             {
@@ -666,7 +671,8 @@ namespace NewLaserProject.ViewModels
 
 
             var theta = coorSystem.GetMatrixAngle();
-            var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Now;
+            //var markingText = Path.GetFileNameWithoutExtension(FileName) + " " + DateTime.Now;
+
             await Task.WhenAll(
                 _laserMachine.MoveAxInPosAsync(Ax.X, posX, true),
                 _laserMachine.MoveAxInPosAsync(Ax.Y, posY, true));
@@ -678,7 +684,7 @@ namespace NewLaserProject.ViewModels
                 .Deserialize(markTextJson);
 
             _laserMachine.SetExtMarkParams(new ExtParamsAdapter(laserParams));
-            await _laserMachine.MarkTextAsync(markingText, 0.8, angle /*+*/- theta);
+            await _laserMachine.MarkTextAsync(markingText, fontHeight, angle /*+*/- theta);
         }
 
         [ICommand]

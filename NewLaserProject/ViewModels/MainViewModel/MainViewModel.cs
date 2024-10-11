@@ -473,7 +473,7 @@ namespace NewLaserProject.ViewModels
                 acc = _settingsManager.Settings.XAcc ?? throw new ArgumentNullException("XAcc is null"),
                 dec = _settingsManager.Settings.XDec ?? throw new ArgumentNullException("XDec is null"),
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
-                denominator = 1,
+                denominator = 100,
                 plsInMde = (int)PlsInMode.AB_4X,
                 plsInLogic = (int)PlsInLogic.NO_INV_DIR,//TODO fix the coordinate sign's system
                 homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
@@ -491,7 +491,7 @@ namespace NewLaserProject.ViewModels
                 acc = _settingsManager.Settings.YAcc ?? throw new ArgumentNullException("YAcc is null"),
                 dec = _settingsManager.Settings.YDec ?? throw new ArgumentNullException("YDec is null"),
                 ppu = _settingsManager.Settings.YPPU ?? throw new ArgumentNullException("XAcc is null"),//3993,//Settings.Default.YPPU*2,
-                denominator = 1,
+                denominator = 100,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = _settingsManager.Settings.YHomeVelLow ?? throw new ArgumentNullException("YVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")

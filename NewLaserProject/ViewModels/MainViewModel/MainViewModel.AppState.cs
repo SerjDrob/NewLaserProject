@@ -105,7 +105,8 @@ namespace NewLaserProject.ViewModels
                                                            .GetCommonResultAsync<double>();
                                 if (result?.Success ?? false)
                                 {
-                                    _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem.ExtractSubSystem(MachineClassLibrary.Classes.LMPlace.FileOnWaferUnderLaser),_laserMachine,_settingsManager, result.CommonResult);
+                                    _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem.ExtractSubSystem(MachineClassLibrary.Classes.LMPlace.FileOnWaferUnderLaser),
+                                        _laserMachine,_settingsManager, result.CommonResult, WaferWidth, WaferHeight);
                                 }
                             }
                             break;

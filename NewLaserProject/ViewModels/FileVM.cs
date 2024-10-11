@@ -59,6 +59,7 @@ namespace NewLaserProject.ViewModels
             WaferTurn90 = waferTurn90;
             _filePath = filePath;
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+            MarkText = System.IO.Path.GetFileNameWithoutExtension(filePath);
             OpenFile();
             _isFileOpened = true;
 
@@ -72,7 +73,8 @@ namespace NewLaserProject.ViewModels
                 .Concat()
                 .Subscribe();
         }
-
+        public string MarkText { get; set; }
+        public void SetMarkText(string text) => MarkText = text;
         private void _dxfEditor_CanUndoChanged(object? sender, bool e) => CanUndoChanged?.Invoke(this,e);
         public void SetWaferDimensions(double width, double height)
         {
