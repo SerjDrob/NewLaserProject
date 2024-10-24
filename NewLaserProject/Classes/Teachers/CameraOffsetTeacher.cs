@@ -28,10 +28,27 @@ namespace NewLaserProject.Classes
 
         public event EventHandler TeachingCompleted;
 
-        public CameraGroupOffsetTeacher(ICoorSystem coorSystem, LaserMachine laserMachine, ISettingsManager<LaserMachineSettings> settingsManager, double waferThickness)
+        public CameraGroupOffsetTeacher(ICoorSystem coorSystem, LaserMachine laserMachine, 
+            ISettingsManager<LaserMachineSettings> settingsManager, double waferThickness, double width, double height)
         {
-            var xs = Enumerable.Range(1, 9).Select(x => x * 5);
-            var ys = Enumerable.Range(1, 11).Select(x => x * 5);
+            var den = new Range(6, 20);
+            var ran = (3, 5);
+            var cx = 5d;
+            var cy = 5d;
+            var gap = 3d;//mm
+            var countX = Enumerable.Range(6, 20).Reverse().SkipWhile(s =>
+            {
+                cx = (width - gap * 2) / s;
+                return !(cx >= ran.Item1 && cx <= ran.Item2);
+            }).ToList()[0];
+            var countY = Enumerable.Range(6, 20).Reverse().SkipWhile(s =>
+            {
+                cy = (height - gap * 2) / s;
+                return !(cy >= ran.Item1 && cy <= ran.Item2);
+            }).ToList()[0];
+
+            var xs = Enumerable.Range(0, countX + 1).Select(x => gap + x * cx);
+            var ys = Enumerable.Range(0, countY + 1).Select(y => gap + y * cy);
             _coordinates = xs.SelectMany(x => ys.Select(y =>
             {
                 var res = coorSystem.ToGlobal(x, y);
@@ -150,9 +167,6 @@ namespace NewLaserProject.Classes
                 }
             }
             catch (Exception) { }
-
-            //xOffset = _settingsManager.Settings.OffsetPoints.MinBy(x => Math.Abs(x.X - curX))?.dx ?? xOffset;
-            //yOffset = _settingsManager.Settings.OffsetPoints.MinBy(y => Math.Abs(y.Y - curY))?.dy ?? yOffset;
         }
         public async Task StartTeach()
         {

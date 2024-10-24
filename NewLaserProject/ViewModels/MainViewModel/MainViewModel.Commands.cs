@@ -37,6 +37,7 @@ namespace NewLaserProject.ViewModels
     {
         private bool _isKeyProcCommandsBlocked;
         private ClusterVM _cluster;
+        private MarkTextVM _markTextVM;
 
         public ICommand? TestKeyCommand { get; protected set; }
         public double TestX { get; set; }
@@ -436,7 +437,28 @@ namespace NewLaserProject.ViewModels
             }
             else
             {
-                _cluster.Enable = false;
+                _cluster??= new ClusterVM { Enable = false };
+            }
+        }
+
+        [ICommand]
+        private async Task SetMarkText()
+        {
+            var result = await Dialog.Show<CommonDialog>()
+                        .SetDialogTitle("Маркировка")
+                        .SetDataContext(_markTextVM??new(),vm =>
+                        {
+                            if (vm.MarkedText is null && FileName!=string.Empty)
+                            {
+                                vm.MarkedText = Path.GetFileNameWithoutExtension(FileName); 
+                                vm.FileName = Path.GetFileNameWithoutExtension(FileName);
+                            }
+                        })
+                        .GetCommonResultAsync<MarkTextVM>(ToggleKeyProcCommands);
+            if (result.Success)
+            {
+               _openedFileVM?.SetMarkText(result.CommonResult.MarkedText);
+               _markTextVM = result.CommonResult;
             }
         }
 

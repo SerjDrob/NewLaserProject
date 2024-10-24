@@ -689,9 +689,13 @@
                                                         <!--<Label Content="Тип совмещения"/>-->
                                                     </StackPanel>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <CheckBox IsChecked="{Binding IsWaferMark, Mode=TwoWay}"
-                                                  Content="Маркировать"
-                                                  Margin="5,0,5,0"/>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <CheckBox IsChecked="{Binding IsWaferMark, Mode=TwoWay}"
+                                                                      Margin="5,0,5,0"/>
+                                                            <Button Content="Маркировка"
+                                                                    Command="{Binding SetMarkTextCommand}"
+                                                                    IsEnabled="{Binding IsWaferMark, Mode=OneWay}"/>
+                                                        </StackPanel>
                                                         <Button Command="{Binding SetMarkPositionCommand}" Width="36" IsEnabled="{Binding IsWaferMark}">
                                                             <Grid >
                                                                 <Path x:Name="grid" Data="{StaticResource DownGeometry}" Stretch="Uniform"  RenderTransformOrigin="0.5 0.5"  Fill="{StaticResource TextIconBrush}"/>

@@ -802,6 +802,7 @@ public class ComLmc
                                                                                   nHatchLoopRev,
                                                                                   bHatchAutoRotate,
                                                                                   dHatchRotateAngle);
+    /*
     public int SetHatchParam3(bool bEnableContour,//К№ДЬВЦАЄ±ѕЙн
                                                       int nParamIndex,//МоідІОКэРтєЕЦµОЄ1,2,3
                                                       int bEnableHatch,//К№ДЬМоід
@@ -932,7 +933,7 @@ public class ComLmc
                      ref int dCycCount);
 
 
-    /*
+    
     public int HatchEnt(string strEntName, string strHatchEntName);
     public int UnHatchEnt(string strHatchEntName);
 
@@ -1109,3 +1110,4 @@ public class ComLmc
 
 }
 
+#endregion

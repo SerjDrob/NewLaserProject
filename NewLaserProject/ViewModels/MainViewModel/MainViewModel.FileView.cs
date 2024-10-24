@@ -110,6 +110,7 @@ namespace NewLaserProject.ViewModels
                     _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
 
                     IsFileLoaded = true;
+                    _markTextVM = null;
                 }
                 catch (DxfReaderException ex)
                 {
