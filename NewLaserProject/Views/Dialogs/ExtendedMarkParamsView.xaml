@@ -49,7 +49,8 @@
                 <hc:NumericUpDown Value="{Binding QPulseWidth}" hc:TitleElement.Title="Ширина импульса, мкс"
                                   Increment="1"    
                                   Minimum="0"
-                                  Visibility="Collapsed"
+                                  Maximum="50"
+                                  Visibility="Visible"
                                  />
             </hc:SimpleStackPanel>
         </Expander>

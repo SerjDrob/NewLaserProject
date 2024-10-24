@@ -537,6 +537,21 @@
                         </i:PropertyChangedTrigger>
                     </i:Interaction.Triggers>
                 </ToggleButton>
+                <hc:ElementGroup Orientation="Horizontal"
+                                 IsEnabled="{Binding IsProcessing, Converter={StaticResource Boolean2BooleanReConverter}}">
+                    <hc:ElementGroup.Resources>
+                        <Style TargetType="Button" BasedOn="{StaticResource ButtonBaseStyle}"/>
+                    </hc:ElementGroup.Resources>
+                    <Button Command="{Binding GetFocusCommand}" 
+                            CommandParameter="1" 
+                            Content="К"
+                            ToolTip="Фокус камеры"
+                            />
+                    <Button Command="{Binding GetFocusCommand}" 
+                            CommandParameter="2" 
+                            Content="Л"
+                            ToolTip="Фокус лазера"/>
+                </hc:ElementGroup>
             </ToolBar>
             <!--<ToolBar>
                 <gauge:CircularGaugeControl

@@ -99,11 +99,14 @@ namespace NewLaserProject.ViewModels
                         _laserMachine.MoveAxInPosAsync(Ax.Y, TestY, true)
                         );
                 }, () => false)
-                .CreateKeyDownCommand(Key.L, ModifierKeys.None, () =>
+                .CreateKeyDownCommand(Key.L, ModifierKeys.None, async () =>
                 {
-                    SwitchArr ^= true;
-                    return Task.CompletedTask;
-                }, () => true)
+                    await GetFocus("2");
+                }, () => IsMainTabOpen && !IsProcessing)
+                .CreateKeyDownCommand(Key.K, ModifierKeys.None, async () =>
+                {
+                    await GetFocus("1");
+                }, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.F7, ModifierKeys.None, () =>
                 {
                     _laserMachine.InvokeSettings();
@@ -260,10 +263,28 @@ namespace NewLaserProject.ViewModels
             }
         }
 
-        public bool SwitchArr { get; set; }
+        //public bool SwitchArr { get; set; }
         public ObjectForProcessing IndividualProcObject { get; private set; }
         public double IndividualProcDiameter { get; set; }
         public bool IsIndividualProcessing { get; set; } = false;
+
+        [ICommand]
+        private async Task GetFocus(string num)
+        {
+            if (IsProcessing) return;
+            var z = ZAxis.Position;
+            if (num == "1")
+            {
+                z = (_settingsManager.Settings.ZeroFocusPoint - WaferThickness) ?? z;
+            }
+            else if (num == "2")
+            {
+                z = (_settingsManager.Settings.ZeroPiercePoint - WaferThickness) ?? z;
+            }
+            await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
+        }
+
+
         [ICommand]
         private void EraseOffsets()
         {
