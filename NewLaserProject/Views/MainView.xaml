@@ -763,12 +763,44 @@
                                                         </Button>
                                                     </StackPanel>
                                                 </WrapPanel>
-                                                <UniformGrid Columns="2" 
-                                                     IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                                <Grid IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="2*"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                    </Grid.ColumnDefinitions>
                                                     <ContentControl Content="{Binding LayersProcessingModel}"/>
-                                                    <DataGrid ItemsSource="{Binding ChosenProcessingObjects}" 
-                                                  IsEnabled="False">
+                                                    <DataGrid ItemsSource="{Binding ChosenProcessingObjects}"
+                                                              AutoGenerateColumns="False"
+                                                              Grid.Column="1"
+                                                              Focusable="False"
+                                                              SelectionMode="Single"
+                                                              IsReadOnly="True"
+                                                              SelectionUnit="FullRow"
+                                                              CanUserResizeColumns="False"
+                                                              CanUserSortColumns="False"
+                                                              CanUserResizeRows="False"
+                                                              IsEnabled="True"
+                                                              SelectionChanged="DataGrid_SelectionChanged"
+                                                              Style="{StaticResource DataGrid.Small}">
+                                                        <DataGrid.Resources>
+                                                            <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource DataGridCellStyle.Small}">
+                                                                <Setter Property="Background" Value="Transparent"/>
+                                                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                                            </Style>
+                                                        </DataGrid.Resources>
                                                         <DataGrid.Columns>
+                                                            <DataGridTemplateColumn>
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <Button hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}"
+                                                                                Style="{StaticResource ButtonIconCircular.Small}"
+                                                                                Command="{Binding RelativeSource={RelativeSource AncestorType=hc:GlowWindow, Mode=FindAncestor}, Path=DataContext.DeleteProcObjCommand}"
+                                                                                CommandParameter="{Binding}"
+                                                                                />
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                            </DataGridTemplateColumn>
                                                             <DataGridTextColumn Header="Слой" Binding="{Binding Layer}"/>
                                                             <DataGridTemplateColumn Header="Тип">
                                                                 <DataGridTemplateColumn.CellTemplate>
@@ -781,7 +813,7 @@
                                                             <DataGridTextColumn Header="Технология" Binding="{Binding Technology.ProgramName}"/>
                                                         </DataGrid.Columns>
                                                     </DataGrid>
-                                                </UniformGrid>
+                                                </Grid>
                                                 <hc:SimpleStackPanel Orientation="Horizontal">
                                                     <hc:ToggleBlock HorizontalAlignment="Left" IsChecked="{Binding IsProcessPanelVisible}">
                                                         <hc:ToggleBlock.UnCheckedContent>

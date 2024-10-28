@@ -133,6 +133,14 @@ namespace NewLaserProject.ViewModels
 
         public LayersProcessingModel LayersProcessingModel { get; set; }
 
+
+        [ICommand]
+        private void DeleteProcObj(ObjectForProcessing obj)
+        {
+            ChosenProcessingObjects?.Remove(obj);
+            LayersProcessingModel?.UnCheckItem((obj.Layer ?? "", obj.LaserEntity));
+        }
+
         private async Task LoadDbForFile()
         {
             var response = await _mediator.Send(new GetFullMaterialHasTechnologyRequest());

@@ -660,6 +660,14 @@ namespace NewLaserProject.ViewModels
             var xoffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
             var yoffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
 
+
+            (double,double)[] xxl = [(-100, -100), (100, 100)];
+
+            /*
+            xxl.SerializeObject(AppPaths.CoefLineX);
+            xxl.SerializeObject(AppPaths.CoefLineY);
+            */
+
             var xline = ExtensionMethods.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineX);
             var yline = ExtensionMethods.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineY);
 

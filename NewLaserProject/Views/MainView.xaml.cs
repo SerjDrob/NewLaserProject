@@ -25,7 +25,7 @@ namespace NewLaserProject.Views
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var grid = e.Source as DataGrid;
-
+            grid?.UnselectAll();
             if (grid?.SelectedItem is not null)
             {
                 grid.UpdateLayout();
