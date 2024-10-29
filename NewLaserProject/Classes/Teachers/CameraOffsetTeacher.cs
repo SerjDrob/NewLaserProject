@@ -29,31 +29,13 @@ namespace NewLaserProject.Classes
         public event EventHandler TeachingCompleted;
 
         public CameraGroupOffsetTeacher(ICoorSystem coorSystem, LaserMachine laserMachine, 
-            ISettingsManager<LaserMachineSettings> settingsManager, double waferThickness, double width, double height)
+            ISettingsManager<LaserMachineSettings> settingsManager, double waferThickness, double width, double height, IEnumerable<(double,double)> points)
         {
-            var den = new Range(6, 20);
-            var ran = (3, 5);
-            var cx = 5d;
-            var cy = 5d;
-            var gap = 3d;//mm
-            var countX = Enumerable.Range(6, 20).Reverse().SkipWhile(s =>
+            _coordinates = points.Select(p =>
             {
-                cx = (width - gap * 2) / s;
-                return !(cx >= ran.Item1 && cx <= ran.Item2);
-            }).ToList()[0];
-            var countY = Enumerable.Range(6, 20).Reverse().SkipWhile(s =>
-            {
-                cy = (height - gap * 2) / s;
-                return !(cy >= ran.Item1 && cy <= ran.Item2);
-            }).ToList()[0];
-
-            var xs = Enumerable.Range(0, countX + 1).Select(x => gap + x * cx);
-            var ys = Enumerable.Range(0, countY + 1).Select(y => gap + y * cy);
-            _coordinates = xs.SelectMany(x => ys.Select(y =>
-            {
-                var res = coorSystem.ToGlobal(x, y);
+                var res = coorSystem.ToGlobal(p.Item1, p.Item2);
                 return (res[0], res[1]);
-            })).ToList();
+            }).ToList();
             _laserMachine = laserMachine;
             _settingsManager = settingsManager;
             _waferThickness = waferThickness;

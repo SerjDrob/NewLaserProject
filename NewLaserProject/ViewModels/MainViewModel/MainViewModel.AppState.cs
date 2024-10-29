@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineControlsLibrary.CommonDialog;
 using NewLaserProject.Classes;
 using NewLaserProject.ViewModels.DialogVM;
+using NewLaserProject.Views.Dialogs;
 using Stateless;
 
 
@@ -99,14 +101,17 @@ namespace NewLaserProject.ViewModels
                             break;
                         case Teacher.CameraGroupOffset:
                             {
-                                var result = await Dialog.Show<CheckParamsDialog>()
+                                var result = await Dialog.Show<CommonDialog>()
                                                            .SetDialogTitle("Обучение смещения")
-                                                           .SetDataContext<AskThicknessVM>(vm => vm.Thickness = WaferThickness)
-                                                           .GetCommonResultAsync<double>();
+                                                           .SetDataContext(new GroupOffsetsVM(WaferWidth,WaferHeight,WaferThickness),
+                                                           vm => { })
+                                                           .GetCommonResultAsync<(IEnumerable<(double,double)> points,double thickness)>();
                                 if (result?.Success ?? false)
                                 {
+                                    var thickness = result.CommonResult.thickness;
+                                    var points = result.CommonResult.points;
                                     _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem.ExtractSubSystem(MachineClassLibrary.Classes.LMPlace.FileOnWaferUnderLaser),
-                                        _laserMachine,_settingsManager, result.CommonResult, WaferWidth, WaferHeight);
+                                        _laserMachine, _settingsManager, thickness, WaferWidth, WaferHeight, points);
                                 }
                             }
                             break;
@@ -116,9 +121,11 @@ namespace NewLaserProject.ViewModels
                             }
                             break;
                     }
+                    /*
                     _currentTeacher.TeachingCompleted += _currentTeacher_TeachingCompleted;
                     await _currentTeacher.StartTeach();
                     _canTeach = true;
+                    */
                 })
                 .OnExit(() =>
                 {

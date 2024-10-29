@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="NewLaserProject.Views.Dialogs.GroupOffsetView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d">
+    <Grid>
+        <hc:SimpleStackPanel>
+            <hc:SimpleStackPanel.Resources>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockSubTitle}">
+                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                </Style>
+                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                    <Setter Property="hc:TitleElement.TitlePlacement" Value="Left"/>
+                    <Setter Property="hc:TitleElement.TitleWidth" Value="180"/>
+                </Style>
+            </hc:SimpleStackPanel.Resources>
+            <UniformGrid Columns="2" Rows="3">
+                <TextBlock Text="{Binding Width, FallbackValue=48, StringFormat=Ширина: {0}}"/>
+                <TextBlock Text="{Binding DeltaX, FallbackValue=4, StringFormat= Шаг: {0:N2}}"/>
+                <TextBlock Text="{Binding Height, FallbackValue=60, StringFormat=Высота: {0}}"/>
+                <TextBlock Text="{Binding DeltaY, FallbackValue=4, StringFormat= Шаг: {0:N2}}"/>
+                <TextBlock Text="{Binding PointsCount, FallbackValue=4, StringFormat= Количество точек: {0}}"/>
+            </UniformGrid>
+            <hc:Divider Margin="5"/>
+            <hc:NumericUpDown Value="{Binding Thickness}"
+                              Increment="0.05"
+                              Minimum="0.1"
+                              Maximum="3"
+                              ValueFormat="N2"
+                              hc:TitleElement.Title="Толщина"/>
+            <hc:NumericUpDown Value="{Binding EdgeOffset, Mode=TwoWay}"
+                  Increment="0.05"
+                  Minimum="0.05"
+                  Maximum="3"
+                  ValueFormat="N2"
+                  hc:TitleElement.Title="Отступ от края"/>
+            <hc:NumericUpDown Value="{Binding CountX}"
+                              Increment="1"
+                              Minimum="5"
+                              Maximum="100"
+                              hc:TitleElement.Title="Количество по ширине"/>
+            <hc:NumericUpDown Value="{Binding CountY}"
+                              Increment="1"
+                              Minimum="5"
+                              Maximum="100"
+                              hc:TitleElement.Title="Количество по высоте"/>
+        </hc:SimpleStackPanel>
+    </Grid>
+</UserControl>
