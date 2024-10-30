@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NewLaserProject.Data.Models
 {
 
-    public class DefaultLayerFilter:BaseEntity
+    public class DefaultLayerFilter : BaseEntity
     {
         public string Filter { get; set; }
         public bool IsVisible { get; set; }

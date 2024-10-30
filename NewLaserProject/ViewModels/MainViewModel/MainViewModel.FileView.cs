@@ -80,8 +80,9 @@ namespace NewLaserProject.ViewModels
 
         }
 
-        private async Task OpenChosenFile(bool byWPU = false)
+        private async Task OpenChosenFile(bool byWPU = false, params double[] offsets)
         {
+
             if (File.Exists(FileName))
             {
                 _openedFileVM?.ResetFileView();
@@ -95,14 +96,25 @@ namespace NewLaserProject.ViewModels
                     {
                         MirrorX = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");
                         WaferTurn90 = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
-                        WaferOffsetX = 0;
-                        WaferOffsetY = 0; 
+                        //WaferOffsetX = 0;
+                        //WaferOffsetY = 0;
                     }
-                    if (byWPU) _openedFileVM.TextPosition = (TextPosition)MarkPosition;
-                    IgnoredLayers = new();
-                    await LoadDbForFile();
+                    var (wox, woy, fox, foy) = (0d,0d,0d,0d);
+                    if (byWPU)
+                    {
+                        _openedFileVM.TextPosition = (TextPosition)MarkPosition;
+                        wox = offsets.ElementAtOrDefault(0);
+                        woy = offsets.ElementAtOrDefault(1);
+                        fox = offsets.ElementAtOrDefault(2);
+                        foy = offsets.ElementAtOrDefault(3);
+                    }
+                    if(!byWPU) IgnoredLayers = new();
+                    await LoadDbForFile(byWPU);
                     await Task.Factory.StartNew(
-                        () => _openedFileVM.SetFileView(_dxfReader, DefaultFileScale, MirrorX, WaferTurn90, WaferOffsetX, WaferOffsetY, FileName, IgnoredLayers),
+                        () => _openedFileVM.SetFileView(_dxfReader, DefaultFileScale, MirrorX, WaferTurn90, 
+                        wox, woy, 
+                        fox, foy,
+                        FileName, IgnoredLayers),
                         CancellationToken.None,
                         TaskCreationOptions.None,
                         TaskScheduler.FromCurrentSynchronizationContext()
@@ -141,7 +153,7 @@ namespace NewLaserProject.ViewModels
             LayersProcessingModel?.UnCheckItem((obj.Layer ?? "", obj.LaserEntity));
         }
 
-        private async Task LoadDbForFile()
+        private async Task LoadDbForFile(bool byWPU)
         {
             var response = await _mediator.Send(new GetFullMaterialHasTechnologyRequest());
             var availableMaterials = response.Materials;
@@ -149,7 +161,7 @@ namespace NewLaserProject.ViewModels
             var defLayerFilters = defLayerResponse.DefaultLayerFilters;
             await Task.Run(() =>
             {
-                defLayerFilters.ToList().ForEach(d =>
+                if(!byWPU) defLayerFilters.ToList().ForEach(d =>
                                {
                                    IgnoredLayers[d.Filter] = d.IsVisible;
                                });

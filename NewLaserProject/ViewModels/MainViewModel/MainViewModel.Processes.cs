@@ -140,10 +140,6 @@ namespace NewLaserProject.ViewModels
 
         private IEnumerable<IProcObject> ArrangeProcObjects(List<IProcObject> procObjects)
         {
-            var g = Guid.NewGuid();
-            var gg = g.ToString();
-
-
             var list = procObjects.Select(o => (o.Id.ToString(), o.X, o.Y))
                 .OrderBy(l => l.X)
                 .ToList();
@@ -505,14 +501,17 @@ namespace NewLaserProject.ViewModels
                 DefaultFileScale,
                 WaferTurn90,
                 MirrorX,
-                WaferOffsetX,
-                WaferOffsetY,
+                _openedFileVM?.WaferOffsetX ?? 0,
+                _openedFileVM?.WaferOffsetY ?? 0,
+                _openedFileVM?.FileOffsetX ?? 0,
+                _openedFileVM?.FileOffsetY ?? 0,
                 objects,
                 FileName,
                 FileAlignment,
                 IsWaferMark,
-                MarkPosition
-            );
+                MarkPosition,
+                ((DxfEditor)_dxfReader).ErasedObjects,
+                _openedFileVM?.GetIgnoredLayers() ?? new());
 
             var serialized = JsonConvert.SerializeObject(saved);
 
@@ -543,16 +542,20 @@ namespace NewLaserProject.ViewModels
                 {
                     WaferWidth = wpu.WaferWidth;
                     WaferHeight = wpu.WaferHeight;
-                    DefaultFileScale = wpu.DefaultFileScale;
+                    DefaultFileScale = wpu.DefaultFileScale;                    
                     WaferTurn90 = wpu.WaferTurn90;
                     MirrorX = wpu.MirrorX;
-                    WaferOffsetX = wpu.WaferOffsetX;
-                    WaferOffsetY = wpu.WaferOffsetY;
                     FileName = wpu.FileName;
                     FileAlignment = wpu.FileAlignment;
                     IsWaferMark = wpu.IsWaferMark;
                     MarkPosition = wpu.MarkPosition;
-                    await OpenChosenFile(true);
+                    IgnoredLayers = wpu.DisabledLayers;
+                    await OpenChosenFile(true,wpu.WaferOffsetX,wpu.WaferOffsetY,wpu.FileOffsetX,wpu.FileOffsetY);
+
+                    wpu.ErasedObjects.ToList()
+                        .ForEach(e => _openedFileVM?.GotSelectionHandler(e.layers, e.selection));
+
+
                     var objs = new List<ObjectForProcessing>();
                     foreach (var obj in wpu.Objects)
                     {

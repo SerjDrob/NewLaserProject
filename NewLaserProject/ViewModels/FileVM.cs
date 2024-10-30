@@ -1,15 +1,4 @@
-﻿using MachineClassLibrary.Classes;
-using MachineClassLibrary.Laser.Entities;
-using MachineControlsLibrary.Classes;
-using MachineControlsLibrary.Controls;
-using MachineControlsLibrary.Controls.GraphWin;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Classes;
-using NewLaserProject.Classes.Process.ProcessFeatures;
-using NewLaserProject.Properties;
-using PropertyChanged;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,13 +7,23 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using MachineClassLibrary.Classes;
+using MachineClassLibrary.Laser.Entities;
+using MachineControlsLibrary.Classes;
+using MachineControlsLibrary.Controls;
+using MachineControlsLibrary.Controls.GraphWin;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
+using NewLaserProject.Classes;
+using NewLaserProject.Classes.Process.ProcessFeatures;
+using PropertyChanged;
 using Point = System.Windows.Point;
 
 namespace NewLaserProject.ViewModels
 {
 
     [INotifyPropertyChanged]
-    internal partial class FileVM:IDisposable
+    internal partial class FileVM : IDisposable
     {
         private IDxfReader _dxfReader;
         private DxfEditor? _dxfEditor;
@@ -46,16 +45,17 @@ namespace NewLaserProject.ViewModels
             LayGeoms = new();
         }
         public void SetFileView(IDxfReader dxfReader, float fileScale, bool mirrorX, bool waferTurn90, double waferOffsetX,
-            double waferOffsetY, string filePath, IDictionary<string, bool> ignoredLayers)
+            double waferOffsetY, double fileOffsetX, double fileOffsetY, string filePath, IDictionary<string, bool> ignoredLayers)
         {
             _dxfReader = dxfReader;
             _dxfEditor = dxfReader as DxfEditor;
-            if(_dxfEditor is not null) _dxfEditor.CanUndoChanged += _dxfEditor_CanUndoChanged;
+            if (_dxfEditor is not null) _dxfEditor.CanUndoChanged += _dxfEditor_CanUndoChanged;
             IgnoredLayers = new(ignoredLayers);
             FileScale = fileScale;
             MirrorX = mirrorX;
-            WaferOffsetX = waferOffsetX;
-            WaferOffsetY = waferOffsetY;
+            
+
+
             WaferTurn90 = waferTurn90;
             _filePath = filePath;
             FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
@@ -63,9 +63,14 @@ namespace NewLaserProject.ViewModels
             OpenFile();
             _isFileOpened = true;
 
+            WaferOffsetX = waferOffsetX;
+            WaferOffsetY = waferOffsetY;
+            FileOffsetX = fileOffsetX;
+            FileOffsetY = fileOffsetY;
+
             _requestSubscription?.Dispose();
             _requestSubscription = _mediator.OfType<ScopedGeomsRequest>()
-                .Select(request=>Observable.FromAsync(async () =>
+                .Select(request => Observable.FromAsync(async () =>
                 {
                     var snapshot = await HandleAsync(request);
                     _mediator.OnNext(snapshot);
@@ -75,7 +80,7 @@ namespace NewLaserProject.ViewModels
         }
         public string MarkText { get; set; }
         public void SetMarkText(string text) => MarkText = text;
-        private void _dxfEditor_CanUndoChanged(object? sender, bool e) => CanUndoChanged?.Invoke(this,e);
+        private void _dxfEditor_CanUndoChanged(object? sender, bool e) => CanUndoChanged?.Invoke(this, e);
         public void SetWaferDimensions(double width, double height)
         {
             WaferWidth = width;
@@ -117,14 +122,22 @@ namespace NewLaserProject.ViewModels
         private void GotSelection(RoutedSelectionEventArgs args)
         {
             var rect = (Rect)args;
-            _geomsEditor?.RemoveBySelection(rect);
-
             var layers = LayGeoms.Where(l => l.LayerEnable)
                 .Select(l => l.LayerName)
                 .ToArray();
-
-            _dxfEditor?.RemoveBySelection(layers, rect);
+            GotSelectionHandler(layers, rect);
         }
+
+
+        public void GotSelectionHandler(string[] layers, Rect selection)
+        {
+            _geomsEditor?.RemoveBySelection(selection);
+            _dxfEditor?.RemoveBySelection(layers, selection);
+        }
+
+        public Dictionary<string,bool> GetIgnoredLayers()
+         => LayGeoms.ToDictionary(l=>l.LayerName,l=>l.LayerEnable);
+
         [ICommand]
         private void GotPointClicked(RoutedPointClickedEventArgs args)
         {
@@ -356,6 +369,7 @@ namespace NewLaserProject.ViewModels
                 Aligning.Bottom or Aligning.RBCorner or Aligning.LBCorner => 0,
                 Aligning.Right or Aligning.Left or Aligning.Center => -(WaferTurn90 ? (size.width - dy) : (size.height - dy)) / 2
             }) / FileScale;
+
         }
 
         [ICommand]
@@ -398,7 +412,7 @@ namespace NewLaserProject.ViewModels
                 Angle = WaferTurn90 ? 90d : 0d,
                 Scale = FileScale
             };
-            
+
             return Task.FromResult(snapshot);
         }
 
