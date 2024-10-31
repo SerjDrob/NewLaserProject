@@ -699,10 +699,10 @@
                                                                       ToolTip="Разбить на секторы">
                                                             <hc:ToggleBlock Padding="6" IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=IsChecked}">
                                                                 <hc:ToggleBlock.UnCheckedContent>
-                                                                    <TextBlock Text="W"/>
+                                                                    <Path Data="{StaticResource WholePlateGeometry}" Stroke="White" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform"/>
                                                                 </hc:ToggleBlock.UnCheckedContent>
                                                                 <hc:ToggleBlock.CheckedContent>
-                                                                    <TextBlock Text="S"/>
+                                                                    <Path Data="{StaticResource SplitPlateGeometry}" Stroke="White" StrokeThickness="0.7" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform"/>
                                                                 </hc:ToggleBlock.CheckedContent>
                                                             </hc:ToggleBlock>
                                                         </ToggleButton>
