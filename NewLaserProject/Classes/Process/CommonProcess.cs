@@ -295,6 +295,8 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                        //_matrixAngle = coorSys.GetMatrixAngle2();
                        _matrixAngle = coorSys.GetMatrixAngle();
 
+                       _subject.OnNext(new GotAlignment(coorSys)); 
+
 
                        foreach (var item in _processing.Select(p => p.microProcess))
                        {
@@ -338,7 +340,20 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                         item.SetEntityAngle(-_waferAngle);//TODO fix sign's problem
                     }
                     //await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
-                    await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera));
+                    if (_fileAlignment == FileAlignment.AlignPrev)
+                    {
+                        _matrixAngle = _baseCoorSystem.GetMatrixAngle();
+                        foreach (var item in _processing.Select(p => p.microProcess))
+                        {
+                            //item.SetEntityAngle(-_pazAngle + _matrixAngle);
+                            item.SetEntityAngle(-_matrixAngle);//TODO fix the sign's problem
+                        }
+                        await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem);
+                    }
+                    else
+                    {
+                        await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera));
+                    }
                 })
                 .Permit(Trigger.Next, State.Working);
 

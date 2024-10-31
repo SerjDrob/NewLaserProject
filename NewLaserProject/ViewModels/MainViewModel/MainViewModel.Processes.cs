@@ -46,6 +46,11 @@ namespace NewLaserProject.ViewModels
         private Timer _processTimer;
         private bool _currObjectStarted;
         private bool _isSnapAllowed;
+        public ICoorSystem? ExistingAlignment { get; private set; }
+            /*= CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder()
+            .SetWorkMatrix([1,2,3,4,5,6])
+            .Build();*/
+
         public bool IsBlockZ { get; set; } = true;
         public ObservableCollection<ProcObjTabVM> ProcessingObjects { get; set; }
         public ObservableCollection<ObjsToProcess> ObjectsForProcessing { get; set; } = new();
@@ -168,6 +173,7 @@ namespace NewLaserProject.ViewModels
         public string CurrentProcBlock { get; set; }
         public int CurrentProcMainLoopCount { get; set; }
         public CurrentPierceBlock CurrentPierceBlock { get; set; }
+        public bool IsPrevAlignmentEnable { get; set; }
         private Dictionary<CurrentPierceBlock, CurrentPierceBlock> _pierceBlocks { get; set; } = new();
         public ObservableCollection<CurrentPierceBlock> PierceBlocks { get; set; } = new();
 
@@ -242,9 +248,9 @@ namespace NewLaserProject.ViewModels
                     offsetPoints: _settingsManager.Settings.OffsetPoints ?? throw new ArgumentNullException("OffsetPoints is null"),
                     pazAngle: 0,//_settingsManager.Settings.PazAngle ?? throw new ArgumentNullException("PazAngle is null"),//Settings.Default.PazAngle,
                     subject: _subjMediator,
-                    baseCoorSystem: _coorSystem,
+                    baseCoorSystem: (ExistingAlignment != null && IsPrevAlignmentEnable) ? CoorSystem<LMPlace>.GetFromSystem(ExistingAlignment) : _coorSystem,
                     underCamera: IsProcessUnderCamera,
-                    aligningPoints: FileAlignment,
+                    aligningPoints: (ExistingAlignment!=null && IsPrevAlignmentEnable) ? FileAlignment.AlignPrev : FileAlignment,
                     waferAngle: _waferAngle,
                     scale: DefaultFileScale);
 
@@ -278,6 +284,13 @@ namespace NewLaserProject.ViewModels
                     })
                     .AddSubscriptionTo(_currentProcSubscriptions);
 
+
+                _mainProcess.OfType<GotAlignment>()
+                    .Subscribe(args => 
+                    {
+                        ExistingAlignment = args.CoorSystem;
+                    })
+                    .AddSubscriptionTo(_currentProcSubscriptions);
 
                 _mainProcess.OfType<MainLoopChanged>()
                     .Subscribe(args =>

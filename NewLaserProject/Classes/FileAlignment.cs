@@ -4,6 +4,7 @@
     {
         AlignByCorner,
         AlignByThreePoint,
-        AlignByTwoPoint
+        AlignByTwoPoint,
+        AlignPrev
     }
 }

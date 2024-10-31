@@ -19,6 +19,8 @@ namespace NewLaserProject.Views.Selectors
                         return element?.FindResource("AlignByThreePointDataTemplate") as DataTemplate;
                     case FileAlignment.AlignByTwoPoint:
                         return element?.FindResource("AlignByTwoPointDataTemplate") as DataTemplate;
+                    case FileAlignment.AlignPrev:
+                        return element?.FindResource("AlignByPrevDataTemplate") as DataTemplate;
                     default:
                         return null;
                 }

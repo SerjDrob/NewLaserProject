@@ -668,16 +668,36 @@
                                                             </x:Array>
                                                         </StackPanel.Resources>
                                                         <controls:ItemsButton DockPanel.Dock="Right"
-                                                                 Width="40"
-                                                                 ItemSelector="{StaticResource AligningSelector}"
-                                                                 Items="{StaticResource FileAlignments}"
-                                                                 SelectedItem="{Binding FileAlignment, Mode=TwoWay}"
-                                                                 HorizontalAlignment="Stretch"
-                                                                 ToolTip="Тип совмещения"
-                                                                >
+                                                                             Width="40"
+                                                                             IsEnabled="{Binding ElementName=prevAlignment, Path=IsChecked, Converter={StaticResource Boolean2BooleanReConverter}}"
+                                                                             ItemSelector="{StaticResource AligningSelector}"
+                                                                             Items="{StaticResource FileAlignments}"
+                                                                             SelectedItem="{Binding FileAlignment, Mode=TwoWay}"
+                                                                             HorizontalAlignment="Stretch"
+                                                                             ToolTip="Тип совмещения"
+                                                                            >
                                                         </controls:ItemsButton>
-                                                        <ToggleButton Command="{Binding SplitOnClustersCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}" Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Height}" Padding="0">
+                                                        <ToggleButton x:Name="prevAlignment" IsChecked="{Binding IsPrevAlignmentEnable}" 
+                                                                      Padding="6" 
+                                                                      Visibility="{Binding ExistingAlignment, Converter={StaticResource Object2VisibilityConverter}}"
+                                                                      ToolTip="Предыдуще совмещение">
                                                             <hc:ToggleBlock IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=IsChecked}">
+                                                                <hc:ToggleBlock.UnCheckedContent>
+                                                                    <Path Data="{StaticResource AllGeometry}" 
+                                                                          Stroke="{StaticResource TextIconBrush}" Stretch="Uniform"
+                                                                          StrokeThickness="0.5"/>
+                                                                </hc:ToggleBlock.UnCheckedContent>
+                                                                <hc:ToggleBlock.CheckedContent>
+                                                                    <Path Data="{StaticResource AllGeometry}" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform"/>
+                                                                </hc:ToggleBlock.CheckedContent>
+                                                            </hc:ToggleBlock>
+                                                        </ToggleButton>
+                                                        <ToggleButton Command="{Binding SplitOnClustersCommand}" 
+                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}" 
+                                                                      Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Height}" 
+                                                                      Padding="0"
+                                                                      ToolTip="Разбить на секторы">
+                                                            <hc:ToggleBlock Padding="6" IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=IsChecked}">
                                                                 <hc:ToggleBlock.UnCheckedContent>
                                                                     <TextBlock Text="W"/>
                                                                 </hc:ToggleBlock.UnCheckedContent>
@@ -825,23 +845,23 @@
                                                                 <hc:ToggleBlock.UnCheckedContent>
                                                                     <hc:ElementGroup Orientation="Horizontal">
                                                                         <ToggleButton Command="{Binding StartStopProcessCommand}"
-                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
-                                                                      IsChecked="{Binding OnProcess}"
-                                                                      hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
-                                                                      hc:IconSwitchElement.GeometrySelected="{StaticResource StopSignGeometry}"
-                                                                      RenderTransformOrigin="0,0.5"
-                                                                      Style="{StaticResource ToggleButtonIcon}"
-                                                                      >
+                                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}"
+                                                                                      IsChecked="{Binding OnProcess}"
+                                                                                      hc:IconSwitchElement.Geometry="{StaticResource PlaySignGeometry}"
+                                                                                      hc:IconSwitchElement.GeometrySelected="{StaticResource StopSignGeometry}"
+                                                                                      RenderTransformOrigin="0,0.5"
+                                                                                      Style="{StaticResource ToggleButtonIcon}"
+                                                                                      >
                                                                             <ToggleButton.RenderTransform>
                                                                                 <ScaleTransform ScaleY="-1"/>
                                                                             </ToggleButton.RenderTransform>
-                                                                        </ToggleButton>
+                                                                        </ToggleButton>                                                                        
                                                                         <Button hc:IconElement.Geometry="{StaticResource RemoveGeometry}"
-                                                                Command="{Binding DenyDownloadedProcessCommand}"
-                                                                Style="{StaticResource ButtonDashedDanger.Small}"
-                                                                ToolTip="Отменить"
-                                                                hc:TipElement.Placement="TopLeft"
-                                                                />
+                                                                                Command="{Binding DenyDownloadedProcessCommand}"
+                                                                                Style="{StaticResource ButtonDashedDanger.Small}"
+                                                                                ToolTip="Отменить"
+                                                                                hc:TipElement.Placement="TopLeft"
+                                                                                />
                                                                     </hc:ElementGroup>
                                                                 </hc:ToggleBlock.UnCheckedContent>
                                                                 <hc:ToggleBlock.CheckedContent>

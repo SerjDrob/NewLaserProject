@@ -261,6 +261,14 @@
                     </Path.LayoutTransform>
                 </Path>
             </DataTemplate>
+            
+            <DataTemplate x:Key="AlignByPrevDataTemplate" DataType="{x:Type sys:Enum}">
+                <Path Data="{StaticResource AllGeometry}" Stretch="Uniform" Fill="{DynamicResource AccentBrush}" StrokeThickness="2" Stroke="{DynamicResource AccentBrush}">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                    </Path.LayoutTransform>
+                </Path>
+            </DataTemplate>
 
             
 

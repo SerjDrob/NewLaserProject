@@ -135,6 +135,10 @@ namespace NewLaserProject.ViewModels
                         Message = ex.Message,
                     });
                 }
+                finally
+                {
+                    ExistingAlignment = null;
+                }
             }
             else
             {
