@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using MachineClassLibrary.Miscellaneous;
 using MediatR;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-using NewLaserProject.Classes;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.WorkTimeFeatures.Get;
 

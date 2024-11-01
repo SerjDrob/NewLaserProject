@@ -75,9 +75,9 @@ namespace NewLaserProject.Classes
 
 
 
-        public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
-        public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);
-        public async Task Deny() => await _stateMachine.FireAsync(MyTrigger.Deny);
+        public async Task NextAsync() => await _stateMachine.FireAsync(MyTrigger.Next);
+        public async Task AcceptAsync() => await _stateMachine.FireAsync(MyTrigger.Accept);
+        public async Task DenyAsync() => await _stateMachine.FireAsync(MyTrigger.Deny);
         private double _firstMarkerYNScale;
 
         public event EventHandler TeachingCompleted;
@@ -93,7 +93,7 @@ namespace NewLaserProject.Classes
             return new double[] { _firstMarkerYNScale };
         }
 
-        public async Task StartTeach()
+        public async Task StartTeachAsync()
         {
             await _stateMachine.ActivateAsync();
         }

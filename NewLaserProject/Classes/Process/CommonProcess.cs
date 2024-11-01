@@ -16,7 +16,7 @@ using MachineClassLibrary.Laser.Markers;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
-using MachineClassLibrary.Miscellanius;
+using MachineClassLibrary.Miscellaneous;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.ViewModels;
 using Stateless;

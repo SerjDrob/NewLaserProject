@@ -71,9 +71,9 @@ namespace NewLaserProject.Classes
         }
         public static LaserHorizontTeacherBuilder GetBuilder() => new();
 
-        public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
-        public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);
-        public async Task Deny() => await _stateMachine.FireAsync(MyTrigger.Deny);
+        public async Task NextAsync() => await _stateMachine.FireAsync(MyTrigger.Next);
+        public async Task AcceptAsync() => await _stateMachine.FireAsync(MyTrigger.Accept);
+        public async Task DenyAsync() => await _stateMachine.FireAsync(MyTrigger.Deny);
 
         public double[] GetParams() => _points.ToArray();   
         public void SetResult(double result) => _result = result;
@@ -88,7 +88,7 @@ namespace NewLaserProject.Classes
             _points.AddRange(ps);
         }
 
-        public async Task StartTeach()
+        public async Task StartTeachAsync()
         {
             await _stateMachine.ActivateAsync();
         }

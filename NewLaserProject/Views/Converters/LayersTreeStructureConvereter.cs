@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using NewLaserProject.Classes;
+using MachineClassLibrary.Miscellaneous;
 using NewLaserProject.ViewModels;
 
 namespace NewLaserProject.Views.Converters

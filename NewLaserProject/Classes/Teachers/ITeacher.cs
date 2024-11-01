@@ -5,10 +5,10 @@ namespace NewLaserProject.Classes
 {
     public interface ITeacher
     {
-        Task Accept();
-        Task Deny();
-        Task Next();
-        Task StartTeach();
+        Task AcceptAsync();
+        Task DenyAsync();
+        Task NextAsync();
+        Task StartTeachAsync();
         event EventHandler TeachingCompleted;
         void SetParams(params double[] ps);
         double[] GetParams();

@@ -4,6 +4,8 @@ using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
+using MachineClassLibrary.Miscellaneous;
+using MachineClassLibrary.Settings;
 using Microsoft.Toolkit.Diagnostics;
 using Stateless;
 using System;
@@ -104,12 +106,12 @@ namespace NewLaserProject.Classes
                 });
         }
 
-        public Task Accept()
+        public Task AcceptAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task Deny() => _stateMachine.FireAsync(MyTrigger.Deny);
+        public Task DenyAsync() => _stateMachine.FireAsync(MyTrigger.Deny);
         
 
         public double[] GetParams()
@@ -117,7 +119,7 @@ namespace NewLaserProject.Classes
             throw new NotImplementedException();
         }
 
-        public async Task Next()
+        public async Task NextAsync()
         {
             await _stateMachine.FireAsync(MyTrigger.Next);
         }
@@ -150,13 +152,13 @@ namespace NewLaserProject.Classes
             }
             catch (Exception) { }
         }
-        public async Task StartTeach()
+        public async Task StartTeachAsync()
         {
             Growl.Clear();
             _laserMachine.SetVelocity(Velocity.Service);
             var zCamera = _settingsManager.Settings.ZeroFocusPoint ?? throw new ArgumentNullException("ZeroFocusPoint is null");
             var zLaser = _settingsManager.Settings.ZeroPiercePoint ?? throw new ArgumentNullException("ZeroPiercePoint is null");
-            var defLaserParams = ExtensionMethods
+            var defLaserParams = MiscExtensions
                       .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
             var pen = defLaserParams.PenParams with
             {
@@ -282,9 +284,9 @@ namespace NewLaserProject.Classes
         {
             return $"dx: {_newOffset.dx.ToString("0.###")}, dy: {_newOffset.dy.ToString("0.###")}";
         }
-        public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
-        public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);
-        public async Task Deny() => await _stateMachine.FireAsync(MyTrigger.Deny);
+        public async Task NextAsync() => await _stateMachine.FireAsync(MyTrigger.Next);
+        public async Task AcceptAsync() => await _stateMachine.FireAsync(MyTrigger.Accept);
+        public async Task DenyAsync() => await _stateMachine.FireAsync(MyTrigger.Deny);
 
         public void SetParams(params double[] ps)
         {
@@ -294,7 +296,7 @@ namespace NewLaserProject.Classes
         //public (double dx, double dy) GetOffset() => (_newOffset.dx,_newOffset.dy);
         public double[] GetParams() => [_newOffset.dx, _newOffset.dy];
 
-        public async Task StartTeach()
+        public async Task StartTeachAsync()
         {
             await _stateMachine.ActivateAsync();
         }

@@ -13,6 +13,7 @@ using MachineClassLibrary.GeometryUtility;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
+using MachineClassLibrary.Miscellaneous;
 using MachineControlsLibrary.CommonDialog;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -122,7 +123,7 @@ namespace NewLaserProject.ViewModels
                             _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - waferThickness)
                             );
 
-                    var defLaserParams = ExtensionMethods
+                    var defLaserParams = MiscExtensions
                            .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
                     var pen = defLaserParams.PenParams with
                     {
@@ -159,7 +160,7 @@ namespace NewLaserProject.ViewModels
                              _laserMachine.MoveAxRelativeAsync(Ax.Y, -yOffset, true),
                              _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                              );
-                    await _currentTeacher.Accept();
+                    await _currentTeacher.AcceptAsync();
 
                     void GetPropOffsets(ref double xOffset, ref double yOffset)
                     {
@@ -199,11 +200,11 @@ namespace NewLaserProject.ViewModels
                 {
                     if (MsgBox.Ask("Обучить смещение камеры от объектива лазера?", "Обучение") == MessageBoxResult.OK)
                     {
-                        await _currentTeacher.Accept();
+                        await _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        await _currentTeacher.Deny();
+                        await _currentTeacher.DenyAsync();
                     }
                 }))
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(async () =>
@@ -212,11 +213,11 @@ namespace NewLaserProject.ViewModels
 
                     if (MsgBox.Ask($"Принять новое смещение камеры от объектива лазера {_currentTeacher}?", "Обучение") == MessageBoxResult.OK)
                     {
-                        await _currentTeacher.Accept();
+                        await _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        await _currentTeacher.Deny();
+                        await _currentTeacher.DenyAsync();
                     }
                 }))
                 .SetOnBiasToughtAction(() => Task.Run(() =>
@@ -307,7 +308,7 @@ namespace NewLaserProject.ViewModels
                     tempX = points[0].X + waferWidth / 2;
                     tempY = points[0].Y;
 
-                    var defLaserParams = ExtensionMethods
+                    var defLaserParams = MiscExtensions
                           .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
                     var pen = defLaserParams.PenParams;
                     var hatch = defLaserParams.HatchParams;
@@ -362,11 +363,11 @@ namespace NewLaserProject.ViewModels
                 {
                     if (MsgBox.Ask("Обучить горизонтальность сканатора?", "Обучение") == MessageBoxResult.OK)
                     {
-                        _currentTeacher.Accept();
+                        _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        _currentTeacher.Deny();
+                        _currentTeacher.DenyAsync();
                     }
                 }))
                 .SetOnRequestPermissionToAcceptAction(() => Task.Run(() =>
@@ -384,11 +385,11 @@ namespace NewLaserProject.ViewModels
                     if (MsgBox.Ask($"Принять новое значение горизонтальности сканатора {_currentTeacher}?", "Обучение") == MessageBoxResult.OK)
                     {
 
-                        _currentTeacher.Accept();
+                        _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        _currentTeacher.Deny();
+                        _currentTeacher.DenyAsync();
                     }
                     // Growl.Clear();
                 }))
@@ -427,7 +428,7 @@ namespace NewLaserProject.ViewModels
                 waferThickness = result.CommonResult;
             }
 
-            var matrixElements = ExtensionMethods.DeserializeObject<float[]>(AppPaths.TeachingDeformation);
+            var matrixElements = MiscExtensions.DeserializeObject<float[]>(AppPaths.TeachingDeformation);
 
             var workMatrixBuilder = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             workMatrixBuilder.SetWorkMatrix(new Matrix3x2(
@@ -478,11 +479,11 @@ namespace NewLaserProject.ViewModels
                 {
                     if (MsgBox.Ask("Обучить координатную систему лазера?", "Обучение") == MessageBoxResult.OK)
                     {
-                        _currentTeacher.Accept();
+                        _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        _currentTeacher.Deny();
+                        _currentTeacher.DenyAsync();
                     }
 
                 }))
@@ -490,11 +491,11 @@ namespace NewLaserProject.ViewModels
                 {
                     if (MsgBox.Ask($"Принять новое значения координат для матрицы преобразования {_currentTeacher}?", "Обучение") == MessageBoxResult.OK)
                     {
-                        _currentTeacher.Accept();
+                        _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        _currentTeacher.Deny();
+                        _currentTeacher.DenyAsync();
                     }
                 }))
                 .SetOnXYOrthToughtAction(() => Task.Run(() =>
@@ -543,11 +544,11 @@ namespace NewLaserProject.ViewModels
                 {
                     if (MsgBox.Ask("Обучить масштаб видео?", "Обучение") == MessageBoxResult.OK)
                     {
-                        await _currentTeacher.Accept();
+                        await _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        await _currentTeacher.Deny();
+                        await _currentTeacher.DenyAsync();
                     }
                 }))
                 .SetOnGoLoadPointAction(() => Task.Run(async () =>
@@ -593,11 +594,11 @@ namespace NewLaserProject.ViewModels
                     if (MsgBox.Ask($"Принять новый масштаб видео  {scale}?", "Обучение") == MessageBoxResult.OK)
                     {
                         _currentTeacher.SetParams(new double[] { scale });
-                        await _currentTeacher.Accept();
+                        await _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        await _currentTeacher.Deny();
+                        await _currentTeacher.DenyAsync();
                     }
 
                 }))
@@ -634,11 +635,11 @@ namespace NewLaserProject.ViewModels
                 {
                     if (MsgBox.Ask($"Обучить габарит координаты {coordinate}?", "Обучение") == MessageBoxResult.OK)
                     {
-                        await _currentTeacher.Accept();
+                        await _currentTeacher.AcceptAsync();
                     }
                     else
                     {
-                        await _currentTeacher.Deny();
+                        await _currentTeacher.DenyAsync();
                     }
                 }))
                 .SetOnAtNegativeEdgeAction(() => Task.Run(async () =>
@@ -671,11 +672,11 @@ namespace NewLaserProject.ViewModels
 
                      if (MsgBox.Ask($"Принять новый габарит координаты {coordinate} {_currentTeacher}?", "Обучение") == MessageBoxResult.OK)
                      {
-                         await _currentTeacher.Accept();
+                         await _currentTeacher.AcceptAsync();
                      }
                      else
                      {
-                         await _currentTeacher.Deny();
+                         await _currentTeacher.DenyAsync();
                      }
 
                  }))
@@ -696,7 +697,7 @@ namespace NewLaserProject.ViewModels
                     _canTeach = false;
                 }))
                 .Build();
-            await _currentTeacher.StartTeach();
+            await _currentTeacher.StartTeachAsync();
             _canTeach = true;
         }
 

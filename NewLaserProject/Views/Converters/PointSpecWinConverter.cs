@@ -1,13 +1,12 @@
-﻿using MachineControlsLibrary.Classes;
-using NewLaserProject.Classes;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using MachineClassLibrary.Miscellaneous;
+using MachineControlsLibrary.Classes;
 
 namespace NewLaserProject.Views.Converters
 {
@@ -16,7 +15,7 @@ namespace NewLaserProject.Views.Converters
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             var scale = 1d;
-            if (values.Count()==2)
+            if (values.Count() == 2)
             {
                 scale = (double)values[1];
             }
@@ -26,7 +25,7 @@ namespace NewLaserProject.Views.Converters
             if (geometries is not null)
             {
                 var geomcollection = geometries
-                    .Select(g => new GeometryCollection(new[] {g}))
+                    .Select(g => new GeometryCollection(new[] { g }))
                     .Select(gc => new LayerGeometryCollection(gc, "Points", true, Brushes.Yellow, Brushes.Yellow))
                     .ToArray()
                     .ToObservableCollection();

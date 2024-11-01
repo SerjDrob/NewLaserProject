@@ -6,7 +6,6 @@ using HandyControl.Tools.Extension;
 using MachineControlsLibrary.CommonDialog;
 using NewLaserProject.Classes;
 using NewLaserProject.ViewModels.DialogVM;
-using NewLaserProject.Views.Dialogs;
 using Stateless;
 
 
@@ -103,9 +102,9 @@ namespace NewLaserProject.ViewModels
                             {
                                 var result = await Dialog.Show<CommonDialog>()
                                                            .SetDialogTitle("Обучение смещения")
-                                                           .SetDataContext(new GroupOffsetsVM(WaferWidth,WaferHeight,WaferThickness),
+                                                           .SetDataContext(new GroupOffsetsVM(WaferWidth, WaferHeight, WaferThickness),
                                                            vm => { })
-                                                           .GetCommonResultAsync<(IEnumerable<(double,double)> points,double thickness)>();
+                                                           .GetCommonResultAsync<(IEnumerable<(double, double)> points, double thickness)>();
                                 if (result?.Success ?? false)
                                 {
                                     var thickness = result.CommonResult.thickness;

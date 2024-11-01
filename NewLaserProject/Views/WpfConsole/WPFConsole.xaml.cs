@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using Microsoft.VisualStudio.Shell;
 using NewLaserProject.Classes.LogSinks.ConsoleSink;
 
 namespace NewLaserProject.Views.WpfConsole
@@ -67,6 +68,26 @@ namespace NewLaserProject.Views.WpfConsole
                             }
                             console.SetMessage(block);
                         });
+                        //ThreadHelper.JoinableTaskFactory.Run(async delegate {
+                        //    //await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(alwaysYield:true);
+                        //    //var block = new TextBlock { TextWrapping = TextWrapping.WrapWithOverflow };
+                        //    //var num = 0;
+                        //    //var count = msg.MsgChunks.Count();
+                        //    //foreach (var chunk in msg.MsgChunks)
+                        //    //{
+                        //    //    num++;
+                        //    //    var run = new Run
+                        //    //    {
+                        //    //        Text = chunk.Text,
+                        //    //        FontFamily = new FontFamily("Consolas"),
+                        //    //        Background = chunk.Background,
+                        //    //        Foreground = chunk.Foreground,
+                        //    //    };
+                        //    //    if (chunk.newline && num != count) block.Inlines.Add(new LineBreak());
+                        //    //    block.Inlines.Add(run);
+                        //    //}
+                        //    //console.SetMessage(block);
+                        //});
                     });
             }
         }

@@ -97,11 +97,11 @@ namespace NewLaserTest
 
 
             var teachCameraBias = cbBuilder.Build();
-            teachCameraBias.Accept();
+            teachCameraBias.AcceptAsync();
             Assert.That(controlString == stages[2]);
-            teachCameraBias.Next();
+            teachCameraBias.NextAsync();
             Assert.That(controlString == stages[0]);
-            teachCameraBias.Next();
+            teachCameraBias.NextAsync();
             Assert.That(controlString == stages[1]);
             //teachCameraBias.Accept();
 

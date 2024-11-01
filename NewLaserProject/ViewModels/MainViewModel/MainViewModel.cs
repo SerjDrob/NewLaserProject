@@ -15,6 +15,8 @@ using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
+using MachineClassLibrary.Miscellaneous;
+using MachineClassLibrary.Settings;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -193,7 +195,7 @@ namespace NewLaserProject.ViewModels
                         MsgBox.Error(t.Exception?.InnerException?.Message);
                     }
                 }, TaskScheduler.Default);
-            var defLaserParams = ExtensionMethods
+            var defLaserParams = MiscExtensions
                 .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
             _laserMachine.SetMarkParams(defLaserParams);
             InitViews();
@@ -446,10 +448,10 @@ namespace NewLaserProject.ViewModels
         {
 #if PCIInserted
 
-            var axesConfigs = ExtensionMethods
+            var axesConfigs = MiscExtensions
                 .DeserializeObject<LaserMachineAxesConfiguration>(AppPaths.AxesConfigs);
 
-            var machineconfigs = ExtensionMethods
+            var machineconfigs = MiscExtensions
                 .DeserializeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs);
 
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
@@ -644,7 +646,7 @@ namespace NewLaserProject.ViewModels
         }
         private static CoorSystem<LMPlace> GetCoorSystem(string path)
         {
-            var matrixElements = ExtensionMethods.DeserializeObject<float[]>(path) ?? throw new NullReferenceException("CoorSystem in the file is invalid");
+            var matrixElements = MiscExtensions.DeserializeObject<float[]>(path) ?? throw new NullReferenceException("CoorSystem in the file is invalid");
             var builder = CoorSystem<LMPlace>.GetWorkMatrixSystemBuilder();
             builder.SetWorkMatrix(matrixElements);
             var sys = builder.Build();
@@ -668,8 +670,8 @@ namespace NewLaserProject.ViewModels
             xxl.SerializeObject(AppPaths.CoefLineY);
             */
 
-            var xline = ExtensionMethods.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineX);
-            var yline = ExtensionMethods.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineY);
+            var xline = MiscExtensions.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineX);
+            var yline = MiscExtensions.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineY);
 
 
 

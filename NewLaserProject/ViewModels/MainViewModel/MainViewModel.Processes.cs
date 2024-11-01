@@ -34,6 +34,7 @@ using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using Path = System.IO.Path;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using MsgBox = HandyControl.Controls.MessageBox;
+using MachineClassLibrary.Miscellaneous;
 
 namespace NewLaserProject.ViewModels
 {

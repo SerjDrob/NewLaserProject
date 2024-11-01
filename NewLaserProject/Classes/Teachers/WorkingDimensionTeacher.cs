@@ -72,9 +72,9 @@ namespace NewLaserProject.Classes.Teachers
         {
             return $"neg: {_newEdges.neg}, pos: {_newEdges.pos}";
         }
-        public async Task Next() => await _stateMachine.FireAsync(MyTrigger.Next);
-        public async Task Accept() => await _stateMachine.FireAsync(MyTrigger.Accept);
-        public async Task Deny() => await _stateMachine.FireAsync(MyTrigger.Deny);
+        public async Task NextAsync() => await _stateMachine.FireAsync(MyTrigger.Next);
+        public async Task AcceptAsync() => await _stateMachine.FireAsync(MyTrigger.Accept);
+        public async Task DenyAsync() => await _stateMachine.FireAsync(MyTrigger.Deny);
 
         public void SetParams(params double[] ps)
         {
@@ -87,7 +87,7 @@ namespace NewLaserProject.Classes.Teachers
             return new double[] { _newEdges.neg, _newEdges.pos };
         }
 
-        public async Task StartTeach()
+        public async Task StartTeachAsync()
         {
             await _stateMachine.ActivateAsync();
         }

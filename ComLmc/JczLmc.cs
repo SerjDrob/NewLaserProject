@@ -332,7 +332,7 @@ public class JczLmc
     /// </summary>  
     public static Image GetCurPreviewImage(int bmpwidth, int bmpheight)
     {
-        IntPtr pBmp = GetCurPrevBitmap(bmpwidth, bmpheight);
+        var pBmp = GetCurPrevBitmap(bmpwidth, bmpheight);
         Image img = Image.FromHbitmap(pBmp);
         DeleteObject(pBmp);
         return img;

@@ -94,34 +94,6 @@ namespace NewLaserProject.Classes
             var mapper = new Mapper(config);
             machineSettings = mapper.Map(laserMachineSettings, machineSettings);
         }
-
-        internal static void SerializeObject(this object obj, string filePath)
-        {
-            var json = JsonConvert.SerializeObject(obj);
-            using var writer = new StreamWriter(filePath, false);
-            var l = new TextWriterTraceListener(writer);
-            l.WriteLine(json);
-            l.Flush();
-        }
-        internal static T? DeserializeObject<T>(string filePath)
-        {
-            try
-            {
-                var obj = JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(T));
-                return (T?)obj;
-            }
-            catch (FileNotFoundException)
-            {
-                return default;
-            }
-        }
-        internal static ObservableCollection<T> ToObservableCollection<T>(this IEnumerable<T> en)
-        {
-            return new ObservableCollection<T>(en);
-        }
-        internal static void AddSubscriptionTo(this IDisposable subscription, IList<IDisposable> subscriptions) => subscriptions?.Add(subscription);
-
-
         internal static void GetOffsetByCurCoor(this IEnumerable<OffsetPoint> offsetPoints, double curX, double curY, ref double xOffset, ref double yOffset)
         {
             try

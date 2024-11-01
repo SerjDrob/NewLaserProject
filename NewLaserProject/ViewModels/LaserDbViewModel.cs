@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -12,12 +13,11 @@ using System.Windows.Data;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
+using MachineClassLibrary.Miscellaneous;
 using MachineControlsLibrary.CommonDialog;
 using MediatR;
-using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
-using WinDialogs = Microsoft.Win32;
-using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.Data.Models;
 using NewLaserProject.Data.Models.DTOs;
@@ -27,6 +27,7 @@ using NewLaserProject.Data.Models.MaterialEntRuleFeatures.Update;
 using NewLaserProject.Data.Models.MaterialFeatures.Create;
 using NewLaserProject.Data.Models.MaterialFeatures.Delete;
 using NewLaserProject.Data.Models.MaterialFeatures.Get;
+using NewLaserProject.Data.Models.MaterialFeatures.Update;
 using NewLaserProject.Data.Models.TechnologyFeatures.Create;
 using NewLaserProject.Data.Models.TechnologyFeatures.Delete;
 using NewLaserProject.Data.Models.TechnologyFeatures.Update;
@@ -35,10 +36,7 @@ using NewLaserProject.ViewModels.DialogVM;
 using Newtonsoft.Json;
 using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
-using Microsoft.Windows.Themes;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.Toolkit.Diagnostics;
-using NewLaserProject.Data.Models.MaterialFeatures.Update;
+using WinDialogs = Microsoft.Win32;
 
 namespace NewLaserProject.ViewModels
 {
@@ -207,7 +205,7 @@ namespace NewLaserProject.ViewModels
                     tech.Id = 0;
                     tech.Created = DateTime.Now;
                 }
-                else if(tech.Created == default)
+                else if (tech.Created == default)
                 {
                     tech.Created = DateTime.Now;
                 }
@@ -308,20 +306,20 @@ namespace NewLaserProject.ViewModels
                             var listing = File.ReadAllText(path);
                             return new { Listing = listing, Technology = t };
                         });
-                    var json = JsonConvert.SerializeObject(techs,Formatting.Indented, new JsonSerializerSettings
+                    var json = JsonConvert.SerializeObject(techs, Formatting.Indented, new JsonSerializerSettings
                     {
-                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,                       
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                     });
                     File.WriteAllText(path, json);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
 
                     throw;
                 }
             }
 
-            
+
         }
 
         [ICommand]
@@ -349,7 +347,7 @@ namespace NewLaserProject.ViewModels
 
                     var ReviseDatabase = async (IEnumerable<Technology>? intersected, bool asNew = false) =>
                     {
-                        Guard.IsNotNull(technologies, nameof(technologies));    
+                        Guard.IsNotNull(technologies, nameof(technologies));
                         var sourceTechs = intersected is not null ? technologies
                         .IntersectBy(intersected, s => s.Technology, new TechComparer()) : technologies;
 
@@ -458,7 +456,7 @@ namespace NewLaserProject.ViewModels
                         };
 
                         var currentTechnologies = Materials.SelectMany(m => m.Technologies).ToList();
-                        var downloadedTechs = technologies.Select(t=>t.Technology).ToList();
+                        var downloadedTechs = technologies.Select(t => t.Technology).ToList();
                         var resultCollection = new List<Technology>();
                         if (settings.MergeChangeOnNew)
                         {
@@ -470,18 +468,18 @@ namespace NewLaserProject.ViewModels
                             }
                             await ReviseDatabase(null);
                         }
-                        else if (settings.MergeNotSave) 
+                        else if (settings.MergeNotSave)
                         {
                             var difference = downloadedTechs.Except(currentTechnologies, new TechComparer());
                             await ReviseDatabase(difference);
                         }
-                        else if(settings.MergeSaveBoth)
+                        else if (settings.MergeSaveBoth)
                         {
                             var difference = downloadedTechs.Except(currentTechnologies, new TechComparer());
                             var same = downloadedTechs.Except(difference, new TechComparer());
-                            await ReviseDatabase(same,true);
+                            await ReviseDatabase(same, true);
                             await ReviseDatabase(difference);
-                        }                        
+                        }
                     }
                 }
             }
@@ -491,7 +489,7 @@ namespace NewLaserProject.ViewModels
         {
             public bool Equals(Technology? x, Technology? y)
             {
-                if(x is null || y is null) return false;
+                if (x is null || y is null) return false;
                 if (x.ProgramName.Equals(y.ProgramName))
                 {
                     return x.Material.Name == y.Material.Name;
@@ -501,7 +499,7 @@ namespace NewLaserProject.ViewModels
 
             public int GetHashCode([DisallowNull] Technology obj)
             {
-               return new HashCode().ToHashCode();
+                return new HashCode().ToHashCode();
             }
         }
     }

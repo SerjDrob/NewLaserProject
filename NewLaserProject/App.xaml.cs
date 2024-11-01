@@ -14,6 +14,8 @@ using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
 using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Machine.MotionDevices;
+using MachineClassLibrary.Miscellaneous;
+using MachineClassLibrary.Settings;
 using MachineClassLibrary.VideoCapture;
 using MediatR;
 using Microsoft.Data.Sqlite;
@@ -56,7 +58,7 @@ namespace NewLaserProject
         //public static extern void FreeConsole();
         public App()
         {
-            var machineconfigs = ExtensionMethods
+            var machineconfigs = MiscExtensions
                 .DeserializeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs)
                 ?? throw new NullReferenceException("The machine configs are null");
                     
@@ -153,7 +155,7 @@ namespace NewLaserProject
                    })
                    .AddTransient<LaserDbViewModel>(sp =>
                    {
-                       var defLaserParams = ExtensionMethods
+                       var defLaserParams = MiscExtensions
                             .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
 
                        var mapper = sp.GetService<IMapper>();
@@ -164,7 +166,7 @@ namespace NewLaserProject
                    })
                    .AddTransient(sp =>
                    {
-                       var defLaserParams = ExtensionMethods
+                       var defLaserParams = MiscExtensions
                             .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
                        var mapper = sp.GetService<IMapper>();
                        var vm = mapper?.Map<MarkSettingsVM>(defLaserParams) ?? new();

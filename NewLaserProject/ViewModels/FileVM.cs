@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Media;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Laser.Entities;
+using MachineClassLibrary.Miscellaneous;
 using MachineControlsLibrary.Classes;
 using MachineControlsLibrary.Controls;
 using MachineControlsLibrary.Controls.GraphWin;

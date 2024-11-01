@@ -14,13 +14,12 @@ using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using MachineClassLibrary.Laser.Parameters;
 using MachineControlsLibrary.CommonDialog;
-using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using NewLaserProject.Classes;
 using NewLaserProject.Classes.ProgBlocks;
 using NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures;
 using Newtonsoft.Json;
+using MachineClassLibrary.Miscellaneous;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {
@@ -181,7 +180,7 @@ namespace NewLaserProject.ViewModels.DialogVM
             }
 
 
-            var mainLoop = new MainLoop(MainLoopCount, MainLoopShuffle, Listing) 
+            var mainLoop = new MainLoop(MainLoopCount, MainLoopShuffle, Listing)
             {
                 ProgName = progName,
                 MaterialName = materialName

@@ -16,6 +16,7 @@ using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
+using MachineClassLibrary.Miscellaneous;
 using MachineControlsLibrary.CommonDialog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -155,7 +156,7 @@ namespace NewLaserProject.ViewModels
                 .CreateKeyDownCommand(Key.F, ModifierKeys.Control, async () =>
                 {
                     var token = new CancellationTokenSource(TimeSpan.FromMilliseconds(15000)).Token;
-                    var res = await _laserMachine.FindCameraFocus(token);
+                    var res = await _laserMachine.FindCameraFocusAsync(token);
                 }, () => false);
 
             async Task moveAxDirAsync((Ax, AxDir) axDir)
@@ -249,7 +250,7 @@ namespace NewLaserProject.ViewModels
                 if (_canTeach)
                 {
                     Growl.Clear();
-                    return _currentTeacher?.Next() ?? Task.CompletedTask;
+                    return _currentTeacher?.NextAsync() ?? Task.CompletedTask;
                 }
                 return _mainProcess?.Next() ?? Task.CompletedTask;
             }
@@ -258,7 +259,7 @@ namespace NewLaserProject.ViewModels
                 if (_canTeach)
                 {
                     Growl.Clear();
-                    return _currentTeacher?.Deny() ?? Task.CompletedTask;
+                    return _currentTeacher?.DenyAsync() ?? Task.CompletedTask;
                 }
                 return Task.CompletedTask;
             }
@@ -351,7 +352,7 @@ namespace NewLaserProject.ViewModels
                       new DefaultTechSelector(k, col.GroupBy(g => g.EntityType)
                       .ToImmutableDictionary(k => k.Key, e => e.Select(g => g.Technology.Material))
                       )).ToObservableCollection();
-                    var defLayerProcDTO = ExtensionMethods.DeserializeObject<DefaultProcessFilterDTO>(AppPaths.DefaultProcessFilter);
+                    var defLayerProcDTO = MiscExtensions.DeserializeObject<DefaultProcessFilterDTO>(AppPaths.DefaultProcessFilter);
                     if (defLayerProcDTO is not null)
                     {
                         vm.DefaultHeight = defLayerProcDTO.DefaultHeight;
@@ -555,7 +556,7 @@ namespace NewLaserProject.ViewModels
         {
             try
             {
-                var markParams = ExtensionMethods
+                var markParams = MiscExtensions
                                     .DeserializeObject<ExtendedParams>(AppPaths.MarkTextParams);
 
 

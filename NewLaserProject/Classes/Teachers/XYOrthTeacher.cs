@@ -68,7 +68,7 @@ namespace NewLaserProject.Classes
                           .Aggregate(new StringBuilder("Coordinates: "), (previous, current) => previous.AppendLine(current))
                           .ToString();
         }
-        public async Task Next()
+        public async Task NextAsync()
         {
             try
             {
@@ -80,11 +80,11 @@ namespace NewLaserProject.Classes
                 throw;
             }
         }
-        public async Task Accept()
+        public async Task AcceptAsync()
         {
             await _stateMachine.FireAsync(MyTrigger.Accept);
         }
-        public async Task Deny() => await _stateMachine.FireAsync(MyTrigger.Deny);
+        public async Task DenyAsync() => await _stateMachine.FireAsync(MyTrigger.Deny);
 
         public void SetParams(params double[] ps)
         {
@@ -94,7 +94,7 @@ namespace NewLaserProject.Classes
 
         public double[] GetParams() => _points.Aggregate(new List<double>(), (acc, tup) => { acc.AddRange(new double[] { tup.x, tup.y }); return acc; }).ToArray();
 
-        public async Task StartTeach()
+        public async Task StartTeachAsync()
         {
             await _stateMachine.ActivateAsync();
         }

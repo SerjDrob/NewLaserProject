@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reactive.Linq;
 using MachineClassLibrary.Laser.Parameters;
+using MachineClassLibrary.Miscellaneous;
 
 namespace NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures
 {
@@ -23,7 +24,7 @@ namespace NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures
                 .Deserialize(jsonTree);
 
             var seq = Enumerable.Repeat(Parse(mainLoop.Children), mainLoop.LoopCount).SelectMany(x => x);
-            
+
             return new ProcessingSequence(seq, mainLoop.LoopCount, mainLoop.Shuffle);
 
             IEnumerable<IProgBlock> Parse(IEnumerable<IProgBlock> progBlocks)

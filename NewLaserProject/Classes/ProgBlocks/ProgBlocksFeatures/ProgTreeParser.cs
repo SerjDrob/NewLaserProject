@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using MachineClassLibrary.BehaviourTree;
 using MachineClassLibrary.Laser.Parameters;
+using MachineClassLibrary.Miscellaneous;
 using NewLaserProject.Classes.Process.Utility;
 
 namespace NewLaserProject.Classes.ProgBlocks.ProgBlocksFeatures
