@@ -369,7 +369,7 @@ namespace NewLaserProject.ViewModels
             {
                 var k = xRatio / yRatio;
                 var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
-                var offset = new[] { -e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
+                var offset = new[] { e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
                 try
                 {
                     var vel  = _laserMachine.SetVelocity(Velocity.Service);
@@ -476,8 +476,9 @@ namespace NewLaserProject.ViewModels
                 dec = _settingsManager.Settings.XDec ?? throw new ArgumentNullException("XDec is null"),
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
                 denominator = 100,
+                denominator = 1,
                 plsInMde = (int)PlsInMode.AB_4X,
-                plsInLogic = (int)PlsInLogic.NO_INV_DIR,//TODO fix the coordinate sign's system
+                plsInLogic = (int)PlsInLogic.INV_DIR,//TODO fix the coordinate sign's system
                 homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"),
             };
@@ -493,7 +494,7 @@ namespace NewLaserProject.ViewModels
                 acc = _settingsManager.Settings.YAcc ?? throw new ArgumentNullException("YAcc is null"),
                 dec = _settingsManager.Settings.YDec ?? throw new ArgumentNullException("YDec is null"),
                 ppu = _settingsManager.Settings.YPPU ?? throw new ArgumentNullException("XAcc is null"),//3993,//Settings.Default.YPPU*2,
-                denominator = 100,
+                denominator = 1,
                 plsInMde = (int)PlsInMode.AB_4X,
                 homeVelLow = _settingsManager.Settings.YHomeVelLow ?? throw new ArgumentNullException("YVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")
@@ -665,10 +666,10 @@ namespace NewLaserProject.ViewModels
 
             (double,double)[] xxl = [(-100, -100), (100, 100)];
 
-            /*
-            xxl.SerializeObject(AppPaths.CoefLineX);
-            xxl.SerializeObject(AppPaths.CoefLineY);
-            */
+
+            //xxl.SerializeObject(AppPaths.CoefLineX);
+            //xxl.SerializeObject(AppPaths.CoefLineY);
+
 
             var xline = MiscExtensions.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineX);
             var yline = MiscExtensions.DeserializeObject<(double orig, double derived)[]>(AppPaths.CoefLineY);
