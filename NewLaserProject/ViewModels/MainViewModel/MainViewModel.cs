@@ -475,7 +475,6 @@ namespace NewLaserProject.ViewModels
                 acc = _settingsManager.Settings.XAcc ?? throw new ArgumentNullException("XAcc is null"),
                 dec = _settingsManager.Settings.XDec ?? throw new ArgumentNullException("XDec is null"),
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
-                denominator = 100,
                 denominator = 1,
                 plsInMde = (int)PlsInMode.AB_4X,
                 plsInLogic = (int)PlsInLogic.INV_DIR,//TODO fix the coordinate sign's system
