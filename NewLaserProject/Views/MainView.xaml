@@ -608,7 +608,7 @@
                                     </Grid.RowDefinitions>
                                     <hc:SimpleStackPanel>
                                         <hc:Divider Orientation="Horizontal" Style="{StaticResource DividerBaseStyle}"/>
-                                        <Border BorderBrush="{StaticResource PrimaryBrush}" CornerRadius="5" BorderThickness="1">
+                                        <Border IsEnabled="{Binding IsProcessLoaded, Converter={StaticResource Boolean2BooleanReConverter}}" BorderBrush="{StaticResource PrimaryBrush}" CornerRadius="5" BorderThickness="1">
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                                 <hc:ElementGroup Orientation="Horizontal">
                                                     <Button Command="{Binding OpenFileCommand}" Content="Топология" Style="{StaticResource ButtonPrimary.Small}"/>
