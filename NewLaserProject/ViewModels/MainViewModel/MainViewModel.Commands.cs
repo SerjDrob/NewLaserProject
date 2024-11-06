@@ -438,7 +438,8 @@ namespace NewLaserProject.ViewModels
             }
             else
             {
-                _cluster??= new ClusterVM { Enable = false };
+                _cluster??= new ClusterVM();
+                _cluster.Enable = false;
             }
         }
 
