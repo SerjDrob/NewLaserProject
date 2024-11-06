@@ -81,28 +81,28 @@ namespace NewLaserProject.Classes.Process
             _subject = subject;
             _pureCoorSystem = new PureCoorSystem<LMPlace>(baseCoorSystem.GetMainMatrixElements().GetMatrix3());
             _baseCoorSystem = baseCoorSystem;
-            _teachingPointsCoorSystem = baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
+            _teachingPointsCoorSystem = aligningPoints == FileAlignment.AlignPrev ? baseCoorSystem : baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera);
             _underCamera = underCamera;
             _zPiercing = _underCamera ? _zeroZCamera : _zeroZPiercing;//TODO use it outside of the constructor
             _fileAlignment = aligningPoints;
             _waferAngle = waferAngle;
             _scale = scale;
             _processing = processing;
-            //_yCoeffLine = new((30.028,30.028),
-            //    (28.678,28.683),(24.578,24.588),(20.478,20.485),(16.378,16.389),
-            //    (12.278,12.291),(8.178,8.180),(4.078,4.086),(-0.022,-0.016),
-            //    (-4.122,-4.122),(-8.222,-8.228),(-12.322,-12.325),
-            //    (-16.422,-16.428),(-20.522,-20.531),(-24.622,-24.630));
-            //_xCoeffLine = new((0,0),(-60,-60.011), (-3.35,-3.359), (-4.55,-4.562), (-5.75,-5.766), (-6.95,-6.965), (-8.15,-8.162), 
-            //    (-9.35,-9.367), (-10.55,-10.566), (-11.75,-11.767), (-12.95,-12.968), (-14.15,-14.169), 
-            //    (-15.35,-15.369), (-16.55,-16.569), (-17.75,-17.771), (-18.95,-18.969), (-20.15,-20.167), 
-            //    (-21.35,-21.37), (-22.55,-22.568), (-23.75,-23.772), (-24.95,-24.972), (-26.15,-26.174),
-            //    (-27.35,-27.374), (-28.55,-28.572), (-29.75,-29.772), (-30.95,-30.969), (-32.15,-32.166), 
-            //    (-33.35,-33.37), (-34.55,-34.569), (-35.75,-35.769), (-36.95,-36.968), (-38.15,-38.168), 
-            //    (-39.35,-39.368), (-40.55,-40.465), (-41.75,-41.766), (-42.95,-42.967), (-44.15,-44.168), 
-            //    (-45.35,-45.371), (-46.55,-46.570), (-47.75,-47.768), (-48.95,-48.972), (-50.15,-50.172), 
-            //    (-51.35,-51.372), (-52.55,-52.573), (-53.75,-53.774), (-54.95,-54.977), (-56.15,-56.176), 
-            //    (-57.35,-57.378));
+            //_yCoeffLine = new((30.028, 30.028),
+            //    (28.678, 28.683), (24.578, 24.588), (20.478, 20.485), (16.378, 16.389),
+            //    (12.278, 12.291), (8.178, 8.180), (4.078, 4.086), (-0.022, -0.016),
+            //    (-4.122, -4.122), (-8.222, -8.228), (-12.322, -12.325),
+            //    (-16.422, -16.428), (-20.522, -20.531), (-24.622, -24.630));
+            //_xCoeffLine = new((0, 0), (-60, -60.011), (-3.35, -3.359), (-4.55, -4.562), (-5.75, -5.766), (-6.95, -6.965), (-8.15, -8.162),
+            //    (-9.35, -9.367), (-10.55, -10.566), (-11.75, -11.767), (-12.95, -12.968), (-14.15, -14.169),
+            //    (-15.35, -15.369), (-16.55, -16.569), (-17.75, -17.771), (-18.95, -18.969), (-20.15, -20.167),
+            //    (-21.35, -21.37), (-22.55, -22.568), (-23.75, -23.772), (-24.95, -24.972), (-26.15, -26.174),
+            //    (-27.35, -27.374), (-28.55, -28.572), (-29.75, -29.772), (-30.95, -30.969), (-32.15, -32.166),
+            //    (-33.35, -33.37), (-34.55, -34.569), (-35.75, -35.769), (-36.95, -36.968), (-38.15, -38.168),
+            //    (-39.35, -39.368), (-40.55, -40.465), (-41.75, -41.766), (-42.95, -42.967), (-44.15, -44.168),
+            //    (-45.35, -45.371), (-46.55, -46.570), (-47.75, -47.768), (-48.95, -48.972), (-50.15, -50.172),
+            //    (-51.35, -51.372), (-52.55, -52.573), (-53.75, -53.774), (-54.95, -54.977), (-56.15, -56.176),
+            //    (-57.35, -57.378));
             _yCoeffLine = new((-200, -200), (200, 200));
             _xCoeffLine = new((-200, -200), (200, 200));
         }
@@ -139,12 +139,13 @@ namespace NewLaserProject.Classes.Process
             _subject.OnNext(new ProcWaferChanged(_processing.SelectMany(p => p.procObjects)));
             _stateMachine = new StateMachine<State, Trigger>(_fileAlignment switch
             {
-                FileAlignment.AlignByCorner => State.InitialCorner,
+                FileAlignment.AlignByCorner or FileAlignment.AlignPrev => State.InitialCorner,
                 _ => State.InitialPoints
             }, FiringMode.Queued);
 
             var workingTrigger = _stateMachine.SetTriggerParameters<ICoorSystem>(Trigger.Next);
-            var waferEnumerator = _procWafer.GetEnumerator();
+            var lineTeachingTrigger = _stateMachine.SetTriggerParameters<ICoorSystem>(Trigger.Preteach);
+            var waferEnumerator = _processing.SelectMany(p=>p.procObjects).GetEnumerator();
 
             static int properPointsCount(FileAlignment aligning) => aligning switch
             {
@@ -304,7 +305,8 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                            item.SetEntityAngle(-_matrixAngle);//TODO fix the sign's problem
                        }
 
-                       await _stateMachine.FireAsync(workingTrigger, coorSys);
+         //              await _stateMachine.FireAsync(workingTrigger, coorSys);
+                        await _stateMachine.FireAsync(lineTeachingTrigger, coorSys);
                    }
                    else
                    {
@@ -374,21 +376,29 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < properPointsCount(_fileAlignment))
                 .PermitIf(Trigger.Next, State.Working, () => resultPoints.Count == properPointsCount(_fileAlignment))
-                .Permit(Trigger.Preteach, State.LinePreteaching);
+                .PermitIf(Trigger.Preteach, State.LinePreteaching, () => resultPoints.Count == properPointsCount(_fileAlignment))
+                //.OnExit(t =>
+                //{
+                //    if (t.Destination == State.LineTeaching)
+                //    {
+                //        var result = waferEnumerator.MoveNext();
+                //    }
+                //})
+                ;
 
             _stateMachine.Configure(State.Working)
                 .OnEntryFromAsync(workingTrigger, ProcessingTheWaferAsync)
-                .Permit(Trigger.Next, State.LineTeaching)
+                //.Permit(Trigger.Next, State.LineTeaching)
                 .Ignore(Trigger.Pause);
 
             _stateMachine.Configure(State.LinePreteaching)
-               .OnEntryAsync(() =>
+               .OnEntryFrom(lineTeachingTrigger, (ICoorSystem coorSystem) =>
                {
                    if (waferEnumerator.MoveNext())
                    {
                        _subject.OnNext(new ProcessMessage("Нажмите next", MsgType.Info));
+                       _teachingLinesCoorSystem = coorSystem;
                    }
-                   return Task.CompletedTask;
                })
                .Permit(Trigger.Next, State.LineTeaching)
                .Ignore(Trigger.Pause);
@@ -397,49 +407,59 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
             var yLineSb = new StringBuilder();
 
             var xLCollection = new List<(string orig, string deriv)>();
-            var yLCollection = Array.Empty<(string orig, string deriv)>();
+            var yLCollection = new List<(string orig, string deriv)>();
             var cultureInfo = CultureInfo.InvariantCulture;
             double xl = 0;
             double yl = 0;
+            var teachingLineReentry = false;
 
             _stateMachine.Configure(State.LineTeaching)
                 .OnEntryAsync(async () =>
                 {
-                    var procObject = waferEnumerator.Current;
+                    var procObject = _procWafer.GetProcObjectToWafer(waferEnumerator.Current);
                     _subject.OnNext(new ProcObjectChanged(procObject));
 
                     if (!_excludedObjects?.Any(o => o.Id == procObject.Id) ?? true)
                     {
                         var position = _teachingLinesCoorSystem.ToGlobal(procObject.X, procObject.Y);
-                        _laserMachine.SetVelocity(Velocity.Fast);
+                        var vel = _laserMachine.SetVelocity(Velocity.Service);
                         await Task.WhenAll(
                              _laserMachine.MoveAxInPosAsync(Ax.Y, position[1], true),
                              _laserMachine.MoveAxInPosAsync(Ax.X, position[0], true));
                         procObject.IsBeingProcessed = true;
-
+                        _laserMachine.SetVelocity(vel);
                         _subject.OnNext(new ProcObjectChanged(procObject));
 
                         xLineSb.Append($"({_xActual.ToString(cultureInfo)},");
                         yLineSb.Append($"({_yActual.ToString(cultureInfo)},");
-                        xl = _xActual;
-                        yl = _yActual;
+                        xl = position[0];// _xActual;
+                        yl = position[1];// _yActual;
 
                         _subject.OnNext(new ProcessMessage("Скорректируйте и нажмите next", MsgType.Info));
 
                         procObject.IsProcessed = true;
                         _subject.OnNext(new ProcObjectChanged(procObject));
                     }
+                    teachingLineReentry = waferEnumerator.MoveNext();
                 })
-                .PermitDynamic(Trigger.Next, () => waferEnumerator.MoveNext() ? State.LineTeaching : State.Exit)
-                .OnExit(() =>
+                .PermitReentryIf(Trigger.Next, () => teachingLineReentry)
+                .PermitIf(Trigger.Next,State.Exit,() => !teachingLineReentry)
+                .OnExit(t =>
                 {
                     _subject.OnNext(new ProcessMessage("", MsgType.Clear));
                     xLineSb.Append($"{_xActual.ToString(cultureInfo)}),");
                     yLineSb.Append($"{_yActual.ToString(cultureInfo)}),");
-                    var p = (xl.ToString(cultureInfo), _xActual.ToString(cultureInfo));
-                    xLCollection.Add(p);
-                    yLCollection.Append((yl.ToString(cultureInfo), _yActual.ToString(cultureInfo)));
+                    xLCollection.Add((xl.ToString(cultureInfo), _xActual.ToString(cultureInfo)));
+                    yLCollection.Add((yl.ToString(cultureInfo), _yActual.ToString(cultureInfo)));
 
+                    _xCoeffLine.AddPoint(xl,_xActual);
+                    _yCoeffLine.AddPoint(yl,_yActual);
+
+                    if (t.Destination == State.Exit)
+                    {
+                        _xCoeffLine.GetValues().SerializeObject(AppPaths.CoefLineX);
+                        _yCoeffLine.GetValues().SerializeObject(AppPaths.CoefLineY);
+                    }
                 });
 
             _stateMachine.Configure(State.Exit)

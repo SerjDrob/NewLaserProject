@@ -354,11 +354,16 @@ namespace NewLaserProject.ViewModels
                         {
                             case CompletionStatus.Success:
 
-                                var text = _markTextVM.MarkedText;
-                                text += _markTextVM.IsDateEnable ? " " + DateTime.Now.ToShortDateString() : "";
-                                text += _markTextVM.IsTimeEnable ? " " + DateTime.Now.ToShortTimeString() : "";
 
-                                if (IsWaferMark) await MarkWaferAsync(text, MarkPosition, _markTextVM.TextHeight, _markTextVM.EdgeGap, args.CoorSystem);
+                                if (_markTextVM.MarkedText != null)
+                                {
+                                    var text = _markTextVM.MarkedText;
+                                    text += _markTextVM.IsDateEnable ? " " + DateTime.Now.ToShortDateString() : "";
+                                    text += _markTextVM.IsTimeEnable ? " " + DateTime.Now.ToShortTimeString() : "";
+                                    if (IsWaferMark) await MarkWaferAsync(text, MarkPosition, _markTextVM.TextHeight, _markTextVM.EdgeGap, args.CoorSystem); 
+                                }
+
+
                                 _ = _signalColumn.BlinkLightAsync(LightColumn.Light.Blue).ConfigureAwait(false);
                                 MessageBox.Success("Процесс завершён");
                                 _signalColumn.TurnOff();

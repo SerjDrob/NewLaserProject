@@ -122,7 +122,11 @@ namespace NewLaserProject.ViewModels
                     _openedFileVM.TransformationChanged += MainViewModel_TransformationChanged;
 
                     IsFileLoaded = true;
-                    _markTextVM = null;
+                    _markTextVM = new() 
+                    {
+                        MarkedText = Path.GetFileNameWithoutExtension(FileName),
+                        FileName = Path.GetFileNameWithoutExtension(FileName)
+                    };
                 }
                 catch (DxfReaderException ex)
                 {
@@ -134,6 +138,10 @@ namespace NewLaserProject.ViewModels
                         StaysOpen = true,
                         Message = ex.Message,
                     });
+                }
+                catch(Exception ex)
+                {
+
                 }
                 finally
                 {
