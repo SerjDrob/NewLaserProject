@@ -135,6 +135,14 @@ namespace NewLaserProject.ViewModels
             _geomsEditor?.RemoveBySelection(selection);
             _dxfEditor?.RemoveBySelection(layers, selection);
         }
+        public void GotSelectionMultipleHandler(string[] layers, Rect selection)
+        {
+            foreach (var layer in layers)
+            {
+                _geomsEditor?.RemoveBySelection(selection,layer); 
+            }
+            _dxfEditor?.RemoveBySelection(layers, selection);
+        }
 
         public Dictionary<string,bool> GetIgnoredLayers()
          => LayGeoms.ToDictionary(l=>l.LayerName,l=>l.LayerEnable);
@@ -182,6 +190,24 @@ namespace NewLaserProject.ViewModels
 
                 var entities = _layerGeometryCollections
                     .Where(c => c.LayerEnable)
+                    .SelectMany(e => e.Geometries.Where(item => selection.Contains(item.Bounds)), (lgc, g) => new { lgc.LayerName, g })
+                    .ToArray();
+
+                foreach (var item in entities)
+                {
+                    var res = _layerGeometryCollections.Where(lg => lg.LayerName == item.LayerName)
+                        .Single().Geometries
+                        .Remove(item.g);
+                }
+                _erasedGeometries.Push(entities.Select(e => (e.LayerName, e.g)).ToArray());
+            }
+            
+            public void RemoveBySelection(Rect selection, string layer)
+            {
+                _erasedGeometries ??= new();
+
+                var entities = _layerGeometryCollections
+                    .Where(c => c.LayerName == layer)
                     .SelectMany(e => e.Geometries.Where(item => selection.Contains(item.Bounds)), (lgc, g) => new { lgc.LayerName, g })
                     .ToArray();
 

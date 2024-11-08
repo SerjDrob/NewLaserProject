@@ -11,7 +11,8 @@
         SE,
         SW,
         CenterV,
-        CenterH
+        CenterH,
+        CenterUnderLaser
     }
 }
 

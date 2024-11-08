@@ -63,11 +63,23 @@ namespace NewLaserProject.Classes.Process
         private CoeffLine _xCoeffLine;
 
         public CommonProcess(IEnumerable<(IEnumerable<IProcObject> procObjects, MicroProcess microProcess)> processing,
-               LaserWafer wafer, LaserMachine laserMachine,
-               double zeroZPiercing, double zeroZCamera, double waferThickness,
-               double dX, double dY, IEnumerable<OffsetPoint> offsetPoints, double pazAngle,
-               ISubject<IProcessNotify> subject, ICoorSystem<LMPlace> baseCoorSystem,
-               bool underCamera, FileAlignment aligningPoints, double waferAngle, Scale scale)
+               LaserWafer wafer, 
+               LaserMachine laserMachine,
+               double zeroZPiercing, 
+               double zeroZCamera, 
+               double waferThickness,
+               double dX, 
+               double dY, 
+               IEnumerable<OffsetPoint> offsetPoints, 
+               double pazAngle,
+               ISubject<IProcessNotify> subject, 
+               ICoorSystem<LMPlace> baseCoorSystem,
+               bool underCamera, 
+               FileAlignment aligningPoints, 
+               double waferAngle, 
+               Scale scale,
+               CoeffLine coeffLineX,
+               CoeffLine coeffLineY)
         {
             _procWafer = wafer;
             _laserMachine = laserMachine;
@@ -103,8 +115,8 @@ namespace NewLaserProject.Classes.Process
             //    (-45.35, -45.371), (-46.55, -46.570), (-47.75, -47.768), (-48.95, -48.972), (-50.15, -50.172),
             //    (-51.35, -51.372), (-52.55, -52.573), (-53.75, -53.774), (-54.95, -54.977), (-56.15, -56.176),
             //    (-57.35, -57.378));
-            _yCoeffLine = new((-200, -200), (200, 200));
-            _xCoeffLine = new((-200, -200), (200, 200));
+            _xCoeffLine = true ? coeffLineX : new((-200, -200), (200, 200));
+            _yCoeffLine = true ? coeffLineY : new((-200, -200), (200, 200));
         }
 
         enum State
@@ -190,6 +202,7 @@ namespace NewLaserProject.Classes.Process
                                         var precise = true;
                                         await Task.WhenAll(_laserMachine.MoveAxInPosAsync(Ax.Y, y, precise),
                                                            _laserMachine.MoveAxInPosAsync(Ax.X, x, precise));//.ConfigureAwait(false);
+                                        _laserMachine.ResetErrors(Ax.Z);
                                         if (!_underCamera) await _laserMachine.MoveAxInPosAsync(Ax.Z, _zPiercing - _waferThickness);//.ConfigureAwait(false);
 
                                     }
@@ -277,16 +290,16 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                           .SetFirstPointPair(originPoints[0], resultPoints[0])
                           .SetSecondPointPair(originPoints[1], resultPoints[1])
                           .SetThirdPointPair(originPoints[2], resultPoints[2])
-                          .UseYCoeffLine(_yCoeffLine)
-                          .UseXCoeffLine(_xCoeffLine)
+                          //.UseYCoeffLine(_yCoeffLine)
+                          //.UseXCoeffLine(_xCoeffLine)
                           .FormWorkMatrix(_scale, _scale)
                           .Build(),
                            FileAlignment.AlignByTwoPoint => _pureCoorSystem
                                .GetTwoPointSystemBuilder()
                                .SetFirstPointPair(originPoints[0], resultPoints[0])
                                .SetSecondPointPair(originPoints[1], resultPoints[1])
-                               .UseXCoeffLine(_xCoeffLine)
-                               .UseYCoeffLine(_yCoeffLine)
+                               //.UseXCoeffLine(_xCoeffLine)
+                               //.UseYCoeffLine(_yCoeffLine)
                                .FormWorkMatrix(-1, -1)// TODO fix it
                                .Build(),
                            //FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
@@ -302,11 +315,11 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                        foreach (var item in _processing.Select(p => p.microProcess))
                        {
                            //item.SetEntityAngle(-_pazAngle + _matrixAngle);
-                           item.SetEntityAngle(-_matrixAngle);//TODO fix the sign's problem
+                           item.SetEntityAngle(/*-*/_matrixAngle);//TODO fix the sign's problem
                        }
 
-         //              await _stateMachine.FireAsync(workingTrigger, coorSys);
-                        await _stateMachine.FireAsync(lineTeachingTrigger, coorSys);
+                       await _stateMachine.FireAsync(workingTrigger, coorSys);
+                      // await _stateMachine.FireAsync(lineTeachingTrigger, coorSys);
                    }
                    else
                    {
@@ -348,7 +361,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                         foreach (var item in _processing.Select(p => p.microProcess))
                         {
                             //item.SetEntityAngle(-_pazAngle + _matrixAngle);
-                            item.SetEntityAngle(-_matrixAngle);//TODO fix the sign's problem
+                            item.SetEntityAngle(/*-*/_matrixAngle);//TODO fix the sign's problem
                         }
                         await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem);
                     }
@@ -376,15 +389,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                 })
                 .PermitReentryIf(Trigger.Next, () => resultPoints.Count < properPointsCount(_fileAlignment))
                 .PermitIf(Trigger.Next, State.Working, () => resultPoints.Count == properPointsCount(_fileAlignment))
-                .PermitIf(Trigger.Preteach, State.LinePreteaching, () => resultPoints.Count == properPointsCount(_fileAlignment))
-                //.OnExit(t =>
-                //{
-                //    if (t.Destination == State.LineTeaching)
-                //    {
-                //        var result = waferEnumerator.MoveNext();
-                //    }
-                //})
-                ;
+                .PermitIf(Trigger.Preteach, State.LinePreteaching, () => resultPoints.Count == properPointsCount(_fileAlignment));
 
             _stateMachine.Configure(State.Working)
                 .OnEntryFromAsync(workingTrigger, ProcessingTheWaferAsync)

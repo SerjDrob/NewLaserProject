@@ -54,12 +54,19 @@ namespace NewLaserProject.ViewModels
         private LightColumn _signalColumn;
         private CoeffLine _xCoeffLine;
         private CoeffLine _yCoeffLine;
+        private double _dXMeasure { get; set; }
+        private double _dYMeasure { get; set; }
+
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
         public bool IsRightPanelVisible { get; set; } = true;
         public bool IsCentralPanelVisible { get; set; } = false;
         public bool IsLearningPanelVisible { get; set; } = false;
         public bool IsProcessPanelVisible { get; set; } = false;
+        public bool MeasuringStarted { get; private set; }
+        public double DXMeasure { get => MeasuringStarted ? Math.Abs(_dXMeasure - XAxis.Position) : 0;}
+        public double DYMeasure { get => MeasuringStarted ? Math.Abs(_dYMeasure - YAxis.Position) : 0;} 
+        public double LMeasure { get => MeasuringStarted ? Math.Sqrt(Math.Pow(DXMeasure, 2) + Math.Pow(DYMeasure, 2)) : 0; }
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
         public bool OnProcess { get; set; } = false;
@@ -341,7 +348,7 @@ namespace NewLaserProject.ViewModels
 
         private async void _openedFileVM_OnFileClicked(object? sender, System.Windows.Point e)
         {
-            if (XAxis.MotionDone && YAxis.MotionDone && !IsProcessing)
+            if(_laserMachine.GetAxReady(Ax.X) && _laserMachine.GetAxReady(Ax.Y)) //(XAxis.MotionDone && YAxis.MotionDone && !IsProcessing)
             {
                 var result = _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, e.X, e.Y);
                 _laserMachine.SetVelocity(Velocity.Service);
@@ -362,28 +369,31 @@ namespace NewLaserProject.ViewModels
 
         private async void _cameraVM_VideoClicked(object? sender, (double x, double y) e)
         {
-            if (IsProcessing) return;
-            var caps = CameraCapabilities[CameraCapabilitiesIndex].Split(" ");
-
-            if (double.TryParse(caps[0], out var xRatio) && double.TryParse(caps[2], out var yRatio))
+            if (_laserMachine.GetAxReady(Ax.X) && _laserMachine.GetAxReady(Ax.Y))
             {
-                var k = xRatio / yRatio;
-                var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
-                var offset = new[] { e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
-                try
+                if (IsProcessing) return;
+                var caps = CameraCapabilities[CameraCapabilitiesIndex].Split(" ");
+
+                if (double.TryParse(caps[0], out var xRatio) && double.TryParse(caps[2], out var yRatio))
                 {
-                    var vel  = _laserMachine.SetVelocity(Velocity.Service);
-                    await Task.WhenAll(
-                        _laserMachine.MoveAxRelativeAsync(Ax.X, offset[0], true),
-                        _laserMachine.MoveAxRelativeAsync(Ax.Y, offset[1], true)
-                        ).ConfigureAwait(false);
-                    _laserMachine.SetVelocity(vel);
-                    //await _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    await Console.Error.WriteLineAsync(ex.Message).ConfigureAwait(false);
-                }
+                    var k = xRatio / yRatio;
+                    var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
+                    var offset = new[] { e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
+                    try
+                    {
+                        var vel = _laserMachine.SetVelocity(Velocity.Service);
+                        await Task.WhenAll(
+                            _laserMachine.MoveAxRelativeAsync(Ax.X, offset[0], true),
+                            _laserMachine.MoveAxRelativeAsync(Ax.Y, offset[1], true)
+                            ).ConfigureAwait(false);
+                        _laserMachine.SetVelocity(vel);
+                        //await _laserMachine.MoveGpRelativeAsync(Groups.XY, offset, true).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        await Console.Error.WriteLineAsync(ex.Message).ConfigureAwait(false);
+                    }
+                } 
             }
         }
 

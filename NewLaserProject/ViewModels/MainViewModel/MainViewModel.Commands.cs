@@ -269,6 +269,16 @@ namespace NewLaserProject.ViewModels
         public ObjectForProcessing IndividualProcObject { get; private set; }
         public double IndividualProcDiameter { get; set; }
         public bool IsIndividualProcessing { get; set; } = false;
+        [ICommand]
+        private void StartMeasuring(bool isChecked)
+        {
+            MeasuringStarted = isChecked;
+            if (isChecked)
+            {
+                _dXMeasure = XAxis.Position;
+                _dYMeasure = YAxis.Position;
+            }
+        }
 
         [ICommand]
         private async Task GetFocus(string num)
@@ -529,16 +539,28 @@ namespace NewLaserProject.ViewModels
                     Compass.S => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, 0),
                     Compass.CenterV => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, x, WaferHeight / 2),
                     Compass.CenterH => _coorSystem.ToSub(LMPlace.FileOnWaferUnderCamera, WaferWidth / 2, y),
+                    Compass.CenterUnderLaser => _coorSystem.ToSub(LMPlace.FileOnWaferUnderLaser, WaferWidth/2, WaferHeight/2),
                     _ => null
                 };
             }
             if (coordinates != null)
             {
                 var velTemp = _laserMachine.VelocityRegime;
+                var z = ZAxis.Position;
+                if (direction != Compass.CenterUnderLaser)
+                {
+                    z = (_settingsManager.Settings.ZeroFocusPoint - WaferThickness) ?? z;
+                }
+                else if (direction == Compass.CenterUnderLaser)
+                {
+                    z = (_settingsManager.Settings.ZeroPiercePoint - WaferThickness) ?? z;
+                }
+                _laserMachine.ResetErrors();
                 _laserMachine.SetVelocity(Velocity.Service);
                 await Task.WhenAll(
                       _laserMachine.MoveAxInPosAsync(Ax.X, _xCoeffLine[coordinates[0]],/*false*/true),
-                      _laserMachine.MoveAxInPosAsync(Ax.Y, _yCoeffLine[coordinates[1]], /*false*/true)
+                      _laserMachine.MoveAxInPosAsync(Ax.Y, _yCoeffLine[coordinates[1]], /*false*/true),
+                      _laserMachine.MoveAxInPosAsync(Ax.Z, z, false)
                   ).ConfigureAwait(false);
                 _laserMachine.SetVelocity(velTemp);
             }

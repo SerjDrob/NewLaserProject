@@ -96,8 +96,6 @@ namespace NewLaserProject.ViewModels
                     {
                         MirrorX = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");
                         WaferTurn90 = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
-                        //WaferOffsetX = 0;
-                        //WaferOffsetY = 0;
                     }
                     var (wox, woy, fox, foy) = (0d,0d,0d,0d);
                     if (byWPU)
@@ -146,6 +144,7 @@ namespace NewLaserProject.ViewModels
                 finally
                 {
                     ExistingAlignment = null;
+                    IsPrevAlignmentEnable = false;
                 }
             }
             else

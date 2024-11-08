@@ -121,9 +121,16 @@ namespace NewLaserProject.ViewModels
                             break;
                     }
 
-                    _currentTeacher.TeachingCompleted += _currentTeacher_TeachingCompleted;
-                    await _currentTeacher.StartTeachAsync();
-                    _canTeach = true;
+                    if (_currentTeacher!=null)
+                    {
+                        _currentTeacher.TeachingCompleted += _currentTeacher_TeachingCompleted;
+                        await _currentTeacher.StartTeachAsync();
+                        _canTeach = true; 
+                    }
+                    else
+                    {
+                        await _appStateMachine.FireAsync(AppTrigger.EndLearning);
+                    }
 
                 })
                 .OnExit(() =>

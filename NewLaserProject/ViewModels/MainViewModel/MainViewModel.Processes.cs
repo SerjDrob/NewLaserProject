@@ -35,6 +35,7 @@ using Path = System.IO.Path;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using MsgBox = HandyControl.Controls.MessageBox;
 using MachineClassLibrary.Miscellaneous;
+using System.Windows;
 
 namespace NewLaserProject.ViewModels
 {
@@ -253,7 +254,9 @@ namespace NewLaserProject.ViewModels
                     underCamera: IsProcessUnderCamera,
                     aligningPoints: (ExistingAlignment!=null && IsPrevAlignmentEnable) ? FileAlignment.AlignPrev : FileAlignment,
                     waferAngle: _waferAngle,
-                    scale: DefaultFileScale);
+                    scale: DefaultFileScale,
+                    _xCoeffLine,
+                    _yCoeffLine);
 
                 _mainProcess.OfType<ProcWaferChanged>()
                     .Subscribe(args =>
@@ -365,7 +368,7 @@ namespace NewLaserProject.ViewModels
 
 
                                 _ = _signalColumn.BlinkLightAsync(LightColumn.Light.Blue).ConfigureAwait(false);
-                                MessageBox.Success("Процесс завершён");
+                                MsgBox.Success("Процесс завершён");
                                 _signalColumn.TurnOff();
                                 _signalColumn.TurnOnLight(LightColumn.Light.Green);
                                 //_workTimeLogger?.LogProcessEnded();
@@ -375,7 +378,7 @@ namespace NewLaserProject.ViewModels
                                 break;
                             case CompletionStatus.Cancelled:
                                 _ = _signalColumn.BlinkLightAsync(LightColumn.Light.Red).ConfigureAwait(false);
-                                MessageBox.Fatal("Процесс отменён");
+                                MsgBox.Fatal("Процесс отменён");
                                 _signalColumn.TurnOff();
                                 _signalColumn.TurnOnLight(LightColumn.Light.Green);
                                 //_workTimeLogger?.LogProcessCancelled();
@@ -384,7 +387,10 @@ namespace NewLaserProject.ViewModels
                             default:
                                 break;
                         }
+                        _laserMachine.ResetErrors();
                         await _laserMachine.GoThereAsync(LMPlace.Loading);
+                        var z = (_settingsManager.Settings.ZeroFocusPoint - WaferThickness) ?? ZAxis.Position;
+                        await _laserMachine.MoveAxInPosAsync(Ax.Z, z);
                         _laserMachine.SetVelocity(tempVel);
                         await _appStateMachine.FireAsync(AppTrigger.EndProcess);
                     }))
@@ -394,38 +400,44 @@ namespace NewLaserProject.ViewModels
 
 
                 _mainProcess.OfType<ProcessMessage>()
-                    .Subscribe(args =>
+                    .Select(args => Observable.FromAsync(async () =>
                     {
-                        switch (args.MessageType)
+                        Application.Current.Dispatcher.Invoke(() =>
                         {
-                            case MsgType.Request:
-                                break;
-                            case MsgType.Info:
-                                Growl.Info(new GrowlInfo()
-                                {
-                                    StaysOpen = true,
-                                    Message = args.Message,
-                                    ShowDateTime = false,
-                                });
-                                break;
-                            case MsgType.Warn:
-                                break;
-                            case MsgType.Error:
-                                Growl.Error(new GrowlInfo()
-                                {
-                                    StaysOpen = true,
-                                    Message = args.Message,
-                                    ShowDateTime = false,
-                                });
-                                break;
-                            case MsgType.Clear:
-                                Growl.Clear();
-                                break;
-                            default:
-                                break;
-                        }
-                    })
+                            switch (args.MessageType)
+                            {
+                                case MsgType.Request:
+                                    break;
+                                case MsgType.Info:
+                                    Growl.Info(new GrowlInfo()
+                                    {
+                                        StaysOpen = true,
+                                        Message = args.Message,
+                                        ShowDateTime = false,
+                                    });
+                                    break;
+                                case MsgType.Warn:
+                                    break;
+                                case MsgType.Error:
+                                    Growl.Error(new GrowlInfo()
+                                    {
+                                        StaysOpen = true,
+                                        Message = args.Message,
+                                        ShowDateTime = false,
+                                    });
+                                    break;
+                                case MsgType.Clear:
+                                    Growl.Clear();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    }))
+                    .Concat()
+                    .Subscribe()
                     .AddSubscriptionTo(_currentProcSubscriptions);
+
                 _mainProcess.OfType<ProcessException>()
                     .Subscribe(pe =>
                     {
@@ -572,7 +584,7 @@ namespace NewLaserProject.ViewModels
                     await OpenChosenFile(true,wpu.WaferOffsetX,wpu.WaferOffsetY,wpu.FileOffsetX,wpu.FileOffsetY);
 
                     wpu.ErasedObjects.ToList()
-                        .ForEach(e => _openedFileVM?.GotSelectionHandler(e.layers, e.selection));
+                        .ForEach(e => _openedFileVM?.GotSelectionMultipleHandler(e.layers, e.selection));
 
 
                     var objs = new List<ObjectForProcessing>();
@@ -706,7 +718,7 @@ namespace NewLaserProject.ViewModels
                 .Deserialize(markTextJson);
 
             _laserMachine.SetExtMarkParams(new ExtParamsAdapter(laserParams));
-            await _laserMachine.MarkTextAsync(markingText, fontHeight, angle /*+*/- theta);
+            await _laserMachine.MarkTextAsync(markingText, fontHeight, angle + /*-*/ theta);
         }
 
         [ICommand]

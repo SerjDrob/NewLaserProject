@@ -33,6 +33,7 @@
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.S}" Modifiers="Ctrl" Key="Down"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterV}" Modifiers="Ctrl" Key="V"/>
         <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterH}" Modifiers="Ctrl" Key="H"/>
+        <KeyBinding Command="{Binding GesturePressedCommand}" CommandParameter="{x:Static vm:Compass.CenterUnderLaser}" Modifiers="Ctrl" Key="L"/>
         <!--<KeyBinding Command="{Binding ChangeMechViewCommand}" Key="W"/>-->
     </hc:GlowWindow.InputBindings>
 
@@ -63,7 +64,13 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <ToolBarTray Margin="1" Orientation="Vertical" VerticalAlignment="Stretch">
+        <ToolBarTray Margin="1" Orientation="Vertical" IsLocked="True" VerticalAlignment="Stretch">
+            <ToolBarTray.Resources>
+                <Style TargetType="{x:Type ToolBar}" BasedOn="{StaticResource ToolBarBaseStyle}">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </ToolBarTray.Resources>
             <ToolBar>
                 <ToolBar.Resources>
                     <Style TargetType="{x:Type Button}">
@@ -364,7 +371,7 @@
                 </hc:SplitButton>
 
             </ToolBar>
-            <ToolBar Style="{StaticResource ToolBarBaseStyle}">
+            <ToolBar>
                 <Button Command="{Binding ChooseMaterialCommand}" HorizontalAlignment="Stretch" MinHeight="50">
                     <hc:AdornerElement.Instance>
                         <hc:Poptip Content="Введите параметры подложки" PlacementType="TopLeft"/>
@@ -504,14 +511,12 @@
                     </Border>
                 </DockPanel>
             </ToolBar>
-
             <ToolBar>
                 <cntrl:SpeedIndicator 
                     Speed="{Binding VelocityRegime, Converter={StaticResource EnumToIntConverter}}"
                     HorizontalAlignment="Stretch"
                     />
             </ToolBar>
-
             <ToolBar>
                 <ToggleButton HorizontalAlignment="Stretch" Height="70">
                     <DockPanel LastChildFill="True">
@@ -538,6 +543,7 @@
                     </i:Interaction.Triggers>
                 </ToggleButton>
                 <hc:ElementGroup Orientation="Horizontal"
+                                 HorizontalAlignment="Center"
                                  IsEnabled="{Binding IsProcessing, Converter={StaticResource Boolean2BooleanReConverter}}">
                     <hc:ElementGroup.Resources>
                         <Style TargetType="Button" BasedOn="{StaticResource ButtonBaseStyle}"/>
@@ -547,11 +553,33 @@
                             Content="К"
                             ToolTip="Фокус камеры"
                             />
+                    <hc:Divider Orientation="Vertical" Margin="2"/>
                     <Button Command="{Binding GetFocusCommand}" 
                             CommandParameter="2" 
                             Content="Л"
                             ToolTip="Фокус лазера"/>
                 </hc:ElementGroup>
+                <Border Style="{StaticResource BorderRegion}">
+                    <Border.Resources>
+                        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TextBlockBaseStyle}">
+                            <Setter Property="FontSize" Value="12"/>
+                        </Style>
+                        <Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource ToggleButtonFlip}"/>
+                    </Border.Resources>
+                    <hc:ElementGroup Orientation="Horizontal">
+                        <ToggleButton x:Name="toggleMeasure" Padding="3" Command="{Binding StartMeasuringCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsChecked}">
+                            <hc:StatusSwitchElement.CheckedElement>
+                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Изм" FontSize="10" Foreground="{DynamicResource InfoBrush}"/>
+                            </hc:StatusSwitchElement.CheckedElement>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Изм" FontSize="9" Foreground="{DynamicResource DangerBrush}"/>
+                        </ToggleButton>
+                        <hc:ElementGroup Orientation="Vertical" Margin="10,0" IsEnabled="{Binding MeasuringStarted}">
+                            <TextBlock Text="{Binding DXMeasure, StringFormat='dX: {0:N3}', FallbackValue=0}"/>
+                            <TextBlock Text="{Binding DYMeasure, StringFormat='dY: {0:N3}', FallbackValue=0}"/>
+                            <TextBlock Text="{Binding LMeasure, StringFormat='  L: {0:N3}', FallbackValue=0}"/>
+                        </hc:ElementGroup>
+                    </hc:ElementGroup>
+                </Border>
             </ToolBar>
             <!--<ToolBar>
                 <gauge:CircularGaugeControl

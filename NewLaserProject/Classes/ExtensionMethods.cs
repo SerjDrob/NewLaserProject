@@ -98,18 +98,18 @@ namespace NewLaserProject.Classes
         {
             try
             {
-                //var sortResult = offsetPoints
-                //                .OrderBy(x => Math.Abs(x.X - curX))
-                //                .ThenBy(y => Math.Abs(y.Y - curY))
-                //                .First();
-                //if (sortResult != null)
-                //{
-                //    xOffset = sortResult.dx;
-                //    yOffset = sortResult.dy;
-                //}
+                var sortResult = offsetPoints
+                                .OrderBy(x => Math.Abs(x.X - curX))
+                                .ThenBy(y => Math.Abs(y.Y - curY))
+                                .First();
+                if (sortResult != null)
+                {
+                    xOffset = sortResult.dx;
+                    yOffset = sortResult.dy;
+                }
 
-                xOffset = offsetPoints.OrderBy(x => Math.Abs(x.X - curX)).First().dx;
-                yOffset = offsetPoints.OrderBy(y => Math.Abs(y.Y - curY)).First().dy;
+                //xOffset = offsetPoints.OrderBy(x => Math.Abs(x.X - curX)).First().dx;
+                //yOffset = offsetPoints.OrderBy(y => Math.Abs(y.Y - curY)).First().dy;
 
             }
             catch (Exception) { }
