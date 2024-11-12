@@ -29,7 +29,6 @@ namespace NewLaserProject.ViewModels
 
     public partial class MainViewModel
     {
-        private bool _tempMirrorX;
         private bool _tempWaferTurn90;
         private Stateless.StateMachine<AppState, AppTrigger>.TriggerWithParameters<Teacher>? _startTeachTrigger;
         private CoorSystem<LMPlace> _testCoorSys;
@@ -501,7 +500,6 @@ namespace NewLaserProject.ViewModels
                 .SetOnXYOrthToughtAction(() => Task.Run(() =>
                 {
                     MsgBox.Error("Обучение отменено", "Обучение");
-                    MirrorX = _tempMirrorX;
                     WaferTurn90 = _tempWaferTurn90;
                     _canTeach = false;
                 }))
@@ -525,7 +523,6 @@ namespace NewLaserProject.ViewModels
                     teachSystem.GetMainMatrixElements().SerializeObject(AppPaths.TeachingDeformation);
 
                     MsgBox.Info("Новое значение установлено", "Обучение");
-                    MirrorX = _tempMirrorX;
                     WaferTurn90 = _tempWaferTurn90;
 
                     //---Set new coordinate system

@@ -1,0 +1,128 @@
+﻿<UserControl x:Class="NewLaserProject.Views.Dialogs.AdvancedMachineParamsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewLaserProject.Views.Dialogs"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:motdvs="clr-namespace:MachineClassLibrary.Machine.MotionDevices;assembly=MachineClassLibrary"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:dialogs="clr-namespace:NewLaserProject.ViewModels.DialogVM"
+             xmlns:converters="clr-namespace:NewLaserProject.Views.Converters"
+             mc:Ignorable="d" 
+             >
+    <Grid d:DataContext="{d:DesignInstance Type=dialogs:AdvancedParamsVM, IsDesignTimeCreatable=False}">
+        <Grid.Resources>
+            <x:Array x:Key="DirLogics" Type="sys:Object">
+                <x:Static Member="motdvs:AxDirLogic.DIR_ACT_LOW"/>
+                <x:Static Member="motdvs:AxDirLogic.DIR_ACT_HIGH"/>
+            </x:Array>
+            <x:Array x:Key="baudRates" Type="sys:Int32">
+                <sys:Int32>9600</sys:Int32>
+                <sys:Int32>19200</sys:Int32>
+                <sys:Int32>38400</sys:Int32>
+                <sys:Int32>57600</sys:Int32>
+                <sys:Int32>115200</sys:Int32>
+            </x:Array>
+            <x:Array x:Key="PPUs" Type="sys:Int32">
+                <sys:Int32>400</sys:Int32>
+                <sys:Int32>800</sys:Int32>
+                <sys:Int32>1600</sys:Int32>
+                <sys:Int32>3200</sys:Int32>
+                <sys:Int32>6400</sys:Int32>
+                <sys:Int32>12800</sys:Int32>
+                <sys:Int32>25600</sys:Int32>
+                <sys:Int32>51200</sys:Int32>
+                <sys:Int32>1000</sys:Int32>
+                <sys:Int32>2000</sys:Int32>
+                <sys:Int32>4000</sys:Int32>
+                <sys:Int32>5000</sys:Int32>
+                <sys:Int32>8000</sys:Int32>
+                <sys:Int32>10000</sys:Int32>
+                <sys:Int32>20000</sys:Int32>
+                <sys:Int32>40000</sys:Int32>
+            </x:Array>
+            <Style TargetType="{x:Type hc:ComboBox}" BasedOn="{StaticResource ComboBoxExtend}">
+                <Setter Property="hc:InfoElement.TitlePlacement" Value="Left"/>
+                <Setter Property="hc:InfoElement.TitleWidth" Value="150"/>
+            </Style>
+            <Style TargetType="{x:Type hc:NumericUpDown}" BasedOn="{StaticResource NumericUpDownExtend}">
+                <Setter Property="hc:TitleElement.TitlePlacement" Value="Left"/>
+                <Setter Property="hc:TitleElement.TitleWidth" Value="150"/>
+                <Setter Property="Margin" Value="0,2,0,0"/>
+            </Style>
+            <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource CheckBoxBaseStyle}">
+                <Setter Property="Margin" Value="0,2,0,0"/>
+            </Style>
+            <Style TargetType="{x:Type StackPanel}">
+                <Setter Property="Margin" Value="4,4,4,10"/>
+            </Style>
+        </Grid.Resources>
+        <hc:TabControl Style="{StaticResource TabControlBaseStyle}">
+            <hc:TabItem Header="Ось X">
+                <StackPanel>
+                    <!--axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
+                    plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
+                    ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
+                    denominator = 1,
+                    plsInLogic = (int)PlsInLogic.INV_DIR-->
+
+                    <CheckBox IsChecked="{Binding XInvertDirSignal}" Content="Инвертировать сигнал направления"/>
+                    <CheckBox IsChecked="{Binding XInvertAxesDirection}" Content="Инвертировать направление оси"/>
+                    <CheckBox IsChecked="{Binding XInvertEncoder}" Content="Инвертировать энкодер"/>
+                    <hc:ComboBox ItemsSource="{Binding Source={StaticResource PPUs}}"
+                                 SelectedItem="{Binding XPPU, Mode=TwoWay}"
+                                 hc:InfoElement.Title="PPU"/>
+                    <hc:NumericUpDown Value="{Binding XDenominator}" hc:TitleElement.Title="Деноминатор" Minimum="1" Maximum="100"/>
+                </StackPanel>
+            </hc:TabItem>
+            <hc:TabItem Header="Ось Y">
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding YInvertDirSignal}" Content="Инвертировать сигнал направления"/>
+                    <CheckBox IsChecked="{Binding YInvertAxesDirection}" Content="Инвертировать направление оси"/>
+                    <CheckBox IsChecked="{Binding YInvertEncoder}" Content="Инвертировать энкодер"/>
+                    <hc:ComboBox ItemsSource="{StaticResource PPUs}"
+                                 SelectedValue="{Binding YPPU, Mode=TwoWay}"
+                                 hc:InfoElement.Title="PPU"/>
+                    <hc:NumericUpDown Value="{Binding YDenominator}" hc:TitleElement.Title="Деноминатор" Minimum="1" Maximum="100"/>
+                </StackPanel>
+            </hc:TabItem>
+            <hc:TabItem Header="Ось Z">
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding ZInvertDirSignal}" Content="Инвертировать сигнал направления"/>
+                    <CheckBox IsChecked="{Binding ZInvertAxesDirection}" Content="Инвертировать направление оси"/>
+                    <CheckBox IsChecked="{Binding ZInvertEncoder}" Content="Инвертировать энкодер"/>
+                    <hc:ComboBox ItemsSource="{StaticResource PPUs}"
+                                 SelectedValue="{Binding ZPPU, Mode=TwoWay}"
+                                 hc:InfoElement.Title="PPU"/>
+                    <hc:NumericUpDown Value="{Binding ZDenominator}" hc:TitleElement.Title="Деноминатор" Minimum="1" Maximum="100"/>
+                </StackPanel>
+            </hc:TabItem>
+            <hc:TabItem Header="Ось U" Visibility="Collapsed">
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding UInvertDirSignal}" Content="Инвертировать сигнал направления"/>
+                    <CheckBox IsChecked="{Binding UInvertAxesDirection}" Content="Инвертировать направление оси"/>
+                    <CheckBox IsChecked="{Binding UInvertEncoder}" Content="Инвертировать энкодер"/>
+                    <hc:ComboBox ItemsSource="{StaticResource PPUs}"
+                                 SelectedValue="{Binding UPPU, Mode=TwoWay}"
+                                 hc:InfoElement.Title="PPU"/>
+                    <hc:NumericUpDown Value="{Binding UDenominator}" hc:TitleElement.Title="Деноминатор" Minimum="1" Maximum="100"/>
+                </StackPanel>
+            </hc:TabItem>
+            <hc:TabItem Header="Дополнительно">
+                <StackPanel>                    
+                    <hc:Divider Content="Видеокамера" Margin="0,5,0,20"/>
+                    <CheckBox IsChecked="{Binding VideoMirrorX}" Content="Отразить по X"/>
+                    <CheckBox IsChecked="{Binding VideoMirrorY}" Content="Отразить по Y"/>
+                    <hc:Divider Content="Связь"/>
+                    <hc:ComboBox ItemsSource="{StaticResource baudRates}"
+                                 SelectedValue="{Binding PWMBaudRate, Mode=TwoWay}"
+                                 SelectedIndex="1"
+                                 hc:InfoElement.Title="Скорость ШИМ"/>
+                    <hc:Divider Content="Сканнатор"/>
+                    <CheckBox IsChecked="{Binding ScanheadInvertEntityAngle}" Content="Инвертировать угол объекта"/>
+                </StackPanel>
+            </hc:TabItem>
+        </hc:TabControl>
+    </Grid>
+</UserControl>

@@ -55,6 +55,10 @@
             <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
             <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
 
+            <DataTemplate DataType="{x:Type dialogvm:AdvancedParamsVM}">
+                <dialogviews:AdvancedMachineParamsView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type dialogvm:GroupOffsetsVM}">
                 <dialogviews:GroupOffsetView/>
             </DataTemplate>

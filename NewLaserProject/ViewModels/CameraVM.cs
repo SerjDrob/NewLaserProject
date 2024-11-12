@@ -42,14 +42,22 @@ namespace NewLaserProject.ViewModels
         public double TargetHeight { get; set; } = 500;
         public double ImageActualHeight { get; set; }
         public BitmapImage? CameraImage { get; set; }
+        public int ScaleX { get; set; }
+        public int ScaleY { get; set; }
+
+
         public event EventHandler<(double x, double y)>? VideoClicked;
+
+        private static int InvertSign(bool s) => s ? -1 : 1;
+        public void MirrorView(bool byX, bool byY) => (ScaleX, ScaleY) = (InvertSign(byX) * Math.Abs(ScaleX), InvertSign(byX) * Math.Abs(ScaleY));
+
         public void OnVideoSourceBmpChanged(object? sender, VideoCaptureEventArgs e)
         {
             CameraImage = e.Image;
         }
 
         [ICommand]
-        private void VideoClick((double x, double y) coordinates) => VideoClicked?.Invoke(this, coordinates);
+        private void VideoClick((double x, double y) coordinates) => VideoClicked?.Invoke(this, (coordinates.x * ScaleX,coordinates.y * ScaleY));
 
         public void OpenTargetWindow()
         {

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
+using AutoMapper;
 using HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Tools.Extension;
@@ -16,9 +17,11 @@ using MachineClassLibrary.Laser;
 using MachineClassLibrary.Laser.Entities;
 using MachineClassLibrary.Laser.Parameters;
 using MachineClassLibrary.Machine;
+using MachineClassLibrary.Machine.Machines;
 using MachineClassLibrary.Miscellaneous;
 using MachineControlsLibrary.CommonDialog;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Input;
 using NewLaserProject.Classes;
 using NewLaserProject.Classes.Process;
@@ -277,6 +280,43 @@ namespace NewLaserProject.ViewModels
             {
                 _dXMeasure = XAxis.Position;
                 _dYMeasure = YAxis.Position;
+            }
+        }
+
+        [ICommand]
+        private async Task AdvancedParams()
+        {
+            var axesConfigs = MiscExtensions
+                   .DeserializeObject<LaserMachineAxesConfiguration>(AppPaths.AxesConfigs);
+            Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
+            var mapper = new MapperConfiguration(conf =>
+            conf.CreateMap<LaserMachineSettings, AdvancedParamsVM>().ReverseMap())
+                .CreateMapper();
+
+            var model = mapper.Map<AdvancedParamsVM>(_settingsManager.Settings);
+                    model.XInvertAxesDirection = axesConfigs.XRightDirection;
+                    model.YInvertAxesDirection = axesConfigs.YRightDirection;
+                    model.ZInvertAxesDirection = axesConfigs.ZRightDirection;
+
+
+            var result = await Dialog.Show<CommonDialog>()
+                .SetDialogTitle("Дополнительные настройки")
+                .SetDataContext(model, vm => { })
+                .GetCommonResultAsync<AdvancedParamsVM>(ToggleKeyProcCommands);
+
+            if (result.Success)
+            {
+                var confResult = result.CommonResult;
+                mapper.Map(confResult,_settingsManager.Settings);
+                axesConfigs.XRightDirection = model.XInvertAxesDirection;
+                axesConfigs.YRightDirection = model.YInvertAxesDirection;
+                axesConfigs.ZRightDirection = model.ZInvertAxesDirection;
+
+                _settingsManager.Save();
+                axesConfigs.SerializeObject(AppPaths.AxesConfigs);
+                ImplementMachineSettings();
+                _cameraVM.MirrorView(confResult.VideoMirrorX, confResult.VideoMirrorY);
+                await _laserMachine.ChangePWMBaudRateReinitMarkDevice(confResult.PWMBaudRate, Directory.GetCurrentDirectory());
             }
         }
 

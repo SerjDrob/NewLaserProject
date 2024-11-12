@@ -503,8 +503,12 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
             _cancellationTokenSource?.Cancel();
             await _laserMachine.CancelMarkingAsync();
         }
-        public void ExcludeObject(IProcObject procObject) => _excludedObjects.Add(procObject);
-        public void IncludeObject(IProcObject procObject) => _excludedObjects.Remove(procObject);
+        public void ExcludeObject(IProcObject procObject)
+        {
+            _excludedObjects ??= new();
+            _excludedObjects.Add(procObject);
+        }
+        public void IncludeObject(IProcObject procObject) => _excludedObjects?.Remove(procObject);
         public async Task Next()
         {
             await _stateMachine.FireAsync(Trigger.Next);

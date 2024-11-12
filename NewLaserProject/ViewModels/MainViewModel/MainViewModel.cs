@@ -332,6 +332,10 @@ namespace NewLaserProject.ViewModels
 
                 _cameraVM = new CameraVM(_subjMediator);
                 _cameraVM.SetCameraScale(_settingsManager.Settings.CameraScale ?? 0d);
+                if (_settingsManager.Settings.VideoMirrorX is bool mirrorX && _settingsManager.Settings.VideoMirrorY is bool mirrorY)
+                {
+                    _cameraVM.MirrorView(mirrorX, mirrorY);
+                }
                 RightSideVM = _cameraVM;
 #if PCIInserted
                 _laserMachine.OnBitmapChanged += _cameraVM.OnVideoSourceBmpChanged;
@@ -378,7 +382,7 @@ namespace NewLaserProject.ViewModels
                 {
                     var k = xRatio / yRatio;
                     var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
-                    var offset = new[] { e.x * scale * k * 2, -e.y * scale * 2 };//TODO fix the sign problem. 2 is the image scale here
+                    var offset = new[] { e.x * scale * k, e.y * scale };//TODO fix the sign problem. 2 is the image scale here
                     try
                     {
                         var vel = _laserMachine.SetVelocity(Velocity.Service);
@@ -479,15 +483,15 @@ namespace NewLaserProject.ViewModels
                 maxDec = 1000,
                 maxVel = 500,
                 jerk = _settingsManager.Settings.XJerk ?? throw new ArgumentNullException("XJerk is null"),
-                axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
+                axDirLogic = (_settingsManager.Settings.XInvertDirSignal ?? throw new ArgumentNullException("XInvertDirSignal is null")) ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.XHomeReset,
                 acc = _settingsManager.Settings.XAcc ?? throw new ArgumentNullException("XAcc is null"),
                 dec = _settingsManager.Settings.XDec ?? throw new ArgumentNullException("XDec is null"),
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
-                denominator = 1,
+                denominator = _settingsManager.Settings.XDenominator ?? throw new ArgumentNullException("XDenominator is null"),
                 plsInMde = (int)PlsInMode.AB_4X,
-                plsInLogic = (int)PlsInLogic.INV_DIR,//TODO fix the coordinate sign's system
+                plsInLogic = (_settingsManager.Settings.XInvertEncoder ?? throw new ArgumentNullException("XInvertEncoder is null")) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
                 homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"),
             };
@@ -497,14 +501,15 @@ namespace NewLaserProject.ViewModels
                 maxDec = 1000,
                 maxVel = 500,
                 jerk = _settingsManager.Settings.YJerk ?? throw new ArgumentNullException("YJerk is null"),
-                axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
+                axDirLogic = (_settingsManager.Settings.YInvertDirSignal ?? throw new ArgumentNullException("YInvertDirSignal is null")) ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.YRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.YHomeReset,
                 acc = _settingsManager.Settings.YAcc ?? throw new ArgumentNullException("YAcc is null"),
                 dec = _settingsManager.Settings.YDec ?? throw new ArgumentNullException("YDec is null"),
                 ppu = _settingsManager.Settings.YPPU ?? throw new ArgumentNullException("XAcc is null"),//3993,//Settings.Default.YPPU*2,
-                denominator = 1,
+                denominator = _settingsManager.Settings.YDenominator ?? throw new ArgumentNullException("YDenominator is null"),
                 plsInMde = (int)PlsInMode.AB_4X,
+                plsInLogic = (_settingsManager.Settings.YInvertEncoder ?? throw new ArgumentNullException("YInvertEncoder is null")) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
                 homeVelLow = _settingsManager.Settings.YHomeVelLow ?? throw new ArgumentNullException("YVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")
             };
@@ -514,15 +519,15 @@ namespace NewLaserProject.ViewModels
                 maxDec = 180,
                 maxVel = 8,
                 jerk = _settingsManager.Settings.ZJerk ?? throw new ArgumentNullException("ZJerk is null"),
-                axDirLogic = (int)AxDirLogic.DIR_ACT_HIGH,
+                axDirLogic = (_settingsManager.Settings.ZInvertDirSignal ?? throw new ArgumentNullException("ZInvertDirSignal is null")) ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.ZRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.ZHomeReset,
                 acc = _settingsManager.Settings.ZAcc ?? throw new ArgumentNullException("ZAcc is null"),
                 dec = _settingsManager.Settings.ZDec ?? throw new ArgumentNullException("ZDec is null"),
                 ppu = _settingsManager.Settings.ZPPU ?? throw new ArgumentNullException("ZPPU is null"),
+                denominator = _settingsManager.Settings.ZDenominator ?? throw new ArgumentNullException("ZDenominator is null"),
                 homeVelLow = _settingsManager.Settings.ZHomeVelLow ?? throw new ArgumentNullException("ZVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null"),
-                denominator = 1
             };
 
             try

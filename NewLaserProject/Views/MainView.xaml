@@ -287,6 +287,7 @@
                         <StackPanel>
                             <MenuItem Command="{Binding MachineSettingsCommand}" Header="Настройки приводов"/>
                             <MenuItem Command="{Binding LasSettingsCommand}" Header="Настройки лазера"/>
+                            <MenuItem Command="{Binding AdvancedParamsCommand}" Header="Дополнительные настройки"/>
                             <hc:SplitButton Content="Предпочтения" Style="{StaticResource SplitButtonBaseStyle}" HorizontalAlignment="Left" Margin="25,0">
                                 <hc:SplitButton.DropDownContent>
                                     <StackPanel>

@@ -52,6 +52,30 @@ internal class LaserMachineSettings
     public double? XHomeVelLow { get; set; }
     public double? YHomeVelLow { get; set; }
     public double? ZHomeVelLow { get; set; }
+
+
+    //----------------
+    public bool? XInvertDirSignal { get; set; }
+    public bool? XInvertAxesDirection { get; set; }
+    public bool? XInvertEncoder { get; set; }
+    public int? XDenominator { get; set; }
+    public bool? YInvertDirSignal { get; set; }
+    public bool? YInvertAxesDirection { get; set; }
+    public bool? YInvertEncoder { get; set; }
+    public int? YDenominator { get; set; }
+    public bool? ZInvertDirSignal { get; set; }
+    public bool? ZInvertAxesDirection { get; set; }
+    public bool? ZInvertEncoder { get; set; }
+    public int? ZDenominator { get; set; }
+    public bool? VideoMirrorX { get; set; }
+    public bool? VideoMirrorY { get; set; }
+    public int? PWMBaudRate { get; set; }
+    public bool? ScanheadInvertEntityAngle { get; set; }
+
+    //----------------
+
+
+
     public List<OffsetPoint>? OffsetPoints { get; set; }
 
 }

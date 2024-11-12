@@ -68,7 +68,7 @@ namespace NewLaserProject
 
 
 
-            var result = settingsManager.Settings.GetType().GetProperties().Any(p => p.GetValue(settingsManager.Settings) != default);
+            var result = settingsManager.Settings?.GetType().GetProperties().Any(p => p.GetValue(settingsManager.Settings) != default) ?? false;
             if (!result)
             {
                 var configs = new MapperConfiguration(conf =>
@@ -118,7 +118,9 @@ namespace NewLaserProject
                    .AddSingleton<PWM2>()
                    .AddSingleton(sp =>
                    {
-                       return new LaserBoardFactory(sp, machineconfigs).GetPWM();
+                       var pwm  = new LaserBoardFactory(sp, machineconfigs).GetPWM();
+                       if(settingsManager.Settings?.PWMBaudRate is int baudRate) pwm.SetBaudRate(baudRate);
+                       return pwm;
                    })
                    .AddSingleton(sp =>
                    {
@@ -156,11 +158,11 @@ namespace NewLaserProject
                    .AddTransient<LaserDbViewModel>(sp =>
                    {
                        var defLaserParams = MiscExtensions
-                            .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
+                            .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams) ?? throw new NullReferenceException("Default laser params are null");
 
                        var mapper = sp.GetService<IMapper>();
-                       var mediator = sp.GetService<IMediator>();
-                       var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams);
+                       var mediator = sp.GetService<IMediator>() ?? throw new NullReferenceException("Cannot find service IMediator");
+                       var defaultParams = mapper?.Map<ExtendedParams>(defLaserParams) ?? throw new NullReferenceException("Cannot map MarkLaserParams to ExtendedParams");
                        var logger = sp.GetRequiredService<Serilog.ILogger>();
                        return new(mediator, defaultParams, logger);
                    })
@@ -172,10 +174,13 @@ namespace NewLaserProject
                        var vm = mapper?.Map<MarkSettingsVM>(defLaserParams) ?? new();
                        return vm;
                    });
+
+            _provider = MainIoC.BuildServiceProvider();
+            _principleLogger = _provider.GetRequiredService<Serilog.ILogger>();
         }
 
 
-        private async void Dispatcher_UnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        private void Dispatcher_UnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             _principleLogger.ForContext<App>().Fatal(e.Exception, "An unhandled Exception was thrown");
             _principleLogger.ForContext<MicroProcess>().Fatal(e.Exception, RepoSink.Failed, RepoSink.App);
@@ -191,8 +196,7 @@ namespace NewLaserProject
         protected override async void OnStartup(StartupEventArgs e)//TODO Bad 
         {
             //AllocConsole();
-            _provider = MainIoC.BuildServiceProvider();
-            _principleLogger = _provider.GetRequiredService<Serilog.ILogger>();
+           
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
             var viewModel = _provider.GetService<MainViewModel>();
@@ -211,7 +215,7 @@ namespace NewLaserProject
             base.OnStartup(e);
         }
 
-        private async void MainView_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        private void MainView_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             var sourceString = ConfigurationManager.ConnectionStrings["myDb"].ToString();
             var destString = ConfigurationManager.ConnectionStrings["myDbBackup"].ToString();

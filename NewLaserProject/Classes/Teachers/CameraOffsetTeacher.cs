@@ -28,7 +28,7 @@ namespace NewLaserProject.Classes
         private List<OffsetPoint> _offsetPoints = new();
 
 
-        public event EventHandler TeachingCompleted;
+        public event EventHandler? TeachingCompleted;
 
         public CameraGroupOffsetTeacher(ICoorSystem coorSystem, LaserMachine laserMachine, 
             ISettingsManager<LaserMachineSettings> settingsManager, double waferThickness, double width, double height, IEnumerable<(double,double)> points)
