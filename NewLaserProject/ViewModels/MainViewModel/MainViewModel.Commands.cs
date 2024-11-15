@@ -287,7 +287,7 @@ namespace NewLaserProject.ViewModels
         private async Task AdvancedParams()
         {
             var axesConfigs = MiscExtensions
-                   .DeserializeObject<LaserMachineAxesConfiguration>(AppPaths.AxesConfigs);
+                   .DeserializeObject<MachineClassLibrary.Machine.Machines.MachineAxesConfiguration>(AppPaths.AxesConfigs);
             Guard.IsNotNull(axesConfigs, nameof(axesConfigs));
             var mapper = new MapperConfiguration(conf =>
             conf.CreateMap<LaserMachineSettings, AdvancedParamsVM>().ReverseMap())

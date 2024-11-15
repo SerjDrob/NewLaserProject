@@ -1,32 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using MachineClassLibrary.Machine.Machines;
 
-internal class LaserMachineSettings
+internal class LaserMachineSettings : CommonMachineSettings
 {
-    public double? XVelLow { get; set; }
-    public double? XVelHigh { get; set; }
-    public double? XAcc { get; set; }
-    public double? XDec { get; set; }
-    public int? XPPU { get; set; }
-    public int? XJerk { get; set; }
-    public double? YVelHigh { get; set; }
-    public double? YAcc { get; set; }
-    public double? YDec { get; set; }
-    public int? YPPU { get; set; }
-    public int? YJerk { get; set; }
-    public double? ZVelLow { get; set; }
-    public double? ZVelHigh { get; set; }
-    public double? ZAcc { get; set; }
-    public double? ZDec { get; set; }
-    public int? ZPPU { get; set; }
-    public int? ZJerk { get; set; }
-    public double? XVelService { get; set; }
-    public double? YVelService { get; set; }
-    public double? ZVelService { get; set; }
-    public double? YVelLow { get; set; }
     public double? XLoad { get; set; }
     public double? YLoad { get; set; }
-    public double? CameraScale { get; set; }
     public double? XOffset { get; set; }
     public double? YOffset { get; set; }
     public double? XRightPoint { get; set; }
@@ -47,35 +26,9 @@ internal class LaserMachineSettings
     public double? WaferWidth { get; set; }
     public double? WaferHeight { get; set; }
     public double? WaferThickness { get; set; }
-    public int? PreferredCameraCapabilities { get; set; }
     public double? PazAngle { get; set; }
-    public double? XHomeVelLow { get; set; }
-    public double? YHomeVelLow { get; set; }
-    public double? ZHomeVelLow { get; set; }
-
-
-    //----------------
-    public bool? XInvertDirSignal { get; set; }
-    public bool? XInvertAxesDirection { get; set; }
-    public bool? XInvertEncoder { get; set; }
-    public int? XDenominator { get; set; }
-    public bool? YInvertDirSignal { get; set; }
-    public bool? YInvertAxesDirection { get; set; }
-    public bool? YInvertEncoder { get; set; }
-    public int? YDenominator { get; set; }
-    public bool? ZInvertDirSignal { get; set; }
-    public bool? ZInvertAxesDirection { get; set; }
-    public bool? ZInvertEncoder { get; set; }
-    public int? ZDenominator { get; set; }
-    public bool? VideoMirrorX { get; set; }
-    public bool? VideoMirrorY { get; set; }
     public int? PWMBaudRate { get; set; }
     public bool? ScanheadInvertEntityAngle { get; set; }
-
-    //----------------
-
-
-
     public List<OffsetPoint>? OffsetPoints { get; set; }
 
 }

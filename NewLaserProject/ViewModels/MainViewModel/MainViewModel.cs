@@ -463,7 +463,7 @@ namespace NewLaserProject.ViewModels
 #if PCIInserted
 
             var axesConfigs = MiscExtensions
-                .DeserializeObject<LaserMachineAxesConfiguration>(AppPaths.AxesConfigs);
+                .DeserializeObject<MachineClassLibrary.Machine.Machines.MachineAxesConfiguration>(AppPaths.AxesConfigs);
 
             var machineconfigs = MiscExtensions
                 .DeserializeObject<LaserMachineConfiguration>(AppPaths.MachineConfigs);
@@ -475,7 +475,7 @@ namespace NewLaserProject.ViewModels
             //axesConfigs.SerializeObject(AppPaths.AxesConfigs);
 
 
-            _laserMachine.SetVideoMirror(axesConfigs.XMirrorCamera, axesConfigs.YMirrorCamera);
+            //_laserMachine.SetVideoMirror(axesConfigs.XMirrorCamera, axesConfigs.YMirrorCamera);
 
             var xpar = new MotionDeviceConfigs
             {

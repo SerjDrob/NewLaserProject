@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MachineClassLibrary.Machine.MotionDevices;
-using MachineControlsLibrary.CommonDialog;
-using PropertyChanged;
+﻿using MachineControlsLibrary.CommonDialog;
 
 namespace NewLaserProject.ViewModels.DialogVM
 {
@@ -38,6 +30,6 @@ namespace NewLaserProject.ViewModels.DialogVM
         public bool ScanheadInvertEntityAngle { get; set; }
 
         public override void SetResult() => SetResult(this);
-       
+
     }
 }
