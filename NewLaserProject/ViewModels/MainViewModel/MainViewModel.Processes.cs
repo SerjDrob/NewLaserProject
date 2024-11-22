@@ -256,7 +256,8 @@ namespace NewLaserProject.ViewModels
                     waferAngle: _waferAngle,
                     scale: DefaultFileScale,
                     _xCoeffLine,
-                    _yCoeffLine);
+                    _yCoeffLine,
+                    _settingsManager.Settings.ScanheadInvertEntityAngle.GetValueOrDefault());
 
                 _mainProcess.OfType<ProcWaferChanged>()
                     .Subscribe(args =>

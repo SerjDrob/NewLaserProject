@@ -163,6 +163,12 @@
                         <hc:ToggleBlock.UnCheckedContent>
                             <TextBlock Text="LBD" Background="{StaticResource DangerBrush}"/>
                         </hc:ToggleBlock.UnCheckedContent>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding ReconnectLaserCommand}" 
+                                                       CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=hc:ToggleBlock, Mode=FindAncestor}, Path=IsChecked}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </hc:ToggleBlock>
 
                     <hc:ToggleBlock IsChecked="{Binding IsLaserSourceFault}">

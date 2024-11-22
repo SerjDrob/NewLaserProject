@@ -282,6 +282,19 @@ namespace NewLaserProject.ViewModels
                 _dYMeasure = YAxis.Position;
             }
         }
+        [ICommand]
+        private async Task ReconnectLaser(bool parameter)
+        {
+            if (parameter)
+            {
+                _laserMachine.CloseMarkDevice();
+            }
+            else
+            {
+                await _laserMachine.ChangePWMBaudRateReinitMarkDevice(_settingsManager.Settings.PWMBaudRate ?? 19200, Directory.GetCurrentDirectory());
+            }
+        }
+
 
         [ICommand]
         private async Task AdvancedParams()
@@ -311,7 +324,6 @@ namespace NewLaserProject.ViewModels
                 axesConfigs.XRightDirection = model.XInvertAxesDirection;
                 axesConfigs.YRightDirection = model.YInvertAxesDirection;
                 axesConfigs.ZRightDirection = model.ZInvertAxesDirection;
-
                 _settingsManager.Save();
                 axesConfigs.SerializeObject(AppPaths.AxesConfigs);
                 ImplementMachineSettings();
