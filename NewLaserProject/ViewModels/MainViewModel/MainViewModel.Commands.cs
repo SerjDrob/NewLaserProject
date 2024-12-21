@@ -374,7 +374,8 @@ namespace NewLaserProject.ViewModels
                     //vm.Materials = materialResponse.Materials.ToObservableCollection();
                     vm.DefaultHeight = _settingsManager.Settings.DefaultHeight ?? throw new ArgumentNullException("DefaultHeight is null");
                     vm.DefaultWidth = _settingsManager.Settings.DefaultWidth ?? throw new ArgumentNullException("DefaultWidth is null");
-                    vm.IsMirrored = _settingsManager.Settings.IsMirrored ?? throw new ArgumentNullException("IsMirrored is null");
+                    //vm.IsMirrored = _settingsManager.Settings.IsMirrored ?? throw new ArgumentNullException("IsMirrored is null");
+                    vm.IsMirrored = _settingsManager.Settings.WaferMirrorX ?? throw new ArgumentNullException("WaferMirrorX is null");
                     vm.IsRotated = _settingsManager.Settings.WaferAngle90 ?? throw new ArgumentNullException("WaferAngle90 is null");
                 })
                 .GetCommonResultAsync<FileViewDialogVM>(ToggleKeyProcCommands);//UNDONE this dialog doesn't save db
@@ -382,7 +383,7 @@ namespace NewLaserProject.ViewModels
             {
                 _settingsManager.Settings.DefaultWidth = result.CommonResult.DefaultWidth;
                 _settingsManager.Settings.DefaultHeight = result.CommonResult.DefaultHeight;
-                _settingsManager.Settings.IsMirrored = result.CommonResult.IsMirrored;
+                _settingsManager.Settings.WaferMirrorX = result.CommonResult.IsMirrored;
                 _settingsManager.Settings.WaferAngle90 = result.CommonResult.IsRotated;
                 _settingsManager.Save();
 

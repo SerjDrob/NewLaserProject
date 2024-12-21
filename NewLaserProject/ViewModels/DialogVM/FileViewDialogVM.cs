@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using MachineClassLibrary.Laser.Entities;
@@ -14,49 +13,18 @@ namespace NewLaserProject.ViewModels.DialogVM
     [INotifyPropertyChanged]
     internal partial class FileViewDialogVM : CommonDialogResultable<FileViewDialogVM>
     {
-        public ObservableCollection<DefaultLayerFilter> DefLayerFilters
-        {
-            get; set;
-        }
-        public ObservableCollection<Material> Materials
-        {
-            get; set;
-        }
-        public string AddLayerName
-        {
-            get; set;
-        }
-        public bool AddLayerIsVisible
-        {
-            get; set;
-        }
+        public ObservableCollection<DefaultLayerFilter> DefLayerFilters { get; set; }
+        public ObservableCollection<Material> Materials { get; set; }
+        public string AddLayerName { get; set; }
+        public bool AddLayerIsVisible { get; set; }
         public LaserEntity CurrentEntityType { get; set; } = LaserEntity.Circle;
-        public DefaultLayerFilter CurrentLayerFilter
-        {
-            get; set;
-        }
-        public Technology CurrentTechnology
-        {
-            get; set;
-        }
-        public int DefaultWidth
-        {
-            get; set;
-        }
-        public int DefaultHeight
-        {
-            get; set;
-        }
-        public bool IsMirrored
-        {
-            get; set;
-        }
-        public bool IsRotated
-        {
-            get; set;
-        }
+        public DefaultLayerFilter CurrentLayerFilter { get; set; }
+        public Technology CurrentTechnology { get; set; }
+        public int DefaultWidth { get; set; }
+        public int DefaultHeight { get; set; }
+        public bool IsMirrored { get; set; }
+        public bool IsRotated { get; set; }
         public ObservableCollection<DefaultLayerEntityTechnology> DefaultTechnologies { get; set; } = new();
-
 
         public override void SetResult() => SetResult(this);
 

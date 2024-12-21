@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
+using MachineClassLibrary.Classes;
 using MachineControlsLibrary.CommonDialog;
 using NewLaserProject.Classes;
 using NewLaserProject.ViewModels.DialogVM;
@@ -109,7 +110,7 @@ namespace NewLaserProject.ViewModels
                                 {
                                     var thickness = result.CommonResult.thickness;
                                     var points = result.CommonResult.points;
-                                    _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem.ExtractSubSystem(MachineClassLibrary.Classes.LMPlace.FileOnWaferUnderLaser),
+                                    _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera),
                                         _laserMachine, _settingsManager, thickness, WaferWidth, WaferHeight, points);
                                 }
                             }

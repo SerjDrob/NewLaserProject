@@ -59,7 +59,6 @@ namespace NewLaserProject.ViewModels
 
         private async Task<ITeacher> TeachCameraOffsetAsync()
         {
-            //if(_canTeach) return;
 
             TeachingSteps = new()
             {
@@ -83,7 +82,7 @@ namespace NewLaserProject.ViewModels
             {
                 StepIndex++;
                 _laserMachine.SetVelocity(Velocity.Service);
-                await _laserMachine.GoThereAsync(LMPlace.Loading);
+                //await _laserMachine.GoThereAsync(LMPlace.Loading);
                 Growl.Info(new GrowlInfo
                 {
                     Message = "Установите подложку и нажмите * чтобы продолжить",
@@ -95,13 +94,11 @@ namespace NewLaserProject.ViewModels
                 {
                     StepIndex++;
                     _laserMachine.SetVelocity(Velocity.Service);
-                    await Task.WhenAll(
-                        //_laserMachine.MoveGpInPosAsync(Groups.XY, teachPosition),
-                        _laserMachine.MoveAxInPosAsync(Ax.X, teachPosition[0]),
-                        _laserMachine.MoveAxInPosAsync(Ax.Y, teachPosition[1]),
-                        _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
-                        );
-                    //techMessager.RealeaseMessage("Выбирете место прожига и нажмите * чтобы продолжить", MessageType.Info);
+                    //await Task.WhenAll(
+                    //    _laserMachine.MoveAxInPosAsync(Ax.X, teachPosition[0]),
+                    //    _laserMachine.MoveAxInPosAsync(Ax.Y, teachPosition[1]),
+                    //    _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
+                    //    );
                     Growl.Info(new GrowlInfo
                     {
                         Message = "Выбирете место прожига и нажмите * чтобы продолжить",
@@ -113,10 +110,11 @@ namespace NewLaserProject.ViewModels
                 {
                     Growl.Clear();
                     _laserMachine.SetVelocity(Velocity.Service);
-                    GetPropOffsets(ref xOffset, ref yOffset);
+                    var xAct = _laserMachine.GetAxActual(Ax.X);
+                    var yAct = _laserMachine.GetAxActual(Ax.Y);
+                    _settingsManager.Settings.OffsetPoints.GetOffsetByCurCoor(xAct, yAct, ref xOffset, ref yOffset);
 
                     await Task.WhenAll(
-                            //_laserMachine.MoveGpRelativeAsync(Groups.XY, new double[] { xOffset, yOffset }, true),
                             _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true),
                             _laserMachine.MoveAxRelativeAsync(Ax.Y, yOffset, true),
                             _laserMachine.MoveAxInPosAsync(Ax.Z, zLaser - waferThickness)
@@ -146,13 +144,6 @@ namespace NewLaserProject.ViewModels
                     await _laserMachine.PierceLineAsync(-0.4, -0.4, -0.4, 0.4);
                     await _laserMachine.PierceLineAsync(0.4, -0.4, 0.4, 0.4);
 
-                    //var defLaserParams = ExtensionMethods
-                    //       .DeserilizeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
-
-                    //_laserMachine.SetMarkParams(defLaserParams);
-                    //for(var i=0; i<25; i++) await _laserMachine.PierceCircleAsync(0.05);
-
-
                     _currentTeacher.SetParams(_laserMachine.GetAxActual(Ax.X), _laserMachine.GetAxActual(Ax.Y));
                     await Task.WhenAll(
                              _laserMachine.MoveAxRelativeAsync(Ax.X, -xOffset, true),
@@ -160,29 +151,6 @@ namespace NewLaserProject.ViewModels
                              _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                              );
                     await _currentTeacher.AcceptAsync();
-
-                    void GetPropOffsets(ref double xOffset, ref double yOffset)
-                    {
-                        var curX = _laserMachine.GetAxActual(Ax.X);
-                        var curY = _laserMachine.GetAxActual(Ax.Y);
-
-                        try
-                        {
-                            var sortResult = _settingsManager.Settings.OffsetPoints
-                                            .OrderBy(x => Math.Abs(x.X - curX))
-                                            .ThenBy(y => Math.Abs(y.Y - curY))
-                                            .First();
-                            if (sortResult != null)
-                            {
-                                xOffset = sortResult.dx;
-                                yOffset = sortResult.dy;
-                            }
-                        }
-                        catch (Exception) {}
-
-                        //xOffset = _settingsManager.Settings.OffsetPoints.MinBy(x => Math.Abs(x.X - curX))?.dx ?? xOffset;
-                        //yOffset = _settingsManager.Settings.OffsetPoints.MinBy(y => Math.Abs(y.Y - curY))?.dy ?? yOffset;
-                    }
                 })
                 .SetOnSearchScorchAction(() =>
                 {
@@ -254,7 +222,7 @@ namespace NewLaserProject.ViewModels
                     TeachingSteps = new();
                     _canTeach = false;
                 }));
-            return tcb.Build();
+            return await Task.FromResult(tcb.Build());
         }
         private async Task<ITeacher> TeachScanatorHorizontAsync()
         {

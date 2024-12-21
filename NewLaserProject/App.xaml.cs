@@ -176,7 +176,7 @@ namespace NewLaserProject
                    });
 
             _provider = MainIoC.BuildServiceProvider();
-            _principleLogger = _provider.GetRequiredService<Serilog.ILogger>();
+            _principleLogger = _provider.GetRequiredService<ILogger>();
         }
 
 
