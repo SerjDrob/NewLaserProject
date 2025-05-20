@@ -35,6 +35,7 @@ namespace NewLaserProject.Classes.Process
         {
             _currentProcObject = procObject;
             await ProcessSequenceAsync();
+            await _laserMachine.StopPWMAsync();
         }
         public int GetMainLoopCount() => _procSequence.MainLoopCount; //_progTreeParser.MainLoopCount;
         public bool IsLoopShuffle => _procSequence.MainLoopShuffle; //_progTreeParser.MainLoopShuffle;

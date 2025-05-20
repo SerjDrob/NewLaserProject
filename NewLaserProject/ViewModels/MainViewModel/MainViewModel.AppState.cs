@@ -114,6 +114,34 @@ namespace NewLaserProject.ViewModels
                                         _laserMachine, _settingsManager, thickness, WaferWidth, WaferHeight, points);
                                 }
                             }
+                            break; 
+                        case Teacher.ScanheadCalibration:
+                            {
+                                //var result = await Dialog.Show<CommonDialog>()
+                                //                           .SetDialogTitle("Обучение смещения")
+                                //                           .SetDataContext(new GroupOffsetsVM(WaferWidth, WaferHeight, WaferThickness),
+                                //                           vm => { })
+                                //                           .GetCommonResultAsync<(IEnumerable<(double, double)> points, double thickness)>();
+                                //if (result?.Success ?? false)
+                                //{
+                                //    var thickness = result.CommonResult.thickness;
+                                //    var points = result.CommonResult.points;
+                                //    _currentTeacher = new CameraGroupOffsetTeacher(_coorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera),
+                                //        _laserMachine, _settingsManager, thickness, WaferWidth, WaferHeight, points);
+                                //}
+
+
+                                var result = await Dialog.Show<CommonDialog>()
+                                                    .SetDialogTitle("Выберите количество точек")
+                                                    .SetDataContext<CalibrationArrayVM>(arr => { arr.Size = ArraySize.Array_5x5; })
+                                                    .GetCommonResultAsync<ArraySize>();
+
+                                if (result.Success)
+                                {
+                                    _currentTeacher = new ScanheadCalibrationTeacher(_coorSystem, _laserMachine, _settingsManager,
+                                                               WaferThickness, WaferWidth, WaferHeight, 0.015, 62, result.CommonResult); 
+                                }
+                            }
                             break;
                         default:
                             {

@@ -16,6 +16,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:clr="clr-namespace:System;assembly=mscorlib"
              xmlns:cnvrt="clr-namespace:MachineControlsLibrary.Converters;assembly=MachineControlsLibrary"
+             xmlns:classes="clr-namespace:NewLaserProject.Classes"
              >
     <Application.Resources>
         <ResourceDictionary>
@@ -54,6 +55,18 @@
 
             <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
             <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
+
+
+            <DataTemplate DataType="{x:Type dialogvm:CalibrationArrayVM}">
+                <hc:ComboBox SelectedValue="{Binding Size, Mode=TwoWay}"
+                             hc:InfoElement.Title="Размер">
+                    <classes:ArraySize>5</classes:ArraySize>
+                    <classes:ArraySize>9</classes:ArraySize>
+                    <classes:ArraySize>13</classes:ArraySize>
+                    <classes:ArraySize>17</classes:ArraySize>
+                    <classes:ArraySize>33</classes:ArraySize>
+                </hc:ComboBox>
+            </DataTemplate>
 
             <DataTemplate DataType="{x:Type dialogvm:AdvancedParamsVM}">
                 <dialogviews:AdvancedMachineParamsView/>

@@ -112,7 +112,15 @@ namespace NewLaserProject.ViewModels
                     _laserMachine.SetVelocity(Velocity.Service);
                     var xAct = _laserMachine.GetAxActual(Ax.X);
                     var yAct = _laserMachine.GetAxActual(Ax.Y);
-                    _settingsManager.Settings.OffsetPoints.GetOffsetByCurCoor(xAct, yAct, ref xOffset, ref yOffset);
+                    try
+                    {
+                        _settingsManager.Settings.OffsetPoints.GetOffsetByCurCoor(xAct, yAct, ref xOffset, ref yOffset);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        xOffset = _settingsManager.Settings.XOffset ?? throw new NullReferenceException("XOffset is null in the settings");
+                        yOffset = _settingsManager.Settings.YOffset ?? throw new NullReferenceException("YOffset is null in the settings");
+                    }
 
                     await Task.WhenAll(
                             _laserMachine.MoveAxRelativeAsync(Ax.X, xOffset, true),
@@ -124,8 +132,11 @@ namespace NewLaserProject.ViewModels
                            .DeserializeObject<MarkLaserParams>(AppPaths.DefaultLaserParams);
                     var pen = defLaserParams.PenParams with
                     {
-                        Freq = 50000,
-                        MarkSpeed = 100
+                        Freq = 30000,
+                        MarkSpeed = 200,
+                        ModDutyCycle = 10,
+                        MarkLoop = 1,
+                        QPulseWidth = 2
                     };
                     var hatch = defLaserParams.HatchParams;
 
@@ -685,6 +696,7 @@ namespace NewLaserProject.ViewModels
         CameraGroupOffset,
         ScanatorHorizont,
         OrthXY,
-        CameraScale
+        CameraScale, 
+        ScanheadCalibration
     }
 }

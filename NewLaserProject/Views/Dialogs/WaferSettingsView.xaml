@@ -16,7 +16,7 @@
                     <Setter Property="hc:TitleElement.TitleWidth" Value="70"/>
                     <Setter Property="Margin" Value="2"/>
                     <Setter Property="Minimum" Value="10"/>
-                    <Setter Property="Maximum" Value="100"/>
+                    <Setter Property="Maximum" Value="200"/>
                     <Setter Property="Increment" Value="1"/>
                 </Style>
 

@@ -54,7 +54,7 @@ namespace NewLaserProject.ViewModels
                 .CreateKeyDownCommand(Key.Z, ModifierKeys.None, () => moveAxDirAsync((Ax.Y, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.X, ModifierKeys.None, () => moveAxDirAsync((Ax.X, AxDir.Neg)), () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.C, ModifierKeys.None, () => moveAxDirAsync((Ax.X, AxDir.Pos)), () => IsMainTabOpen && !IsProcessing)
-                .CreateKeyDownCommand(Key.V, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Pos)), () => IsMainTabOpen && !(IsBlockZ&IsProcessing))
+                .CreateKeyDownCommand(Key.V, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Pos)), () => IsMainTabOpen && !(IsBlockZ & IsProcessing))
                 .CreateKeyDownCommand(Key.B, ModifierKeys.None, () => moveAxDirAsync((Ax.Z, AxDir.Neg)), () => IsMainTabOpen && !(IsBlockZ & IsProcessing))
                 .CreateKeyUpCommand(Key.V, () => Task.Run(() => _laserMachine.Stop(Ax.Z)), () => IsMainTabOpen)
                 .CreateKeyUpCommand(Key.B, () => Task.Run(() => _laserMachine.Stop(Ax.Z)), () => IsMainTabOpen)
@@ -82,7 +82,7 @@ namespace NewLaserProject.ViewModels
                     await moveHomeAsync();
                     _signalColumn.TurnOnLight(LightColumn.Light.Green);
                     Growl.Clear();
-                }, () => IsMainTabOpen && !IsProcessing)
+                }, () => IsMainTabOpen && !IsProcessing)//TODO doesn't block when under camera
                 .CreateKeyDownCommand(Key.Add, ModifierKeys.None, changeVelocity, () => IsMainTabOpen/* && !IsProcessing*/)
                 .CreateKeyDownCommand(Key.Subtract, ModifierKeys.None, setStepVelocity, () => IsMainTabOpen && !IsProcessing)
                 .CreateKeyDownCommand(Key.Q, ModifierKeys.None, () =>
@@ -160,7 +160,8 @@ namespace NewLaserProject.ViewModels
                 {
                     var token = new CancellationTokenSource(TimeSpan.FromMilliseconds(15000)).Token;
                     var res = await _laserMachine.FindCameraFocusAsync(token);
-                }, () => false);
+                }, () => false)
+                .CreateKeyDownCommand(Key.F2, ModifierKeys.None, async ()=>await _laserMachine.MarkCircleArrayAsync(2, 40, 5),()=>true);
 
             async Task moveAxDirAsync((Ax, AxDir) axDir)
             {
@@ -355,6 +356,21 @@ namespace NewLaserProject.ViewModels
             if (MsgBox.Ask("Стереть все смещения?", "Смещение камеры") == System.Windows.MessageBoxResult.OK) 
             {
                 _settingsManager.Settings.OffsetPoints?.Clear();
+                //try
+                //{
+
+                //    var x = _settingsManager.Settings.XLeftPoint ?? throw new NullReferenceException();
+                //    var y = _settingsManager.Settings.YLeftPoint ?? throw new NullReferenceException();
+                //    var dx = _settingsManager.Settings.XOffset ?? throw new NullReferenceException();
+                //    var dy = _settingsManager.Settings.YOffset ?? throw new NullReferenceException();
+                //    _settingsManager.Settings.OffsetPoints?.Add(new(x,y,dx,dy));
+                //}
+                //catch (Exception)
+                //{
+
+                //    throw;
+                //}
+                
                 _settingsManager.Save();
             }
         }

@@ -13,7 +13,6 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:cntrl="clr-namespace:NewLaserProject.Views.Controls"
         xmlns:wpfconsole="clr-namespace:NewLaserProject.Views.WpfConsole"
-        xmlns:gauge="clr-namespace:CircularGauge;assembly=CircularGauge"
         mc:Ignorable="d"   
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="ТЕМП-ЛР50"    
@@ -349,11 +348,15 @@
     </MenuItem.Icon>
 </MenuItem>-->
                             <MenuItem Command="{Binding StartTeachingCommand}" 
-          CommandParameter="{x:Static vm:Teacher.CameraScale}"
-          Header="Масштаб видео">
+                                      CommandParameter="{x:Static vm:Teacher.CameraScale}"
+                                      Header="Масштаб видео">
                                 <MenuItem.Icon>
                                     <Image Source="Sources/scale.png" Height="20"/>
                                 </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Command="{Binding StartTeachingCommand}" 
+                                      CommandParameter="{x:Static vm:Teacher.ScanheadCalibration}"
+                                      Header="Калибровка сканнатора">
                             </MenuItem>
                             <hc:SplitButton Content="Смещение камеры" Style="{StaticResource SplitButtonBaseStyle}" HorizontalAlignment="Left" Margin="25,0">
                                 <hc:SplitButton.DropDownContent>
@@ -587,6 +590,7 @@
                         </hc:ElementGroup>
                     </hc:ElementGroup>
                 </Border>
+                <Button Content="Inflate" Visibility="Collapsed" Command="{Binding TestInflationCommand}"/>
             </ToolBar>
             <!--<ToolBar>
                 <gauge:CircularGaugeControl
@@ -1103,6 +1107,9 @@
             </TabItem>
             <TabItem Header="Console" TabIndex="3">
                 <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
+            </TabItem>
+            <TabItem>
+                <ContentControl Content="{Binding PlotControl, Mode=OneTime}"/>
             </TabItem>
         </TabControl>
     </Grid>
