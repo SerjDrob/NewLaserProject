@@ -8,6 +8,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Humanizer;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.GeometryUtility;
@@ -55,31 +56,33 @@ namespace NewLaserProject.Classes.Process
         private readonly Guid _procId = Guid.NewGuid();
         private readonly IEnumerable<(IEnumerable<IProcObject> procObjects, MicroProcess microProcess)> _processing;
         private readonly LaserWafer _procWafer;
-
+        private readonly bool _invertEntAngle;
         private CancellationTokenSource _currentMicroProcCts;
         private CancellationToken _mainCancellationToken;
         private CancellationTokenSource _cancellationTokenSource;
         private CoeffLine _yCoeffLine;
         private CoeffLine _xCoeffLine;
+        private bool _goNextPoint;
 
         public CommonProcess(IEnumerable<(IEnumerable<IProcObject> procObjects, MicroProcess microProcess)> processing,
-               LaserWafer wafer, 
+               LaserWafer wafer,
                LaserMachine laserMachine,
-               double zeroZPiercing, 
-               double zeroZCamera, 
+               double zeroZPiercing,
+               double zeroZCamera,
                double waferThickness,
-               double dX, 
-               double dY, 
-               IEnumerable<OffsetPoint> offsetPoints, 
+               double dX,
+               double dY,
+               IEnumerable<OffsetPoint> offsetPoints,
                double pazAngle,
-               ISubject<IProcessNotify> subject, 
+               ISubject<IProcessNotify> subject,
                ICoorSystem<LMPlace> baseCoorSystem,
-               bool underCamera, 
-               FileAlignment aligningPoints, 
-               double waferAngle, 
+               bool underCamera,
+               FileAlignment aligningPoints,
+               double waferAngle,
                Scale scale,
                CoeffLine coeffLineX,
-               CoeffLine coeffLineY)
+               CoeffLine coeffLineY,
+               bool invertEntAngle)
         {
             _procWafer = wafer;
             _laserMachine = laserMachine;
@@ -100,6 +103,15 @@ namespace NewLaserProject.Classes.Process
             _waferAngle = waferAngle;
             _scale = scale;
             _processing = processing;
+
+
+
+            //var objs = processing.SelectMany(o=>o.procObjects).Skip(7739);
+            //var mp = processing.First().microProcess;
+            //_processing = Enumerable.Repeat((objs, mp),1);
+
+
+
             //_yCoeffLine = new((30.028, 30.028),
             //    (28.678, 28.683), (24.578, 24.588), (20.478, 20.485), (16.378, 16.389),
             //    (12.278, 12.291), (8.178, 8.180), (4.078, 4.086), (-0.022, -0.016),
@@ -117,6 +129,7 @@ namespace NewLaserProject.Classes.Process
             //    (-57.35, -57.378));
             _xCoeffLine = true ? coeffLineX : new((-200, -200), (200, 200));
             _yCoeffLine = true ? coeffLineY : new((-200, -200), (200, 200));
+            _invertEntAngle = invertEntAngle;
         }
 
         enum State
@@ -171,7 +184,7 @@ namespace NewLaserProject.Classes.Process
                 try
                 {
                     if (_mainCancellationToken.IsCancellationRequested) return;
-                    _subject.OnNext(new ProcessingStarted());
+                    _subject.OnNext(new ProcessingStarted(_underCamera));
                     foreach (var item in _processing)
                     {
                         item.microProcess.Subscribe(_subject);//TODO using
@@ -241,6 +254,12 @@ namespace NewLaserProject.Classes.Process
                                         await Task.Delay(1000);
                                         var pointsLine = string.Empty;
                                         var line = $" X: {Math.Round(procObject.X, 3),8} | Y: {Math.Round(procObject.Y, 3),8} | X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8} | X: {Math.Round(_laserMachine.GetAxActual(Ax.X), 3),8} | Y: {Math.Round(_laserMachine.GetAxActual(Ax.Y), 3),8}";
+
+
+                                        await Task.Run(() => { while (!_goNextPoint) ; });
+                                        _goNextPoint = false;
+
+
                                         if (HandyControl.Controls.MessageBox.Ask($" X: {Math.Round(position[0], 3),8} | Y: {Math.Round(position[1], 3),8}") == System.Windows.MessageBoxResult.OK)
                                         {
                                             pointsLine = "GOOD" + line;
@@ -300,7 +319,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                                .SetSecondPointPair(originPoints[1], resultPoints[1])
                                //.UseXCoeffLine(_xCoeffLine)
                                //.UseYCoeffLine(_yCoeffLine)
-                               .FormWorkMatrix(-1, -1)// TODO fix it
+                               .FormWorkMatrix(_scale, _scale)// TODO fix it
                                .Build(),
                            //FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser),
                            FileAlignment.AlignByCorner => _baseCoorSystem.ExtractSubSystem(LMPlace.FileOnWaferUnderCamera),
@@ -315,7 +334,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                        foreach (var item in _processing.Select(p => p.microProcess))
                        {
                            //item.SetEntityAngle(-_pazAngle + _matrixAngle);
-                           item.SetEntityAngle(/*-*/_matrixAngle);//TODO fix the sign's problem
+                           item.SetEntityAngle((_invertEntAngle ? -1:1) * _matrixAngle);//TODO fix the sign's problem
                        }
 
                        await _stateMachine.FireAsync(workingTrigger, coorSys);
@@ -352,7 +371,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                     foreach (var item in _processing.Select(p => p.microProcess))
                     {
                         //item.SetEntityAngle(_waferAngle - _pazAngle);
-                        item.SetEntityAngle(-_waferAngle);//TODO fix sign's problem
+                        item.SetEntityAngle(/*-*/(_invertEntAngle ? -1 : 1) * _waferAngle);//TODO fix sign's problem
                     }
                     //await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem.ExtractSubSystem(_underCamera ? LMPlace.FileOnWaferUnderCamera : LMPlace.FileOnWaferUnderLaser));
                     if (_fileAlignment == FileAlignment.AlignPrev)
@@ -361,7 +380,7 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
                         foreach (var item in _processing.Select(p => p.microProcess))
                         {
                             //item.SetEntityAngle(-_pazAngle + _matrixAngle);
-                            item.SetEntityAngle(/*-*/_matrixAngle);//TODO fix the sign's problem
+                            item.SetEntityAngle(/*-*/(_invertEntAngle ? -1 : 1) * _matrixAngle);//TODO fix the sign's problem
                         }
                         await _stateMachine.FireAsync(workingTrigger, _baseCoorSystem);
                     }
@@ -511,7 +530,8 @@ M1: _laserMachine.OnAxisMotionStateChanged -= _laserMachine_OnAxisMotionStateCha
         public void IncludeObject(IProcObject procObject) => _excludedObjects?.Remove(procObject);
         public async Task Next()
         {
-            await _stateMachine.FireAsync(Trigger.Next);
+            if (!_underCamera) await _stateMachine.FireAsync(Trigger.Next);//TODO what if push it when processing?
+            else _goNextPoint = true;
         }
         public async Task StartAsync()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -18,6 +19,7 @@ using MachineClassLibrary.Machine.MotionDevices;
 using MachineClassLibrary.Miscellaneous;
 using MachineClassLibrary.Settings;
 using MachineClassLibrary.VideoCapture;
+using MathNet.Numerics;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Diagnostics;
@@ -28,6 +30,8 @@ using NewLaserProject.Classes.LogSinks.RepositorySink;
 using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
 using PropertyChanged;
+using ScottPlot;
+using ScottPlot.WPF;
 using MsgBox = HandyControl.Controls.MessageBox;
 using MachineClassLibrary.GeometryUtility.CurveOffset;
 using HandyControl.Expression.Media;
@@ -58,7 +62,7 @@ namespace NewLaserProject.ViewModels
         private CoeffLine _yCoeffLine;
         private double _dXMeasure { get; set; }
         private double _dYMeasure { get; set; }
-
+        public WpfPlot PlotControl { get; } = new WpfPlot();
         public bool IsLaserInitialized { get; set; } = false;
         public bool IsMotionInitialized { get; set; } = false;
         public bool IsRightPanelVisible { get; set; } = true;
@@ -71,6 +75,7 @@ namespace NewLaserProject.ViewModels
         public double LMeasure { get => MeasuringStarted ? Math.Sqrt(Math.Pow(DXMeasure, 2) + Math.Pow(DYMeasure, 2)) : 0; }
         public string TechInfo { get; set; }
         public string IconPath { get; set; }
+        [Obsolete]
         public bool OnProcess { get; set; } = false;
         public MessageType CurrentMessageType { get; private set; } = MessageType.Empty;
         public BitmapImage CameraImage { get; set; }
@@ -185,7 +190,7 @@ namespace NewLaserProject.ViewModels
                 });
             IsMotionInitialized = _laserMachine.IsMotionDeviceInit;
             _settingsManager.OfType<LaserMachineSettings>()
-                .Subscribe(LaserMachineSettingsChanged);
+                .Subscribe(LaserMachineSettingsChanged);// TODO dispose subscription
             _laserMachine.CameraPlugged += _laserMachine_CameraPlugged;
             _laserMachine.OnAxisMotionStateChanged += _laserMachine_OnAxisMotionStateChanged;
             //------------------------------------
@@ -222,6 +227,92 @@ namespace NewLaserProject.ViewModels
             WpfConsole = _serviceProvider.GetRequiredService<WpfConsoleSink>();
             //_laserMachine.SetVelocity(Velocity.Fast);
 
+
+
+            MakeChart();
+
+        }
+
+        private void MakeChart()
+        {
+            var vectors = new List<RootedCoordinateVector>();
+            var points = _settingsManager.Settings.OffsetPoints.Where(p=>p.Y < 56 && p.Y < 60);
+            var cmdPoints = _settingsManager.Settings.CmdOffsetPoints.Where(p => p.Y < 56 && p.Y < 60);
+            if (!(points?.Any() ?? false)) 
+            {
+                return;    
+            };
+
+            if (!(cmdPoints?.Any() ?? false))
+            {
+                return;
+            };
+            var xtest = 73;
+            var ytest = 106;
+
+            var xo = 0d;
+            var yo = 0d;
+            points.GetOffsetByCurCoor(xtest, ytest, ref xo, ref yo);
+
+            var avgDXs = points.Average(x => x.dx);
+            var cmdAvgDXs = cmdPoints.Average(x => x.dx);
+            var avgDYs = points.Average(y => y.dy);
+
+
+            var minDx = points.Min(x => x.dx);
+            var minDy = points.Min(y => y.dy);
+            var maxDx = points.Max(x => x.dx);
+            var maxDy = points.Max(y => y.dy);
+
+
+            var ddx = maxDx - minDx;
+            var ddy = maxDy - minDy;
+
+            var xs = points.Select(p => (p.X, avgDXs - p.dx)).ToList();
+            var ys = points.Select(p => (p.Y, avgDYs - p.dy)).ToList();
+
+            xs.Add((xtest, avgDXs - xo));
+            ys.Add((ytest, avgDYs - yo));
+
+
+            for (int i = 0; i < xs.Count; i++)
+            {
+                // point on the grid
+                Coordinates pt = new(xs[i].X, ys[i].Y);
+
+                // direction & magnitude
+                var dX = (float)xs[i].Item2;
+                var dY = (float)ys[i].Item2;
+                System.Numerics.Vector2 v = new(dX, dY);
+
+                // add to the collection
+                RootedCoordinateVector vector = new(pt, v);
+                vectors.Add(vector);
+            }
+
+            //var arrows = PlotControl.Plot.Add.VectorField(vectors.SkipLast(1).ToList());
+            // PlotControl.Plot.Add.VectorField([vectors[^1]], Colors.Red);
+
+            //var sigxAvg = PlotControl.Plot.Add.SignalXY(points.Select(x => x.X).ToArray(), points.Select(x => avgDXs - x.dx).ToArray(), Colors.Green);
+            //sigxAvg.Data.YScale = 10000;
+
+
+            var selector = (OffsetPoint p) => p.X;
+
+            var sigx = PlotControl.Plot.Add.SignalXY(points.OrderBy(selector).Select(x => x.X).ToArray()
+                , points.OrderBy(selector).Select(x => x.dx).ToArray(), Colors.Red);
+            sigx.MarkerStyle.Shape = MarkerShape.FilledCircle;
+            sigx.MarkerStyle.Size = 5;
+
+            var sigxCmd = PlotControl.Plot.Add.SignalXY(cmdPoints.OrderBy(selector).Select(x => x.X).ToArray()
+                , cmdPoints.OrderBy(selector).Select(x => x.dx).ToArray(), Colors.Green);
+            sigxCmd.MarkerStyle.Shape = MarkerShape.FilledCircle;
+            sigxCmd.MarkerStyle.Size = 5;
+            //PlotControl.Plot.Add.SignalXY(points.Select(x => x.Y).ToArray(), points.Select(x => avgDYs - x.dy).ToArray(), Colors.Red);
+
+            //arrows.LegendText = $"Разница отклонений по X: {ddx}. Разница отклонений по Y: {ddy}.";
+
+            PlotControl.Refresh();
         }
 
         public void OnInitialized()
@@ -257,6 +348,7 @@ namespace NewLaserProject.ViewModels
         private void LaserMachineSettingsChanged(LaserMachineSettings settings)
         {
             _cameraVM?.SetCameraScale(settings.CameraScale ?? 0d);
+            MakeChart();
         }
 
         [ICommand]
@@ -387,7 +479,7 @@ namespace NewLaserProject.ViewModels
                 {
                     var k = xRatio / yRatio;
                     var scale = _settingsManager.Settings.CameraScale ?? throw new ArgumentNullException("CameraScale is null");
-                    var offset = new[] { e.x * scale * k, e.y * scale };//TODO fix the sign problem. 2 is the image scale here
+                    var offset = new[] { e.x * scale * k, - e.y * scale };//TODO fix the sign problem. 2 is the image scale here
                     try
                     {
                         var vel = _laserMachine.SetVelocity(Velocity.Service);
@@ -488,15 +580,15 @@ namespace NewLaserProject.ViewModels
                 maxDec = 1000,
                 maxVel = 500,
                 jerk = _settingsManager.Settings.XJerk ?? throw new ArgumentNullException("XJerk is null"),
-                axDirLogic = (_settingsManager.Settings.XInvertDirSignal ?? throw new ArgumentNullException("XInvertDirSignal is null")) ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
+                axDirLogic = _settingsManager.Settings.XInvertDirSignal.GetValueOrDefault() ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.XRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.XHomeReset,
                 acc = _settingsManager.Settings.XAcc ?? throw new ArgumentNullException("XAcc is null"),
                 dec = _settingsManager.Settings.XDec ?? throw new ArgumentNullException("XDec is null"),
                 ppu = _settingsManager.Settings.XPPU ?? throw new ArgumentNullException("XPPU is null"),//4005,// Settings.Default.XPPU*2,//TODO fix it !!!!
-                denominator = _settingsManager.Settings.XDenominator ?? throw new ArgumentNullException("XDenominator is null"),
+                denominator = _settingsManager.Settings.XDenominator.GetValueOrDefault(1),
                 plsInMde = (int)PlsInMode.AB_4X,
-                plsInLogic = (_settingsManager.Settings.XInvertEncoder ?? throw new ArgumentNullException("XInvertEncoder is null")) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
+                plsInLogic = _settingsManager.Settings.XInvertEncoder.GetValueOrDefault(false) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
                 homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"),
             };
@@ -506,15 +598,15 @@ namespace NewLaserProject.ViewModels
                 maxDec = 1000,
                 maxVel = 500,
                 jerk = _settingsManager.Settings.YJerk ?? throw new ArgumentNullException("YJerk is null"),
-                axDirLogic = (_settingsManager.Settings.YInvertDirSignal ?? throw new ArgumentNullException("YInvertDirSignal is null")) ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
+                axDirLogic = _settingsManager.Settings.YInvertDirSignal.GetValueOrDefault() ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.YRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.YHomeReset,
                 acc = _settingsManager.Settings.YAcc ?? throw new ArgumentNullException("YAcc is null"),
                 dec = _settingsManager.Settings.YDec ?? throw new ArgumentNullException("YDec is null"),
                 ppu = _settingsManager.Settings.YPPU ?? throw new ArgumentNullException("XAcc is null"),//3993,//Settings.Default.YPPU*2,
-                denominator = _settingsManager.Settings.YDenominator ?? throw new ArgumentNullException("YDenominator is null"),
+                denominator = _settingsManager.Settings.YDenominator.GetValueOrDefault(1),
                 plsInMde = (int)PlsInMode.AB_4X,
-                plsInLogic = (_settingsManager.Settings.YInvertEncoder ?? throw new ArgumentNullException("YInvertEncoder is null")) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
+                plsInLogic = _settingsManager.Settings.YInvertEncoder.GetValueOrDefault(false) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
                 homeVelLow = _settingsManager.Settings.YHomeVelLow ?? throw new ArgumentNullException("YVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")
             };
@@ -524,13 +616,13 @@ namespace NewLaserProject.ViewModels
                 maxDec = 180,
                 maxVel = 8,
                 jerk = _settingsManager.Settings.ZJerk ?? throw new ArgumentNullException("ZJerk is null"),
-                axDirLogic = (_settingsManager.Settings.ZInvertDirSignal ?? throw new ArgumentNullException("ZInvertDirSignal is null")) ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
+                axDirLogic = _settingsManager.Settings.ZInvertDirSignal.GetValueOrDefault() ? (int)AxDirLogic.DIR_ACT_LOW : (int)AxDirLogic.DIR_ACT_HIGH,
                 plsOutMde = (int)(axesConfigs.ZRightDirection ? PlsOutMode.OUT_DIR : PlsOutMode.OUT_DIR_DIR_NEG),
                 reset = axesConfigs.ZHomeReset,
                 acc = _settingsManager.Settings.ZAcc ?? throw new ArgumentNullException("ZAcc is null"),
                 dec = _settingsManager.Settings.ZDec ?? throw new ArgumentNullException("ZDec is null"),
                 ppu = _settingsManager.Settings.ZPPU ?? throw new ArgumentNullException("ZPPU is null"),
-                denominator = _settingsManager.Settings.ZDenominator ?? throw new ArgumentNullException("ZDenominator is null"),
+                denominator = _settingsManager.Settings.ZDenominator.GetValueOrDefault(1),
                 homeVelLow = _settingsManager.Settings.ZHomeVelLow ?? throw new ArgumentNullException("ZVelLow is null"),
                 homeVelHigh = _settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null"),
             };

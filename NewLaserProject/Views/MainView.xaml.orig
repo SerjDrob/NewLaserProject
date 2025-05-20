@@ -13,7 +13,11 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:cntrl="clr-namespace:NewLaserProject.Views.Controls"
         xmlns:wpfconsole="clr-namespace:NewLaserProject.Views.WpfConsole"
+<<<<<<< HEAD
+        xmlns:gauge="clr-namespace:CircularGauge;assembly=CircularGauge"
         xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
+=======
+>>>>>>> bbe3397863043757e0f021b2bd8f11053617eefd
         mc:Ignorable="d"   
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="ТЕМП-ЛР50"    
@@ -1109,16 +1113,19 @@
             <TabItem Header="Console" TabIndex="3">
                 <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
             </TabItem>
+<<<<<<< HEAD
             <TabItem Header="Nodes" VerticalAlignment="Top">
                 <!--<ContentControl Content="{Binding NodesVM}"/>-->
-            <TabItem>
-                <ContentControl Content="{Binding PlotControl, Mode=OneTime}"/>
                 <skia:SKGLElement PaintSurface="OnPaintSurface"
                                 MouseWheel="OnMouseWheel"
                                 MouseDown="OnMouseDown"
                                 MouseMove="OnMouseMove"/>
                 
                 
+=======
+            <TabItem>
+                <ContentControl Content="{Binding PlotControl, Mode=OneTime}"/>
+>>>>>>> bbe3397863043757e0f021b2bd8f11053617eefd
             </TabItem>
         </TabControl>
     </Grid>

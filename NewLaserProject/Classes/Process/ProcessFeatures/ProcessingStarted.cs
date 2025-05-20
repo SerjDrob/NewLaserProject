@@ -1,4 +1,4 @@
 ﻿namespace NewLaserProject.Classes.Process.ProcessFeatures
 {
-    public record ProcessingStarted() : IProcessNotify;
+    public record ProcessingStarted(bool underCamera) : IProcessNotify;
 }

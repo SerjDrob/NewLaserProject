@@ -177,7 +177,7 @@ namespace NewLaserProject
                    });
 
             _provider = MainIoC.BuildServiceProvider();
-            _principleLogger = _provider.GetRequiredService<Serilog.ILogger>();
+            _principleLogger = _provider.GetRequiredService<ILogger>();
         }
 
 
@@ -196,7 +196,7 @@ namespace NewLaserProject
         //private WorkTimeLogger _workTimeLogger;
         protected override async void OnStartup(StartupEventArgs e)//TODO Bad 
         {
-            //AllocConsole();
+            AllocConsole();
            
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 

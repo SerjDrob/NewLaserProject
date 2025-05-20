@@ -30,6 +30,7 @@ internal class LaserMachineSettings : CommonMachineSettings
     public int? PWMBaudRate { get; set; }
     public bool? ScanheadInvertEntityAngle { get; set; }
     public List<OffsetPoint>? OffsetPoints { get; set; }
+    public List<OffsetPoint>? CmdOffsetPoints { get; set; }
 
 }
 

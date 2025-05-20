@@ -36,6 +36,7 @@ using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using MsgBox = HandyControl.Controls.MessageBox;
 using MachineClassLibrary.Miscellaneous;
 using System.Windows;
+using MachineClassLibrary.GeometryUtility.CurveOffset;
 
 namespace NewLaserProject.ViewModels
 {
@@ -179,6 +180,15 @@ namespace NewLaserProject.ViewModels
         private Dictionary<CurrentPierceBlock, CurrentPierceBlock> _pierceBlocks { get; set; } = new();
         public ObservableCollection<CurrentPierceBlock> PierceBlocks { get; set; } = new();
 
+
+        [ICommand]
+        private void TestInflation()
+        {
+            var curve = _dxfReader.GetAllCurves().First();
+            var result = curve.PObject.InflateCurve2(1000).ToList();
+        }
+
+
         [ICommand]
         private async Task DownloadProcess()
         {
@@ -238,6 +248,42 @@ namespace NewLaserProject.ViewModels
                     }
                 }
 
+                //var processing = ChosenProcessingObjects?.Select(ofp =>
+                //{
+                //    // Получаем объекты для обработки
+                //    var objects = getObjects(ofp.LaserEntity, ofp.Layer);
+
+                //    try
+                //    {
+                //        // Пытаемся переупорядочить объекты
+                //        objects = ArrangeProcObjects(objects.ToList());
+                //    }
+                //    catch (Exception)
+                //    {
+                //        // Игнорируем ошибку при переупорядочивании
+                //    }
+
+                //    // Читаем JSON-файл технологии
+                //    var json = File.ReadAllText(Path.Combine(AppPaths.TechnologyFolder, $"{ofp.Technology?.ProcessingProgram}.json"));
+
+                //    // Создаем подготовитель объектов
+                //    var preparator = new EntityPreparator(_dxfReader, AppPaths.TempFolder);
+
+                //    // Создаем микропроцесс
+                //    var mp = new MicroProcess(json, preparator, _laserMachine, async z =>
+                //    {
+                //        await _laserMachine.MoveAxRelativeAsync(Ax.Z, z, true);
+                //    });
+
+                //    // Возвращаем кортеж в зависимости от включения кластеризации
+                //    return _cluster?.Enable ?? false
+                //        ? (objects.SplitOnClusters(
+                //            new(_fileActualSize.minPoint.X, _fileActualSize.minPoint.Y, _fileActualSize.maxPoint.X, _fileActualSize.maxPoint.Y),
+                //            _cluster.XParts,
+                //            _cluster.YParts).ToList(), mp)
+                //        : (objects, mp);
+                //});
+
                 _mainProcess = new CommonProcess(
                     processing: processing,
                     wafer: wafer,
@@ -256,7 +302,8 @@ namespace NewLaserProject.ViewModels
                     waferAngle: _waferAngle,
                     scale: DefaultFileScale,
                     _xCoeffLine,
-                    _yCoeffLine);
+                    _yCoeffLine,
+                    _settingsManager.Settings.ScanheadInvertEntityAngle.GetValueOrDefault());
 
                 _mainProcess.OfType<ProcWaferChanged>()
                     .Subscribe(args =>
@@ -307,7 +354,7 @@ namespace NewLaserProject.ViewModels
                 _mainProcess.OfType<ProcessingStarted>()
                     .Subscribe(args =>
                     {
-                        IsProcessing = true;
+                        IsProcessing = !args.underCamera;
                         _processTimer = new Timer(1000);
                         _procStartTime = DateTime.Now;
                         _processTimer.Elapsed += _processTimer_Elapsed;

@@ -57,6 +57,10 @@
             <selectors:LaserEntityDataSelector x:Key="EntitySelector"/>
             <selectors:AligningTypeDataSelector x:Key="AligningSelector"/>
 
+<<<<<<< HEAD
+            <DataTemplate DataType="{x:Type viewmodels:NodesEditorVM}">
+                <mycontrols:NodesEditor/>
+=======
 
             <DataTemplate DataType="{x:Type dialogvm:CalibrationArrayVM}">
                 <hc:ComboBox SelectedValue="{Binding Size, Mode=TwoWay}"
@@ -67,6 +71,7 @@
                     <classes:ArraySize>17</classes:ArraySize>
                     <classes:ArraySize>33</classes:ArraySize>
                 </hc:ComboBox>
+>>>>>>> bbe3397863043757e0f021b2bd8f11053617eefd
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type dialogvm:AdvancedParamsVM}">
