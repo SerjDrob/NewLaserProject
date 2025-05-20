@@ -29,6 +29,8 @@ using NewLaserProject.Classes.Process.ProcessFeatures;
 using NewLaserProject.Properties;
 using PropertyChanged;
 using MsgBox = HandyControl.Controls.MessageBox;
+using MachineClassLibrary.GeometryUtility.CurveOffset;
+using HandyControl.Expression.Media;
 
 namespace NewLaserProject.ViewModels
 {
@@ -91,7 +93,12 @@ namespace NewLaserProject.ViewModels
         public bool PWMDeviceOk { get; set; }
         public string PWMDeviceProblem { get; private set; }
 
-        
+
+        //-----
+        public NodesEditorVM NodesVM { get; set; } = new();
+        //-----
+
+
         public ObservableCollection<string> CameraCapabilities { get; set; }
         public int CameraCapabilitiesIndex { get; set; }
         public bool ShowVideo { get; set; }
@@ -271,11 +278,9 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task CheckHatch()
         {
-
-            //var reader = new IMDxfReader("D:/Test.dxf");
-            //var curve = reader.GetAllCurves().Single();
-            //var inflateCurve = curve.PObject.InflateCurve(200);
-            //reader.WriteCurveToFile("D:/TestInflate.dxf", inflateCurve.First(), true);
+            var curve = _dxfReader.GetAllCurves().First();
+            var result = curve.PObject.InflateCurve4(17000).ToList().Cast<MachineClassLibrary.Laser.Entities.IShape>().ToArray();
+            _dxfReader.WriteShapesToFile("D:\\Temp\\Polyline2.dxf", result);
         }
 
 

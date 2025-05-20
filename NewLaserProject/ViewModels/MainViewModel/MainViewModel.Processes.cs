@@ -331,7 +331,7 @@ namespace NewLaserProject.ViewModels
                         LastProcObjectTimer = CurrentProcObjectTimer;
                         _procObjTempTime = new(0);
                         var o = ProcessingObjects.SingleOrDefault(po => po.ProcObject.Id == args.ProcObject.Id);
-                        o.Visibility = System.Windows.Visibility.Collapsed;
+                        o.Visibility = Visibility.Collapsed;
                         if (o is not null) ProcessingObjects.Remove(o);//TODO make it thread safe
                         _pierceBlocks.Clear();
                         PierceBlocks.Clear();

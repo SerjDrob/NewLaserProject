@@ -14,6 +14,7 @@
         xmlns:cntrl="clr-namespace:NewLaserProject.Views.Controls"
         xmlns:wpfconsole="clr-namespace:NewLaserProject.Views.WpfConsole"
         xmlns:gauge="clr-namespace:CircularGauge;assembly=CircularGauge"
+        xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
         mc:Ignorable="d"   
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="ТЕМП-ЛР50"    
@@ -593,7 +594,7 @@
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
-            <ToolBar Visibility="Collapsed">
+            <ToolBar>
                 <Button Content="CheckHatch" Command="{Binding CheckHatchCommand}"/>
             </ToolBar>
         </ToolBarTray>
@@ -1097,6 +1098,15 @@
             </TabItem>
             <TabItem Header="Console" TabIndex="3">
                 <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
+            </TabItem>
+            <TabItem Header="Nodes" VerticalAlignment="Top">
+                <!--<ContentControl Content="{Binding NodesVM}"/>-->
+                <skia:SKGLElement PaintSurface="OnPaintSurface"
+                                MouseWheel="OnMouseWheel"
+                                MouseDown="OnMouseDown"
+                                MouseMove="OnMouseMove"/>
+                
+                
             </TabItem>
         </TabControl>
     </Grid>

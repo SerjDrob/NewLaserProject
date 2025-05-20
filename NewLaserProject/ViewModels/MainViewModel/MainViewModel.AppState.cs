@@ -6,6 +6,7 @@ using HandyControl.Tools.Extension;
 using MachineControlsLibrary.CommonDialog;
 using NewLaserProject.Classes;
 using NewLaserProject.ViewModels.DialogVM;
+using ReactiveUI;
 using Stateless;
 
 
@@ -147,6 +148,8 @@ namespace NewLaserProject.ViewModels
                 .Ignore(AppTrigger.StartLearning);
 
             _appStateMachine.Activate();
+
+
         }
 
         private void _currentTeacher_TeachingCompleted(object? sender, EventArgs e)

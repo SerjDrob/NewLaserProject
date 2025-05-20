@@ -36,6 +36,7 @@ using NewLaserProject.ViewModels;
 using NewLaserProject.ViewModels.DialogVM;
 using NewLaserProject.ViewModels.DialogVM.Profiles;
 using NewLaserProject.Views;
+using NodeNetwork;
 using Serilog;
 using Serilog.Events;
 
@@ -138,7 +139,7 @@ namespace NewLaserProject
                          .WriteTo.WpfConsoleSink(consoleSink)
                          .WriteTo.Logger(lc => lc
                          .Filter.ByExcluding(le => le.SourceContextEquals(typeof(MicroProcess)))
-                         .WriteTo.File(AppPaths.SerilogFile, Serilog.Events.LogEventLevel.Information))
+                         .WriteTo.File(AppPaths.SerilogFile, LogEventLevel.Information))
                          .WriteTo.RepoSink(wtlogger, Filters.OnlyForContextFilter<MicroProcess>())
                          .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                         //.CreateLogger()
@@ -213,6 +214,7 @@ namespace NewLaserProject
 
             viewModel?.OnInitialized();
             base.OnStartup(e);
+            NNViewRegistrar.RegisterSplat();
         }
 
         private void MainView_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
