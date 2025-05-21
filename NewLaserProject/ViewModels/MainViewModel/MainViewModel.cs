@@ -229,7 +229,7 @@ namespace NewLaserProject.ViewModels
 
 
 
-            MakeChart();
+            //MakeChart();
 
         }
 
@@ -348,7 +348,7 @@ namespace NewLaserProject.ViewModels
         private void LaserMachineSettingsChanged(LaserMachineSettings settings)
         {
             _cameraVM?.SetCameraScale(settings.CameraScale ?? 0d);
-            MakeChart();
+            //MakeChart();
         }
 
         [ICommand]
@@ -370,9 +370,9 @@ namespace NewLaserProject.ViewModels
         [ICommand]
         private async Task CheckHatch()
         {
-            var curve = _dxfReader.GetAllCurves().First();
-            var result = curve.PObject.InflateCurve4(17000).ToList().Cast<MachineClassLibrary.Laser.Entities.IShape>().ToArray();
-            _dxfReader.WriteShapesToFile("D:\\Temp\\Polyline2.dxf", result);
+            //var curve = _dxfReader.GetAllCurves().First();
+            //var result = curve.PObject.InflateCurve4(17000).ToList().Cast<MachineClassLibrary.Laser.Entities.IShape>().ToArray();
+            //_dxfReader.WriteShapesToFile("D:\\Temp\\Polyline2.dxf", result);
         }
 
 
@@ -589,7 +589,7 @@ namespace NewLaserProject.ViewModels
                 denominator = _settingsManager.Settings.XDenominator.GetValueOrDefault(1),
                 plsInMde = (int)PlsInMode.AB_4X,
                 plsInLogic = _settingsManager.Settings.XInvertEncoder.GetValueOrDefault(false) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
-                homeVelLow = _settingsManager.Settings.XHomeVelLow ?? throw new ArgumentNullException("XVelLow is null"),
+                homeVelLow = _settingsManager.Settings.XHomeVelLow.GetValueOrDefault(),
                 homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"),
             };
             var ypar = new MotionDeviceConfigs
@@ -607,7 +607,7 @@ namespace NewLaserProject.ViewModels
                 denominator = _settingsManager.Settings.YDenominator.GetValueOrDefault(1),
                 plsInMde = (int)PlsInMode.AB_4X,
                 plsInLogic = _settingsManager.Settings.YInvertEncoder.GetValueOrDefault(false) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
-                homeVelLow = _settingsManager.Settings.YHomeVelLow ?? throw new ArgumentNullException("YVelLow is null"),
+                homeVelLow = _settingsManager.Settings.YHomeVelLow.GetValueOrDefault(),
                 homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")
             };
             var zpar = new MotionDeviceConfigs
@@ -623,7 +623,7 @@ namespace NewLaserProject.ViewModels
                 dec = _settingsManager.Settings.ZDec ?? throw new ArgumentNullException("ZDec is null"),
                 ppu = _settingsManager.Settings.ZPPU ?? throw new ArgumentNullException("ZPPU is null"),
                 denominator = _settingsManager.Settings.ZDenominator.GetValueOrDefault(1),
-                homeVelLow = _settingsManager.Settings.ZHomeVelLow ?? throw new ArgumentNullException("ZVelLow is null"),
+                homeVelLow = _settingsManager.Settings.ZHomeVelLow.GetValueOrDefault(),
                 homeVelHigh = _settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null"),
             };
 

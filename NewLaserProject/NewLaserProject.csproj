@@ -166,8 +166,6 @@
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
-    <PackageReference Include="SkiaSharp" Version="3.116.1" />
-    <PackageReference Include="SkiaSharp.Views.WPF" Version="3.116.1" />
     <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="Stateless" Version="5.16.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />

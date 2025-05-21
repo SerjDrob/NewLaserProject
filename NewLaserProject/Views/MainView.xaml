@@ -13,7 +13,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:cntrl="clr-namespace:NewLaserProject.Views.Controls"
         xmlns:wpfconsole="clr-namespace:NewLaserProject.Views.WpfConsole"
-        xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
+        
         mc:Ignorable="d"   
         ActiveGlowColor="{DynamicResource PrimaryColor}"    
         Title="ТЕМП-ЛР50"    
@@ -1111,15 +1111,14 @@
             </TabItem>
             <TabItem Header="Nodes" VerticalAlignment="Top">
                 <!--<ContentControl Content="{Binding NodesVM}"/>-->
-            <TabItem>
                 <ContentControl Content="{Binding PlotControl, Mode=OneTime}"/>
+            </TabItem>
+            <!--<TabItem>
                 <skia:SKGLElement PaintSurface="OnPaintSurface"
                                 MouseWheel="OnMouseWheel"
                                 MouseDown="OnMouseDown"
                                 MouseMove="OnMouseMove"/>
-                
-                
-            </TabItem>
+            </TabItem>-->
         </TabControl>
     </Grid>
 </hc:GlowWindow>

@@ -98,26 +98,6 @@ namespace NewLaserProject.Classes
         }
         internal static void GetOffsetByCurCoor(this IEnumerable<OffsetPoint> offsetPoints, double curX, double curY, ref double xOffset, ref double yOffset)
         {
-            /*
-            try
-            {
-                var sortResult = offsetPoints
-                                .OrderBy(x => Math.Abs(x.X - curX))
-                                .ThenBy(y => Math.Abs(y.Y - curY))
-                                .First();
-                if (sortResult != null)
-                {
-                    xOffset = sortResult.dx;
-                    yOffset = sortResult.dy;
-                }
-
-                //xOffset = offsetPoints.OrderBy(x => Math.Abs(x.X - curX)).First().dx;
-                //yOffset = offsetPoints.OrderBy(y => Math.Abs(y.Y - curY)).First().dy;
-
-            }
-            catch (Exception) { }
-            */
-
             try
             {
                 if(offsetPoints.Count() < 2)//TODO check the zero count case
@@ -136,7 +116,16 @@ namespace NewLaserProject.Classes
                 }
                 else
                 {
-                    xOffset = curX.GetYLinear((twoPointsX.first.X, twoPointsX.first.dx), (twoPointsX.second.X, twoPointsX.second.dx));
+                    var points = GetSurroundPoints(offsetPoints, curX, curY, out var nw, out var ne, out var sw, out var se)
+                        .Select(p=>(p.X,p.Y,p.dx))
+                        .ToArray();
+
+                    var result1 = InterpolateValue(curX, curY,points, 0,1,2);   
+                    var result2 = InterpolateValue(curX, curY,points, 0,2,3);
+                    xOffset = (result1 + result2) / 2;
+
+
+                    //xOffset = curX.GetYLinear((twoPointsX.first.X, twoPointsX.first.dx), (twoPointsX.second.X, twoPointsX.second.dx));
                 }
                 
                 if (twoPointsY.first == null || twoPointsY.second == null)
@@ -145,7 +134,15 @@ namespace NewLaserProject.Classes
                 }
                 else
                 {
-                    yOffset = curY.GetYLinear((twoPointsY.first.Y, twoPointsY.first.dy), (twoPointsY.second.Y, twoPointsY.second.dy));
+                    var points = GetSurroundPoints(offsetPoints, curX, curY, out var nw, out var ne, out var sw, out var se)
+                       .Select(p => (p.Y, p.X, p.dy))
+                       .ToArray();
+
+                    var result1 = InterpolateValue(curY, curX, points, 0, 1, 2);
+                    var result2 = InterpolateValue(curY, curX, points, 0, 2, 3);
+                    yOffset = (result1 + result2) / 2;
+
+                    //yOffset = curY.GetYLinear((twoPointsY.first.Y, twoPointsY.first.dy), (twoPointsY.second.Y, twoPointsY.second.dy));
                 }
             }
             catch (Exception)
@@ -155,6 +152,51 @@ namespace NewLaserProject.Classes
             }
         }
 
+        static double LinearInterpolationInTriangle(double px, double py,
+        (double x, double y) p1, (double x, double y) p2, (double x, double y) p3,
+        double f1, double f2, double f3)
+        {
+            double detT = (p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y);
+            double l1 = ((p2.y - p3.y) * (px - p3.x) + (p3.x - p2.x) * (py - p3.y)) / detT;
+            double l2 = ((p3.y - p1.y) * (px - p3.x) + (p1.x - p3.x) * (py - p3.y)) / detT;
+            double l3 = 1 - l1 - l2;
+
+            return l1 * f1 + l2 * f2 + l3 * f3;
+        }
+
+        static bool PointInTriangle(double px, double py,
+            (double x, double y) p1, (double x, double y) p2, (double x, double y) p3)
+        {
+            double Sign((double x, double y) p1, (double x, double y) p2, (double x, double y) p3)
+            {
+                return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+            }
+
+            double d1 = Sign((px, py), p1, p2);
+            double d2 = Sign((px, py), p2, p3);
+            double d3 = Sign((px, py), p3, p1);
+
+            bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+            bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+            return !(hasNeg && hasPos);
+        }
+
+        static double InterpolateValue(double x, double y, (double x, double y, double f)[] points, int i1, int i2, int i3)
+        {
+            var (x0, y0, f00) = points[i1];
+            var (x1, y1, f11) = points[i2];
+            var (x2, y2, f22) = points[i3];
+
+            if (PointInTriangle(x, y, (x0, y0), (x1, y1), (x2, y2)))
+            {
+                return LinearInterpolationInTriangle(x, y, (x0, y0), (x1, y1), (x2, y2), f00, f11, f22);
+            }
+            else
+            {
+                throw new ArgumentException("Точка не находится внутри заданных треугольников.");
+            }
+        }
 
         private static double GetYLinear(this double testX,
                                   (double x, double y) firstPoint,
@@ -181,6 +223,12 @@ namespace NewLaserProject.Classes
             return y1 + ((testX - x1) / deltaX) * deltaY;
         }
 
+        private static double GetInterpolateFunc(double a1, double a2, double da1, double da2, double c)
+        {
+            if (a1 == a2) throw new ArgumentException("Точки не должны иметь одинаковое значение");
+            return da1 + (c-a1)* (da2-da1)/(a2-a1);
+        }
+
 
         private static (OffsetPoint first, OffsetPoint second) GetClosestPoints(
             this IEnumerable<OffsetPoint> offsetPoints,
@@ -188,21 +236,9 @@ namespace NewLaserProject.Classes
         {
             if (offsetPoints == null || !offsetPoints.Any() || offsetPoints.Count() < 2)
                 return (null, null);
-
-            var getDistance = (OffsetPoint p1, (double x, double y) p2) =>
-                Math.Sqrt(Math.Pow(p1.X - p2.x, 2) + Math.Pow(p1.Y - p2.y, 2));
-
-            var nw = offsetPoints.Where(p => p.X < x && p.Y > y)
-                 .MinBy(p => getDistance(p, (x, y)));
-            var ne = offsetPoints.Where(p => p.X > x && p.Y > y)
-                 .MinBy(p => getDistance(p, (x, y)));
-            var sw = offsetPoints.Where(p => p.X < x && p.Y < y)
-                 .MinBy(p => getDistance(p, (x, y)));
-            var se = offsetPoints.Where(p => p.X > x && p.Y < y)
-                 .MinBy(p => getDistance(p, (x, y)));
-
-            OffsetPoint[] arr = [nw, ne, sw, se];
-            var notNullPoints = arr.Where(p=>p!=null).ToArray();
+            OffsetPoint? nw, ne, sw, se;
+            var arr = GetSurroundPoints(offsetPoints, x, y, out nw, out ne, out sw, out se);
+            var notNullPoints = arr.Where(p => p != null).ToArray();
             if (notNullPoints.Count() == 1) return (notNullPoints.Single(), null);
             if (notNullPoints.Count() < 4) return (notNullPoints.First(), notNullPoints.Last());
 
@@ -211,7 +247,7 @@ namespace NewLaserProject.Classes
                 var avgNy = (nw.Y + ne.Y) / 2;
                 var avgSy = (sw.Y + se.Y) / 2;
 
-                return (Math.Abs(avgNy - y) < Math.Abs(avgSy - y)) ? (nw,ne) : (sw,se);
+                return (Math.Abs(avgNy - y) < Math.Abs(avgSy - y)) ? (nw, ne) : (sw, se);
             }
             else
             {
@@ -220,41 +256,22 @@ namespace NewLaserProject.Classes
 
                 return (Math.Abs(avgWx - x) < Math.Abs(avgEx - x)) ? (sw, nw) : (se, ne);
             }
+        }
 
+        private static OffsetPoint[] GetSurroundPoints(IEnumerable<OffsetPoint> offsetPoints, double x, double y, out OffsetPoint? nw, out OffsetPoint? ne, out OffsetPoint? sw, out OffsetPoint? se)
+        {
+            var getDistance = (OffsetPoint p1, (double x, double y) p2) =>
+                            Math.Sqrt(Math.Pow(p1.X - p2.x, 2) + Math.Pow(p1.Y - p2.y, 2));
 
-
-
-            var sorted = byX ?
-                offsetPoints.OrderBy(p => p.Y).ThenBy(p=>p.X).ToList() :
-                offsetPoints.OrderBy(p => p.X).ThenBy(p=>p.Y).ToList();
-
-            var points = sorted.ToArray();
-
-            var pairs = new List<(OffsetPoint first, OffsetPoint second)>();
-
-            for (int i = 1; i < points.Length; i++)
-            {
-                double prevCoord = byX ? points[i - 1].X : points[i - 1].Y;
-                double currentCoord = byX ? points[i].X : points[i].Y;
-
-
-                var resCoor = byX ? x : y;
-
-                if (prevCoord <= resCoor && resCoor <= currentCoord)
-                    pairs.Add((points[i - 1], points[i]));
-            }
-            if (pairs.Any())
-            {
-                var result = byX ?
-                    pairs.MinBy(p => Math.Abs(y - (p.first.Y + p.second.Y) / 2)) :
-                    pairs.MinBy(p => Math.Abs(x - (p.first.X + p.second.X) / 2));
-                return result;
-            }
-
-
-            // Если координата за пределами диапазона
-
-            throw new ArgumentException();
+            nw = offsetPoints.Where(p => p.X < x && p.Y > y)
+                 .MinBy(p => getDistance(p, (x, y)));
+            ne = offsetPoints.Where(p => p.X > x && p.Y > y)
+                 .MinBy(p => getDistance(p, (x, y)));
+            sw = offsetPoints.Where(p => p.X < x && p.Y < y)
+                 .MinBy(p => getDistance(p, (x, y)));
+            se = offsetPoints.Where(p => p.X > x && p.Y < y)
+                 .MinBy(p => getDistance(p, (x, y)));
+            return [nw, ne, sw, se];
         }
     }
 

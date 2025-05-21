@@ -7,7 +7,6 @@ using MachineClassLibrary.Classes;
 using MachineControlsLibrary.CommonDialog;
 using NewLaserProject.Classes;
 using NewLaserProject.ViewModels.DialogVM;
-using ReactiveUI;
 using Stateless;
 
 
