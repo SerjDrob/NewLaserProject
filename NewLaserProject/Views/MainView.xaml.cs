@@ -61,7 +61,6 @@ namespace NewLaserProject.Views
         {
             // Загрузка DXF файла
             //_dxfDocument = DxfDocument.Load(filePath);
-            _dxfDocumentIx = DxfFile.Load(filePath);
         }
 
         private void OnPaintSurface(object sender, SKPaintGLSurfaceEventArgs e)

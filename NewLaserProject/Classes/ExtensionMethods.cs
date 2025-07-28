@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using AutoMapper;
+using DynamicData;
 using HandyControl.Data;
 using MachineClassLibrary.Classes;
 using MachineClassLibrary.Machine.Machines;
@@ -100,7 +101,8 @@ namespace NewLaserProject.Classes
         {
             try
             {
-                if(offsetPoints.Count() < 2)//TODO check the zero count case
+                if (offsetPoints.Count() == 0) throw new IndexOutOfRangeException();
+                if (offsetPoints.Count() < 2)
                 {
                     xOffset = offsetPoints.Single().dx;
                     yOffset = offsetPoints.Single().dy;
@@ -117,15 +119,26 @@ namespace NewLaserProject.Classes
                 else
                 {
                     var points = GetSurroundPoints(offsetPoints, curX, curY, out var nw, out var ne, out var sw, out var se)
+                        .Where(p=> p != null)
                         .Select(p=>(p.X,p.Y,p.dx))
                         .ToArray();
-
-                    var result1 = InterpolateValue(curX, curY,points, 0,1,2);   
-                    var result2 = InterpolateValue(curX, curY,points, 0,2,3);
-                    xOffset = (result1 + result2) / 2;
-
-
-                    //xOffset = curX.GetYLinear((twoPointsX.first.X, twoPointsX.first.dx), (twoPointsX.second.X, twoPointsX.second.dx));
+                    if (points.Count() == 4)
+                    {
+                        var result1 = InterpolateValue(curX, curY, points, true);
+                        var result2 = InterpolateValue(curX, curY, points, false);
+                        xOffset = (result1 + result2) / 2;
+                    }
+                    else
+                    {
+                        //try
+                        //{
+                        //    xOffset = curX.GetYLinear((twoPointsX.first.X, twoPointsX.first.dx), (twoPointsX.second.X, twoPointsX.second.dx));
+                        //}
+                        //catch (ArgumentException)
+                        {
+                            xOffset = (twoPointsX.first.dx + twoPointsX.second.dx) / 2;
+                        }
+                    }
                 }
                 
                 if (twoPointsY.first == null || twoPointsY.second == null)
@@ -135,14 +148,26 @@ namespace NewLaserProject.Classes
                 else
                 {
                     var points = GetSurroundPoints(offsetPoints, curX, curY, out var nw, out var ne, out var sw, out var se)
+                       .Where(p => p != null)
                        .Select(p => (p.Y, p.X, p.dy))
                        .ToArray();
-
-                    var result1 = InterpolateValue(curY, curX, points, 0, 1, 2);
-                    var result2 = InterpolateValue(curY, curX, points, 0, 2, 3);
-                    yOffset = (result1 + result2) / 2;
-
-                    //yOffset = curY.GetYLinear((twoPointsY.first.Y, twoPointsY.first.dy), (twoPointsY.second.Y, twoPointsY.second.dy));
+                    if (points.Count()==4)
+                    {
+                        var result1 = InterpolateValue(curY, curX, points, true);
+                        var result2 = InterpolateValue(curY, curX, points, false);
+                        yOffset = (result1 + result2) / 2;
+                    }
+                    else
+                    {
+                        //try
+                        //{
+                        //    yOffset = curY.GetYLinear((twoPointsY.first.Y, twoPointsY.first.dy), (twoPointsY.second.Y, twoPointsY.second.dy));
+                        //}
+                        //catch (ArgumentException)
+                        {
+                            yOffset = (twoPointsY.first.dy + twoPointsY.second.dy) / 2;
+                        }
+                    }
                 }
             }
             catch (Exception)
@@ -182,17 +207,22 @@ namespace NewLaserProject.Classes
             return !(hasNeg && hasPos);
         }
 
-        static double InterpolateValue(double x, double y, (double x, double y, double f)[] points, int i1, int i2, int i3)
+        static double InterpolateValue(double x, double y, (double x, double y, double f)[] points, bool firstVariant)
         {
-            var (x0, y0, f00) = points[i1];
-            var (x1, y1, f11) = points[i2];
-            var (x2, y2, f22) = points[i3];
+
+            var (x0, y0, f00) = points[firstVariant ? 0 : 1];
+            var (x1, y1, f11) = points[firstVariant ? 1 : 0];
+            var (x2, y2, f22) = points[firstVariant ? 2 : 3];
+            var (x3, y3, f33) = points[firstVariant ? 3 : 2];
 
             if (PointInTriangle(x, y, (x0, y0), (x1, y1), (x2, y2)))
             {
                 return LinearInterpolationInTriangle(x, y, (x0, y0), (x1, y1), (x2, y2), f00, f11, f22);
             }
-            else
+            else if (PointInTriangle(x, y, (x1, y1), (x2, y2), (x3, y3)))
+            {
+                return LinearInterpolationInTriangle(x, y, (x1, y1), (x2, y2), (x3, y3), f11, f22, f33);
+            }
             {
                 throw new ArgumentException("Точка не находится внутри заданных треугольников.");
             }
@@ -237,8 +267,9 @@ namespace NewLaserProject.Classes
             if (offsetPoints == null || !offsetPoints.Any() || offsetPoints.Count() < 2)
                 return (null, null);
             OffsetPoint? nw, ne, sw, se;
-            var arr = GetSurroundPoints(offsetPoints, x, y, out nw, out ne, out sw, out se);
-            var notNullPoints = arr.Where(p => p != null).ToArray();
+            var notNullPoints = GetSurroundPoints(offsetPoints, x, y, out nw, out ne, out sw, out se)
+                .Where(p => p != null)
+                .ToArray();
             if (notNullPoints.Count() == 1) return (notNullPoints.Single(), null);
             if (notNullPoints.Count() < 4) return (notNullPoints.First(), notNullPoints.Last());
 

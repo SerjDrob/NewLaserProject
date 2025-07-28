@@ -224,7 +224,7 @@ namespace NewLaserProject.ViewModels
                     var objects = getObjects(ofp.LaserEntity, ofp.Layer);
                     try
                     {
-                        objects = ArrangeProcObjects(objects.ToList());
+                        objects = ArrangeProcObjects(objects.ToList());//.Skip(299);
                     }
                     catch (Exception)
                     {

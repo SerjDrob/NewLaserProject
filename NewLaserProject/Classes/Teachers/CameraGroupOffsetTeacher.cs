@@ -35,11 +35,7 @@ internal class CameraGroupOffsetTeacher : ITeacher
     public CameraGroupOffsetTeacher(ICoorSystem coorSystem, LaserMachine laserMachine,
         ISettingsManager<LaserMachineSettings> settingsManager, double waferThickness, double width, double height, IEnumerable<(double, double)> points)
     {
-        _coordinates = points.Select(p =>
-        {
-            var res = coorSystem.ToGlobal(p.Item1, p.Item2);
-            return (res[0], res[1]);
-        }).ToList();
+        
         _laserMachine = laserMachine;
         _settingsManager = settingsManager;
         _waferThickness = waferThickness;
@@ -47,11 +43,20 @@ internal class CameraGroupOffsetTeacher : ITeacher
         _xOffset = _settingsManager.Settings.XOffset ?? throw new ArgumentNullException("XOffset is null");
         _yOffset = _settingsManager.Settings.YOffset ?? throw new ArgumentNullException("YOffset is null");
 
-
+        _coordinates = points.Select(p =>
+                {
+                    //var res = coorSystem.ToGlobal(p.Item1, p.Item2);
+                    //return (res[0], res[1]);
+                    return (p.Item1 + _settingsManager.Settings.XLeftPoint!.Value, 
+                    p.Item2 + _settingsManager.Settings.YLeftPoint!.Value);
+                })
+            .OrderBy(p=>p.Item2)
+            .Skip(0)
+            //.Take(10)
+            .ToList();
 
 
         _stateMachine = new StateMachine<MyState, MyTrigger>(MyState.Begin, FiringMode.Queued);
-        //(double x, double y) coordinate = (0,0);
         (double xact, double yact, double xcmd, double ycmd, double x, double y) coordinate = (0, 0, 0, 0, 0, 0);
 
         if (_reentry) throw new Exception("The sequence has no elements.");
@@ -76,22 +81,20 @@ internal class CameraGroupOffsetTeacher : ITeacher
             {
                 Growl.Clear();
                 coordinate = _enumerator.Current;
-
+                _laserMachine.SetVelocity(Velocity.Service);
 
                 await Task.WhenAll(
                      _laserMachine.MoveAxInPosAsync(Ax.X, coordinate.x, true),
                      _laserMachine.MoveAxInPosAsync(Ax.Y, coordinate.y, true),
                      _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
                      );
+                _laserMachine.SetVelocity(Velocity.Step);
+
                 Growl.Info(""" Совместите перекрестие и нажмите "*" """);
                 _reentry = _enumerator.MoveNext();
             })
             .OnExit(() =>
             {
-                //_settingsManager.Settings.OffsetPoints.GetOffsetByCurCoor(coordinate.x, coordinate.y, ref _xOffset, ref _yOffset);
-
-                //_xOffset = coordinate.x + _xOffset - _laserMachine.GetAxActual(Ax.X);
-                //_yOffset = coordinate.y + _yOffset - _laserMachine.GetAxActual(Ax.Y); 
                 _xOffset = coordinate.xact - _laserMachine.GetAxActual(Ax.X);
                 _yOffset = coordinate.yact - _laserMachine.GetAxActual(Ax.Y);
                 var xOffsetCmd = coordinate.xcmd - _laserMachine.GetAxCmd(Ax.X);
@@ -225,7 +228,17 @@ internal class CameraGroupOffsetTeacher : ITeacher
         {
             //continue;
 
-            _settingsManager.Settings.OffsetPoints.GetOffsetByCurCoor(coordinate.x, coordinate.y, ref _xOffset, ref _yOffset);
+            try
+            {
+                _settingsManager.Settings.OffsetPoints?.GetOffsetByCurCoor(coordinate.x, coordinate.y, ref _xOffset, ref _yOffset);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                _xOffset = _settingsManager.Settings.XOffset!.Value;
+                _yOffset = _settingsManager.Settings.YOffset!.Value;
+            }
+
+            _laserMachine.SetVelocity(Velocity.Service);
 
             await Task.WhenAll(
                 _laserMachine.MoveAxInPosAsync(Ax.X, coordinate.x + _xOffset, true),

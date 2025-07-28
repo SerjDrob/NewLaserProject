@@ -82,7 +82,6 @@ namespace NewLaserProject.ViewModels
             {
                 StepIndex++;
                 _laserMachine.SetVelocity(Velocity.Service);
-                //await _laserMachine.GoThereAsync(LMPlace.Loading);
                 Growl.Info(new GrowlInfo
                 {
                     Message = "Установите подложку и нажмите * чтобы продолжить",
@@ -94,11 +93,7 @@ namespace NewLaserProject.ViewModels
                 {
                     StepIndex++;
                     _laserMachine.SetVelocity(Velocity.Service);
-                    //await Task.WhenAll(
-                    //    _laserMachine.MoveAxInPosAsync(Ax.X, teachPosition[0]),
-                    //    _laserMachine.MoveAxInPosAsync(Ax.Y, teachPosition[1]),
-                    //    _laserMachine.MoveAxInPosAsync(Ax.Z, zCamera - waferThickness)
-                    //    );
+                    
                     Growl.Info(new GrowlInfo
                     {
                         Message = "Выбирете место прожига и нажмите * чтобы продолжить",
@@ -117,6 +112,11 @@ namespace NewLaserProject.ViewModels
                         _settingsManager.Settings.OffsetPoints.GetOffsetByCurCoor(xAct, yAct, ref xOffset, ref yOffset);
                     }
                     catch (InvalidOperationException)
+                    {
+                        xOffset = _settingsManager.Settings.XOffset ?? throw new NullReferenceException("XOffset is null in the settings");
+                        yOffset = _settingsManager.Settings.YOffset ?? throw new NullReferenceException("YOffset is null in the settings");
+                    }
+                    catch(IndexOutOfRangeException)
                     {
                         xOffset = _settingsManager.Settings.XOffset ?? throw new NullReferenceException("XOffset is null in the settings");
                         yOffset = _settingsManager.Settings.YOffset ?? throw new NullReferenceException("YOffset is null in the settings");
