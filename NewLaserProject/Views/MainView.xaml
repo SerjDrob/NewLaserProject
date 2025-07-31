@@ -57,6 +57,18 @@
                                    EventArgsConverterParameter="{StaticResource FALSE}"
                                    />
         </i:EventTrigger>
+        
+        <!--<i:EventTrigger EventName="PreviewKeyDown">
+            <i:InvokeCommandAction Command="{Binding PrevKeyDownCommand, Mode=OneWay}" 
+                                   PassEventArgsToCommand="True"
+                                   />
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="PreviewKeyUp">
+            <i:InvokeCommandAction Command="{Binding PrevKeyUpCommand, Mode=OneWay}" 
+                                   PassEventArgsToCommand="True"
+                                   />
+        </i:EventTrigger>-->
     </i:Interaction.Triggers>
 
     <Grid>
@@ -604,9 +616,9 @@
                 <hc:TextBox Text="{Binding TestX}" hc:TitleElement.Title="TestX" hc:TitleElement.TitlePlacement="Left"/>
                 <hc:TextBox Text="{Binding TestY}" hc:TitleElement.Title="TestY" hc:TitleElement.TitlePlacement="Left"/>
             </ToolBar>
-            <ToolBar>
+            <!--<ToolBar>
                 <Button Content="CheckHatch" Command="{Binding CheckHatchCommand}"/>
-            </ToolBar>
+            </ToolBar>-->
         </ToolBarTray>
         <TabControl Margin="1" Grid.Column="1" Style="{StaticResource TabControlCapsule}">
             <TabItem Header="Процесс">
@@ -1106,13 +1118,13 @@
                     <ContentControl Content="{Binding StatisticsVM}"/>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="Console" TabIndex="3">
+            <!--<TabItem Header="Console" TabIndex="3">
                 <wpfconsole:WPFConsole ConsoleSink="{Binding WpfConsole}"/>
             </TabItem>
             <TabItem Header="Nodes" VerticalAlignment="Top">
-                <!--<ContentControl Content="{Binding NodesVM}"/>-->
+                --><!--<ContentControl Content="{Binding NodesVM}"/>--><!--
                 <ContentControl Content="{Binding PlotControl, Mode=OneTime}"/>
-            </TabItem>
+            </TabItem>-->
             <!--<TabItem>
                 <skia:SKGLElement PaintSurface="OnPaintSurface"
                                 MouseWheel="OnMouseWheel"

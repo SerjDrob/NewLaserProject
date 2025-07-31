@@ -35,6 +35,7 @@ using ScottPlot.WPF;
 using MsgBox = HandyControl.Controls.MessageBox;
 using MachineClassLibrary.GeometryUtility.CurveOffset;
 using HandyControl.Expression.Media;
+using Tang.Library.Common.Component.Extensions;
 
 namespace NewLaserProject.ViewModels
 {
@@ -591,6 +592,8 @@ namespace NewLaserProject.ViewModels
                 plsInLogic = _settingsManager.Settings.XInvertEncoder.GetValueOrDefault(false) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
                 homeVelLow = _settingsManager.Settings.XHomeVelLow.GetValueOrDefault(),
                 homeVelHigh = _settingsManager.Settings.XVelService ?? throw new ArgumentNullException("XVelService is null"),
+                ratio = _settingsManager.Settings.XRatio.GetValueOrDefault(1),
+                lineDiscrete = _settingsManager.Settings.XLineDiscrete.GetValueOrDefault(0.001)
             };
             var ypar = new MotionDeviceConfigs
             {
@@ -608,7 +611,9 @@ namespace NewLaserProject.ViewModels
                 plsInMde = (int)PlsInMode.AB_4X,
                 plsInLogic = _settingsManager.Settings.YInvertEncoder.GetValueOrDefault(false) ? (int)PlsInLogic.INV_DIR : (int)PlsInLogic.NO_INV_DIR,
                 homeVelLow = _settingsManager.Settings.YHomeVelLow.GetValueOrDefault(),
-                homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null")
+                homeVelHigh = _settingsManager.Settings.YVelService ?? throw new ArgumentNullException("YVelService is null"),
+                ratio = _settingsManager.Settings.YRatio.GetValueOrDefault(1),
+                lineDiscrete = _settingsManager.Settings.YLineDiscrete.GetValueOrDefault(0.001)
             };
             var zpar = new MotionDeviceConfigs
             {
@@ -625,6 +630,8 @@ namespace NewLaserProject.ViewModels
                 denominator = _settingsManager.Settings.ZDenominator.GetValueOrDefault(1),
                 homeVelLow = _settingsManager.Settings.ZHomeVelLow.GetValueOrDefault(),
                 homeVelHigh = _settingsManager.Settings.ZVelService ?? throw new ArgumentNullException("ZVelService is null"),
+                ratio = _settingsManager.Settings.ZRatio.GetValueOrDefault(1),
+                lineDiscrete = _settingsManager.Settings.ZLineDiscrete.GetValueOrDefault(0.001)
             };
 
             try

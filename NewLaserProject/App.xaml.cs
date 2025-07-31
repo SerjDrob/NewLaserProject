@@ -196,7 +196,7 @@ namespace NewLaserProject
         //private WorkTimeLogger _workTimeLogger;
         protected override async void OnStartup(StartupEventArgs e)//TODO Bad 
         {
-            AllocConsole();
+            //AllocConsole();
            
             Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 

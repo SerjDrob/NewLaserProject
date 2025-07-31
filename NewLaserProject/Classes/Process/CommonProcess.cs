@@ -127,8 +127,8 @@ namespace NewLaserProject.Classes.Process
             //    (-45.35, -45.371), (-46.55, -46.570), (-47.75, -47.768), (-48.95, -48.972), (-50.15, -50.172),
             //    (-51.35, -51.372), (-52.55, -52.573), (-53.75, -53.774), (-54.95, -54.977), (-56.15, -56.176),
             //    (-57.35, -57.378));
-            _xCoeffLine = true ? coeffLineX : new((-200, -200), (200, 200));
-            _yCoeffLine = true ? coeffLineY : new((-200, -200), (200, 200));
+            _xCoeffLine = false ? coeffLineX : new((-200, -200), (200, 200));
+            _yCoeffLine = false ? coeffLineY : new((-200, -200), (200, 200));
             _invertEntAngle = invertEntAngle;
         }
 

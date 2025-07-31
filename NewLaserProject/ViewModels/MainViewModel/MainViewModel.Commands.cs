@@ -273,6 +273,31 @@ namespace NewLaserProject.ViewModels
         public ObjectForProcessing IndividualProcObject { get; private set; }
         public double IndividualProcDiameter { get; set; }
         public bool IsIndividualProcessing { get; set; } = false;
+
+        [ICommand]
+        private async Task PrevKeyDown(KeyEventArgs args)
+        {
+            if (args.Key != Key.A) return;
+            await _laserMachine.MoveAxRelativeAsync(Ax.Y, 0.005);
+            await Task.Delay(200);
+            if (!args.IsUp)
+            {
+                _laserMachine.GoWhile(Ax.Y, AxDir.Pos);
+            }
+            args.Handled = true;
+        }
+        
+        [ICommand]
+        private async Task PrevKeyUp(KeyEventArgs args)
+        {
+            if (args.Key != Key.A) return;
+            _laserMachine.Stop(Ax.Y);
+            args.Handled = true;
+        }
+
+
+
+
         [ICommand]
         private void StartMeasuring(bool isChecked)
         {
